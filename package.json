@@ -20,7 +20,7 @@
     "dayjs": "^1.11.13",
     "eslint-config-next": "^14.2.4",
     "lucide-react": "^0.483.0",
-    "next": "^14.2.4",
+    "next": "14.2.4",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.9",
     "react-datepicker": "^4.25.0",
