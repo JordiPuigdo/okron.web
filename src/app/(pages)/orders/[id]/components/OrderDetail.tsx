@@ -22,7 +22,6 @@ export default function OrderDetail({ id }: OrderDetailProps) {
     fetchOrder();
   }, [id]);
 
-  if (order)
-    return <OrderForm id={''} isPurchase={false} orderRequest={order!} />;
+  if (order) return <OrderForm isPurchase={false} orderRequest={order!} />;
   return <div>Cargando...</div>;
 }

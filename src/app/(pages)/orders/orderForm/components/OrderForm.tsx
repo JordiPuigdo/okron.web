@@ -34,13 +34,11 @@ import SearchSparePartOrderPurchase from './SearchSparePart';
 dayjs.extend(utc);
 
 export interface OrderFormProps {
-  id?: string;
   isPurchase?: boolean;
   orderRequest?: Order;
 }
 
 export default function OrderForm({
-  id,
   isPurchase,
   orderRequest,
 }: OrderFormProps) {

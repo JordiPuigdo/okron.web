@@ -6,17 +6,17 @@ import { useSearchParams } from 'next/navigation';
 
 import OrderForm from './components/OrderForm';
 
-interface OrderFormProps {
-  params: { id: string; isPurchase: boolean };
-}
-
-export default function OrderFormPage({ params }: OrderFormProps) {
+function OrderFormContent() {
   const searchParams = useSearchParams();
   const isPurchase = searchParams.get('isPurchase') === 'true';
+  return <OrderForm isPurchase={isPurchase} />;
+}
+
+export default function OrderFormPage() {
   return (
     <MainLayout>
       <Container>
-        <OrderForm id={params.id} isPurchase={isPurchase} />
+        <OrderFormContent />
       </Container>
     </MainLayout>
   );
