@@ -123,8 +123,8 @@ const filtersWareHouse: Filters[] = [
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Descripció',
-    key: 'description',
+    label: 'Proveïdor',
+    key: 'providerName',
     format: FiltersFormat.TEXT,
   },
 ];

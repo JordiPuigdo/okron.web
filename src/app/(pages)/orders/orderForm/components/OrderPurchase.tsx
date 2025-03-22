@@ -1,5 +1,6 @@
 import { OrderSimple } from 'app/interfaces/Order';
 import { formatDate } from 'app/utils/utils';
+import { translateOrderStatus } from 'app/utils/utilsOrder';
 
 export interface OrderPurchaseProps {
   order: OrderSimple;
@@ -29,7 +30,9 @@ export default function OrderPurchase({ order }: OrderPurchaseProps) {
         </div>
         <div className="flex justify-between gap-4">
           <div className="text-sm font-medium text-gray-900">Estat:</div>
-          <div className="text-sm text-gray-500">{order.status}</div>
+          <div className="text-sm text-gray-500">
+            {translateOrderStatus(order.status)}
+          </div>
         </div>
       </div>
     </div>

@@ -204,16 +204,30 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
     });
   }
 
+  function handleUpdateIsDefault(providerId: string) {
+    setSparePart(prevSparePart => {
+      if (!prevSparePart) return prevSparePart;
+      return {
+        ...prevSparePart,
+        providers: prevSparePart.providers.map(provider =>
+          provider.providerId === providerId
+            ? { ...provider, isDefault: !provider.isDefault }
+            : provider
+        ),
+      };
+    });
+  }
+
   const headerText = sparePartLoaded ? 'Editar Recanvi' : 'Crear Recanvi';
 
   return (
-    <Container>
+    <>
       <HeaderForm
         header={headerText}
         isCreate={sparePartLoaded ? false : true}
       />
       <div className="flex flex-col bg-white p-6 rounded-md shadow-md my-4 gap-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-1 xl:grid-cols-3 gap-6">
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-4 p-4 border rounded-md"
@@ -361,7 +375,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                   ))}
               </div>
             </div>
-            <div className="border rounded-md p-2 h-full">
+            <div className="flex flex-col border rounded-md p-2 gap-2">
               <h2 className="font-semibold mb-2">Selecciona Proveïdor</h2>
               <ProviderToSparePartRequest
                 sparePart={sparePart!}
@@ -371,12 +385,13 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                 sparePart={sparePart!}
                 handleRemoveProvider={handleRemoveProvider}
                 handleUpdatePrice={handleUpdatePrice}
+                handleUpdateIsDefault={handleUpdateIsDefault}
               />
             </div>
           </div>
           <DocumentationSparePart sparePart={sparePart!} />
         </div>
-        <div className="flex gap-4">
+        <div className="flex mt-auto bottom-0 items-end h-full">
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"
@@ -402,20 +417,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
           )}
         </div>
       </div>
-      <div className="p-4 flex-grow rounded-md shadow-md bg-gray-200">
-        <p className="font-semibold">Històric de consums</p>
-        {sparePart?.id && (
-          <SparePartTable
-            sparePartId={sparePart!.id}
-            enableFilters={false}
-            enableDetail={true}
-            enableDelete={false}
-            enableCreate={false}
-            enableFilterActive={false}
-          />
-        )}
-      </div>
-    </Container>
+    </>
   );
 };
 

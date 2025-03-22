@@ -2,7 +2,7 @@ import { OrderItemRequest } from 'app/interfaces/Order';
 
 interface OrderPurchaseDetailItemsProps {
   items: OrderItemRequest[];
-  handleRecieveItem: (orderItem: OrderItemRequest) => void;
+  handleRecieveItem: (orderItem: OrderItemRequest, isPartial: boolean) => void;
   isOrderPurchase: boolean;
 }
 
@@ -30,6 +30,7 @@ export default function OrderPurchaseDetailItems({
           </thead>
           <tbody>
             {items.map((item, index) => {
+              const isDisabled = item.quantity == 0;
               return (
                 <tr key={index} className="border-t">
                   <td className="p-2 border">
@@ -45,16 +46,31 @@ export default function OrderPurchaseDetailItems({
                   </td>
                   <td className="border p-2 text-center">
                     {isOrderPurchase ? (
-                      <button
-                        className="flex w-full bg-red-500 justify-center text-white px-2 py-1 rounded-md hover:bg-red-600"
-                        onClick={() => handleRecieveItem(item)}
-                      >
-                        Recepcionar
-                      </button>
+                      <div className="flex flex-row gap-2 items-center">
+                        <button
+                          className={`flex w-full bg-blue-500 justify-center text-white px-2 py-1 rounded-md hover:bg-blue-600 ${
+                            isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                          onClick={() => handleRecieveItem(item, false)}
+                          disabled={isDisabled}
+                        >
+                          +
+                        </button>
+                        <button
+                          className={`flex w-full bg-orange-500 justify-center text-white px-2 py-1 rounded-md hover:bg-orange-600 ${
+                            isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                          onClick={() => handleRecieveItem(item, true)}
+                          disabled={isDisabled}
+                        >
+                          Parcial
+                        </button>
+                      </div>
                     ) : (
                       <button
                         className="flex w-full bg-red-500 justify-center text-white px-2 py-1 rounded-md hover:bg-red-600"
-                        onClick={() => handleRecieveItem(item)}
+                        onClick={() => handleRecieveItem(item, false)}
+                        disabled={isDisabled}
                       >
                         Retornar
                       </button>

@@ -11,6 +11,8 @@ export interface Provider extends BaseModel {
   phoneNumber: string;
   email: string;
   whatsappNumber: string;
+  accountNumber: string;
+  paymentMethod: string;
 }
 
 export interface ProviderRequest {
@@ -23,10 +25,13 @@ export interface ProviderRequest {
   phoneNumber: string;
   email: string;
   whatsappNumber: string;
+  accountNumber: string;
+  paymentMethod: string;
 }
 
 export interface UpdateProviderRequest extends ProviderRequest {
   id: string;
+  active: boolean;
 }
 
 export interface AddSparePartProvider {
@@ -37,6 +42,7 @@ export interface AddSparePartProvider {
 export interface SparePartProviderRequest {
   providerId: string;
   price: string;
+  isDefault: boolean;
 }
 
 export interface ProviderResponse extends Provider {

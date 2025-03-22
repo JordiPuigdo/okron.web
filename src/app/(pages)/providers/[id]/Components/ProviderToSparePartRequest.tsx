@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useProviders } from 'app/hooks/useProviders';
 import { Provider, SparePartProviderRequest } from 'app/interfaces/Provider';
 import SparePart from 'app/interfaces/SparePart';
-import { Button } from 'designSystem/Button/Buttons';
 
 interface ProviderToSparePartRequestProps {
   sparePart: SparePart;
@@ -17,6 +16,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
     Provider | undefined
   >(undefined);
   const [price, setPrice] = useState('');
+  const [isDefault, setIsDefault] = useState(false);
   const { providers } = useProviders(true);
   const [searchText, setSearchText] = useState('');
   const filteredProviders = providers?.filter(
@@ -55,6 +55,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
           providerId: request.providerId,
           price: request.price,
           provider: providers?.find(x => x.id === request.providerId),
+          isDefault: request.isDefault,
         },
       ];
     }
@@ -69,6 +70,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
     handleAssignProviderToSparePart({
       providerId: selectedProvider!.id,
       price: finalPrice,
+      isDefault: isDefault,
     });
   }
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -106,35 +108,53 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
         </div>
       )}
       {selectedProvider && (
-        <div
-          className={`flex flex-row gap-2 border p-2 items-center w-full ${
-            selectedProvider && 'border-red-500'
-          }`}
-        >
-          <div className="w-full">
-            {selectedProvider?.name} - {selectedProvider?.city}
+        <div className="bg-white rounded-lg border border-gray-200 mt-1">
+          <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-gray-50 text-sm text-gray-600 border-b">
+            <span className="col-span-4">Proveïdor</span>
+            <span className="col-span-3">Preu</span>
+            <span className="col-span-2 text-center">Habitual</span>
+            <span className="col-span-3 text-right">Accions</span>
           </div>
-          <PriceInput
-            price={price}
-            setPrice={setPrice}
-            onKeyDown={handleKeyDown}
-          />
-          <div className="flex w-[12%] gap-2">
-            <Button
-              type="create"
-              customStyles="gap-2 flex items-center justify-center w-full p-2"
-              onClick={() => handleAddProvider()}
-            >
-              +
-            </Button>
 
-            <Button
-              type="cancel"
-              customStyles="flex items-center justify-center w-full p-2"
-              onClick={() => setSelectedProvider(undefined)}
-            >
-              -
-            </Button>
+          <div className="grid grid-cols-12 gap-2 px-3 py-2 items-center text-sm">
+            <div className="col-span-4 truncate">
+              <span className="font-medium">{selectedProvider.name}</span>
+              <span className="text-gray-500 ml-1">
+                - {selectedProvider.city}
+              </span>
+            </div>
+
+            <div className="col-span-3">
+              <PriceInput
+                price={price}
+                setPrice={setPrice}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+
+            <div className="col-span-2 flex justify-center">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-gray-300 text-blue-600"
+                checked={isDefault}
+                onChange={() => setIsDefault(!isDefault)}
+              />
+            </div>
+
+            <div className="col-span-3 flex justify-end gap-1">
+              <button
+                onClick={() => handleAddProvider()}
+                className="px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm"
+              >
+                +
+              </button>
+              <button
+                onClick={() => setSelectedProvider(undefined)}
+                className="px-2 py-1 bg-gray-400 hover:bg-gray-500 text-white rounded text-sm"
+              >
+                ×
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -148,11 +168,13 @@ interface PriceInputProps {
   price: string;
   setPrice: (price: string) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  className?: string;
 }
 const PriceInput: React.FC<PriceInputProps> = ({
   price,
   setPrice,
   onKeyDown,
+  className,
 }) => {
   const handleSetPrice = (value: string) => {
     if (/^\d*\.?\d*$/.test(value)) {
@@ -161,7 +183,7 @@ const PriceInput: React.FC<PriceInputProps> = ({
   };
 
   return (
-    <div className="w-[25%]">
+    <div className={className}>
       <input
         placeholder="Preu"
         value={price}

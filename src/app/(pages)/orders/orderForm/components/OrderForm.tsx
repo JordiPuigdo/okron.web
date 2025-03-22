@@ -23,6 +23,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
 import ModalOrderWareHouse from './ModalOrderWareHouse';
+import ModalUnits from './ModalUnits';
 import OrderDetailItems from './OrderDetailItems';
 import OrderPurchase from './OrderPurchase';
 import OrderPurchaseDetailItems from './OrderPurchaseDetailItems';
@@ -30,6 +31,7 @@ import ProviderInfo from './ProviderInfo';
 import SearchOrderComponent from './SearchOrderComponent';
 import SearchProviderComponent from './SearchProviderComponent';
 import SearchSparePartOrderPurchase from './SearchSparePart';
+import { generateNameHeader, mapItems } from './utilsOrder';
 
 dayjs.extend(utc);
 
@@ -43,6 +45,9 @@ export default function OrderForm({
   orderRequest,
 }: OrderFormProps) {
   const { setIsModalOpen, isModalOpen } = useGlobalStore(state => state);
+  const [isModalUnitsOpen, setIsModalUnitsOpen] = useState<boolean>(false);
+  const [isModalWareHouseOpen, setIsModalWareHouseOpen] =
+    useState<boolean>(false);
   const { createOrder, getNextCode, updateOrder } = useOrder();
   const { warehouses } = useWareHouses(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -71,9 +76,13 @@ export default function OrderForm({
   const [selectedWareHouseId, setSelectedWareHouseId] = useState<string | null>(
     null
   );
+
+  const [selectedOrderItem, setSelectedOrderItem] = useState<
+    OrderItemRequest | undefined
+  >(undefined);
+
   const fetchCode = async () => {
     try {
-      console.log('fetchCode');
       const code = await getNextCode(
         isPurchase ? OrderType.Purchase : OrderType.Delivery
       );
@@ -99,14 +108,43 @@ export default function OrderForm({
 
   useEffect(() => {
     if (selectedSparePart && selectedSparePart?.wareHouseId.length > 1) {
-      setIsModalOpen(true);
+      setIsModalWareHouseOpen(true);
       return;
     }
   }, [selectedSparePart]);
 
+  useEffect(() => {
+    if (!isModalOpen && isModalUnitsOpen) {
+      setIsModalUnitsOpen(false);
+    }
+    if (!isModalOpen && isModalWareHouseOpen) {
+      setIsModalWareHouseOpen(false);
+    }
+  }, [isModalOpen]);
+
   const onSelectedId = (id: string) => {
     setSelectedWareHouseId(id);
-    setIsModalOpen(false);
+    setIsModalWareHouseOpen(false);
+  };
+
+  const onAddUnits = (units: number, sparePartId: string) => {
+    const item = orderPurchase?.items.find(x => x.sparePartId === sparePartId);
+    if (item) {
+      const newItem: OrderItemRequest = {
+        sparePartId: item.sparePartId,
+        sparePart: item.sparePart,
+        quantity: units,
+        unitPrice: item.unitPrice,
+        wareHouseId: item.wareHouseId,
+        wareHouse: item.wareHouse,
+      };
+      item.quantity = item.quantity - units;
+      setOrder({
+        ...order,
+        items: [...order.items, newItem],
+      });
+    }
+    setIsModalUnitsOpen(false);
   };
 
   const handleAddOrderItem = (item: OrderItemRequest) => {
@@ -173,94 +211,91 @@ export default function OrderForm({
         ...order,
         items: [],
       });
-
     setSelectedProvider(provider);
   };
 
   function loadOrder(orderSelected: Order) {
-    const items = orderSelected.items.map(x => {
-      return {
-        id: x.id,
-        sparePartId: x.sparePartId,
-        quantity: x.quantity,
-        unitPrice: x.unitPrice.toString(),
-        sparePart: x.sparePart,
-        wareHouseId: x.wareHouseId,
+    if (isPurchase) {
+      setOrder(prev => ({
+        ...prev,
         providerId: orderSelected.providerId,
-        creationDate: orderSelected.creationDate,
-        wareHouse: x.wareHouse,
-        active: true,
-      };
-    });
-    setOrder(prev => ({
-      ...prev,
-      providerId: orderSelected.providerId,
-      relationOrderId: orderSelected.id,
-      code: orderSelected.code,
-      status: orderSelected.status,
-      type: orderSelected.type,
-      comment: orderSelected.comment,
-      date: orderSelected.date,
-      active: orderSelected.active,
-      operatorId: '66156dc51a7347dfd58d8ca8',
-      items: items,
-    }));
-
-    setSelectedProvider(orderSelected.provider);
-
-    setIsLoading(false);
-  }
-
-  function onSelectedOrderChange(orderSelected: Order) {
-    console.log(orderSelected.code);
-    const items = orderSelected.items.map(x => {
-      return {
-        id: x.id,
-        sparePartId: x.sparePartId,
-        quantity: x.quantity,
-        unitPrice: x.unitPrice.toString(),
-        sparePart: x.sparePart,
-        wareHouseId: x.wareHouseId,
-        providerId: orderSelected.providerId,
+        relationOrderId: orderSelected.id,
+        code: orderSelected.code,
+        status: orderSelected.status,
+        type: orderSelected.type,
+        comment: orderSelected.comment,
+        date: orderSelected.date,
+        active: orderSelected.active,
+        operatorId: '66156dc51a7347dfd58d8ca8',
+        items: mapItems(orderSelected, warehouses),
+      }));
+      setSelectedProvider(orderSelected.provider);
+      setIsLoading(false);
+    } else {
+      setOrderPurchase({
+        id: orderSelected.id,
         creationDate: orderSelected.creationDate,
         active: true,
-      };
-    });
-    setOrderPurchase({
-      id: orderSelected.id,
-      creationDate: orderSelected.creationDate,
-      active: true,
-      code: orderSelected.code,
-      providerId: orderSelected.providerId,
-      items: items,
-      status: orderSelected.status,
-      type: orderSelected.type,
-      comment: orderSelected.comment,
-      date: orderSelected.date,
-      provider: orderSelected.provider,
-    });
-    setOrder(prev => ({
-      ...prev,
-      providerId: orderSelected.providerId,
-      relationOrderId: orderSelected.id,
-      operatorId: '66156dc51a7347dfd58d8ca8',
-    }));
-  }
-
-  const headerName = generateNameHeader();
-
-  function generateNameHeader() {
-    if (orderRequest != null) {
-      return orderRequest.code;
+        code: orderSelected.code,
+        providerId: orderSelected.providerId,
+        items: mapItems(orderSelected, warehouses),
+        status: orderSelected.status,
+        type: orderSelected.type,
+        comment: orderSelected.comment,
+        date: orderSelected.date,
+        provider: orderSelected.provider,
+      });
+      setOrder(prev => ({
+        ...prev,
+        providerId: orderSelected.providerId,
+        relationOrderId: orderSelected.id,
+        operatorId: '66156dc51a7347dfd58d8ca8',
+      }));
     }
-    return isPurchase ? 'Crear Compra' : 'Crear Recepció';
   }
 
-  function handleRecieveItem(item: OrderItemRequest) {
-    setOrder({
-      ...order,
-      items: [...order.items, item],
-    });
+  const headerName = generateNameHeader(isPurchase!, orderRequest);
+
+  function handleRecieveItem(item: OrderItemRequest, isPartial: boolean) {
+    if (isPartial) {
+      setSelectedOrderItem(item);
+      setIsModalUnitsOpen(true);
+    } else {
+      const itemExists = order.items.find(
+        x => x.sparePartId === item.sparePartId
+      );
+      if (itemExists) {
+        const updatedOrder = {
+          ...order,
+          items: order.items.map(x =>
+            x.sparePartId === item.sparePartId
+              ? { ...x, quantity: x.quantity + item.quantity }
+              : x
+          ),
+        };
+        setOrder(updatedOrder);
+      } else {
+        const updatedOrder = {
+          ...order,
+          items: [...order.items, item],
+        };
+        setOrder(updatedOrder);
+      }
+
+      if (orderPurchase?.items) {
+        const updatedOrderPurchaseItems = orderPurchase.items.map(x => {
+          if (x.sparePartId === item.sparePartId) {
+            return { ...x, quantity: x.quantity - item.quantity }; // Reduce the quantity
+          }
+          return x;
+        });
+
+        setOrderPurchase({
+          ...orderPurchase,
+          items: updatedOrderPurchaseItems,
+        });
+      }
+    }
   }
 
   const handleDateChange = (date: any) => {
@@ -276,6 +311,25 @@ export default function OrderForm({
       ...order,
       items: items,
     });
+  }
+
+  function handleReturnItem(item: OrderItemRequest) {
+    setOrder(prev => ({
+      ...prev,
+      items: prev.items.filter(x => x.sparePartId !== item.sparePartId),
+    }));
+    if (orderPurchase?.items) {
+      const updatedOrderPurchaseItems = orderPurchase.items.map(x => {
+        if (x.sparePartId === item.sparePartId) {
+          return { ...x, quantity: x.quantity + item.quantity };
+        }
+        return x;
+      });
+      setOrderPurchase({
+        ...orderPurchase,
+        items: updatedOrderPurchaseItems,
+      });
+    }
   }
 
   if (isLoading) return <div>Loading...</div>;
@@ -357,9 +411,7 @@ export default function OrderForm({
                     onSelectedProvider={handleChangeProvider}
                   />
                 ) : (
-                  <SearchOrderComponent
-                    onSelectedOrder={onSelectedOrderChange}
-                  />
+                  <SearchOrderComponent onSelectedOrder={loadOrder} />
                 )}
               </>
             )}
@@ -395,7 +447,7 @@ export default function OrderForm({
                   isOrderPurchase={true}
                 />
                 <OrderPurchaseDetailItems
-                  handleRecieveItem={() => {}}
+                  handleRecieveItem={handleReturnItem}
                   items={order.items}
                   isOrderPurchase={false}
                 />
@@ -422,7 +474,7 @@ export default function OrderForm({
           </button>
         </div>
       </div>
-      {isModalOpen && (
+      {isModalWareHouseOpen && (
         <ModalOrderWareHouse
           wareHouseIds={
             (selectedSparePart && selectedSparePart?.wareHouseId) || []
@@ -430,6 +482,9 @@ export default function OrderForm({
           onSelectedId={onSelectedId}
           wareHouses={warehouses}
         />
+      )}
+      {isModalUnitsOpen && selectedOrderItem && (
+        <ModalUnits item={selectedOrderItem} onAddUnits={onAddUnits} />
       )}
     </div>
   );

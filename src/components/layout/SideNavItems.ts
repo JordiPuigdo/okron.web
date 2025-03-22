@@ -89,7 +89,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     title: 'Comandes',
     path: '',
     permission: [UserPermission.Administrator],
-    userType: [UserType.Maintenance],
+    userType: [UserType.Maintenance, UserType.Warehouse],
     submenu: true,
     icon: SvgReview,
     submenuItems: [
@@ -99,7 +99,15 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         path: '/orders/purchases',
         icon: SvgGear,
         permission: [UserPermission.Administrator],
-        userType: [UserType.Maintenance],
+        userType: [UserType.Maintenance, UserType.Warehouse],
+      },
+      {
+        key: generateKey(),
+        title: 'Sol·licitud Compres',
+        path: '/orders/purchases/lowStock',
+        icon: SvgGear,
+        permission: [UserPermission.Administrator],
+        userType: [UserType.Maintenance, UserType.Warehouse],
       },
       {
         key: generateKey(),
@@ -107,7 +115,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         path: '/orders/deliverys',
         icon: SvgInspect,
         permission: [UserPermission.Administrator],
-        userType: [UserType.Maintenance],
+        userType: [UserType.Maintenance, UserType.Warehouse],
       },
     ],
   },
@@ -121,7 +129,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       UserPermission.Worker,
       UserPermission.SpareParts,
     ],
-    userType: [UserType.Maintenance],
+    userType: [UserType.Maintenance, UserType.Warehouse],
   },
   {
     key: generateKey(),
@@ -144,7 +152,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     title: 'Configuració',
     path: '',
     permission: [UserPermission.Administrator],
-    userType: [UserType.Maintenance, UserType.Production],
+    userType: [UserType.Maintenance, UserType.Production, UserType.Warehouse],
     submenu: true,
     icon: SvgGear,
     submenuItems: [
@@ -162,7 +170,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         path: '/providers',
         icon: SvgMenu,
         permission: [UserPermission.Administrator],
-        userType: [UserType.Maintenance],
+        userType: [UserType.Maintenance, UserType.Warehouse],
       },
       {
         key: generateKey(),
@@ -170,7 +178,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         path: '/wareHouse',
         icon: SvgMenu,
         permission: [UserPermission.Administrator],
-        userType: [UserType.Maintenance],
+        userType: [UserType.Maintenance, UserType.Warehouse],
       },
       {
         key: generateKey(),

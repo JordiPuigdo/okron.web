@@ -30,6 +30,7 @@ export interface ProviderSpareParts {
   price: string;
   sparePart?: SparePart;
   provider?: Provider;
+  isDefault: boolean;
 }
 
 export default SparePart;

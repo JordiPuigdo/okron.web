@@ -60,6 +60,8 @@ export default function SearchSparePartOrderPurchase({
   useEffect(() => {
     if (selectedProvider) {
       fetchSparePartsByProvider(selectedProvider.id);
+    } else {
+      setSelectedSparePart(undefined);
     }
   }, [selectedProvider]);
 

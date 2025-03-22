@@ -1,4 +1,4 @@
-import { OperatorType } from "./Operator";
+import { OperatorType } from './Operator';
 
 export interface User {
   username: string;
@@ -22,11 +22,13 @@ export enum UserPermission {
   SuperAdministrator,
   SpareParts,
   Production,
+  Warehouse,
 }
 
 export enum UserType {
   Maintenance,
   Production,
+  Warehouse,
 }
 
 export interface OperatorLogged {
