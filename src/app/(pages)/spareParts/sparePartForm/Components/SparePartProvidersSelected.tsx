@@ -27,7 +27,7 @@ export default function SparePartProvidersSelected({
   }
 
   return (
-    <div className="flex flex-col ">
+    <div className="flex flex-col flex-grow ">
       <div className="flex flex-row gap-2 justify-between items-center bg-gray-100 p-3 rounded-lg">
         <div className="w-2/5 font-semibold text-gray-700">Nom</div>
         <div className="w-2/5 font-semibold text-gray-700">Ciutat</div>

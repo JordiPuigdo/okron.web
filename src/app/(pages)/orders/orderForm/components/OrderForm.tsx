@@ -1,36 +1,25 @@
 'use client';
-import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
-import DatePicker from 'react-datepicker';
 import { useOrder } from 'app/hooks/useOrder';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import {
   Order,
   OrderCreationRequest,
-  OrderItemRequest,
   OrderSimple,
   OrderStatus,
   OrderType,
 } from 'app/interfaces/Order';
 import { Provider } from 'app/interfaces/Provider';
 import SparePart from 'app/interfaces/SparePart';
-import { useGlobalStore } from 'app/stores/globalStore';
-import { translateOrderStatus } from 'app/utils/utilsOrder';
 import { HeaderForm } from 'components/layout/HeaderForm';
-import ca from 'date-fns/locale/ca';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
-import ModalOrderWareHouse from './ModalOrderWareHouse';
-import ModalUnits from './ModalUnits';
-import OrderDetailItems from './OrderDetailItems';
+import { BodyOrderForm } from './BodyOrderForm';
+import HeaderOrderForm from './HeaderOrderForm';
 import OrderPurchase from './OrderPurchase';
-import OrderPurchaseDetailItems from './OrderPurchaseDetailItems';
 import ProviderInfo from './ProviderInfo';
-import SearchOrderComponent from './SearchOrderComponent';
-import SearchProviderComponent from './SearchProviderComponent';
-import SearchSparePartOrderPurchase from './SearchSparePart';
 import { generateNameHeader, mapItems } from './utilsOrder';
 
 dayjs.extend(utc);
@@ -38,19 +27,18 @@ dayjs.extend(utc);
 export interface OrderFormProps {
   isPurchase?: boolean;
   orderRequest?: Order;
+  isPdf?: boolean;
+  purchaseOrderId?: string;
 }
 
 export default function OrderForm({
   isPurchase,
   orderRequest,
+  isPdf,
+  purchaseOrderId,
 }: OrderFormProps) {
-  const { setIsModalOpen, isModalOpen } = useGlobalStore(state => state);
-  const [isModalUnitsOpen, setIsModalUnitsOpen] = useState<boolean>(false);
-  const [isModalWareHouseOpen, setIsModalWareHouseOpen] =
-    useState<boolean>(false);
-  const { createOrder, getNextCode, updateOrder } = useOrder();
+  const { createOrder, getNextCode, updateOrder, fetchOrderById } = useOrder();
   const { warehouses } = useWareHouses(true);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [order, setOrder] = useState<OrderCreationRequest>({
     code: '',
     providerId: '',
@@ -73,24 +61,35 @@ export default function OrderForm({
   const [selectedProvider, setSelectedProvider] = useState<
     Provider | undefined
   >(undefined);
-  const [selectedWareHouseId, setSelectedWareHouseId] = useState<string | null>(
-    null
-  );
-
-  const [selectedOrderItem, setSelectedOrderItem] = useState<
-    OrderItemRequest | undefined
-  >(undefined);
 
   const fetchCode = async () => {
     try {
       const code = await getNextCode(
         isPurchase ? OrderType.Purchase : OrderType.Delivery
       );
-      setOrder({
-        ...order,
-        code: code,
-      });
-      setIsLoading(false);
+      if (purchaseOrderId) {
+        const orderResponse = await fetchOrderById(purchaseOrderId!);
+        setOrder({
+          ...order,
+          code: code,
+          providerId: orderResponse.providerId,
+          providerName: orderResponse.provider?.name,
+          relationOrderId: orderResponse.id,
+          relationOrderCode: orderResponse.code,
+        });
+        setOrderPurchase({
+          ...orderResponse,
+          items: orderResponse.items.map(x => ({
+            ...x,
+            quantityPendient: x.quantity - (x.quantityReceived ?? 0),
+          })),
+        });
+      } else {
+        setOrder({
+          ...order,
+          code: code,
+        });
+      }
     } catch (error) {
       console.error('Error al obtener el código:', error);
     }
@@ -98,87 +97,13 @@ export default function OrderForm({
 
   useEffect(() => {
     if (orderRequest == null) fetchCode();
-  }, [isPurchase, orderRequest]);
+  }, [isPurchase, orderRequest, purchaseOrderId]);
 
   useEffect(() => {
     if (orderRequest != null) {
       loadOrder(orderRequest);
     }
   }, [orderRequest]);
-
-  useEffect(() => {
-    if (selectedSparePart && selectedSparePart?.wareHouseId.length > 1) {
-      setIsModalWareHouseOpen(true);
-      return;
-    }
-  }, [selectedSparePart]);
-
-  useEffect(() => {
-    if (!isModalOpen && isModalUnitsOpen) {
-      setIsModalUnitsOpen(false);
-    }
-    if (!isModalOpen && isModalWareHouseOpen) {
-      setIsModalWareHouseOpen(false);
-    }
-  }, [isModalOpen]);
-
-  const onSelectedId = (id: string) => {
-    setSelectedWareHouseId(id);
-    setIsModalWareHouseOpen(false);
-  };
-
-  const onAddUnits = (units: number, sparePartId: string) => {
-    const item = orderPurchase?.items.find(x => x.sparePartId === sparePartId);
-    if (item) {
-      const newItem: OrderItemRequest = {
-        sparePartId: item.sparePartId,
-        sparePart: item.sparePart,
-        quantity: units,
-        unitPrice: item.unitPrice,
-        wareHouseId: item.wareHouseId,
-        wareHouse: item.wareHouse,
-      };
-      item.quantity = item.quantity - units;
-      setOrder({
-        ...order,
-        items: [...order.items, newItem],
-      });
-    }
-    setIsModalUnitsOpen(false);
-  };
-
-  const handleAddOrderItem = (item: OrderItemRequest) => {
-    if (!selectedSparePart) return;
-    const newItem: OrderItemRequest = {
-      sparePartId: selectedSparePart.id,
-      sparePart: selectedSparePart,
-      provider: selectedProvider,
-      quantity: item.quantity,
-      unitPrice: item.unitPrice,
-      wareHouseId: selectedWareHouseId
-        ? selectedWareHouseId
-        : selectedSparePart.wareHouseId[0],
-      wareHouse: warehouses.find(x =>
-        x.id == selectedWareHouseId
-          ? selectedWareHouseId
-          : selectedSparePart.wareHouseId[0]
-      ),
-    };
-
-    setOrder(prev => ({
-      ...prev,
-      items: [...prev.items, newItem],
-    }));
-
-    setSelectedSparePart(undefined);
-  };
-
-  function handleRemoveItem(index: number) {
-    setOrder(prev => ({
-      ...prev,
-      items: prev.items.filter((_, i) => i !== index),
-    }));
-  }
 
   const handleCreateOrder = async () => {
     try {
@@ -214,8 +139,11 @@ export default function OrderForm({
     setSelectedProvider(provider);
   };
 
-  function loadOrder(orderSelected: Order) {
-    if (isPurchase) {
+  async function loadOrder(orderSelected: Order) {
+    if (
+      isPurchase ||
+      (orderRequest != null && orderRequest.type == OrderType.Purchase)
+    ) {
       setOrder(prev => ({
         ...prev,
         providerId: orderSelected.providerId,
@@ -230,231 +158,83 @@ export default function OrderForm({
         items: mapItems(orderSelected, warehouses),
       }));
       setSelectedProvider(orderSelected.provider);
-      setIsLoading(false);
     } else {
+      const orderResponse = await fetchOrderById(
+        orderSelected.relationOrderId!
+      );
       setOrderPurchase({
         id: orderSelected.id,
         creationDate: orderSelected.creationDate,
         active: true,
-        code: orderSelected.code,
+        code: orderSelected.relationOrderCode ?? '',
         providerId: orderSelected.providerId,
-        items: mapItems(orderSelected, warehouses),
-        status: orderSelected.status,
-        type: orderSelected.type,
-        comment: orderSelected.comment,
-        date: orderSelected.date,
-        provider: orderSelected.provider,
+        items: mapItems(orderResponse, warehouses),
+        status: orderResponse.status,
+        type: orderResponse.type,
+        comment: orderResponse.comment,
+        date: orderResponse.date,
+        provider: orderResponse.provider,
+        relationOrderId: orderSelected.relationOrderId,
+        relationOrderCode: orderSelected.relationOrderCode,
       });
       setOrder(prev => ({
         ...prev,
+        code: orderSelected.code,
+        comment: orderSelected.comment,
+        date: orderSelected.date,
+        active: orderSelected.active,
+        deliveryProviderDate: orderSelected.deliveryProviderDate,
+        deliveryProviderCode: orderSelected.deliveryProviderCode,
         providerId: orderSelected.providerId,
-        relationOrderId: orderSelected.id,
-        operatorId: '66156dc51a7347dfd58d8ca8',
+        relationOrderId: orderSelected.relationOrderId,
+        relationOrderCode: orderSelected.relationOrderCode,
+        items: mapItems(orderSelected, warehouses),
       }));
     }
   }
 
   const headerName = generateNameHeader(isPurchase!, orderRequest);
 
-  function handleRecieveItem(item: OrderItemRequest, isPartial: boolean) {
-    if (isPartial) {
-      setSelectedOrderItem(item);
-      setIsModalUnitsOpen(true);
-    } else {
-      const itemExists = order.items.find(
-        x => x.sparePartId === item.sparePartId
-      );
-      if (itemExists) {
-        const updatedOrder = {
-          ...order,
-          items: order.items.map(x =>
-            x.sparePartId === item.sparePartId
-              ? { ...x, quantity: x.quantity + item.quantity }
-              : x
-          ),
-        };
-        setOrder(updatedOrder);
-      } else {
-        const updatedOrder = {
-          ...order,
-          items: [...order.items, item],
-        };
-        setOrder(updatedOrder);
-      }
-
-      if (orderPurchase?.items) {
-        const updatedOrderPurchaseItems = orderPurchase.items.map(x => {
-          if (x.sparePartId === item.sparePartId) {
-            return { ...x, quantity: x.quantity - item.quantity }; // Reduce the quantity
-          }
-          return x;
-        });
-
-        setOrderPurchase({
-          ...orderPurchase,
-          items: updatedOrderPurchaseItems,
-        });
-      }
-    }
-  }
-
-  const handleDateChange = (date: any) => {
-    const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
-    setOrder(prev => ({
-      ...prev,
-      date: formattedDate,
-    }));
-  };
-
-  function handleChangePrice(items: OrderItemRequest[]) {
-    setOrder({
-      ...order,
-      items: items,
+  function handleLoadOrderFromScratch(orderRequest: Order) {
+    setOrderPurchase({
+      ...orderRequest,
+      items: mapItems(orderRequest, warehouses),
     });
-  }
-
-  function handleReturnItem(item: OrderItemRequest) {
     setOrder(prev => ({
       ...prev,
-      items: prev.items.filter(x => x.sparePartId !== item.sparePartId),
+      providerId: orderRequest.providerId,
+      providerName: orderRequest.provider?.name,
+      relationOrderId: orderRequest.id,
+      relationOrderCode: orderRequest.code,
     }));
-    if (orderPurchase?.items) {
-      const updatedOrderPurchaseItems = orderPurchase.items.map(x => {
-        if (x.sparePartId === item.sparePartId) {
-          return { ...x, quantity: x.quantity + item.quantity };
-        }
-        return x;
-      });
-      setOrderPurchase({
-        ...orderPurchase,
-        items: updatedOrderPurchaseItems,
-      });
-    }
   }
 
-  if (isLoading) return <div>Loading...</div>;
   return (
     <div className="flex flex-col h-full pb-4">
       <HeaderForm header={headerName} isCreate={orderRequest == null} />
       <div className="bg-white p-4 rounded-lg shadow-md flex-grow flex flex-col space-y-4 h-full">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-semibold">Codi:</label>
-            <input
-              type="text"
-              className="w-full p-2 border rounded-md"
-              value={order.code}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold">Estat:</label>
-            <select
-              className="w-full p-2 border rounded-md"
-              value={order.status}
-              onChange={e =>
-                setOrder({
-                  ...order,
-                  status: Number(e.target.value) as OrderStatus,
-                })
-              }
-            >
-              {Object.values(OrderStatus)
-                .filter(value => typeof value === 'number')
-                .map(status => (
-                  <option key={status} value={status}>
-                    {translateOrderStatus(status as OrderStatus)}
-                  </option>
-                ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-semibold">Data:</label>
-            <DatePicker
-              dateFormat="dd/MM/yyyy"
-              locale={ca}
-              className="w-full p-2 border rounded-md"
-              selected={dayjs(order.date).toDate()}
-              onChange={date => {
-                handleDateChange(date);
-              }}
-            />
-            {orderRequest && (
-              <div className="mt-4">
-                <label className="block text-sm font-semibold">Actiu:</label>
-                <input
-                  type="checkbox"
-                  className="p-2 border rounded-md"
-                  checked={order.active}
-                  onChange={e =>
-                    setOrder({ ...order, active: e.target.checked })
-                  }
-                />
-              </div>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-semibold">Comentari:</label>
-            <textarea
-              className="w-full p-2 border rounded-md"
-              value={order.comment}
-              onChange={e => setOrder({ ...order, comment: e.target.value })}
-            />
-          </div>
-          <div>
-            {orderRequest == null && (
-              <>
-                <label className="block text-sm font-semibold">
-                  {isPurchase ? 'Proveeïdor' : 'Ordre Compra:'}
-                </label>
-                {isPurchase ? (
-                  <SearchProviderComponent
-                    onSelectedProvider={handleChangeProvider}
-                  />
-                ) : (
-                  <SearchOrderComponent onSelectedOrder={loadOrder} />
-                )}
-              </>
-            )}
-          </div>
-          <div>
-            {orderPurchase && <OrderPurchase order={orderPurchase} />}
-            {!orderPurchase && selectedProvider && (
-              <ProviderInfo provider={selectedProvider} />
-            )}
-          </div>
-        </div>
-        <div className="flex flex-col h-full">
-          {isPurchase && (
-            <SearchSparePartOrderPurchase
-              handleAddOrderItem={handleAddOrderItem}
-              onSelectedSparePart={setSelectedSparePart}
-              selectedProvider={selectedProvider}
-            />
-          )}
-          {isPurchase || orderRequest != null ? (
-            <OrderDetailItems
-              handleRemoveItem={handleRemoveItem}
-              items={order.items}
-              canEdit={orderRequest == null}
-              onChangePrice={handleChangePrice}
-            />
-          ) : (
-            orderPurchase && (
-              <>
-                <OrderPurchaseDetailItems
-                  handleRecieveItem={handleRecieveItem}
-                  items={orderPurchase.items}
-                  isOrderPurchase={true}
-                />
-                <OrderPurchaseDetailItems
-                  handleRecieveItem={handleReturnItem}
-                  items={order.items}
-                  isOrderPurchase={false}
-                />
-              </>
-            )
-          )}
-        </div>
+        <HeaderOrderForm
+          order={order}
+          setOrder={setOrder}
+          handleChangeProvider={handleChangeProvider}
+          loadOrderFromScratch={handleLoadOrderFromScratch}
+          isEditing={orderRequest != null}
+        />
+        {orderPurchase && <OrderPurchase order={orderPurchase} />}
+        {order.type == OrderType.Purchase && selectedProvider && (
+          <ProviderInfo provider={selectedProvider} />
+        )}
+        <BodyOrderForm
+          order={order}
+          isEditing={orderRequest != null}
+          selectedSparePart={selectedSparePart}
+          setSelectedSparePart={setSelectedSparePart}
+          selectedProvider={selectedProvider}
+          warehouses={warehouses}
+          setOrder={setOrder}
+          orderPurchase={orderPurchase ?? undefined}
+          setOrderPurchase={setOrderPurchase}
+        />
         <div className="mt-auto">
           <div className="flex flex-row justify-between p-4 border-t border-b my-4 px-16">
             <div className="font-bold">Total:</div>
@@ -474,18 +254,6 @@ export default function OrderForm({
           </button>
         </div>
       </div>
-      {isModalWareHouseOpen && (
-        <ModalOrderWareHouse
-          wareHouseIds={
-            (selectedSparePart && selectedSparePart?.wareHouseId) || []
-          }
-          onSelectedId={onSelectedId}
-          wareHouses={warehouses}
-        />
-      )}
-      {isModalUnitsOpen && selectedOrderItem && (
-        <ModalUnits item={selectedOrderItem} onAddUnits={onAddUnits} />
-      )}
     </div>
   );
 }

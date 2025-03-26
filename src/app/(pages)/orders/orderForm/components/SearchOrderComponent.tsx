@@ -32,6 +32,7 @@ export default function SearchOrderComponent({
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = e.target.value;
     const selected = orders?.find(sp => sp.id === selectedId);
+
     if (selected) {
       setSelectedOrder(selected);
       setSearchOrder('');
@@ -51,12 +52,17 @@ export default function SearchOrderComponent({
         onFocus={() => setSearchOrder('')}
       />
       {searchOrder && (
-        <div className="absolute w-full mt-1 bg-white border rounded-md z-10 shadow-md">
+        <div className="absolute w-[28%] mt-1 bg-white border rounded-md z-10 shadow-md">
           <select
-            className="w-1/2 p-2 border rounded-md"
+            className="w-full p-2 border rounded-md"
             onChange={handleChange}
             value={selectedOrder?.id || ''}
             size={5}
+            onClick={e => {
+              if (e.currentTarget.value === selectedOrder?.id) {
+                setSearchOrder('');
+              }
+            }}
           >
             <option value="">Selecciona una compra</option>
             {filteredOrders?.map(sp => (
@@ -67,11 +73,11 @@ export default function SearchOrderComponent({
           </select>
         </div>
       )}
-      {selectedOrder && (
+      {/* {selectedOrder && (
         <div>
           {selectedOrder.code} - {selectedOrder.providerId}
         </div>
-      )}
+      )} */}
     </div>
   );
 }

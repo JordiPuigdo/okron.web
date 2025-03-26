@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ButtonTypesTable } from '../../DataTable';
 import { TableButtons } from '../../interface/interfaceTable';
 import { EntityTable } from '../../interface/tableEntitys';
+import { OrdersButtons } from './OrdersButtonts';
 import { PreventiveButtons } from './PreventiveButtons';
 import WorkOrderOperationsInTable from './WorkOrderOperationsInTable';
 
@@ -80,6 +81,7 @@ export const TableButtonsComponent = ({
             />
           </>
         )}
+        {entity == EntityTable.ORDER && <OrdersButtons orderId={item.id} />}
       </div>
     </td>
   );

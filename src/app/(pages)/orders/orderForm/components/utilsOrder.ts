@@ -21,6 +21,9 @@ export function mapItems(orderSelected: Order, warehouses: WareHouse[]) {
       creationDate: orderSelected.creationDate,
       wareHouse: warehouses.find(w => w.id === x.wareHouseId),
       active: true,
+      quantityReceived: x.quantityReceived,
+      quantityPendient: x.quantity - (x.quantityReceived ?? 0),
+      estimatedDeliveryDate: x.estimatedDeliveryDate,
     };
   });
   return items;

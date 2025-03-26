@@ -7,9 +7,10 @@ import OrderForm from '../../orderForm/components/OrderForm';
 
 interface OrderDetailProps {
   id: string;
+  isPdf: boolean;
 }
 
-export default function OrderDetail({ id }: OrderDetailProps) {
+export default function OrderDetail({ id, isPdf }: OrderDetailProps) {
   const { fetchOrderById } = useOrder();
   const [order, setOrder] = useState<Order | null>(null);
 
@@ -22,6 +23,7 @@ export default function OrderDetail({ id }: OrderDetailProps) {
     fetchOrder();
   }, [id]);
 
-  if (order) return <OrderForm isPurchase={false} orderRequest={order!} />;
+  if (order)
+    return <OrderForm isPurchase={false} orderRequest={order!} isPdf={isPdf} />;
   return <div>Cargando...</div>;
 }

@@ -22,7 +22,12 @@ export default function OrderPurchaseDetailItems({
             <tr className="bg-gray-100">
               <th className="p-2 border w-2/5">Recanvi</th>
               <th className="p-2 border w-1/5">Magatzem</th>
-              <th className="p-2 border w-1/10">Quantitat</th>
+              <th className="p-2 border w-1/10">
+                {isOrderPurchase ? 'Quantitat Sol·licitada' : 'Quantitat'}
+              </th>
+              {isOrderPurchase && (
+                <th className="p-2 border w-1/10">Quantitat Pendent</th>
+              )}
               <th className="p-2 border w-1/10">Preu Unitari</th>
               <th className="p-2 border w-1/10">Total</th>
               <th className="p-2 border w-1/10">Acció</th>
@@ -30,16 +35,21 @@ export default function OrderPurchaseDetailItems({
           </thead>
           <tbody>
             {items.map((item, index) => {
-              const isDisabled = item.quantity == 0;
+              const isDisabled = item.quantityPendient == 0;
               return (
                 <tr key={index} className="border-t">
                   <td className="p-2 border">
-                    {item.sparePart.code || 'Unknown'}
+                    {item.sparePart.code} - {item.sparePart.description}
                   </td>
                   <td className="p-2 border text-center">
                     {item.wareHouse?.description}
                   </td>
                   <td className="p-2 border text-center">{item.quantity}</td>
+                  {isOrderPurchase && (
+                    <td className="p-2 border text-center">
+                      {item.quantityPendient}
+                    </td>
+                  )}
                   <td className="p-2 border text-center">{item.unitPrice}€</td>
                   <td className="p-2 border text-center">
                     {(item.quantity * Number(item.unitPrice)).toFixed(2)}€

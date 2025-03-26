@@ -8,6 +8,7 @@ interface OrderDetailItemsProps {
   handleRemoveItem: (index: number) => void;
   canEdit: boolean;
   onChangePrice: (items: OrderItemRequest[]) => void;
+  onChangeEstimatedDeliveryDate: (items: OrderItemRequest[]) => void;
 }
 
 export default function OrderDetailItems({
@@ -15,9 +16,25 @@ export default function OrderDetailItems({
   handleRemoveItem,
   canEdit,
   onChangePrice,
+  onChangeEstimatedDeliveryDate,
 }: OrderDetailItemsProps) {
   const [itemsDetail, setItemsDetail] = useState<OrderItemRequest[]>(items);
   const { updateSparePartPrice } = useProviders();
+
+  function handleUpdateEstimatedDeliveryDate(
+    item: OrderItemRequest,
+    date: string
+  ) {
+    const newItems = itemsDetail.map(x => {
+      if (x.sparePartId === item.sparePartId) {
+        return { ...x, estimatedDeliveryDate: date };
+      }
+      return x;
+    });
+    setItemsDetail(newItems);
+    onChangeEstimatedDeliveryDate(newItems);
+  }
+
   function handleUpdatePrice(item: OrderItemRequest, price: string) {
     if (item.unitPrice !== price) {
       updateSparePartPrice({
@@ -50,6 +67,7 @@ export default function OrderDetailItems({
               <th className="p-2 border w-2/5">Recanvi</th>
               <th className="p-2 border w-1/5">Magatzem</th>
               <th className="p-2 border w-1/10">Quantitat</th>
+              <th className="p-2 border w-1/10">Data Estimada</th>
               <th className="p-2 border w-1/10">Preu Unitari</th>
               <th className="p-2 border w-1/10">Total</th>
               <th className="p-2 border w-1/10">Acció</th>
@@ -68,6 +86,16 @@ export default function OrderDetailItems({
                     {item.wareHouse?.description}
                   </td>
                   <td className="p-2 border text-center">{item.quantity}</td>
+                  <td className="p-2 border text-center">
+                    <EditableCell
+                      value={item.estimatedDeliveryDate ?? ''}
+                      onUpdate={newValue =>
+                        handleUpdateEstimatedDeliveryDate(item, newValue)
+                      }
+                      canEdit={canEdit}
+                      type="date"
+                    />
+                  </td>
                   <td className=" justify-center gap-2">
                     <div className="flex flex-row gap-2 items-center justify-center">
                       <EditableCell

@@ -6,12 +6,10 @@ import ProviderToSparePartRequest from 'app/(pages)/providers/[id]/Components/Pr
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import SparePart from 'app/interfaces/SparePart';
 import SparePartService from 'app/services/sparePartService';
-import Container from 'components/layout/Container';
 import { HeaderForm } from 'components/layout/HeaderForm';
 import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
 
-import SparePartTable from '../components/SparePartTable';
 import DocumentationSparePart from './Components/DocumentationSparePart';
 import SparePartProvidersSelected from './Components/SparePartProvidersSelected';
 import SparePartWareHouseSelected from './Components/SparePartWareHouseSelected';
@@ -226,8 +224,8 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
         header={headerText}
         isCreate={sparePartLoaded ? false : true}
       />
-      <div className="flex flex-col bg-white p-6 rounded-md shadow-md my-4 gap-6">
-        <div className="grid md:grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="flex flex-col flex-1 bg-white p-6 rounded-md shadow-md my-4 gap-6">
+        <div className="grid md:grid-cols-1 xl:grid-cols-3 gap-6 h-full flex-1 min-h-0">
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-4 p-4 border rounded-md"
@@ -261,7 +259,10 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                   {...register('description')}
                   className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
                   onChange={e =>
-                    setSparePart({ ...sparePart!, description: e.target.value })
+                    setSparePart({
+                      ...sparePart!,
+                      description: e.target.value,
+                    })
                   }
                 />
               </div>
@@ -288,7 +289,10 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                   {...register('refProvider')}
                   className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
                   onChange={e =>
-                    setSparePart({ ...sparePart!, refProvider: e.target.value })
+                    setSparePart({
+                      ...sparePart!,
+                      refProvider: e.target.value,
+                    })
                   }
                 />
               </div>
@@ -352,8 +356,8 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
               </div>
             </div>
           </form>
-          <div className="flex flex-col justify-between h-full gap-2">
-            <div className="border rounded-md p-2 h-full">
+          <div className="flex flex-col flex-grow border rounded-md p-2">
+            <div className="flex flex-col flex-grow">
               <h2 className="font-semibold mb-2">Selecciona Magatzem</h2>
               <div>
                 <SparePartWareHouseSelected
@@ -375,7 +379,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                   ))}
               </div>
             </div>
-            <div className="flex flex-col border rounded-md p-2 gap-2">
+            <div className="flex flex-col flex-grow">
               <h2 className="font-semibold mb-2">Selecciona Proveïdor</h2>
               <ProviderToSparePartRequest
                 sparePart={sparePart!}
@@ -391,7 +395,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
           </div>
           <DocumentationSparePart sparePart={sparePart!} />
         </div>
-        <div className="flex mt-auto bottom-0 items-end h-full">
+        <div className="flex mt-auto bottom-0 items-end">
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"

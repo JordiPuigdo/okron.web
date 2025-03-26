@@ -1,11 +1,14 @@
-import MainLayout from "components/layout/MainLayout";
+import Container from 'components/layout/Container';
+import MainLayout from 'components/layout/MainLayout';
 
-import SparePartForm from "./sparePartForm";
+import SparePartForm from './sparePartForm';
 
 function SparePartsFormPage() {
   return (
     <MainLayout>
-      <SparePartForm sparePartLoaded={undefined} />
+      <Container className="flex flex-col flex-1">
+        <SparePartForm sparePartLoaded={undefined} />
+      </Container>
     </MainLayout>
   );
 }

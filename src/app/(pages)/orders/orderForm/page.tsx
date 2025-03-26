@@ -9,7 +9,13 @@ import OrderForm from './components/OrderForm';
 function OrderFormContent() {
   const searchParams = useSearchParams();
   const isPurchase = searchParams.get('isPurchase') === 'true';
-  return <OrderForm isPurchase={isPurchase} />;
+  const purchaseOrderId = searchParams.get('purchaseOrderId');
+  return (
+    <OrderForm
+      isPurchase={isPurchase}
+      purchaseOrderId={purchaseOrderId ? purchaseOrderId : undefined}
+    />
+  );
 }
 
 export default function OrderFormPage() {

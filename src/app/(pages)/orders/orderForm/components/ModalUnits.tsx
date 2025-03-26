@@ -13,6 +13,7 @@ const ModalUnits: React.FC<ModalUnitsProps> = ({ item, onAddUnits }) => {
   const { setIsModalOpen } = useGlobalStore(state => state);
   const [units, setUnits] = useState<number>(0);
   const [error, setError] = useState<string>('');
+
   function checkUnits(unitsRequested: number) {
     if (unitsRequested > item.quantity) {
       setError(
@@ -26,12 +27,29 @@ const ModalUnits: React.FC<ModalUnitsProps> = ({ item, onAddUnits }) => {
     }
   }
 
-  /* function addUnits(unitsRequested: number) {
-    checkUnits(unitsRequested);
-    if (error) return;
-    //onAddUnits(units);
-    //setIsModalOpen(false);
-  }*/
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '' || /^\d+$/.test(value)) {
+      const numValue = value === '' ? 0 : parseInt(value);
+      setUnits(numValue);
+      checkUnits(numValue);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (
+      !/^\d$/.test(e.key) &&
+      e.key !== 'Backspace' &&
+      e.key !== 'Delete' &&
+      e.key !== 'Enter'
+    ) {
+      e.preventDefault();
+    }
+
+    if (e.key === 'Enter') {
+      onAddUnits(units, item.sparePart.id);
+    }
+  };
 
   return (
     <Modal
@@ -67,22 +85,22 @@ const ModalUnits: React.FC<ModalUnitsProps> = ({ item, onAddUnits }) => {
             <div>
               Unitats:{' '}
               <input
-                type="number"
-                onChange={e => checkUnits(Number(e.target.value))}
-                value={units}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') {
-                    onAddUnits(units, item.sparePart.id);
-                  }
-                }}
-                className="border border-gray-300 rounded-md p-2"
+                type="text"
+                value={units || ''}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                className="border border-gray-300 rounded-md p-2 w-20 text-center"
+                placeholder="0"
               />
             </div>
           </div>
           <div>
             <button
-              className="bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
+              className={`bg-green-500 text-white p-2 rounded-md  ${
+                error !== '' ? 'opacity-50 ' : 'hover:bg-green-600'
+              }`}
               onClick={() => onAddUnits(units, item.sparePart.id)}
+              disabled={error !== ''}
             >
               Afegir
             </button>

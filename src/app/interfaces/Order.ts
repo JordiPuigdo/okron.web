@@ -14,6 +14,9 @@ export interface OrderSimple extends BaseModel {
   date: string;
   relationOrderId?: string;
   providerName?: string;
+  relationOrderCode?: string;
+  deliveryProviderDate?: string;
+  deliveryProviderCode?: string;
 }
 
 export interface Order extends OrderSimple {
@@ -37,10 +40,13 @@ export enum OrderType {
 export interface OrderItem extends BaseModel {
   sparePartId: string;
   quantity: number;
+  quantityReceived: number;
   unitPrice: string;
   sparePart: SparePart;
   wareHouseId: string;
   wareHouse?: WareHouse;
+  quantityPendient?: number;
+  estimatedDeliveryDate?: string;
 }
 
 export interface OrderEvents extends BaseModel {
@@ -57,12 +63,16 @@ export interface OrderCreationRequest {
   comment: string;
   date: string;
   relationOrderId?: string;
+  relationOrderCode?: string;
   operatorId?: string;
   active: boolean;
   providerName?: string;
+  deliveryProviderDate?: string;
+  deliveryProviderCode?: string;
 }
 
 export interface OrderItemRequest {
+  id?: string;
   sparePartId: string;
   sparePart: SparePart;
   quantity: number;
@@ -71,6 +81,9 @@ export interface OrderItemRequest {
   providerId?: string;
   provider?: Provider;
   wareHouse?: WareHouse;
+  quantityReceived?: number;
+  quantityPendient?: number;
+  estimatedDeliveryDate?: string;
 }
 
 export interface OrderUpdateRequest extends OrderCreationRequest {

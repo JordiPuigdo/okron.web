@@ -1,10 +1,16 @@
+import 'react-datepicker/dist/react-datepicker.css';
+
 import { useState } from 'react';
+import DatePicker from 'react-datepicker';
+import ca from 'date-fns/locale/ca';
+import dayjs from 'dayjs';
 
 export const EditableCell: React.FC<{
   value: string;
   onUpdate: (newDescription: string) => void;
   canEdit?: boolean;
-}> = ({ value, onUpdate, canEdit = true }) => {
+  type?: 'text' | 'date';
+}> = ({ value, onUpdate, canEdit = true, type = 'text' }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [newDescription, setNewDescription] = useState<string>(value);
 
@@ -20,23 +26,50 @@ export const EditableCell: React.FC<{
     }
   };
 
-  if (!canEdit) return <span>{value}</span>;
+  const handleDateChange = (date: Date | null) => {
+    if (date) {
+      onUpdate(dayjs(date).format('YYYY-MM-DD'));
+      setIsEditing(false);
+    }
+  };
+
+  if (!canEdit)
+    return (
+      <span>{type === 'date' ? dayjs(value).format('DD/MM/YYYY') : value}</span>
+    );
 
   return isEditing ? (
-    <input
-      type="text"
-      value={newDescription}
-      onChange={e => setNewDescription(e.target.value)}
-      onBlur={handleBlur}
-      onKeyDown={handleKeyDown}
-      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-    />
+    <>
+      {type === 'text' && (
+        <input
+          type="text"
+          value={newDescription}
+          onChange={e => setNewDescription(e.target.value)}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+        />
+      )}
+      {type === 'date' && (
+        <DatePicker
+          dateFormat="dd/MM/yyyy"
+          locale={ca}
+          className="rounded-md"
+          selected={dayjs(newDescription).toDate()}
+          onBlur={handleBlur}
+          onClickOutside={() => setIsEditing(false)}
+          onChange={date => {
+            handleDateChange(date);
+          }}
+        />
+      )}
+    </>
   ) : (
     <span
       onClick={() => setIsEditing(true)}
       className="cursor-pointer text-blue-500 hover:underline"
     >
-      {value}
+      {type === 'date' ? dayjs(value).format('DD/MM/YYYY') : value}
     </span>
   );
 };
