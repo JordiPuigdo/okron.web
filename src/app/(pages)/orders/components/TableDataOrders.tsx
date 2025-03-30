@@ -3,8 +3,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
 import { useOrder } from 'app/hooks/useOrder';
-import { OrderType } from 'app/interfaces/Order';
+import { OrderStatus, OrderType } from 'app/interfaces/Order';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
+import { FilterType } from 'components/table/components/Filters/FilterType';
 import DataTable from 'components/table/DataTable';
 import {
   Column,
@@ -14,6 +15,8 @@ import {
   TableButtons,
 } from 'components/table/interface/interfaceTable';
 import { EntityTable } from 'components/table/interface/tableEntitys';
+
+import { translateOrderState } from '../orderForm/components/utilsOrder';
 
 interface TableDataOrdersProps {
   orderType: OrderType;
@@ -25,6 +28,10 @@ export const TableDataOrders = ({ orderType }: TableDataOrdersProps) => {
   const [dateFilters, setDateFilters] = useState<DateFilters>({
     startDate: null,
     endDate: null,
+  });
+
+  const [filters, setFilters] = useState<{ [key: string]: OrderStatus[] }>({
+    status: [],
   });
 
   const [message, setMessage] = useState<string>('');
@@ -57,7 +64,7 @@ export const TableDataOrders = ({ orderType }: TableDataOrdersProps) => {
         to: dateFilters.endDate,
       });
     }
-  }, [dateFilters]);
+  }, [dateFilters, filters]);
 
   useEffect(() => {
     if (orders.length == 0 && dateFilters.startDate && dateFilters.endDate) {
@@ -68,14 +75,38 @@ export const TableDataOrders = ({ orderType }: TableDataOrdersProps) => {
     }
   }, [orders]);
 
+  const filteredOrders =
+    filters.status.length > 0
+      ? [...orders].filter(order => filters.status.includes(order.status))
+      : orders;
   return (
     <div className="flex flex-col h-full gap-4">
       <div className="flex bg-white p-4 rounded-xl shadow-md">
-        <DateFilter setDateFilters={setDateFilters} dateFilters={dateFilters} />
+        <div className="flex gap-4 w-full">
+          <DateFilter
+            setDateFilters={setDateFilters}
+            dateFilters={dateFilters}
+          />
+
+          <div className="flex-1">
+            <FilterType<OrderStatus>
+              filters={filters}
+              setFilters={setFilters}
+              validTypes={
+                Object.values(OrderStatus).filter(
+                  value => typeof value === 'number'
+                ) as OrderStatus[]
+              }
+              filterKey="status"
+              placeholder="Estat"
+              translateFn={translateOrderState}
+            />
+          </div>
+        </div>
         {message && <span className="text-red-500">{message}</span>}
       </div>
       <DataTable
-        data={orders}
+        data={filteredOrders}
         columns={columnsWareHouse}
         entity={EntityTable.ORDER}
         tableButtons={tableButtons}

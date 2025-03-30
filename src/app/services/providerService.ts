@@ -5,6 +5,7 @@ import {
   ProviderResponse,
   ProviderSparePartRequest,
   UpdateProviderRequest,
+  UpdateSparePartDiscountRequest,
 } from 'app/interfaces/Provider';
 
 export interface IProviderService {
@@ -16,6 +17,9 @@ export interface IProviderService {
     request: AddSparePartProvider
   ): Promise<boolean>;
   updateSparePartPrice(request: ProviderSparePartRequest): Promise<boolean>;
+  updateSparePartDiscount(
+    request: UpdateSparePartDiscountRequest
+  ): Promise<boolean>;
 }
 
 export class ProviderService implements IProviderService {
@@ -120,6 +124,31 @@ export class ProviderService implements IProviderService {
       return await response.json();
     } catch (error) {
       console.error('Error updating provider:', error);
+      throw error;
+    }
+  }
+  async updateSparePartDiscount(
+    request: UpdateSparePartDiscountRequest
+  ): Promise<boolean> {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}provider/updateSparePartDiscount`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(request),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(
+          `Failed to update spare part discount: ${response.statusText}`
+        );
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating spare part discount:', error);
       throw error;
     }
   }

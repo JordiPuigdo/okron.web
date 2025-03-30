@@ -9,7 +9,6 @@ import { Provider } from 'app/interfaces/Provider';
 import SparePart from 'app/interfaces/SparePart';
 import { WareHouse } from 'app/interfaces/WareHouse';
 import { useGlobalStore } from 'app/stores/globalStore';
-import dayjs from 'dayjs';
 
 import ModalOrderWareHouse from './ModalOrderWareHouse';
 import ModalUnits from './ModalUnits';
@@ -76,6 +75,8 @@ export function BodyOrderForm({
       provider: selectedProvider,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
+      refProvider: item.refProvider,
+      discount: item.discount,
       wareHouseId: selectedWareHouseId
         ? selectedWareHouseId
         : selectedSparePart.wareHouseId[0],
@@ -189,6 +190,8 @@ export function BodyOrderForm({
         unitPrice: exists.unitPrice,
         wareHouseId: exists.wareHouseId,
         wareHouse: exists.wareHouse,
+        refProvider: exists.refProvider,
+        discount: exists.discount,
       };
       exists.quantityPendient = (exists.quantityPendient ?? 0) - units;
       const updatedItems = order.items.map(x =>
@@ -210,6 +213,8 @@ export function BodyOrderForm({
           unitPrice: item.unitPrice,
           wareHouseId: item.wareHouseId,
           wareHouse: item.wareHouse,
+          refProvider: item.refProvider,
+          discount: item.discount,
         };
         setOrder({
           ...order,
@@ -247,6 +252,18 @@ export function BodyOrderForm({
       items: items,
     });
   }
+  function handleChangeQuantity(items: OrderItemRequest[]) {
+    setOrder({
+      ...order,
+      items: items,
+    });
+  }
+  function handleChangeDiscount(items: OrderItemRequest[]) {
+    setOrder({
+      ...order,
+      items: items,
+    });
+  }
   return (
     <div className="flex flex-col h-full">
       {order.type == OrderType.Purchase && !isEditing && (
@@ -263,6 +280,8 @@ export function BodyOrderForm({
           canEdit={!isEditing}
           onChangePrice={handleChangePrice}
           onChangeEstimatedDeliveryDate={handleChangeEstimatedDeliveryDate}
+          onChangeQuantity={handleChangeQuantity}
+          onChangeDiscount={handleChangeDiscount}
         />
       ) : (
         <>

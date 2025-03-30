@@ -1,15 +1,22 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useOrder } from 'app/hooks/useOrder';
-import { Order } from 'app/interfaces/Order';
+import {
+  PurchaseProposal,
+  PurchaseProposalItem,
+} from 'app/interfaces/PurchaseProposal';
 import { Button } from 'designSystem/Button/Buttons';
 
 export default function LowStockPurchase() {
   const { fetchLowStockOrders } = useOrder();
-  const [lowStockOrders, setLowStockOrders] = useState<Order[]>([]);
+  const [lowStockOrders, setLowStockOrders] = useState<PurchaseProposal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectAll, setSelectAll] = useState(false);
+  const [purchaseProposal, setPurchaseProposal] = useState<PurchaseProposal[]>(
+    []
+  );
+
   useEffect(() => {
     const loadOrders = async () => {
       try {
@@ -27,29 +34,127 @@ export default function LowStockPurchase() {
 
   const [search, setSearch] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     if (selectAll) {
       const allProviderIds = lowStockOrders.map(order => order.providerId);
       setSelectedOrders(new Set(allProviderIds));
+      setPurchaseProposal(lowStockOrders);
     } else {
       setSelectedOrders(new Set());
+      setPurchaseProposal([]);
     }
   }, [selectAll, lowStockOrders]);
 
   const filteredOrders = lowStockOrders.filter(order =>
     order.providerName?.toLowerCase().includes(search.toLowerCase())
   );
-
-  const handleOrderSelect = (orderId: string) => {
+  const handleOrderSelect = (providerId: string) => {
     setSelectedOrders(prev => {
       const newSelected = new Set(prev);
-      if (newSelected.has(orderId)) {
-        newSelected.delete(orderId);
+      if (newSelected.has(providerId)) {
+        newSelected.delete(providerId);
+        // Remove all items from this provider
+        setPurchaseProposal(prevProposals =>
+          prevProposals.filter(proposal => proposal.providerId !== providerId)
+        );
       } else {
-        newSelected.add(orderId);
+        newSelected.add(providerId);
+        // Add all items from this provider
+        const providerOrder = lowStockOrders.find(
+          order => order.providerId === providerId
+        );
+        if (providerOrder) {
+          setPurchaseProposal(prevProposals => {
+            const existingProposal = prevProposals.find(
+              p => p.providerId === providerId
+            );
+            if (existingProposal) {
+              return prevProposals.map(p =>
+                p.providerId === providerId
+                  ? { ...p, items: providerOrder.items }
+                  : p
+              );
+            }
+            return [
+              ...prevProposals,
+              {
+                providerId,
+                providerName: providerOrder.providerName,
+                items: providerOrder.items,
+              },
+            ];
+          });
+        }
       }
       return newSelected;
     });
+  };
+
+  const handleItemSelect = (item: PurchaseProposalItem, providerId: string) => {
+    const existingItem = existsItem(
+      providerId,
+      item.sparePartId,
+      item.warehouseId
+    );
+
+    if (existingItem) {
+      // Remove the item if it exists
+      setPurchaseProposal(prev =>
+        prev
+          .map(proposal => {
+            if (proposal.providerId === providerId) {
+              return {
+                ...proposal,
+                items: proposal.items.filter(
+                  i =>
+                    !(
+                      i.sparePartId === item.sparePartId &&
+                      i.warehouseId === item.warehouseId
+                    )
+                ),
+              };
+            }
+            return proposal;
+          })
+          .filter(proposal => proposal.items.length > 0)
+      );
+    } else {
+      setPurchaseProposal(prev => {
+        const existingProvider = prev.find(p => p.providerId === providerId);
+        if (existingProvider) {
+          return prev.map(p => {
+            if (p.providerId === providerId) {
+              return {
+                ...p,
+                items: [...p.items, item],
+              };
+            }
+            return p;
+          });
+        }
+        return [
+          ...prev,
+          {
+            providerId,
+            providerName: '',
+            items: [item],
+          },
+        ];
+      });
+    }
+  };
+
+  const existsItem = (
+    providerId: string,
+    sparePartId: string,
+    warehouseId: string
+  ) => {
+    return purchaseProposal
+      .find(x => x.providerId === providerId)
+      ?.items.find(
+        x => x.sparePartId === sparePartId && x.warehouseId === warehouseId
+      );
   };
 
   return (
@@ -99,15 +204,10 @@ export default function LowStockPurchase() {
       </div>
 
       <div className="flex flex-1">
-        <div className="p-4">
-          {filteredOrders.map(order => {
-            const totalPrice = order.items.reduce(
-              (sum, item) => sum + Number(item.unitPrice) * item.quantity,
-              0
-            );
-
+        <div className="flex flex-col w-full p-4">
+          {filteredOrders.map((order, index) => {
             return (
-              <div key={order.id} className="mb-6 last:mb-0 ">
+              <div key={index} className="mb-6 last:mb-0 ">
                 <div className="flex flex-row gap-2 items-center p-1 py-1">
                   <input
                     type="checkbox"
@@ -122,35 +222,101 @@ export default function LowStockPurchase() {
                     {order.providerName}
                   </h2>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="grid grid-cols-3 gap-4 mb-3 font-semibold text-gray-500 border-b border-gray-200">
-                    <span>Rencavi</span>
-                    <span>Unitats</span>
-                    <span className="text-right mr-6">Preu</span>
+                <div className="flex flex-col w-full bg-gray-50 p-4 rounded-lg">
+                  <div className="grid grid-cols-10 gap-4 mb-3 font-semibold text-gray-500 border-b border-gray-200">
+                    <span className="col-span-4 flex w-full text-left">
+                      Rencavi
+                    </span>
+                    <span className="col-span-1 flex w-full text-left">
+                      Magatzem
+                    </span>
+                    <span className="col-span-1 flex w-full text-left">
+                      Stock Max
+                    </span>
+                    <span className="col-span-1 flex w-full text-left">
+                      Stock Min
+                    </span>
+                    <span className="col-span-1 flex w-full text-left">
+                      Stock Real
+                    </span>
+                    <span className="col-span-1 flex w-full text-left">
+                      Pendent
+                    </span>
+                    <span className="col-span-1 text-right mr-6">Preu</span>
                   </div>
-                  {order.items.map(item => (
-                    <div
-                      key={item.id}
-                      className={`grid grid-cols-3 gap-4 py-2  ${
-                        Number(item.unitPrice) <= 0
-                          ? 'border-red-500 border-2 rounded'
-                          : ' border-gray-200 last:border-b-0  border-b'
-                      }`}
-                    >
-                      <span className="text-gray-600">
-                        {item.sparePart.description}
-                      </span>
-                      <span className="text-gray-600">{item.quantity}</span>
-                      <span className="text-gray-600 text-right mr-6">
-                        {item.unitPrice} €
-                      </span>
-                    </div>
-                  ))}
+                  {order.items.map((item, index) => {
+                    const exists = existsItem(
+                      order.providerId,
+                      item.sparePartId,
+                      item.warehouseId
+                    );
+                    return (
+                      <div
+                        key={index}
+                        className={`grid grid-cols-10 gap-4 py-2  ${
+                          Number(item.unitPrice) <= 0
+                            ? 'border-red-500 border-2 rounded'
+                            : ' border-gray-200 last:border-b-0  border-b'
+                        }`}
+                      >
+                        <span
+                          className="flex gap-2 col-span-4 text-gray-600 truncate items-center hover:cursor-pointer"
+                          title={item.sparePartName}
+                          onClick={() => {
+                            handleItemSelect(item, order.providerId);
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            className="form-checkbox text-blue-600 rounded focus:ring-blue-500"
+                            checked={exists ? true : false}
+                            onChange={() => {
+                              handleItemSelect(item, order.providerId);
+                            }}
+                          />
+                          {item.sparePartName.slice(0, 40)}
+                          {item.sparePartName.length > 40 && '...'}
+                        </span>
+
+                        <span className="col-span-1 text-sm text-gray-600">
+                          {item.warehouse}
+                        </span>
+                        <span className="col-span-1 text-right mr-7 text-gray-600">
+                          {item.stockMax}
+                        </span>
+                        <span className="col-span-1 text-right mr-7 text-gray-600">
+                          {item.stockMin}
+                        </span>
+                        <span className="col-span-1 text-right mr-7 text-gray-600">
+                          {item.realStock}
+                        </span>
+                        <span className="col-span-1 text-right mr-10 text-gray-600">
+                          {item.quantity}
+                        </span>
+                        <span className="col-span-1 text-gray-600 text-right mr-6">
+                          {item.unitPrice} €
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
                 {/* Total price displayed below the items */}
                 <div className="mt-4 text-right">
                   <span className="text-lg font-semibold text-blue-600 mr-3">
-                    Total: {totalPrice.toFixed(2)} €
+                    Total:{' '}
+                    {order.items
+                      .reduce((acc, item) => {
+                        const exists = existsItem(
+                          order.providerId,
+                          item.sparePartId,
+                          item.warehouseId
+                        );
+                        return exists
+                          ? acc + item.quantity * item.unitPrice
+                          : acc;
+                      }, 0)
+                      .toFixed(2)}{' '}
+                    €
                   </span>
                 </div>
               </div>

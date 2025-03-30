@@ -216,6 +216,16 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
     });
   }
 
+  function handleUpdateDiscount(providerId: string, discount: string) {
+    setSparePart(prevSparePart => {
+      if (!prevSparePart) return prevSparePart;
+      const updatedProviders = prevSparePart.providers.map(x =>
+        x.providerId === providerId ? { ...x, discount: Number(discount) } : x
+      );
+      return { ...prevSparePart, providers: updatedProviders };
+    });
+  }
+
   const headerText = sparePartLoaded ? 'Editar Recanvi' : 'Crear Recanvi';
 
   return (
@@ -390,6 +400,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                 handleRemoveProvider={handleRemoveProvider}
                 handleUpdatePrice={handleUpdatePrice}
                 handleUpdateIsDefault={handleUpdateIsDefault}
+                handleUpdateDiscount={handleUpdateDiscount}
               />
             </div>
           </div>

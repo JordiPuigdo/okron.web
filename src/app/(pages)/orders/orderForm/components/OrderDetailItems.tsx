@@ -9,6 +9,8 @@ interface OrderDetailItemsProps {
   canEdit: boolean;
   onChangePrice: (items: OrderItemRequest[]) => void;
   onChangeEstimatedDeliveryDate: (items: OrderItemRequest[]) => void;
+  onChangeQuantity: (items: OrderItemRequest[]) => void;
+  onChangeDiscount: (items: OrderItemRequest[]) => void;
 }
 
 export default function OrderDetailItems({
@@ -17,9 +19,11 @@ export default function OrderDetailItems({
   canEdit,
   onChangePrice,
   onChangeEstimatedDeliveryDate,
+  onChangeQuantity,
+  onChangeDiscount,
 }: OrderDetailItemsProps) {
   const [itemsDetail, setItemsDetail] = useState<OrderItemRequest[]>(items);
-  const { updateSparePartPrice } = useProviders();
+  const { updateSparePartPrice, updateSparePartDiscount } = useProviders();
 
   function handleUpdateEstimatedDeliveryDate(
     item: OrderItemRequest,
@@ -57,6 +61,40 @@ export default function OrderDetailItems({
     setItemsDetail(items);
   }, [items]);
 
+  function handleUpdateQuantity(item: OrderItemRequest, quantity: string) {
+    const newItems = itemsDetail.map(x => {
+      if (x.sparePartId === item.sparePartId) {
+        return { ...x, quantity: Number(quantity) };
+      }
+      return x;
+    });
+    setItemsDetail(newItems);
+    onChangeQuantity(newItems);
+  }
+
+  async function handleUpdateDiscount(
+    item: OrderItemRequest,
+    discount: string
+  ) {
+    await updateSparePartDiscount({
+      providerId: item.provider!.id,
+      sparePartId: item.sparePartId,
+      discount: Number(discount),
+    });
+    const newItems = itemsDetail.map(x => {
+      if (x.sparePartId === item.sparePartId) {
+        return { ...x, discount: Number(discount) };
+      }
+      return x;
+    });
+    setItemsDetail(newItems);
+    onChangeDiscount(newItems);
+  }
+
+  const calculateItemTotal = (item: OrderItemRequest) => {
+    return item.quantity * Number(item.unitPrice) * (1 - item.discount / 100);
+  };
+
   return (
     <div>
       <div className="border-t pt-4">
@@ -64,11 +102,13 @@ export default function OrderDetailItems({
         <table className="w-full border border-gray-300 mt-2">
           <thead>
             <tr className="bg-gray-100">
-              <th className="p-2 border w-2/5">Recanvi</th>
-              <th className="p-2 border w-1/5">Magatzem</th>
+              <th className="p-2 border w-2/6">Recanvi</th>
+              <th className="p-2 border w-1/10">Magatzem</th>
+              <th className="p-2 border w-1/10">Referencia Proveidor</th>
               <th className="p-2 border w-1/10">Quantitat</th>
               <th className="p-2 border w-1/10">Data Estimada</th>
               <th className="p-2 border w-1/10">Preu Unitari</th>
+              <th className="p-2 border w-1/12">Desc. %</th>
               <th className="p-2 border w-1/10">Total</th>
               <th className="p-2 border w-1/10">Acció</th>
             </tr>
@@ -85,7 +125,16 @@ export default function OrderDetailItems({
                   <td className="p-2 border text-center">
                     {item.wareHouse?.description}
                   </td>
-                  <td className="p-2 border text-center">{item.quantity}</td>
+                  <td className="p-2 border text-center">{item.refProvider}</td>
+                  <td className="p-2 border text-center">
+                    <EditableCell
+                      value={item.quantity.toString()}
+                      onUpdate={newValue =>
+                        handleUpdateQuantity(item, newValue)
+                      }
+                      canEdit={canEdit}
+                    />
+                  </td>
                   <td className="p-2 border text-center">
                     <EditableCell
                       value={item.estimatedDeliveryDate ?? ''}
@@ -107,7 +156,16 @@ export default function OrderDetailItems({
                     </div>
                   </td>
                   <td className="p-2 border text-center">
-                    {(item.quantity * Number(item.unitPrice)).toFixed(2)}€
+                    <EditableCell
+                      value={item.discount.toString()}
+                      onUpdate={newValue =>
+                        handleUpdateDiscount(item, newValue)
+                      }
+                      canEdit={canEdit}
+                    />
+                  </td>
+                  <td className="p-2 border text-center">
+                    {calculateItemTotal(item).toFixed(2)}€
                   </td>
                   <td className="border p-2 text-center">
                     <button

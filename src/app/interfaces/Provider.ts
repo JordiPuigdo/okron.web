@@ -54,3 +54,9 @@ export interface ProviderSparePartRequest {
   sparePartId: string;
   price: string;
 }
+
+export interface UpdateSparePartDiscountRequest {
+  providerId: string;
+  sparePartId: string;
+  discount: number;
+}

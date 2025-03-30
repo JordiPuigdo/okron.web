@@ -5,6 +5,7 @@ import {
   ProviderRequest,
   ProviderSparePartRequest,
   UpdateProviderRequest,
+  UpdateSparePartDiscountRequest,
 } from 'app/interfaces/Provider';
 import {
   IProviderService,
@@ -100,6 +101,17 @@ export const useProviders = (
     }
   };
 
+  const updateSparePartDiscount = async (
+    request: UpdateSparePartDiscountRequest
+  ) => {
+    try {
+      await providerService.updateSparePartDiscount(request);
+    } catch (error) {
+      console.error('Error updating spare part discount:', error);
+      throw error;
+    }
+  };
+
   return {
     providers,
     providersError,
@@ -111,5 +123,6 @@ export const useProviders = (
     isLoadingProvider,
     isProviderSuccessFull,
     updateSparePartPrice,
+    updateSparePartDiscount,
   };
 };

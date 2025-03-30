@@ -6,6 +6,7 @@ import {
   OrderType,
   OrderUpdateRequest,
 } from 'app/interfaces/Order';
+import { PurchaseProposal } from 'app/interfaces/PurchaseProposal';
 import OrderService, { IOrderService } from 'app/services/orderService';
 
 export const useOrder = (orderService: IOrderService = new OrderService()) => {
@@ -22,7 +23,7 @@ export const useOrder = (orderService: IOrderService = new OrderService()) => {
     }
   };
 
-  const fetchLowStockOrders = async (): Promise<Order[]> => {
+  const fetchLowStockOrders = async (): Promise<PurchaseProposal[]> => {
     try {
       const response = await orderService.getLowStockOrders();
       return response;

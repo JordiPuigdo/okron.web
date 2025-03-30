@@ -5,6 +5,7 @@ import {
   OrderType,
   OrderUpdateRequest,
 } from 'app/interfaces/Order';
+import { PurchaseProposal } from 'app/interfaces/PurchaseProposal';
 
 export interface IOrderService {
   create(createOrderRequest: OrderCreationRequest): Promise<Order>;
@@ -13,7 +14,7 @@ export interface IOrderService {
   getNextCode(orderType: OrderType): Promise<string>;
   getWithFilters(filters: GetOrderWithFiltersRequest): Promise<Order[]>;
   update(updateOrderRequest: OrderUpdateRequest): Promise<Order>;
-  getLowStockOrders(): Promise<Order[]>;
+  getLowStockOrders(): Promise<PurchaseProposal[]>;
 }
 
 export class OrderService implements IOrderService {
@@ -22,7 +23,7 @@ export class OrderService implements IOrderService {
   constructor(baseUrl: string = process.env.NEXT_PUBLIC_API_BASE_URL!) {
     this.baseUrl = baseUrl;
   }
-  async getLowStockOrders(): Promise<Order[]> {
+  async getLowStockOrders(): Promise<PurchaseProposal[]> {
     try {
       const response = await fetch(`${this.baseUrl}orders/lowStock`);
       if (!response.ok) {

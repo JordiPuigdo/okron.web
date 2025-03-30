@@ -28,7 +28,6 @@ export enum OrderStatus {
   InProgress,
   Completed,
   Cancelled,
-  Purchase,
 }
 
 export enum OrderType {
@@ -47,6 +46,8 @@ export interface OrderItem extends BaseModel {
   wareHouse?: WareHouse;
   quantityPendient?: number;
   estimatedDeliveryDate?: string;
+  refProvider: string;
+  discount: number;
 }
 
 export interface OrderEvents extends BaseModel {
@@ -84,6 +85,8 @@ export interface OrderItemRequest {
   quantityReceived?: number;
   quantityPendient?: number;
   estimatedDeliveryDate?: string;
+  refProvider: string;
+  discount: number;
 }
 
 export interface OrderUpdateRequest extends OrderCreationRequest {

@@ -3,15 +3,11 @@ import MainLayout from 'components/layout/MainLayout';
 
 import OrderDetail from './components/OrderDetail';
 
-export default function OrderPage({
-  params,
-}: {
-  params: { id: string; isPdf: boolean };
-}) {
+export default function OrderPage({ params }: { params: { id: string } }) {
   return (
     <MainLayout>
       <Container>
-        <OrderDetail id={params.id} isPdf={params.isPdf} />
+        <OrderDetail id={params.id} />
       </Container>
     </MainLayout>
   );

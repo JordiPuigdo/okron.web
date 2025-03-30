@@ -31,6 +31,7 @@ export interface ProviderSpareParts {
   sparePart?: SparePart;
   provider?: Provider;
   isDefault: boolean;
+  discount: number;
 }
 
 export default SparePart;

@@ -6,6 +6,7 @@ interface SparePartProvidersSelectedProps {
   handleRemoveProvider: (providerId: string) => void;
   handleUpdatePrice: (providerId: string, price: string) => void;
   handleUpdateIsDefault: (providerId: string) => void;
+  handleUpdateDiscount: (providerId: string, discount: string) => void;
 }
 
 export default function SparePartProvidersSelected({
@@ -13,6 +14,7 @@ export default function SparePartProvidersSelected({
   handleRemoveProvider,
   handleUpdatePrice,
   handleUpdateIsDefault,
+  handleUpdateDiscount,
 }: SparePartProvidersSelectedProps) {
   function handleCheckIsDefault(providerId: string) {
     const provider = sparePart.providers.find(
@@ -30,8 +32,8 @@ export default function SparePartProvidersSelected({
     <div className="flex flex-col flex-grow ">
       <div className="flex flex-row gap-2 justify-between items-center bg-gray-100 p-3 rounded-lg">
         <div className="w-2/5 font-semibold text-gray-700">Nom</div>
-        <div className="w-2/5 font-semibold text-gray-700">Ciutat</div>
         <div className="w-1/5 font-semibold text-gray-700">Preu</div>
+        <div className="w-2/5 font-semibold text-gray-700">Desc. %</div>
         <div className="w-1/5 font-semibold text-gray-700">Habitual</div>
         <div className="w-1/7 font-semibold text-gray-700">Accions</div>
       </div>
@@ -42,11 +44,18 @@ export default function SparePartProvidersSelected({
           className="flex flex-row gap-2 justify-between items-center p-3 hover:bg-gray-50 rounded-lg transition-colors"
         >
           <div className="w-1/4 text-gray-600">{x.provider?.name}</div>
-          <div className="w-1/4 text-gray-600">{x.provider?.city}</div>
           <div className="w-1/12 text-gray-600">
             <EditableCell
               value={x.price}
               onUpdate={newValue => handleUpdatePrice(x.providerId, newValue)}
+            />
+          </div>
+          <div className="w-1/4 text-gray-600">
+            <EditableCell
+              value={x.discount.toString()}
+              onUpdate={newValue =>
+                handleUpdateDiscount(x.providerId, newValue)
+              }
             />
           </div>
           <div className="w-1/12 text-gray-600">

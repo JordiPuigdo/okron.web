@@ -1,16 +1,16 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useOrder } from 'app/hooks/useOrder';
+import { SvgSpinner } from 'app/icons/icons';
 import { Order } from 'app/interfaces/Order';
 
 import OrderForm from '../../orderForm/components/OrderForm';
 
 interface OrderDetailProps {
   id: string;
-  isPdf: boolean;
 }
 
-export default function OrderDetail({ id, isPdf }: OrderDetailProps) {
+export default function OrderDetail({ id }: OrderDetailProps) {
   const { fetchOrderById } = useOrder();
   const [order, setOrder] = useState<Order | null>(null);
 
@@ -23,7 +23,6 @@ export default function OrderDetail({ id, isPdf }: OrderDetailProps) {
     fetchOrder();
   }, [id]);
 
-  if (order)
-    return <OrderForm isPurchase={false} orderRequest={order!} isPdf={isPdf} />;
-  return <div>Cargando...</div>;
+  if (order) return <OrderForm isPurchase={false} orderRequest={order!} />;
+  return <SvgSpinner className="w-full" />;
 }

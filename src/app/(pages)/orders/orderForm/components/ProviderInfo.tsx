@@ -31,20 +31,6 @@ const ProviderInfo: React.FC<ProviderInfoProps> = ({ provider }) => {
       </div>
       <div>
         <div className="flex justify-between gap-4">
-          <div className="text-sm font-medium text-gray-900">
-            Número de compte:
-          </div>
-          <div className="text-sm text-gray-500">{provider?.accountNumber}</div>
-        </div>
-        <div className="flex justify-between gap-4">
-          <div className="text-sm font-medium text-gray-900">
-            Forma Pagament:
-          </div>
-          <div className="text-sm text-gray-500">{provider?.paymentMethod}</div>
-        </div>
-      </div>
-      <div>
-        <div className="flex justify-between gap-4">
           <div className="text-sm font-medium text-gray-900">NIE:</div>
           <div className="text-sm text-gray-500">{provider?.nie}</div>
         </div>

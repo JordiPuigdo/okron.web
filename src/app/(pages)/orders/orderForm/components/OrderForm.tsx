@@ -27,14 +27,12 @@ dayjs.extend(utc);
 export interface OrderFormProps {
   isPurchase?: boolean;
   orderRequest?: Order;
-  isPdf?: boolean;
   purchaseOrderId?: string;
 }
 
 export default function OrderForm({
   isPurchase,
   orderRequest,
-  isPdf,
   purchaseOrderId,
 }: OrderFormProps) {
   const { createOrder, getNextCode, updateOrder, fetchOrderById } = useOrder();

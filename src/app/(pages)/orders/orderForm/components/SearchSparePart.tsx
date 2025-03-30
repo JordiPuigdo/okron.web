@@ -34,6 +34,8 @@ export default function SearchSparePartOrderPurchase({
         sparePartId: selectedSparePart?.id,
         unitPrice: unitPrice,
         sparePart: selectedSparePart,
+        refProvider: selectedSparePart.refProvider,
+        discount: 0,
       });
       setSelectedSparePart(undefined);
     }
@@ -143,6 +145,11 @@ export default function SearchSparePartOrderPurchase({
             className="w-full p-2 border rounded-md"
             min="1"
             value={quantity}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                addItem();
+              }
+            }}
             onChange={e => setQuantity(Number(e.target.value))}
             disabled={!selectedProvider}
           />
