@@ -56,6 +56,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
           price: request.price,
           provider: providers?.find(x => x.id === request.providerId),
           isDefault: request.isDefault,
+          discount: 0,
         },
       ];
     }

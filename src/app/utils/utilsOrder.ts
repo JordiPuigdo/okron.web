@@ -10,8 +10,6 @@ export function translateOrderStatus(status: OrderStatus) {
       return 'Completat';
     case OrderStatus.Cancelled:
       return 'Cancel·lat';
-    case OrderStatus.Purchase:
-      return 'Comprada';
     default:
       return 'Unknown';
   }
