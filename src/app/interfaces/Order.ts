@@ -94,7 +94,9 @@ export interface OrderUpdateRequest extends OrderCreationRequest {
 }
 
 export interface GetOrderWithFiltersRequest {
-  orderType: OrderType;
+  orderType?: OrderType;
   from: Date;
   to: Date;
+  providerId?: string;
+  sparePartId?: string;
 }

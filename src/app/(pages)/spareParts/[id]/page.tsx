@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { TableDataOrders } from 'app/(pages)/orders/components/TableDataOrders';
 import { SparePartDetailResponse } from 'app/interfaces/SparePart';
 import SparePartService from 'app/services/sparePartService';
 import Container from 'components/layout/Container';
@@ -45,6 +46,13 @@ export default function page({ params }: { params: { id: string } }) {
             />
           </div>
         )}
+        <div className="p-4 bg-white">
+          <TableDataOrders
+            sparePartId={sparePart?.sparePart.id}
+            title="Històric de compres i recepcions"
+            hideShadow
+          />
+        </div>
       </Container>
     </MainLayout>
   );

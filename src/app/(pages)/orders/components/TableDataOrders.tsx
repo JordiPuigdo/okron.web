@@ -19,10 +19,22 @@ import { EntityTable } from 'components/table/interface/tableEntitys';
 import { translateOrderState } from '../orderForm/components/utilsOrder';
 
 interface TableDataOrdersProps {
-  orderType: OrderType;
+  orderType?: OrderType;
+  selectedProviderId?: string;
+  className?: string;
+  title?: string;
+  hideShadow?: boolean;
+  sparePartId?: string;
 }
 
-export const TableDataOrders = ({ orderType }: TableDataOrdersProps) => {
+export const TableDataOrders = ({
+  orderType,
+  selectedProviderId,
+  className = '',
+  title = '',
+  hideShadow = false,
+  sparePartId,
+}: TableDataOrdersProps) => {
   const { orders, getOrderWithFilters } = useOrder();
   const defaultDate = new Date();
   const [dateFilters, setDateFilters] = useState<DateFilters>({
@@ -41,7 +53,16 @@ export const TableDataOrders = ({ orderType }: TableDataOrdersProps) => {
       orderType: orderType,
       from: defaultDate,
       to: defaultDate,
+      providerId: selectedProviderId,
+      sparePartId: sparePartId,
     });
+    if (orderType) {
+      filtersOrders.push({
+        label: 'Proveïdor',
+        key: 'providerName',
+        format: FiltersFormat.TEXT,
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -62,6 +83,8 @@ export const TableDataOrders = ({ orderType }: TableDataOrdersProps) => {
         orderType: orderType,
         from: dateFilters.startDate,
         to: dateFilters.endDate,
+        providerId: selectedProviderId,
+        sparePartId: sparePartId,
       });
     }
   }, [dateFilters, filters]);
@@ -80,8 +103,13 @@ export const TableDataOrders = ({ orderType }: TableDataOrdersProps) => {
       ? [...orders].filter(order => filters.status.includes(order.status))
       : orders;
   return (
-    <div className="flex flex-col h-full gap-4">
-      <div className="flex bg-white p-4 rounded-xl shadow-md">
+    <div className="flex flex-col h-full gap-4 w-full">
+      {title && (
+        <>
+          <span className="font-semibold">{title}</span>
+        </>
+      )}
+      <div className={`flex ${className}`}>
         <div className="flex gap-4 w-full">
           <DateFilter
             setDateFilters={setDateFilters}
@@ -107,10 +135,11 @@ export const TableDataOrders = ({ orderType }: TableDataOrdersProps) => {
       </div>
       <DataTable
         data={filteredOrders}
-        columns={columnsWareHouse}
+        columns={columnsOrders}
         entity={EntityTable.ORDER}
         tableButtons={tableButtons}
-        filters={filtersWareHouse}
+        filters={filtersOrders}
+        hideShadow={hideShadow}
       />
     </div>
   );
@@ -119,7 +148,7 @@ const tableButtons: TableButtons = {
   edit: true,
   detail: true,
 };
-const columnsWareHouse: Column[] = [
+const columnsOrders: Column[] = [
   {
     label: 'ID',
     key: 'id',
@@ -147,15 +176,10 @@ const columnsWareHouse: Column[] = [
   },
 ];
 
-const filtersWareHouse: Filters[] = [
+const filtersOrders: Filters[] = [
   {
     label: 'Codi',
     key: 'code',
-    format: FiltersFormat.TEXT,
-  },
-  {
-    label: 'Proveïdor',
-    key: 'providerName',
     format: FiltersFormat.TEXT,
   },
 ];

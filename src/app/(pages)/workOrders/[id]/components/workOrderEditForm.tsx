@@ -903,10 +903,9 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
           )}
           {currentWorkOrder.workOrderType === WorkOrderType.Corrective && (
             <ChooseSpareParts
-              availableSpareParts={availableSpareParts}
               selectedSpareParts={selectedSpareParts}
               setSelectedSpareParts={setSelectedSpareParts}
-              WordOrderId={currentWorkOrder.id}
+              workOrder={currentWorkOrder}
               isFinished={isFinished}
             />
           )}

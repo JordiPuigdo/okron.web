@@ -147,6 +147,16 @@ export const useWareHouses = (
     }
   };
 
+  const getStockAvailability = async () => {
+    try {
+      const response = await wareHouseService.stockAvailability();
+      return response;
+    } catch (error) {
+      console.log('error fetching getStockAvailability');
+      throw error;
+    }
+  };
+
   const getStockMovementsByWarehouseAndDate = async (
     filters: StockMovementFilters
   ) => {
@@ -170,6 +180,7 @@ export const useWareHouses = (
     getSparePartsByWarehouseId,
     deleteWareHouse,
     getStockMovementsByWarehouseAndDate,
+    getStockAvailability,
     isLoadingWareHouse,
     isWareHouseSuccessFull,
   };

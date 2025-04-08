@@ -12,7 +12,10 @@ export default function DeliveryComponent() {
         createButton="Crear Recepció"
         urlCreateButton="/orders/orderForm"
       />
-      <TableDataOrders orderType={OrderType.Delivery} />
+      <TableDataOrders
+        orderType={OrderType.Delivery}
+        className="bg-white p-4 rounded-xl shadow-md"
+      />
     </div>
   );
 }

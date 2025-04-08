@@ -6,7 +6,7 @@ import {
   OrderType,
 } from 'app/interfaces/Order';
 import { Provider } from 'app/interfaces/Provider';
-import SparePart from 'app/interfaces/SparePart';
+import SparePart, { WarehousesSparePart } from 'app/interfaces/SparePart';
 import { WareHouse } from 'app/interfaces/WareHouse';
 import { useGlobalStore } from 'app/stores/globalStore';
 
@@ -43,9 +43,8 @@ export function BodyOrderForm({
   const [isModalUnitsOpen, setIsModalUnitsOpen] = useState<boolean>(false);
   const [isModalWareHouseOpen, setIsModalWareHouseOpen] =
     useState<boolean>(false);
-  const [selectedWareHouseId, setSelectedWareHouseId] = useState<string | null>(
-    null
-  );
+  const [selectedWareHouse, setSelectedWareHouse] =
+    useState<WarehousesSparePart | null>(null);
 
   const [selectedOrderItem, setSelectedOrderItem] = useState<
     OrderItemRequest | undefined
@@ -61,7 +60,7 @@ export function BodyOrderForm({
   }, [isModalOpen]);
 
   useEffect(() => {
-    if (selectedSparePart && selectedSparePart?.wareHouseId.length > 1) {
+    if (selectedSparePart && selectedSparePart?.warehouses.length > 1) {
       setIsModalWareHouseOpen(true);
       return;
     }
@@ -69,6 +68,7 @@ export function BodyOrderForm({
 
   const handleAddOrderItem = (item: OrderItemRequest) => {
     if (!selectedSparePart) return;
+
     const newItem: OrderItemRequest = {
       sparePartId: selectedSparePart.id,
       sparePart: selectedSparePart,
@@ -77,15 +77,15 @@ export function BodyOrderForm({
       unitPrice: item.unitPrice,
       refProvider: item.refProvider,
       discount: item.discount,
-      wareHouseId: selectedWareHouseId
-        ? selectedWareHouseId
-        : selectedSparePart.wareHouseId[0],
+      wareHouseId: selectedWareHouse
+        ? selectedWareHouse.warehouseId
+        : selectedSparePart.warehouses[0].warehouseId,
       wareHouse: warehouses.find(
         x =>
           x.id ==
-          (selectedWareHouseId !== null
-            ? selectedWareHouseId
-            : selectedSparePart.wareHouseId[0])
+          (selectedWareHouse !== null
+            ? selectedWareHouse.warehouseId
+            : selectedSparePart.warehouses[0].warehouseId)
       ),
       estimatedDeliveryDate: new Date().toISOString().split('T')[0],
     };
@@ -94,7 +94,7 @@ export function BodyOrderForm({
       ...order,
       items: [...order.items, newItem],
     });
-    setSelectedWareHouseId(null);
+    setSelectedWareHouse(null);
     setSelectedSparePart(undefined);
   };
   function handleRemoveItem(index: number) {
@@ -133,51 +133,83 @@ export function BodyOrderForm({
     }
   }
 
-  function handleRecieveItem(item: OrderItemRequest, isPartial: boolean) {
+  function handleReceiveItem(
+    item: OrderItemRequest,
+    isPartial: boolean,
+    receiveAll: boolean = false
+  ) {
     if (isPartial) {
       setSelectedOrderItem(item);
       setIsModalUnitsOpen(true);
-    } else {
-      const itemExists = order.items.find(
-        x => x.sparePartId === item.sparePartId
-      );
-      if (itemExists) {
-        const updatedOrder = {
-          ...order,
-          items: order.items.map(x =>
-            x.sparePartId === item.sparePartId
-              ? {
-                  ...x,
-                  quantityReceived: x.quantityReceived ?? 0 + item.quantity,
-                }
-              : x
-          ),
-        };
-        setOrder(updatedOrder);
-      } else {
-        const updatedOrder = {
-          ...order,
-          items: [...order.items, { ...item, quantityReceived: item.quantity }],
-        };
-        setOrder(updatedOrder);
-      }
+      return;
+    }
 
-      if (orderPurchase?.items) {
-        const updatedOrderPurchaseItems = orderPurchase.items.map(x => {
-          if (x.sparePartId === item.sparePartId) {
-            return {
+    // Handle receive all items case
+    if (receiveAll && orderPurchase?.items) {
+      const updatedOrderItems = orderPurchase.items.map(orderItem => {
+        const purchaseItem = orderPurchase.items.find(
+          x => x.sparePartId === orderItem.sparePartId
+        );
+        return purchaseItem
+          ? {
+              ...orderItem,
+              quantityReceived:
+                (orderItem.quantityReceived ?? 0) +
+                (purchaseItem.quantityPendient ?? 0),
+            }
+          : orderItem;
+      });
+      const updatedOrderPurchaseItems = orderPurchase.items.map(item => ({
+        ...item,
+        quantityPendient: 0,
+      }));
+
+      setOrder({
+        ...order,
+        items: updatedOrderItems,
+      });
+      setOrderPurchase({
+        ...orderPurchase,
+        items: updatedOrderPurchaseItems,
+      });
+      return;
+    }
+
+    // Handle single item case
+    const itemExists = order.items.some(
+      x => x.sparePartId === item.sparePartId
+    );
+
+    const updatedOrderItems = itemExists
+      ? order.items.map(x =>
+          x.sparePartId === item.sparePartId
+            ? {
+                ...x,
+                quantityReceived: (x.quantityReceived ?? 0) + item.quantity,
+              }
+            : x
+        )
+      : [...order.items, { ...item, quantityReceived: item.quantity }];
+
+    setOrder({
+      ...order,
+      items: updatedOrderItems,
+    });
+
+    if (orderPurchase?.items) {
+      const updatedOrderPurchaseItems = orderPurchase.items.map(x =>
+        x.sparePartId === item.sparePartId
+          ? {
               ...x,
               quantityPendient: 0,
-            };
-          }
-          return x;
-        });
+            }
+          : x
+      );
 
-        setOrderPurchase({
-          ...orderPurchase,
-          items: updatedOrderPurchaseItems,
-        });
-      }
+      setOrderPurchase({
+        ...orderPurchase,
+        items: updatedOrderPurchaseItems,
+      });
     }
   }
   const onAddUnits = (units: number, sparePartId: string) => {
@@ -242,7 +274,12 @@ export function BodyOrderForm({
     setIsModalUnitsOpen(false);
   };
   const onSelectedId = (id: string) => {
-    setSelectedWareHouseId(id);
+    const selected = warehouses.find(x => x.id == id);
+    const newWarehouse = {
+      warehouseId: selected!.id,
+      warehouseName: selected!.description,
+    };
+    setSelectedWareHouse(newWarehouse);
     setIsModalWareHouseOpen(false);
   };
 
@@ -286,7 +323,7 @@ export function BodyOrderForm({
       ) : (
         <>
           <OrderPurchaseDetailItems
-            handleRecieveItem={handleRecieveItem}
+            handleRecieveItem={handleReceiveItem}
             items={orderPurchase?.items ?? []}
             isOrderPurchase={true}
           />
@@ -300,7 +337,9 @@ export function BodyOrderForm({
       {isModalWareHouseOpen && (
         <ModalOrderWareHouse
           wareHouseIds={
-            (selectedSparePart && selectedSparePart?.wareHouseId) || []
+            (selectedSparePart &&
+              selectedSparePart?.warehouses.map(x => x.warehouseId)) ||
+            []
           }
           onSelectedId={onSelectedId}
           wareHouses={warehouses}

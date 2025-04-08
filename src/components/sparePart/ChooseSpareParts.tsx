@@ -1,36 +1,35 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { SvgConsumeSparePart, SvgRestoreSparePart } from "app/icons/icons";
+import { useEffect, useState } from 'react';
+import ModalOrderWareHouse from 'app/(pages)/orders/orderForm/components/ModalOrderWareHouse';
+import { useWareHouses } from 'app/hooks/useWareHouses';
+import { SvgConsumeSparePart, SvgRestoreSparePart } from 'app/icons/icons';
 import SparePart, {
   ConsumeSparePart,
   RestoreSparePart,
-} from "app/interfaces/SparePart";
-import { WorkOrderSparePart } from "app/interfaces/workOrder";
-import SparePartService from "app/services/sparePartService";
-import WorkOrderService from "app/services/workOrderService";
-import { useSessionStore } from "app/stores/globalStore";
-import {
-  formatDate,
-} from "app/utils/utils";
-import Link from "next/link";
+} from 'app/interfaces/SparePart';
+import { WareHouseStockAvailability } from 'app/interfaces/WareHouse';
+import WorkOrder, { WorkOrderSparePart } from 'app/interfaces/workOrder';
+import SparePartService from 'app/services/sparePartService';
+import WorkOrderService from 'app/services/workOrderService';
+import { useGlobalStore, useSessionStore } from 'app/stores/globalStore';
+import { formatDate } from 'app/utils/utils';
+import Link from 'next/link';
 
 interface ChooseSparePartsProps {
-  availableSpareParts: SparePart[];
   selectedSpareParts: WorkOrderSparePart[];
   setSelectedSpareParts: React.Dispatch<
     React.SetStateAction<WorkOrderSparePart[]>
   >;
-  WordOrderId: string;
   isFinished: boolean;
+  workOrder: WorkOrder;
 }
 
 const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
-  availableSpareParts,
   selectedSpareParts,
   setSelectedSpareParts,
-  WordOrderId,
   isFinished,
+  workOrder,
 }) => {
   const sparePartService = new SparePartService(
     process.env.NEXT_PUBLIC_API_BASE_URL!
@@ -38,18 +37,27 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
   const workOrderService = new WorkOrderService(
     process.env.NEXT_PUBLIC_API_BASE_URL!
   );
-  const [filteredSpareParts, setFilteredSpareParts] = useState<SparePart[]>(
-    availableSpareParts.filter((x) => x.active)
-  );
+  const [filteredSpareParts, setFilteredSpareParts] =
+    useState<WareHouseStockAvailability[]>();
+  const { isModalOpen } = useGlobalStore(state => state);
+  const { getStockAvailability, warehouses } = useWareHouses(true);
+
+  const fetch = async () => {
+    const responseData = await getStockAvailability();
+    if (responseData) setFilteredSpareParts(responseData);
+  };
+  useEffect(() => {
+    fetch();
+  }, []);
 
   const sparePartsLimit = 5;
   const [unitsPerSparePart, setUnitsPerSparePart] = useState<{
     [key: string]: number;
   }>({});
-  const { operatorLogged } = useSessionStore((state) => state);
+  const { operatorLogged } = useSessionStore(state => state);
 
   const filterSpareParts = (searchTerm: string) => {
-    const filtered = availableSpareParts.filter((sparePart) => {
+    /* const filtered = availableSpareParts.filter(sparePart => {
       const searchText = searchTerm.toLowerCase();
       if (sparePart.active) {
         return [
@@ -58,61 +66,117 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
           sparePart.refProvider,
           sparePart.family,
           sparePart.ubication,
-        ].some((field) => field && field.toLowerCase().includes(searchText));
+        ].some(field => field && field.toLowerCase().includes(searchText));
       }
     });
 
-    setFilteredSpareParts(filtered);
+    setFilteredSpareParts(filtered);*/
   };
 
-  async function consumeSparePart(sparePart: SparePart) {
-    if (operatorLogged == undefined) {
-      alert("Has de tenir un operari fitxat per fer aquesta acció!");
-      return;
+  const [showModalWareHouse, setShowModalWareHouse] = useState<
+    WareHouseStockAvailability | undefined
+  >(undefined);
+
+  useEffect(() => {
+    if (!isModalOpen && showModalWareHouse) {
+      setShowModalWareHouse(undefined);
     }
-    const currentUnits = unitsPerSparePart[sparePart.id] || 0;
+  }, [isModalOpen]);
+
+  function checkSparePart(sparePart: WareHouseStockAvailability): boolean {
+    if (operatorLogged == undefined) {
+      alert('Has de tenir un operari fitxat per fer aquesta acció!');
+      return false;
+    }
+    if (sparePart.warehouseStock.length > 1) {
+      setShowModalWareHouse(sparePart);
+      return true;
+    }
+    const currentUnits = unitsPerSparePart[sparePart.sparePartId] || 0;
+
+    consumeSparePart(
+      sparePart,
+      currentUnits,
+      sparePart.warehouseStock[0].warehouseId
+    );
+    return false;
+  }
+
+  const onSelectedId = (wareHouseId: string) => {
+    const sparePart = showModalWareHouse!;
+    const currentUnits = unitsPerSparePart[sparePart.sparePartId] || 0;
     if (
-      sparePart.stock < currentUnits ||
+      sparePart.warehouseStock.filter(x => x.warehouseId == wareHouseId)[0]
+        .stock < currentUnits ||
       currentUnits == null ||
       currentUnits <= 0
     ) {
-      alert("No tens tant stock!");
+      alert('No tens tant stock!');
       return;
     }
-    if (sparePart) {
-      setUnitsPerSparePart((prevUnits) => ({
-        ...prevUnits,
-        [sparePart.id]: 0,
-      }));
-      sparePart.stock = sparePart.stock - currentUnits;
-      sparePart.unitsConsum = currentUnits;
+    consumeSparePart(sparePart, currentUnits, wareHouseId);
+    setShowModalWareHouse(undefined);
+  };
 
-      setSelectedSpareParts((prevSelected) => [
+  async function consumeSparePart(
+    sparePart: WareHouseStockAvailability,
+    units: number,
+    warehouseId: string
+  ) {
+    if (sparePart) {
+      setUnitsPerSparePart(prevUnits => ({
+        ...prevUnits,
+        [sparePart.sparePartId]: 0,
+      }));
+
+      const sparePartFinded = filteredSpareParts?.filter(
+        x => x.sparePartId == sparePart.sparePartId
+      )[0];
+      if (sparePartFinded) {
+        const response = sparePartFinded.warehouseStock.filter(
+          x => x.warehouseId == warehouseId
+        )[0];
+        response.stock = response.stock - units;
+      }
+      //sparePart.unitsConsum = currentUnits;
+
+      setSelectedSpareParts(prevSelected => [
         ...prevSelected,
-        mapSparePartToWorkorderSparePart(sparePart, currentUnits),
+        mapSparePartToWorkorderSparePart(sparePart, units, warehouseId),
       ]);
 
       const consRequest: ConsumeSparePart = {
-        sparePartId: sparePart.id,
-        unitsSparePart: currentUnits,
-        workOrderId: WordOrderId,
+        sparePartId: sparePart.sparePartId,
+        unitsSparePart: units,
+        workOrderId: workOrder.id,
         operatorId: operatorLogged?.idOperatorLogged!,
+        warehouseId: warehouseId,
+        workOrderCode: workOrder.code + ' - ' + workOrder.description,
       };
       await sparePartService.consumeSparePart(consRequest);
       await workOrderService.cleanCache();
     } else {
-      console.log("Spare part not found in the available parts list.");
+      console.log('Spare part not found in the available parts list.');
     }
   }
 
   const mapSparePartToWorkorderSparePart = (
-    sparePart: SparePart,
-    units: number
+    sparePart: WareHouseStockAvailability,
+    units: number,
+    warehouseId: string
   ): WorkOrderSparePart => {
+    const name = sparePart.sparePartName.split('-');
+    const finalSparePart = {
+      id: sparePart.sparePartId,
+      code: name[0],
+      description: name[1],
+    };
     const workOrderSparePart: WorkOrderSparePart = {
-      id: sparePart.id,
+      id: sparePart.sparePartId,
       quantity: units,
-      sparePart: sparePart,
+      sparePart: finalSparePart as unknown as SparePart,
+      warehouse: '',
+      warehouseId: warehouseId,
     };
     return workOrderSparePart;
   };
@@ -122,37 +186,45 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
     quantity: number
   ) {
     if (operatorLogged == undefined) {
-      alert("Has de tenir un operari fitxat per fer aquesta acció!");
+      alert('Has de tenir un operari fitxat per fer aquesta acció!');
       return;
     }
     if (quantity <= 0) {
-      alert("Quantitat negativa!");
+      alert('Quantitat negativa!');
     }
 
-    const sparePartfinded = filteredSpareParts.find(
-      (x) => x.id === sparePart.id
+    const sparePartfinded = filteredSpareParts?.find(
+      x => x.sparePartId === sparePart.id
     );
     if (sparePartfinded) {
-      sparePartfinded.stock += quantity;
+      if (sparePartfinded.warehouseStock.length > 1) {
+        sparePartfinded.warehouseStock.filter(
+          x => x.warehouseId == sparePart.warehouses[0].warehouseId
+        )[0].stock += quantity;
+      } else {
+        sparePartfinded.warehouseStock[0].stock += quantity;
+      }
     }
 
-    setSelectedSpareParts((prevSelected) =>
-      prevSelected.filter((x) => x.sparePart.id !== sparePart.id)
+    setSelectedSpareParts(prevSelected =>
+      prevSelected.filter(x => x.sparePart.id !== sparePart.id)
     );
 
     const consRequest: RestoreSparePart = {
       sparePartId: sparePart.id,
       unitsSparePart: quantity,
-      workOrderId: WordOrderId,
+      workOrderId: workOrder.id,
       operatorId: operatorLogged?.idOperatorLogged!,
+      warehouseId: sparePart.warehouses[0].warehouseId,
+      workOrderCode: workOrder.code,
     };
     await sparePartService.restoreSparePart(consRequest);
     await workOrderService.cleanCache();
   }
 
-  useEffect(() => {
+  /*useEffect(() => {
     setFilteredSpareParts(availableSpareParts);
-  }, [availableSpareParts]);
+  }, [availableSpareParts]);*/
 
   return (
     <>
@@ -163,9 +235,9 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
             type="text"
             placeholder="Buscador"
             className="p-2 mb-4 border border-gray-300 rounded-md"
-            onChange={(e) => filterSpareParts(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
+            onChange={e => filterSpareParts(e.target.value)}
+            onKeyPress={e => {
+              if (e.key === 'Enter') {
                 e.preventDefault();
               }
             }}
@@ -176,22 +248,10 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
             <thead className="bg-gray-50">
               <tr>
                 <th className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Codi
+                  Codi - Descripció
                 </th>
                 <th className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Descripció
-                </th>
-                <th className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Proveïdor
-                </th>
-                <th className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Stock
-                </th>
-                <th className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Família
-                </th>
-                <th className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Ubicació
+                  Magatzem Stock
                 </th>
                 <th className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                   Unitats
@@ -202,70 +262,69 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredSpareParts
-                .filter((x) => x.active)
-                .slice(0, sparePartsLimit)
-                .map((sparePart, index) => (
-                  <tr
-                    key={sparePart.id}
-                    className={`${index % 2 === 0 ? "" : "bg-gray-100"}`}
-                  >
-                    <td className="p-2 whitespace-nowrap">{sparePart.code}</td>
-                    <td className="p-2 whitespace-normal break-all">
-                      {sparePart.description}
-                    </td>
-                    <td className="p-2 whitespace-nowrap">
-                      {sparePart.refProvider}
-                    </td>
-                    <td className="p-2 whitespace-nowrap">{sparePart.stock}</td>
-                    <td className="p-2 whitespace-normal break-all">
-                      {sparePart.family}
-                    </td>
-                    <td className="p-2 whitespace-nowrap">
-                      {sparePart.ubication}
-                    </td>
-                    <td className="p-2 whitespace-nowrap">
-                      <input
-                        disabled={isFinished}
-                        type="number"
-                        className="p-2 border border-gray-300 rounded-md w-20"
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                          }
-                        }}
-                        value={unitsPerSparePart[sparePart.id] || ""}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value, 10);
-                          setUnitsPerSparePart((prevUnits) => ({
-                            ...prevUnits,
-                            [sparePart.id]: value,
-                          }));
-                        }}
-                      />
-                    </td>
-                    <td className="p-2 text-center whitespace-nowrap">
-                      <button
-                        disabled={isFinished}
-                        type="button"
-                        className={` ${
-                          isFinished
-                            ? "bg-gray-400"
-                            : "bg-orange-400 hover:bg-orange-600"
-                        }  text-white font-semibold p-1 rounded-md ${
-                          selectedSpareParts.find(
-                            (part) => part.id === sparePart.id
-                          ) !== undefined
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }`}
-                        onClick={(e) => consumeSparePart(sparePart)}
-                      >
-                        <SvgConsumeSparePart className="w-8 h-8" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+              {filteredSpareParts &&
+                filteredSpareParts
+                  //.slice(0, sparePartsLimit)
+                  .map((sparePart, index) => (
+                    <tr
+                      key={sparePart.sparePartId}
+                      className={`${index % 2 === 0 ? '' : 'bg-gray-100'}`}
+                    >
+                      <td className="p-2 whitespace-nowrap">
+                        {sparePart.sparePartName}
+                      </td>
+                      <td className="p-2 whitespace-nowrap">
+                        {sparePart.warehouseStock.map((stock, index) => (
+                          <div key={index} className="flex justify-start gap-2">
+                            <span className="flex border-r-2 border-black pr-2">{`${stock.warehouse}`}</span>
+                            <span className="flex font-semibold justify-end">
+                              {`${stock.stock} u.`}
+                            </span>
+                          </div>
+                        ))}
+                      </td>
+                      <td className="p-2 whitespace-nowrap">
+                        <input
+                          disabled={isFinished}
+                          type="number"
+                          className="p-2 border border-gray-300 rounded-md w-20"
+                          onKeyPress={e => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                            }
+                          }}
+                          value={unitsPerSparePart[sparePart.sparePartId] || ''}
+                          onChange={e => {
+                            const value = parseInt(e.target.value, 10);
+                            setUnitsPerSparePart(prevUnits => ({
+                              ...prevUnits,
+                              [sparePart.sparePartId]: value,
+                            }));
+                          }}
+                        />
+                      </td>
+                      <td className="p-2 text-center whitespace-nowrap">
+                        <button
+                          disabled={isFinished}
+                          type="button"
+                          className={` ${
+                            isFinished
+                              ? 'bg-gray-400'
+                              : 'bg-orange-400 hover:bg-orange-600'
+                          }  text-white font-semibold p-1 rounded-md ${
+                            selectedSpareParts.find(
+                              part => part.id === sparePart.sparePartId
+                            ) !== undefined
+                              ? 'opacity-50 cursor-not-allowed'
+                              : ''
+                          }`}
+                          onClick={e => checkSparePart(sparePart)}
+                        >
+                          <SvgConsumeSparePart className="w-8 h-8" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
             </tbody>
           </table>
         </div>
@@ -274,7 +333,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
             Peçes de recanvi consumides a la ordre
           </p>
           <div className="p-2">
-            {selectedSpareParts.map((selectedPart) => (
+            {selectedSpareParts.map(selectedPart => (
               <div
                 key={selectedPart.id}
                 className=" flex flex-row items-center gap-2"
@@ -284,20 +343,29 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
                     {selectedPart.sparePart.code}
                   </Link>
                 </p>
-                <p>{" - "}</p>
+                <p>{' - '}</p>
                 <p>{formatDate(selectedPart.creationDate ?? new Date())}</p>
-                <p>{" - "}</p>
+                <p>{' - '}</p>
                 <p>{selectedPart.sparePart.description}</p>
-                <p>{" - "}</p>
-                <p className="font-bold">{" Unitats Consumides:"} </p>
+                <p>{' - '}</p>
+                <p>
+                  {warehouses.filter(x => x.id == selectedPart.warehouseId)
+                    .length > 0
+                    ? warehouses.filter(
+                        x => x.id == selectedPart.warehouseId
+                      )[0].description
+                    : ''}
+                </p>
+                <p>{' - '}</p>
+                <p className="font-bold">{' Unitats Consumides:'} </p>
                 {selectedPart.quantity}
                 <button
                   disabled={isFinished}
                   type="button"
                   className={`${
-                    isFinished ? "bg-gray-400" : " bg-red-600 hover:bg-red-400"
+                    isFinished ? 'bg-gray-400' : ' bg-red-600 hover:bg-red-400'
                   } text-white font-semibold p-1 rounded-md`}
-                  onClick={(e) =>
+                  onClick={e =>
                     cancelSparePartConsumption(
                       selectedPart.sparePart,
                       selectedPart.quantity
@@ -311,6 +379,15 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
           </div>
         </div>
       </div>
+      {showModalWareHouse !== undefined && (
+        <ModalOrderWareHouse
+          wareHouseIds={showModalWareHouse.warehouseStock.map(
+            x => x.warehouseId
+          )}
+          onSelectedId={onSelectedId}
+          wareHouses={warehouses}
+        />
+      )}
     </>
   );
 };

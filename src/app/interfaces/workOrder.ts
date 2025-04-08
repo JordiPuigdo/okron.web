@@ -44,6 +44,8 @@ export interface WorkOrderSparePart {
   id: string;
   quantity: number;
   sparePart: SparePart;
+  warehouseId: string;
+  warehouse: string;
 }
 
 export enum StateWorkOrder {

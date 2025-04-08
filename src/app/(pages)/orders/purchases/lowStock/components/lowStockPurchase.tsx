@@ -207,7 +207,7 @@ export default function LowStockPurchase() {
         <div className="flex flex-col w-full p-4">
           {filteredOrders.map((order, index) => {
             return (
-              <div key={index} className="mb-6 last:mb-0 ">
+              <div key={index} className="mb-6 last:mb-0">
                 <div className="flex flex-row gap-2 items-center p-1 py-1">
                   <input
                     type="checkbox"
@@ -223,7 +223,7 @@ export default function LowStockPurchase() {
                   </h2>
                 </div>
                 <div className="flex flex-col w-full bg-gray-50 p-4 rounded-lg">
-                  <div className="grid grid-cols-10 gap-4 mb-3 font-semibold text-gray-500 border-b border-gray-200">
+                  <div className="grid grid-cols-10 gap-4 font-semibold text-gray-500 border-b border-gray-200">
                     <span className="col-span-4 flex w-full text-left">
                       Rencavi
                     </span>
@@ -253,31 +253,31 @@ export default function LowStockPurchase() {
                     return (
                       <div
                         key={index}
-                        className={`grid grid-cols-10 gap-4 py-2  ${
+                        className={`grid grid-cols-10 gap-4 py-2 ${
                           Number(item.unitPrice) <= 0
                             ? 'border-red-500 border-2 rounded'
                             : ' border-gray-200 last:border-b-0  border-b'
                         }`}
                       >
-                        <span
-                          className="flex gap-2 col-span-4 text-gray-600 truncate items-center hover:cursor-pointer"
-                          title={item.sparePartName}
+                        <div
+                          className="flex col-span-4 hover:cursor-pointer"
                           onClick={() => {
                             handleItemSelect(item, order.providerId);
                           }}
                         >
-                          <input
-                            type="checkbox"
-                            className="form-checkbox text-blue-600 rounded focus:ring-blue-500"
-                            checked={exists ? true : false}
-                            onChange={() => {
-                              handleItemSelect(item, order.providerId);
-                            }}
-                          />
-                          {item.sparePartName.slice(0, 40)}
-                          {item.sparePartName.length > 40 && '...'}
-                        </span>
-
+                          <span
+                            className="flex gap-2 text-gray-600 truncate items-center "
+                            title={item.sparePartName}
+                          >
+                            <input
+                              type="checkbox"
+                              className="form-checkbox text-blue-600 rounded focus:ring-blue-500 hover:cursor-pointer"
+                              checked={exists ? true : false}
+                            />
+                            {item.sparePartName.slice(0, 40)}
+                            {item.sparePartName.length > 40 && '...'}
+                          </span>
+                        </div>
                         <span className="col-span-1 text-sm text-gray-600">
                           {item.warehouse}
                         </span>

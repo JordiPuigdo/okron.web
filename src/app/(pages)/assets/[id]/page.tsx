@@ -140,7 +140,7 @@ export default function AssetDetailsPage({
             <SvgMachines />
             {currentAsset
               ? currentAsset?.path
-              : parentAsset?.path + '/' + description}
+              : parentAsset && parentAsset?.path + '/' + description}
           </h2>
           <span className="text-l">
             Equip: {code} - {description}

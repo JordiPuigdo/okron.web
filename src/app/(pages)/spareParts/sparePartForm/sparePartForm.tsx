@@ -40,27 +40,35 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
   function handleAssignWareHouse(wareHouseId: string) {
     setSparePart(prevSparePart => {
       if (!prevSparePart) return prevSparePart;
-      const isAlreadyAssigned = prevSparePart.wareHouseId.includes(wareHouseId);
-      const updatedWareHouseIds = isAlreadyAssigned
-        ? prevSparePart.wareHouseId.filter(id => id !== wareHouseId)
-        : [...prevSparePart.wareHouseId, wareHouseId];
-      setValue('wareHouseId', updatedWareHouseIds);
+      const isAlreadyAssigned = prevSparePart.warehouses.find(
+        x => x.warehouseId == wareHouseId
+      );
+      if (isAlreadyAssigned) return prevSparePart;
+
+      const warehouseToAdd = {
+        warehouseId: wareHouseId,
+        warehouseName: warehouses.find(x => x.id == wareHouseId)!.description,
+      };
+      const newValue = prevSparePart.warehouses;
+      newValue.push(warehouseToAdd);
+      setValue('warehouses', newValue);
       return {
         ...prevSparePart,
-        wareHouseId: updatedWareHouseIds,
+        warehouses: newValue,
       };
     });
   }
   function handleRemoveWareHouse(wareHouseId: string) {
     setSparePart(prevSparePart => {
       if (!prevSparePart) return prevSparePart;
-      const updatedWareHouseIds = prevSparePart.wareHouseId.filter(
-        id => id !== wareHouseId
+
+      const updatedWareHouseIds = prevSparePart.warehouses.filter(
+        x => x.warehouseId !== wareHouseId
       );
-      setValue('wareHouseId', updatedWareHouseIds);
+      setValue('warehouses', updatedWareHouseIds);
       return {
         ...prevSparePart,
-        wareHouseId: updatedWareHouseIds,
+        warehouses: updatedWareHouseIds,
       };
     });
   }
@@ -116,7 +124,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
       lastMovementConsume: new Date(),
       lastMovement: new Date(),
       lastRestockDate: new Date(),
-      wareHouseId: [],
+      warehouses: [],
       providers: [],
     };
     setSparePart(newSparePart);
@@ -374,14 +382,18 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                   handleAssignWareHouse={handleAssignWareHouse}
                 />
                 {warehouses
-                  .filter(x => sparePart?.wareHouseId.includes(x.id))
-                  .map(x => (
-                    <div key={x.id} className="border p-2 rounded-md">
-                      {x.code} - {x.description}
+                  .filter(warehouse =>
+                    sparePart?.warehouses?.some(
+                      spWarehouse => spWarehouse.warehouseId === warehouse.id
+                    )
+                  )
+                  .map(warehouse => (
+                    <div key={warehouse.id} className="border p-2 rounded-md">
+                      {warehouse.code} - {warehouse.description}
                       <Button
                         type="delete"
                         className="ml-2"
-                        onClick={() => handleRemoveWareHouse(x.id)}
+                        onClick={() => handleRemoveWareHouse(warehouse.id)}
                       >
                         -
                       </Button>

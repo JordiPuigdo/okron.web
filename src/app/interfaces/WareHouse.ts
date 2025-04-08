@@ -31,3 +31,15 @@ export interface WareHouseSparePartRequest {
   sparePartId: string;
   operatorId: string;
 }
+
+export interface WareHouseStockAvailability {
+  sparePartId: string;
+  sparePartName: string;
+  warehouseStock: StockAvailability[];
+}
+
+export interface StockAvailability {
+  warehouseId: string;
+  warehouse: string;
+  stock: number;
+}

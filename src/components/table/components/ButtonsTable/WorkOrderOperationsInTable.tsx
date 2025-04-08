@@ -405,7 +405,7 @@ export const SparePartsModal = ({
         width="w-full"
         className="max-w-md mx-auto"
       >
-        <div className="bg-blue-950 p-4 rounded-lg shadow-md w-full">
+        <div className="bg-blue-950 p-1 rounded-lg shadow-md w-full">
           <div className="relative bg-white">
             <div className="absolute p-2 top-0 right-0 justify-end hover:cursor-pointer">
               <SvgClose
@@ -416,10 +416,9 @@ export const SparePartsModal = ({
             </div>
             {spareParts != undefined && spareParts.length > 0 ? (
               <ChooseSpareParts
-                availableSpareParts={spareParts}
                 selectedSpareParts={selectedSpareParts!}
                 setSelectedSpareParts={setSelectedSpareParts}
-                WordOrderId={workOrder.id}
+                workOrder={workOrder}
                 isFinished={isFinished}
               />
             ) : (

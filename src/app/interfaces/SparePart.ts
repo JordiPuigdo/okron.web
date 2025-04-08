@@ -22,7 +22,7 @@ interface SparePart {
   lastMovement: Date;
   lastRestockDate: Date;
   providers: ProviderSpareParts[];
-  wareHouseId: string[];
+  warehouses: WarehousesSparePart[];
 }
 
 export interface ProviderSpareParts {
@@ -34,6 +34,11 @@ export interface ProviderSpareParts {
   discount: number;
 }
 
+export interface WarehousesSparePart {
+  warehouseId: string;
+  warehouseName: string;
+}
+
 export default SparePart;
 
 export interface RestoreSparePart extends ConsumeSparePart {}
@@ -43,6 +48,8 @@ export interface ConsumeSparePart {
   sparePartId: string;
   unitsSparePart: number;
   operatorId: string;
+  warehouseId: string;
+  workOrderCode: string;
 }
 
 export interface CreateSparePartRequest {

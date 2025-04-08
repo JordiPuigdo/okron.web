@@ -12,7 +12,10 @@ export default function PurchaseComponent() {
         createButton="Crear Compra"
         urlCreateButton="/orders/orderForm?isPurchase=true"
       />
-      <TableDataOrders orderType={OrderType.Purchase} />
+      <TableDataOrders
+        orderType={OrderType.Purchase}
+        className="bg-white p-4 rounded-xl shadow-md"
+      />
     </div>
   );
 }

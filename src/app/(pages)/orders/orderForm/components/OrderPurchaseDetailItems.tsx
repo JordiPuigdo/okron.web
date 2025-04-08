@@ -2,7 +2,11 @@ import { OrderItemRequest } from 'app/interfaces/Order';
 
 interface OrderPurchaseDetailItemsProps {
   items: OrderItemRequest[];
-  handleRecieveItem: (orderItem: OrderItemRequest, isPartial: boolean) => void;
+  handleRecieveItem: (
+    orderItem: OrderItemRequest,
+    isPartial: boolean,
+    all?: boolean
+  ) => void;
   isOrderPurchase: boolean;
 }
 
@@ -11,6 +15,7 @@ export default function OrderPurchaseDetailItems({
   handleRecieveItem,
   isOrderPurchase,
 }: OrderPurchaseDetailItemsProps) {
+  const disableReceiveAll = items.some(x => x.quantityPendient ?? 0 > 0);
   return (
     <div>
       <div className="border-t pt-4">
@@ -92,6 +97,19 @@ export default function OrderPurchaseDetailItems({
           </tbody>
         </table>
       </div>
+      {isOrderPurchase && (
+        <div className="my-4 flex justify-end">
+          <button
+            className={`bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 ${
+              !disableReceiveAll && 'opacity-50 cursor-not-allowed'
+            }`}
+            onClick={() => handleRecieveItem(items[0], false, true)}
+            disabled={!disableReceiveAll}
+          >
+            Recepcionar comanada sencera
+          </button>
+        </div>
+      )}
     </div>
   );
 }

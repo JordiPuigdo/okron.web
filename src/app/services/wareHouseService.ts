@@ -8,6 +8,7 @@ import {
   WareHouse,
   WareHouseRequest,
   WareHouseSparePartRequest,
+  WareHouseStockAvailability,
 } from 'app/interfaces/WareHouse';
 
 export interface IWareHouseService {
@@ -26,6 +27,7 @@ export interface IWareHouseService {
   getStockMovementsByWarehouseAndDate(
     filters: StockMovementFilters
   ): Promise<StockMovement[]>;
+  stockAvailability(): Promise<WareHouseStockAvailability[]>;
 }
 
 export class WareHouseService implements IWareHouseService {
@@ -33,6 +35,20 @@ export class WareHouseService implements IWareHouseService {
 
   constructor(baseUrl: string = process.env.NEXT_PUBLIC_API_BASE_URL!) {
     this.baseUrl = baseUrl;
+  }
+  async stockAvailability(): Promise<WareHouseStockAvailability[]> {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}warehouse/stockAvailability`
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch warehouses: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching warehouses:', error);
+      throw error;
+    }
   }
   async addSparePart(
     wareHouseSparePartRequest: WareHouseSparePartRequest
