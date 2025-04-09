@@ -34,6 +34,7 @@ export interface WareHouseSparePartRequest {
 
 export interface WareHouseStockAvailability {
   sparePartId: string;
+  sparePartCode: string;
   sparePartName: string;
   warehouseStock: StockAvailability[];
 }

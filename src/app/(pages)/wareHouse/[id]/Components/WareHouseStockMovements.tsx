@@ -142,12 +142,7 @@ const ColumnsStockMovements: Column[] = [
   },
   {
     key: 'relatedDocumentCode',
-    label: 'Recepció',
-    format: ColumnFormat.TEXT,
-  },
-  {
-    key: 'providerInfo',
-    label: 'Proveeïdor',
+    label: 'Operació',
     format: ColumnFormat.TEXT,
   },
   {

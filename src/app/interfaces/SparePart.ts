@@ -46,10 +46,12 @@ export interface RestoreSparePart extends ConsumeSparePart {}
 export interface ConsumeSparePart {
   workOrderId: string;
   sparePartId: string;
+  sparePartCode: string;
   unitsSparePart: number;
   operatorId: string;
   warehouseId: string;
   workOrderCode: string;
+  warehouseName: string;
 }
 
 export interface CreateSparePartRequest {

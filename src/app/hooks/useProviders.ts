@@ -30,7 +30,12 @@ export const useProviders = (
     shouldFetchProviders
       ? process.env.NEXT_PUBLIC_API_BASE_URL + 'provider'
       : null,
-    fetcher
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateIfStale: false,
+      revalidateOnReconnect: false,
+    }
   );
 
   const createProvider = async (

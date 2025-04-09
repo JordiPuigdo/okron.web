@@ -144,7 +144,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
         ...prevSelected,
         mapSparePartToWorkorderSparePart(sparePart, units, warehouseId),
       ]);
-
+      const splitedName = sparePart.sparePartName.split('-');
       const consRequest: ConsumeSparePart = {
         sparePartId: sparePart.sparePartId,
         unitsSparePart: units,
@@ -152,6 +152,9 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
         operatorId: operatorLogged?.idOperatorLogged!,
         warehouseId: warehouseId,
         workOrderCode: workOrder.code + ' - ' + workOrder.description,
+        sparePartCode: splitedName[0].trim(),
+        warehouseName:
+          warehouses.find(x => x.id == warehouseId)?.description ?? '',
       };
       await sparePartService.consumeSparePart(consRequest);
       await workOrderService.cleanCache();
@@ -177,6 +180,8 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
       sparePart: finalSparePart as unknown as SparePart,
       warehouse: '',
       warehouseId: warehouseId,
+      warehouseName:
+        warehouses.find(x => x.id == warehouseId)?.description ?? '',
     };
     return workOrderSparePart;
   };
@@ -217,6 +222,8 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
       operatorId: operatorLogged?.idOperatorLogged!,
       warehouseId: sparePart.warehouses[0].warehouseId,
       workOrderCode: workOrder.code,
+      sparePartCode: sparePart.code,
+      warehouseName: '',
     };
     await sparePartService.restoreSparePart(consRequest);
     await workOrderService.cleanCache();
@@ -354,7 +361,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
                     ? warehouses.filter(
                         x => x.id == selectedPart.warehouseId
                       )[0].description
-                    : ''}
+                    : selectedPart.warehouseName}
                 </p>
                 <p>{' - '}</p>
                 <p className="font-bold">{' Unitats Consumides:'} </p>

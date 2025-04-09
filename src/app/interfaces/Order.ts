@@ -38,12 +38,14 @@ export enum OrderType {
 
 export interface OrderItem extends BaseModel {
   sparePartId: string;
+  sparePartName: string;
   quantity: number;
   quantityReceived: number;
   unitPrice: string;
   sparePart: SparePart;
   wareHouseId: string;
   wareHouse?: WareHouse;
+  wareHouseName: string;
   quantityPendient?: number;
   estimatedDeliveryDate?: string;
   refProvider: string;

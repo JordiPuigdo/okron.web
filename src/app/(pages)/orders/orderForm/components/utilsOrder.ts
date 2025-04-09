@@ -20,6 +20,8 @@ export function mapItems(orderSelected: Order, warehouses: WareHouse[]) {
       providerId: orderSelected.providerId,
       creationDate: orderSelected.creationDate,
       wareHouse: warehouses.find(w => w.id === x.wareHouseId),
+      wareHouseName: x.wareHouseName,
+      sparePartName: x.sparePartName,
       active: true,
       quantityReceived: x.quantityReceived,
       quantityPendient: x.quantity - (x.quantityReceived ?? 0),
