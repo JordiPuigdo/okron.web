@@ -15,6 +15,7 @@ export interface IOrderService {
   getWithFilters(filters: GetOrderWithFiltersRequest): Promise<Order[]>;
   update(updateOrderRequest: OrderUpdateRequest): Promise<Order>;
   getLowStockOrders(): Promise<PurchaseProposal[]>;
+  createLowStockOrders(purchaseProposal: PurchaseProposal[]): Promise<boolean>;
 }
 
 export class OrderService implements IOrderService {
@@ -128,6 +129,26 @@ export class OrderService implements IOrderService {
       console.error('Error updating order:', error);
       throw error;
     }
+  }
+
+  async createLowStockOrders(purchaseProposal: PurchaseProposal[]) {
+    try {
+      const response = await fetch(`${this.baseUrl}orders/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(purchaseProposal),
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to update order: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating order:', error);
+      throw error;
+    }
+    return true;
   }
 }
 export default OrderService;

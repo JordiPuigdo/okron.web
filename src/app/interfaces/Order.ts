@@ -81,6 +81,7 @@ export interface OrderItemRequest {
   quantity: number;
   unitPrice: string;
   wareHouseId?: string;
+  wareHouseName: string;
   providerId?: string;
   provider?: Provider;
   wareHouse?: WareHouse;

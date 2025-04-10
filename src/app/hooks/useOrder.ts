@@ -78,6 +78,10 @@ export const useOrder = (orderService: IOrderService = new OrderService()) => {
     }
   };
 
+  const createLowStockOrders = async (purchaseProposal: PurchaseProposal[]) => {
+    return await orderService.createLowStockOrders(purchaseProposal);
+  };
+
   return {
     fetchOrderById,
     createOrder,
@@ -87,5 +91,6 @@ export const useOrder = (orderService: IOrderService = new OrderService()) => {
     orders,
     updateOrder,
     fetchLowStockOrders,
+    createLowStockOrders,
   };
 };

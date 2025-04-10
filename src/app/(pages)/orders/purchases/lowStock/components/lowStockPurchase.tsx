@@ -8,7 +8,7 @@ import {
 import { Button } from 'designSystem/Button/Buttons';
 
 export default function LowStockPurchase() {
-  const { fetchLowStockOrders } = useOrder();
+  const { fetchLowStockOrders, createLowStockOrders } = useOrder();
   const [lowStockOrders, setLowStockOrders] = useState<PurchaseProposal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,13 +54,13 @@ export default function LowStockPurchase() {
       const newSelected = new Set(prev);
       if (newSelected.has(providerId)) {
         newSelected.delete(providerId);
-        // Remove all items from this provider
+
         setPurchaseProposal(prevProposals =>
           prevProposals.filter(proposal => proposal.providerId !== providerId)
         );
       } else {
         newSelected.add(providerId);
-        // Add all items from this provider
+
         const providerOrder = lowStockOrders.find(
           order => order.providerId === providerId
         );
@@ -157,12 +157,14 @@ export default function LowStockPurchase() {
       );
   };
 
+  const onCreate = () => {
+    createLowStockOrders(purchaseProposal);
+  };
+
   return (
     <div className="flex flex-col flex-1 bg-white shadow-lg rounded-xl">
-      {/* Fixed header */}
       <div className="flex-none p-4 border-b border-gray-200">
         <div className="flex flex-row items-center gap-6 bg-white rounded-lg">
-          {/* Select All Section */}
           <div
             className="flex items-center gap-2 cursor-pointer select-none"
             onClick={() => setSelectAll(prev => !prev)}
@@ -177,7 +179,6 @@ export default function LowStockPurchase() {
             </label>
           </div>
 
-          {/* Search Section */}
           <div className="relative flex-1 max-w-md">
             <input
               type="text"
@@ -339,7 +340,9 @@ export default function LowStockPurchase() {
             >
               Cancel·lar
             </Button>
-            <Button disabled={selectedOrders.size === 0}>Generar Compra</Button>
+            <Button disabled={purchaseProposal.length === 0} onClick={onCreate}>
+              Generar Compra
+            </Button>
           </div>
         </div>
       </div>

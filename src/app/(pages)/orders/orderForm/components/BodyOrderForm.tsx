@@ -3,6 +3,7 @@ import {
   OrderCreationRequest,
   OrderItemRequest,
   OrderSimple,
+  OrderStatus,
   OrderType,
 } from 'app/interfaces/Order';
 import { Provider } from 'app/interfaces/Provider';
@@ -87,6 +88,7 @@ export function BodyOrderForm({
             ? selectedWareHouse.warehouseId
             : selectedSparePart.warehouses[0].warehouseId)
       ),
+      wareHouseName: item.wareHouseName,
       estimatedDeliveryDate: new Date().toISOString().split('T')[0],
     };
 
@@ -224,6 +226,7 @@ export function BodyOrderForm({
         wareHouse: exists.wareHouse,
         refProvider: exists.refProvider,
         discount: exists.discount,
+        wareHouseName: exists.wareHouseName,
       };
       exists.quantityPendient = (exists.quantityPendient ?? 0) - units;
       const updatedItems = order.items.map(x =>
@@ -247,6 +250,7 @@ export function BodyOrderForm({
           wareHouse: item.wareHouse,
           refProvider: item.refProvider,
           discount: item.discount,
+          wareHouseName: item.wareHouseName,
         };
         setOrder({
           ...order,
@@ -314,7 +318,7 @@ export function BodyOrderForm({
         <OrderDetailItems
           handleRemoveItem={handleRemoveItem}
           items={order.items}
-          canEdit={!isEditing}
+          canEdit={!isEditing || order.status == OrderStatus.Pending}
           onChangePrice={handleChangePrice}
           onChangeEstimatedDeliveryDate={handleChangeEstimatedDeliveryDate}
           onChangeQuantity={handleChangeQuantity}

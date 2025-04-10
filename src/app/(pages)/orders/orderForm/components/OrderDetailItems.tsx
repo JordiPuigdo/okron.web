@@ -123,7 +123,9 @@ export default function OrderDetailItems({
                     {item.sparePart.description.length > 20 && '...'}
                   </td>
                   <td className="p-2 border text-center">
-                    {item.wareHouse?.description}
+                    {item.wareHouse?.description
+                      ? item.wareHouse?.description
+                      : item.wareHouseName}
                   </td>
                   <td className="p-2 border text-center">{item.refProvider}</td>
                   <td className="p-2 border text-center">
