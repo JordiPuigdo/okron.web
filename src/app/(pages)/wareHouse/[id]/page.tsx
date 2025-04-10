@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import { SvgSpinner } from 'app/icons/icons';
-import { WareHouse } from 'app/interfaces/WareHouse';
+import { WareHouse, WareHouseDetail } from 'app/interfaces/WareHouse';
 import { useSessionStore } from 'app/stores/globalStore';
 import Container from 'components/layout/Container';
 import { HeaderForm } from 'components/layout/HeaderForm';
@@ -19,7 +19,7 @@ export default function wareHouseDetailPage({
 }: {
   params: { id: string };
 }) {
-  const [wareHouse, setWareHouse] = useState<WareHouse>();
+  const [wareHouse, setWareHouse] = useState<WareHouseDetail>();
 
   const router = useRouter();
   const { operatorLogged } = useSessionStore();
@@ -102,13 +102,14 @@ export default function wareHouseDetailPage({
                       className="border rounded p-2"
                     />
                   </div>
-                  Total Preu En Stock
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-lg bg-gray-100 p-2">
                       <div className="flex justify-center mb-1">
                         <PackageCheck size={18} className="text-green-600" />
                       </div>
-                      <div className="text-2xl font-semibold">{15}</div>
+                      <div className="text-2xl font-semibold">
+                        {wareHouse.totalStock}
+                      </div>
                       <div className="text-xs text-muted-foreground">Total</div>
                     </div>
 
@@ -116,7 +117,9 @@ export default function wareHouseDetailPage({
                       <div className="flex justify-center mb-1">
                         <PackageOpen size={18} className="text-amber-600" />
                       </div>
-                      <div className="text-2xl font-semibold">{15}</div>
+                      <div className="text-2xl font-semibold">
+                        {wareHouse.lowStock}
+                      </div>
                       <div className="text-xs text-muted-foreground">
                         Sota Stock
                       </div>
@@ -126,7 +129,9 @@ export default function wareHouseDetailPage({
                       <div className="flex justify-center mb-1">
                         <Box size={18} className="text-red-600" />
                       </div>
-                      <div className="text-2xl font-semibold">{15}</div>
+                      <div className="text-2xl font-semibold">
+                        {wareHouse.highStock}
+                      </div>
                       <div className="text-xs text-muted-foreground">
                         Sobre Stock
                       </div>

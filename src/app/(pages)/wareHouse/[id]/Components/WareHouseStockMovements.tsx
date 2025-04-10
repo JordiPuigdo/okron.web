@@ -34,7 +34,7 @@ export default function WareHouseStockMovements({
         to: endDate,
         wareHouseId: wareHouseId,
       });
-      if (!response || response.length === 0) {
+      if (!response || (response.length === 0 && !firstLoad)) {
         setShowNoResults(true);
         setTimeout(() => {
           setShowNoResults(false);
@@ -49,8 +49,8 @@ export default function WareHouseStockMovements({
 
   useEffect(() => {
     if (firstLoad) {
-      setFirstLoad(false);
       fetchStockMovements(new Date(), new Date());
+      setFirstLoad(false);
     }
   }, [firstLoad]);
 
@@ -94,7 +94,7 @@ export default function WareHouseStockMovements({
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-        {showNoResults && (
+        {showNoResults && !firstLoad && (
           <div className="text-red-500">
             No hi ha resultats amb aquests filtres
           </div>

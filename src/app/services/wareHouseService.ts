@@ -6,6 +6,7 @@ import {
 import {
   UpdateWareHouseRequest,
   WareHouse,
+  WareHouseDetail,
   WareHouseRequest,
   WareHouseSparePartRequest,
   WareHouseStockAvailability,
@@ -14,7 +15,7 @@ import {
 export interface IWareHouseService {
   getWareHouses(): Promise<WareHouse[]>;
   createWareHouse(wareHouse: WareHouseRequest): Promise<WareHouse>;
-  getWareHouse(id: string): Promise<WareHouse>;
+  getWareHouse(id: string): Promise<WareHouseDetail>;
   addSparePart(
     wareHouseSparePartRequest: WareHouseSparePartRequest
   ): Promise<boolean>;
@@ -108,7 +109,7 @@ export class WareHouseService implements IWareHouseService {
       throw error;
     }
   }
-  async getWareHouse(id: string): Promise<WareHouse> {
+  async getWareHouse(id: string): Promise<WareHouseDetail> {
     try {
       const response = await fetch(`${this.baseUrl}warehouse/${id}`);
       if (!response.ok) {

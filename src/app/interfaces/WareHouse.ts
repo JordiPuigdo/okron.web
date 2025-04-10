@@ -1,6 +1,12 @@
 import { BaseModel } from './BaseModel';
 import SparePart from './SparePart';
 
+export interface WareHouseDetail extends WareHouse {
+  totalStock: number;
+  highStock: number;
+  lowStock: number;
+}
+
 export interface WareHouse extends BaseModel {
   code: string;
   description: string;
