@@ -36,6 +36,7 @@ export default function SearchSparePartOrderPurchase({
         sparePart: selectedSparePart,
         refProvider: selectedSparePart.refProvider,
         discount: 0,
+        wareHouseName: '',
       });
       setSelectedSparePart(undefined);
     }
