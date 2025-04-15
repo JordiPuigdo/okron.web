@@ -348,7 +348,9 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
       workOrder.plannedDuration
     );
 
-    return totalMilliseconds > plannedDurationMilliseconds;
+    return plannedDurationMilliseconds == 0
+      ? false
+      : totalMilliseconds > plannedDurationMilliseconds;
   }
 
   function parseDuration(duration: string): number {

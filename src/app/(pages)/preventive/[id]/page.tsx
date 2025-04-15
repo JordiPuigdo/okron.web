@@ -1,31 +1,32 @@
-"use client";
+'use client';
 
-import "react-datepicker/dist/react-datepicker.css";
+import 'react-datepicker/dist/react-datepicker.css';
 
-import { useEffect, useState } from "react";
-import DatePicker from "react-datepicker";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { Asset } from "app/interfaces/Asset";
-import InspectionPoint from "app/interfaces/inspectionPoint";
-import Operator from "app/interfaces/Operator";
-import { Preventive, UpdatePreventiveRequest } from "app/interfaces/Preventive";
-import SparePart from "app/interfaces/SparePart";
-import AssetService from "app/services/assetService";
-import InspectionPointService from "app/services/inspectionPointService";
-import OperatorService from "app/services/operatorService";
-import PreventiveService from "app/services/preventiveService";
-import ChooseInspectionPoint from "components/inspectionPoint/ChooseInspectionPoint";
-import Container from "components/layout/Container";
-import MainLayout from "components/layout/MainLayout";
-import ChooseOperatorV2 from "components/operator/ChooseOperatorV2";
-import { ElementList } from "components/selector/ElementList";
-import ca from "date-fns/locale/ca";
-import dayjs from "dayjs";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from 'react';
+import DatePicker from 'react-datepicker';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { Asset } from 'app/interfaces/Asset';
+import InspectionPoint from 'app/interfaces/inspectionPoint';
+import Operator from 'app/interfaces/Operator';
+import { Preventive, UpdatePreventiveRequest } from 'app/interfaces/Preventive';
+import SparePart from 'app/interfaces/SparePart';
+import AssetService from 'app/services/assetService';
+import InspectionPointService from 'app/services/inspectionPointService';
+import OperatorService from 'app/services/operatorService';
+import PreventiveService from 'app/services/preventiveService';
+import { formatDate } from 'app/utils/utils';
+import ChooseInspectionPoint from 'components/inspectionPoint/ChooseInspectionPoint';
+import Container from 'components/layout/Container';
+import MainLayout from 'components/layout/MainLayout';
+import ChooseOperatorV2 from 'components/operator/ChooseOperatorV2';
+import { ElementList } from 'components/selector/ElementList';
+import ca from 'date-fns/locale/ca';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import { useRouter } from 'next/navigation';
 
-import { WorkOrderPerPreventive } from "./components/WorkOrderPerPreventive";
+import { WorkOrderPerPreventive } from './components/WorkOrderPerPreventive';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -46,13 +47,13 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
     InspectionPoint[]
   >([]);
   const inspectionPointService = new InspectionPointService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
   const preventiveService = new PreventiveService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
   const operatorService = new OperatorService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
   const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
 
@@ -70,7 +71,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
       );
       return preventiveData;
     } catch (error) {
-      console.error("Error fetching machine data:", error);
+      console.error('Error fetching machine data:', error);
       return {} as Preventive;
     }
   };
@@ -79,11 +80,11 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
     const inspectionPoints =
       await inspectionPointService.getAllInspectionPoints();
     setAvailableInspectionPoints(
-      inspectionPoints.filter((x) => x.active == true)
+      inspectionPoints.filter(x => x.active == true)
     );
 
     const selected = preventive?.inspectionPoints?.map(
-      (inspectionPoints) => inspectionPoints.id
+      inspectionPoints => inspectionPoints.id
     );
     setSelectedInspectionPoints(selected ?? []);
   };
@@ -99,25 +100,25 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
           description: asset.description,
         });
 
-        asset.childs.forEach((childAsset) => {
+        asset.childs.forEach(childAsset => {
           addAssetAndChildren(childAsset);
         });
       };
 
-      assets.forEach((asset) => {
+      assets.forEach(asset => {
         addAssetAndChildren(asset);
       });
 
       setAssets(elements);
     } catch (error) {
-      console.error("Error al obtener activos:", error);
+      console.error('Error al obtener activos:', error);
     }
   };
 
   const fetchOperators = async (preventive: Preventive) => {
-    await operatorService.getOperators().then((workOperator) => {
+    await operatorService.getOperators().then(workOperator => {
       setOperators(workOperator);
-      const selected = preventive?.operators?.map((operators) => operators.id);
+      const selected = preventive?.operators?.map(operators => operators.id);
       setSelectedOperator(selected ?? []);
     });
   };
@@ -128,15 +129,15 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
         const data = await fetchPreventiveData();
         if (data) {
           setPreventiveData(data);
-          setValue("code", data.code);
-          setValue("description", data.description);
-          setValue("hours", data.hours);
-          setValue("days", data.days);
-          setValue("startExecution", data.startExecution);
+          setValue('code', data.code);
+          setValue('description', data.description);
+          setValue('hours', data.hours);
+          setValue('days', data.days);
+          setValue('startExecution', data.startExecution);
           const finalData = new Date(data.startExecution);
-          setValue("asset", data.asset);
-          setValue("active", data.active);
-          setValue("lastExecution", data.lastExecution);
+          setValue('asset', data.asset);
+          setValue('active', data.active);
+          setValue('lastExecution', data.lastExecution);
           setStartDate(finalData);
           await fetchInspectionPoints(data);
           await fetchOperators(data);
@@ -185,28 +186,28 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
       days: preventive.days,
       counter: preventive.counter,
       assetId: [preventive.asset?.id],
-      inspectionPointId: selectedInspectionPoints.map((point) => point),
-      operatorId: selectedOperator.map((sparePart) => sparePart),
+      inspectionPointId: selectedInspectionPoints.map(point => point),
+      operatorId: selectedOperator.map(sparePart => sparePart),
       active: preventive.active,
-      plannedDuration: "",
+      plannedDuration: '',
     };
     return updatePreventiveRequest;
   }
 
   const handleInspectionPointSelected = (pointId: string) => {
-    setSelectedInspectionPoints((prevSelected) => [...prevSelected, pointId]);
+    setSelectedInspectionPoints(prevSelected => [...prevSelected, pointId]);
   };
   const handleDeleteInspectionPointSelected = (pointId: string) => {
-    setSelectedInspectionPoints((prevSelected) =>
-      prevSelected.filter((id) => id !== pointId)
+    setSelectedInspectionPoints(prevSelected =>
+      prevSelected.filter(id => id !== pointId)
     );
   };
   const handleSelectedOperator = (id: string) => {
-    setSelectedOperator((prevSelected) => [...prevSelected, id]);
+    setSelectedOperator(prevSelected => [...prevSelected, id]);
   };
   const handleDeleteSelectedOperator = (idOperator: string) => {
-    setSelectedOperator((prevSelected) =>
-      prevSelected.filter((id) => id !== idOperator)
+    setSelectedOperator(prevSelected =>
+      prevSelected.filter(id => id !== idOperator)
     );
   };
 
@@ -228,7 +229,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
                   Codi
                 </label>
                 <input
-                  {...register("code")}
+                  {...register('code')}
                   id="code"
                   type="text"
                   className="form-input border border-gray-300 rounded-md w-full"
@@ -242,7 +243,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
                   Descripció
                 </label>
                 <input
-                  {...register("description")}
+                  {...register('description')}
                   id="description"
                   type="text"
                   className="form-input border border-gray-300 rounded-md w-full"
@@ -258,7 +259,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
                   Freqüència Dies
                 </label>
                 <input
-                  {...register("days")}
+                  {...register('days')}
                   id="days"
                   type="number"
                   className="form-input border border-gray-300 rounded-md w-full"
@@ -288,16 +289,12 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
                   >
                     Última Execució
                   </label>
-                  <div>
-                    {dayjs
-                      .utc(preventiveData?.lastExecution, "Europe/Madrid")
-                      .format("DD/MM/YYYY")}
-                  </div>
+                  <div>{formatDate(preventiveData.lastExecution, false)}</div>
                 </div>
               )}
             </div>
 
-            {error && <p style={{ color: "red" }}>{error}</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             <div className="flex flex-row gap-8 w-full ">
               <ChooseInspectionPoint
                 preventiveInspectionPoints={availableInspectionPoints}
@@ -308,7 +305,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
                 preventiveSelectedInspectionPoints={selectedInspectionPoints}
               />
               <ChooseOperatorV2
-                availableOperators={operators.filter((x) => x.active == true)}
+                availableOperators={operators.filter(x => x.active == true)}
                 preventiveSelectedOperators={selectedOperator}
                 onDeleteSelectedOperator={handleDeleteSelectedOperator}
                 onSelectedOperator={handleSelectedOperator}
@@ -317,7 +314,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
             <div className="gap-2 flex items-center jusitfy-center py-4">
               <p className="text-gray-700 font-bold text-sm">Activa:</p>
               <input
-                {...register("active")}
+                {...register('active')}
                 id="active"
                 className="flex"
                 type="checkbox"
@@ -333,16 +330,16 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
                 type="submit"
                 className={`${
                   showSuccessMessage
-                    ? "bg-green-500"
+                    ? 'bg-green-500'
                     : showErrorMessage
-                    ? "bg-red-500"
-                    : "bg-okron-btCreate"
+                    ? 'bg-red-500'
+                    : 'bg-okron-btCreate'
                 } hover:${
                   showSuccessMessage
-                    ? "bg-green-700"
+                    ? 'bg-green-700'
                     : showErrorMessage
-                    ? "bg-red-700"
-                    : "bg-blue-700"
+                    ? 'bg-red-700'
+                    : 'bg-blue-700'
                 } text-white font-bold py-2 px-4 rounded mt-6`}
               >
                 Actualitzar Revisió
