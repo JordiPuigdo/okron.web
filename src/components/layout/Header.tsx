@@ -1,12 +1,23 @@
 import GeneratePreventive from 'app/(pages)/preventive/components/GeneratePreventive';
 import FinalizeWorkOrdersDaysBefore from 'app/(pages)/workOrders/components/FinalizeWorkOrdersDaysBefore';
-import { SvgAccount, SvgLogo, SvgLogOut, SvgMenu } from 'app/icons/icons';
+import { SvgAccount, SvgLogOut, SvgMenu } from 'app/icons/icons';
 import { UserPermission, UserType } from 'app/interfaces/User';
 import { useSessionStore } from 'app/stores/globalStore';
 import useRoutes from 'app/utils/useRoutes';
 import SignOperator from 'components/operator/SignOperator';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+
+const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
+
+export const metadata = {
+  title: 'Okron',
+  description: 'Gestió',
+
+  icons: {
+    icon: { logoUrl },
+  },
+};
 
 const Header: React.FC = () => {
   const {
@@ -30,7 +41,6 @@ const Header: React.FC = () => {
     setOperatorLogged(undefined);
     router.push(ROUTES.home);
   }
-  const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
 
   return (
     <header className="flex items-center justify-between bg-white text-lg font-semibold text-white p-4 w-full sticky transition-all shadow-md">
