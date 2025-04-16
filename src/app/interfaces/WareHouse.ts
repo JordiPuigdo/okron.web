@@ -20,6 +20,7 @@ export interface WareHouseStock {
   price: string;
   sparePart: SparePart;
   lastUpdate: string;
+  isBelowMinimum: boolean;
 }
 
 export interface WareHouseRequest {

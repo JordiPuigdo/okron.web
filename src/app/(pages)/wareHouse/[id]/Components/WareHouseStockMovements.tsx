@@ -73,14 +73,16 @@ export default function WareHouseStockMovements({
   }, [dateFilters]);
 
   const [search, setSearch] = useState('');
+  const [active, setActive] = useState(true);
 
   const filteredStockMovements = useMemo(() => {
     return stockMovements.filter(
       movement =>
-        movement.sparePartCode.toLowerCase().includes(search.toLowerCase()) ||
-        movement.providerInfo.toLowerCase().includes(search.toLowerCase())
+        (movement.sparePartCode.toLowerCase().includes(search.toLowerCase()) ||
+          movement.providerInfo.toLowerCase().includes(search.toLowerCase())) &&
+        movement.active == active
     );
-  }, [stockMovements, search]);
+  }, [stockMovements, search, active]);
 
   return (
     <div className="flex flex-col bg-white rounded-xl gap-4 p-4 shadow-md flex-1 overflow-y-auto">
@@ -94,6 +96,18 @@ export default function WareHouseStockMovements({
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
+        <div
+          className="ml-2 flex flex-row gap-2 items-center hover:cursor-pointer"
+          onClick={() => setActive(!active)}
+        >
+          <label className="hover:cursor-pointer">Actiu</label>
+          <input
+            id="actives"
+            placeholder="Actius"
+            type="checkbox"
+            checked={active}
+          />
+        </div>
         {showNoResults && !firstLoad && (
           <div className="text-red-500">
             No hi ha resultats amb aquests filtres

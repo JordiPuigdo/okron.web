@@ -173,6 +173,8 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
       id: sparePart.sparePartId,
       code: name[0],
       description: name[1],
+      warehouseId: warehouseId,
+      warehouses: warehouses.find(x => x.id == warehouseId),
     };
     const workOrderSparePart: WorkOrderSparePart = {
       id: sparePart.sparePartId,
@@ -188,7 +190,8 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
 
   async function cancelSparePartConsumption(
     sparePart: SparePart,
-    quantity: number
+    quantity: number,
+    wareHouseId: string
   ) {
     if (operatorLogged == undefined) {
       alert('Has de tenir un operari fitxat per fer aquesta acció!');
@@ -204,7 +207,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
     if (sparePartfinded) {
       if (sparePartfinded.warehouseStock.length > 1) {
         sparePartfinded.warehouseStock.filter(
-          x => x.warehouseId == sparePart.warehouses[0].warehouseId
+          x => x.warehouseId == wareHouseId
         )[0].stock += quantity;
       } else {
         sparePartfinded.warehouseStock[0].stock += quantity;
@@ -220,7 +223,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
       unitsSparePart: quantity,
       workOrderId: workOrder.id,
       operatorId: operatorLogged?.idOperatorLogged!,
-      warehouseId: sparePart.warehouses[0].warehouseId,
+      warehouseId: wareHouseId,
       workOrderCode: workOrder.code,
       sparePartCode: sparePart.code,
       warehouseName: '',
@@ -375,7 +378,8 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
                   onClick={e =>
                     cancelSparePartConsumption(
                       selectedPart.sparePart,
-                      selectedPart.quantity
+                      selectedPart.quantity,
+                      selectedPart.warehouseId
                     )
                   }
                 >

@@ -44,7 +44,12 @@ const WarehouseStock: React.FC<WarehouseStockProps> = ({ stock }) => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {filteredStock.map((stock, index) => (
-              <tr key={index} className="hover:bg-gray-50 transition-colors">
+              <tr
+                key={index}
+                className={`${
+                  stock.isBelowMinimum ? 'bg-red-200' : 'hover:bg-gray-50 '
+                } transition-colors`}
+              >
                 <td className="px-4 py-2 text-sm text-gray-700">
                   {stock.sparePart.code}
                 </td>
