@@ -30,6 +30,7 @@ const Header: React.FC = () => {
     setOperatorLogged(undefined);
     router.push(ROUTES.home);
   }
+  const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
 
   return (
     <header className="flex items-center justify-between bg-white text-lg font-semibold text-white p-4 w-full sticky transition-all shadow-md">
@@ -37,19 +38,19 @@ const Header: React.FC = () => {
         <button onClick={handleMenuClick}>
           <SvgMenu width={30} height={30} className="text-okron-main" />
         </button>
-        <div className="ml-2 flex w-1/3">
+        <div className="ml-2 flex">
           <Link
             className="hidden md:flex sm:flex items-center font-semibold text-lg text-gray-900 p-1 bg-white rounded-md"
             href={'/menu'}
           >
             <img
-              src="/images/header/CMLogo.png"
+              src={logoUrl}
               alt="Components Mecànics Logo"
-              className="w-full h-full"
+              className="h-[45px] w-[45px]"
             />
           </Link>
         </div>
-        <div className="flex items-center ml-6">
+        <div className="flex items-center">
           <SignOperator />
         </div>
       </div>

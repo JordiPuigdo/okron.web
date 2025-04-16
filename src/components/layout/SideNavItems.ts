@@ -180,7 +180,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         permission: [UserPermission.Administrator],
         userType: [UserType.Maintenance, UserType.Warehouse],
       },
-      {
+      /*{
         key: generateKey(),
         title: 'Seccions',
         path: '/section',
@@ -195,7 +195,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         icon: SvgMachine,
         userType: [],
         permission: [],
-      },
+      },*/
       {
         key: generateKey(),
         title: 'Operaris',
