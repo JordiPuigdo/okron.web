@@ -49,6 +49,7 @@ export default function LowStockPurchase() {
   const filteredOrders = lowStockOrders.filter(order =>
     order.providerName?.toLowerCase().includes(search.toLowerCase())
   );
+
   const handleOrderSelect = (providerId: string) => {
     setSelectedOrders(prev => {
       const newSelected = new Set(prev);
@@ -137,7 +138,9 @@ export default function LowStockPurchase() {
           ...prev,
           {
             providerId,
-            providerName: '',
+            providerName:
+              lowStockOrders.find(x => x.providerId == providerId)
+                ?.providerName ?? 'unknown',
             items: [item],
           },
         ];
