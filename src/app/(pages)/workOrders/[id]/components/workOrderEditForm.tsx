@@ -888,8 +888,8 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
             />
           </div>
         )}
-        <div className="flex flex-grow w-full">
-          {currentWorkOrder.workOrderType === WorkOrderType.Preventive && (
+        {currentWorkOrder.workOrderType === WorkOrderType.Preventive && (
+          <div className="flex flex-grow w-full">
             <CompleteInspectionPoints
               workOrderInspectionPoints={passedInspectionPoints!}
               setCompletedWorkOrderInspectionPoints={setPassedInspectionPoints}
@@ -902,16 +902,16 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
               }
               workOrder={currentWorkOrder}
             />
-          )}
-          {currentWorkOrder.workOrderType === WorkOrderType.Corrective && (
-            <ChooseSpareParts
-              selectedSpareParts={selectedSpareParts}
-              setSelectedSpareParts={setSelectedSpareParts}
-              workOrder={currentWorkOrder}
-              isFinished={isFinished}
-            />
-          )}
-        </div>
+          </div>
+        )}
+      </div>
+      <div className="flex flex-grow w-full p-2 bg-blue-900 rounded-lg shadow-md my-2">
+        <ChooseSpareParts
+          selectedSpareParts={selectedSpareParts}
+          setSelectedSpareParts={setSelectedSpareParts}
+          workOrder={currentWorkOrder}
+          isFinished={isFinished}
+        />
       </div>
       <div className="py-2 p-2 bg-blue-900 rounded-lg shadow-md  w-full  flex flex-col">
         {currentWorkOrder &&

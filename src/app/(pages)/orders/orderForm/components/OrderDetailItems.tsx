@@ -42,7 +42,7 @@ export default function OrderDetailItems({
   function handleUpdatePrice(item: OrderItemRequest, price: string) {
     if (item.unitPrice !== price) {
       updateSparePartPrice({
-        providerId: item.provider!.id,
+        providerId: item.provider ? item.provider.id : item.providerId!,
         sparePartId: item.sparePartId,
         price: price,
       });
@@ -77,7 +77,7 @@ export default function OrderDetailItems({
     discount: string
   ) {
     await updateSparePartDiscount({
-      providerId: item.provider!.id,
+      providerId: item.provider ? item.provider.id : item.providerId!,
       sparePartId: item.sparePartId,
       discount: Number(discount),
     });

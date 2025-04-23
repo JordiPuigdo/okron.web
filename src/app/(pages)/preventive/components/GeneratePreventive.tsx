@@ -105,7 +105,7 @@ const GeneratePreventive = () => {
                       'Revisions creades:'}
                   </p>
                   {preventivesCreated?.map((preventive, index) => (
-                    <div key={index}>
+                    <div key={index} className="text-black">
                       {preventive.code} - {preventive.description}
                     </div>
                   ))}
