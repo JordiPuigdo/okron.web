@@ -33,6 +33,9 @@ export const TableRowComponent: React.FC<TableRowComponentProps> = ({
   onDelete,
 }) => {
   if (rowData.length == 0) return null;
+
+  let finalPath = pathDetail;
+
   return (
     <tr className={`${rowIndex % 2 === 0 ? '' : 'bg-gray-100'}`}>
       {enableCheckbox && (
@@ -61,6 +64,10 @@ export const TableRowComponent: React.FC<TableRowComponentProps> = ({
             rowData,
             entity
           );
+
+          if (value === 'Consum') {
+            finalPath = `/workOrders/`;
+          }
           return (
             <td key={column.key} className={classNametd}>
               <label className={className}>
@@ -79,7 +86,7 @@ export const TableRowComponent: React.FC<TableRowComponentProps> = ({
         tableButtons={tableButtons}
         entity={entity}
         loginUser={loginUser}
-        pathDetail={`${pathDetail}/${rowData[columns[0].key]}`}
+        pathDetail={`${finalPath}/${rowData[columns[0].key]}`}
         onDelete={onDelete}
       />
     </tr>

@@ -1,8 +1,8 @@
-import { Asset } from "./Asset";
-import InspectionPoint from "./inspectionPoint";
-import Machine from "./machine";
-import Operator from "./Operator";
-import SparePart from "./SparePart";
+import { Asset } from './Asset';
+import InspectionPoint from './inspectionPoint';
+import Machine from './machine';
+import Operator from './Operator';
+import SparePart from './SparePart';
 
 export interface Preventive {
   id: string;
@@ -15,12 +15,18 @@ export interface Preventive {
   days: number;
   counter: number;
   inspectionPoints: InspectionPoint[];
-  spareParts: SparePart[];
   operators: Operator[];
   assetId?: string[];
   asset: Asset;
   active: boolean;
   plannedDuration: string;
+  spareParts: SparePartPreventive[];
+}
+
+export interface SparePartPreventive {
+  sparePartId: string;
+  sparePartCode: string;
+  sparePartDescription: string;
 }
 
 export interface CreatePreventiveRequest {
@@ -34,6 +40,7 @@ export interface CreatePreventiveRequest {
   operatorId: string[];
   assetId: string[];
   plannedDuration: string;
+  spareParts?: SparePartPreventive[];
 }
 
 export interface UpdatePreventiveRequest extends CreatePreventiveRequest {

@@ -9,7 +9,11 @@ import { SvgMachines, SvgSpinner } from 'app/icons/icons';
 import { Asset } from 'app/interfaces/Asset';
 import InspectionPoint from 'app/interfaces/inspectionPoint';
 import Operator from 'app/interfaces/Operator';
-import { CreatePreventiveRequest, Preventive } from 'app/interfaces/Preventive';
+import {
+  CreatePreventiveRequest,
+  Preventive,
+  SparePartPreventive,
+} from 'app/interfaces/Preventive';
 import AssetService from 'app/services/assetService';
 import InspectionPointService from 'app/services/inspectionPointService';
 import MachineService from 'app/services/machineService';
@@ -25,6 +29,8 @@ import ca from 'date-fns/locale/ca';
 import { Button } from 'designSystem/Button/Buttons';
 import OkronTimePicker from 'designSystem/TimePicker/OkronTimePicker';
 import { useRouter } from 'next/navigation';
+
+import { PreventiveSparePart } from './components/PreventiveSparePart';
 
 const PreventiveForm = () => {
   const router = useRouter();
@@ -57,6 +63,8 @@ const PreventiveForm = () => {
   const [assets, setAssets] = useState<ElementList[]>([]);
   const [selectedAssets, setSelectedAsset] = useState<string[]>([]);
   const [timeExecution, setTimeExecution] = useState<Date | null>(null);
+  const [selectedPreventiveSpareParts, setSelectedPreventiveSpareParts] =
+    useState<SparePartPreventive[]>([]);
 
   useEffect(() => {
     const fetchInspectionPoints = async () => {
@@ -139,6 +147,7 @@ const PreventiveForm = () => {
       inspectionPointId: selectedInspectionPoints.map(point => point),
       operatorId: selectedOperator.map(operator => operator),
       plannedDuration: '00:00',
+      spareParts: selectedPreventiveSpareParts,
     };
     return createPreventiveRequest;
   }
@@ -391,6 +400,12 @@ const PreventiveForm = () => {
                   description: asset.description,
                 })}
                 labelText="Equips"
+              />
+            </div>
+            <div>
+              <PreventiveSparePart
+                onSparePartsChange={setSelectedPreventiveSpareParts}
+                initialSelectedSpareParts={selectedPreventiveSpareParts}
               />
             </div>
 

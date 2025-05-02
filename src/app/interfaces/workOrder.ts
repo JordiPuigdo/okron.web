@@ -44,6 +44,7 @@ export interface WorkOrderSparePart {
   id: string;
   quantity: number;
   sparePart: SparePart;
+  operator: Operator;
   warehouseId: string;
   warehouse: string;
   warehouseName: string;

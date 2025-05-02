@@ -358,13 +358,24 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
                 <p>{' - '}</p>
                 <p>{selectedPart.sparePart.description}</p>
                 <p>{' - '}</p>
-                <p>
-                  {warehouses.filter(x => x.id == selectedPart.warehouseId)
-                    .length > 0
-                    ? warehouses.filter(
-                        x => x.id == selectedPart.warehouseId
-                      )[0].description
-                    : selectedPart.warehouseName}
+                <p className="text-blue-600 underline">
+                  <Link
+                    href={`/wareHouse/${
+                      warehouses.filter(x => x.id == selectedPart.warehouseId)
+                        .length > 0
+                        ? warehouses.filter(
+                            x => x.id == selectedPart.warehouseId
+                          )[0].id
+                        : selectedPart.id
+                    }`}
+                  >
+                    {warehouses.filter(x => x.id == selectedPart.warehouseId)
+                      .length > 0
+                      ? warehouses.filter(
+                          x => x.id == selectedPart.warehouseId
+                        )[0].description
+                      : selectedPart.warehouseName}
+                  </Link>
                 </p>
                 <p>{' - '}</p>
                 <p className="font-bold">{' Unitats Consumides:'} </p>

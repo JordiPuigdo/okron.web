@@ -8,7 +8,11 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { Asset } from 'app/interfaces/Asset';
 import InspectionPoint from 'app/interfaces/inspectionPoint';
 import Operator from 'app/interfaces/Operator';
-import { Preventive, UpdatePreventiveRequest } from 'app/interfaces/Preventive';
+import {
+  Preventive,
+  SparePartPreventive,
+  UpdatePreventiveRequest,
+} from 'app/interfaces/Preventive';
 import SparePart from 'app/interfaces/SparePart';
 import AssetService from 'app/services/assetService';
 import InspectionPointService from 'app/services/inspectionPointService';
@@ -26,6 +30,7 @@ import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { useRouter } from 'next/navigation';
 
+import { PreventiveSparePart } from '../preventiveForm/components/PreventiveSparePart';
 import { WorkOrderPerPreventive } from './components/WorkOrderPerPreventive';
 
 dayjs.extend(utc);
@@ -63,7 +68,8 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [assets, setAssets] = useState<ElementList[]>([]);
   const [active, setActive] = useState<boolean>(true);
-
+  const [selectedPreventiveSpareParts, setSelectedPreventiveSpareParts] =
+    useState<SparePartPreventive[]>([]);
   const fetchPreventiveData = async (): Promise<Preventive> => {
     try {
       const preventiveData = await preventiveService.getPreventive(
@@ -139,6 +145,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
           setValue('active', data.active);
           setValue('lastExecution', data.lastExecution);
           setStartDate(finalData);
+          setSelectedPreventiveSpareParts(data.spareParts);
           await fetchInspectionPoints(data);
           await fetchOperators(data);
         }
@@ -309,6 +316,12 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
                 preventiveSelectedOperators={selectedOperator}
                 onDeleteSelectedOperator={handleDeleteSelectedOperator}
                 onSelectedOperator={handleSelectedOperator}
+              />
+            </div>
+            <div>
+              <PreventiveSparePart
+                onSparePartsChange={setSelectedPreventiveSpareParts}
+                initialSelectedSpareParts={selectedPreventiveSpareParts}
               />
             </div>
             <div className="gap-2 flex items-center jusitfy-center py-4">
