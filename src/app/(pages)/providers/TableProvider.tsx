@@ -34,6 +34,11 @@ const columnsProviders: Column[] = [
     format: ColumnFormat.TEXT,
   },
   {
+    label: 'NIE',
+    key: 'nie',
+    format: ColumnFormat.TEXT,
+  },
+  {
     label: 'Nom',
     key: 'name',
     format: ColumnFormat.TEXT,
@@ -59,6 +64,11 @@ const filters: Filters[] = [
   {
     label: 'Nom',
     key: 'name',
+    format: FiltersFormat.TEXT,
+  },
+  {
+    label: 'NIE',
+    key: 'nie',
     format: FiltersFormat.TEXT,
   },
   {

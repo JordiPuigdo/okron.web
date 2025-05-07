@@ -31,11 +31,13 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
 
       <div className="w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm">
         {/* Header row */}
-        <div className="bg-gray-50 flex p-3 font-medium text-gray-700">
+        <div className="bg-gray-50 flex p-3  text-lg font-semibold text-gray-700">
           <div className="w-[30%] min-w-[200px]">Operari</div>
           <div className="w-[25%] min-w-[100px]">Inici</div>
           <div className="w-[25%] min-w-[100px]">Final</div>
-          <div className="w-[20%] min-w-[100px] flex justify-end">Durada</div>
+          <div className="w-[20%] min-w-[100px] flex justify-end pr-2">
+            Durada
+          </div>
         </div>
 
         {/* Empty State */}
@@ -49,7 +51,7 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
             {workOrder.workOrderOperatorTimes.map((operatorTime, index) => (
               <div
                 key={index}
-                className={`flex p-3 items-center border-b`}
+                className={`flex p-3 items-center border-b text-l`}
                 aria-label={`Hores de ${operatorTime.operator?.name}`}
               >
                 <div className="w-[30%] min-w-[200px]">
@@ -61,29 +63,29 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
                   </p>
                 </div>
                 <div className="w-[25%] min-w-[100px]">
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-gray-600">
                     {formatDate(operatorTime.startTime)}
                   </p>
                 </div>
                 <div className="w-[25%] min-w-[100px]">
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-gray-600">
                     {formatDate(operatorTime.endTime)}
                   </p>
                 </div>
-                <div className="w-[20%] min-w-[100px]  flex justify-end">
-                  <p className="font-medium text-blue-600">
-                    {formatTimeSpan(operatorTime.totalTime!)}
-                  </p>
+                <div className="w-[20%] min-w-[100px]  flex justify-end pr-2">
+                  <p className="">{formatTimeSpan(operatorTime.totalTime!)}</p>
                 </div>
               </div>
             ))}
 
             {/* Total row */}
-            <div className="flex p-3 bg-gray-50 border-t  border-gray-200 font-medium">
-              <div className="w-[40%] min-w-[200px] text-gray-800">Total</div>
+            <div className="flex p-3 bg-gray-50 border-t  border-gray-200 ">
+              <div className="w-[40%] min-w-[200px] text-gray-800 text-lg font-semibold">
+                Total
+              </div>
               <div className="w-[20%] min-w-[100px]"></div>
               <div className="w-[20%] min-w-[100px]"></div>
-              <div className="w-[20%] min-w-[100px] text-blue-600  flex justify-end">
+              <div className="w-[20%] min-w-[100px] flex justify-end pr-2 text-lg font-semibold">
                 {formattedTotal}
               </div>
             </div>

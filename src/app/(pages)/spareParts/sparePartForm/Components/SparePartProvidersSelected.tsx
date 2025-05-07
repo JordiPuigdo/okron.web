@@ -7,6 +7,7 @@ interface SparePartProvidersSelectedProps {
   handleUpdatePrice: (providerId: string, price: string) => void;
   handleUpdateIsDefault: (providerId: string) => void;
   handleUpdateDiscount: (providerId: string, discount: string) => void;
+  handleUpdateRefProvider: (providerId: string, refProvider: string) => void;
 }
 
 export default function SparePartProvidersSelected({
@@ -15,6 +16,7 @@ export default function SparePartProvidersSelected({
   handleUpdatePrice,
   handleUpdateIsDefault,
   handleUpdateDiscount,
+  handleUpdateRefProvider,
 }: SparePartProvidersSelectedProps) {
   function handleCheckIsDefault(providerId: string) {
     const provider = sparePart.providers.find(
@@ -32,6 +34,7 @@ export default function SparePartProvidersSelected({
     <div className="flex flex-col flex-grow ">
       <div className="flex flex-row gap-2 justify-between items-center bg-gray-100 p-3 rounded-lg">
         <div className="w-2/5 font-semibold text-gray-700">Nom</div>
+        <div className="w-2/5 font-semibold text-gray-700">Referència</div>
         <div className="w-1/5 font-semibold text-gray-700">Preu</div>
         <div className="w-2/5 font-semibold text-gray-700">Desc. %</div>
         <div className="w-1/5 font-semibold text-gray-700">Habitual</div>
@@ -43,7 +46,17 @@ export default function SparePartProvidersSelected({
           key={x.providerId}
           className="flex flex-row gap-2 justify-between items-center p-3 hover:bg-gray-50 rounded-lg transition-colors"
         >
-          <div className="w-1/4 text-gray-600">{x.provider?.name}</div>
+          <div className="w-1/5 text-gray-600 ">
+            <span className="truncate">{x.provider?.name}</span>
+          </div>
+          <div className="w-1/5 text-gray-600 ">
+            <EditableCell
+              value={x.refProvider}
+              onUpdate={newValue =>
+                handleUpdateRefProvider(x.providerId, newValue)
+              }
+            />
+          </div>
           <div className="w-1/12 text-gray-600">
             <EditableCell
               value={x.price}

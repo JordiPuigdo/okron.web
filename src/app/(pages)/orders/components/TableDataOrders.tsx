@@ -182,4 +182,9 @@ const filtersOrders: Filters[] = [
     key: 'code',
     format: FiltersFormat.TEXT,
   },
+  {
+    label: 'Proveïdor',
+    key: 'providerName',
+    format: FiltersFormat.TEXT,
+  },
 ];

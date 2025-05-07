@@ -34,7 +34,10 @@ export default function SearchSparePartOrderPurchase({
         sparePartId: selectedSparePart?.id,
         unitPrice: unitPrice,
         sparePart: selectedSparePart,
-        refProvider: selectedSparePart.refProvider,
+        refProvider:
+          selectedSparePart.providers.find(
+            x => x.providerId == selectedProvider?.id
+          )?.refProvider || '',
         discount: 0,
         wareHouseName: '',
       });

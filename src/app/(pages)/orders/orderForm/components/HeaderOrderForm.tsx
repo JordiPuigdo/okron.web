@@ -21,6 +21,7 @@ export interface HeaderOrderFormProps {
   handleChangeProvider: (provider: Provider) => void;
   isEditing: boolean;
   loadOrderFromScratch: (order: Order) => void;
+  disabledSearchPurchaseOrder?: boolean;
 }
 
 export default function HeaderOrderForm({
@@ -29,6 +30,7 @@ export default function HeaderOrderForm({
   handleChangeProvider,
   isEditing,
   loadOrderFromScratch,
+  disabledSearchPurchaseOrder = false,
 }: HeaderOrderFormProps) {
   const handleDateChange = (date: any, isProvider: boolean) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
@@ -56,7 +58,7 @@ export default function HeaderOrderForm({
           />
         </div>
         <div className="flex flex-col gap-2">
-          {!isEditing && (
+          {!isEditing && !disabledSearchPurchaseOrder && (
             <>
               <label className="block text-sm font-semibold">
                 {order.type == OrderType.Purchase

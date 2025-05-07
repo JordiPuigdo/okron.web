@@ -19,6 +19,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
   const [isDefault, setIsDefault] = useState(false);
   const { providers } = useProviders(true);
   const [searchText, setSearchText] = useState('');
+  const [refProvider, setRefProvider] = useState('');
   const filteredProviders = providers?.filter(
     sp =>
       `${sp.name} - ${sp.phoneNumber}`
@@ -57,6 +58,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
           provider: providers?.find(x => x.id === request.providerId),
           isDefault: request.isDefault,
           discount: 0,
+          refProvider: refProvider,
         },
       ];
     }
@@ -64,6 +66,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
     setSelectedProvider(undefined);
     setPrice('');
     setSearchText('');
+    setRefProvider('');
   }
 
   function handleAddProvider() {
@@ -110,22 +113,31 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
       )}
       {selectedProvider && (
         <div className="bg-white rounded-lg border border-gray-200 mt-1">
-          <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-gray-50 text-sm text-gray-600 border-b">
-            <span className="col-span-4">Proveïdor</span>
-            <span className="col-span-3">Preu</span>
-            <span className="col-span-2 text-center">Habitual</span>
-            <span className="col-span-3 text-right">Accions</span>
+          <div className="grid grid-cols-6 gap-2 px-3 py-2 bg-gray-50 text-sm text-gray-600 border-b">
+            <span className="col-span-2">Proveïdor</span>
+            <span className="col-span-1">Referència</span>
+            <span className="col-span-1">Preu</span>
+            <span className="col-span-1 text-center">Habitual</span>
+            <span className="col-span-1 text-right">Accions</span>
           </div>
 
-          <div className="grid grid-cols-12 gap-2 px-3 py-2 items-center text-sm">
-            <div className="col-span-4 truncate">
+          <div className="grid grid-cols-6 gap-2 px-3 py-2 items-center text-sm">
+            <div className="col-span-2 truncate">
               <span className="font-medium">{selectedProvider.name}</span>
               <span className="text-gray-500 ml-1">
                 - {selectedProvider.city}
               </span>
             </div>
-
-            <div className="col-span-3">
+            <div className="col-span-1 flex justify-center">
+              <input
+                type="text"
+                placeholder="Referència"
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                value={refProvider}
+                onChange={e => setRefProvider(e.target.value)}
+              />
+            </div>
+            <div className="col-span-1">
               <PriceInput
                 price={price}
                 setPrice={setPrice}
@@ -133,7 +145,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
               />
             </div>
 
-            <div className="col-span-2 flex justify-center">
+            <div className="col-span-1 flex justify-center">
               <input
                 type="checkbox"
                 className="h-4 w-4 rounded border-gray-300 text-blue-600"
@@ -142,7 +154,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
               />
             </div>
 
-            <div className="col-span-3 flex justify-end gap-1">
+            <div className="col-span-1 flex justify-end gap-1">
               <button
                 onClick={() => handleAddProvider()}
                 className="px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm"

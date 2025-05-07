@@ -18,7 +18,10 @@ const useRoutes = () => {
       warehouse: '/wareHouse',
       provider: '/providers',
     },
-    orders: '/orders',
+    orders: {
+      order: '/orders',
+      purchase: '/orders/purchases',
+    },
   };
 };
 

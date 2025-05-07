@@ -12,9 +12,11 @@ import {
 } from 'app/interfaces/Order';
 import { Provider } from 'app/interfaces/Provider';
 import SparePart from 'app/interfaces/SparePart';
+import useRoutes from 'app/utils/useRoutes';
 import { HeaderForm } from 'components/layout/HeaderForm';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { useRouter } from 'next/navigation';
 
 import { BodyOrderForm } from './BodyOrderForm';
 import HeaderOrderForm from './HeaderOrderForm';
@@ -49,7 +51,8 @@ export default function OrderForm({
     active: true,
     providerName: '',
   });
-
+  const router = useRouter();
+  const ROUTES = useRoutes();
   const [orderPurchase, setOrderPurchase] = useState<OrderSimple | undefined>(
     undefined
   );
@@ -59,6 +62,8 @@ export default function OrderForm({
   const [selectedProvider, setSelectedProvider] = useState<
     Provider | undefined
   >(undefined);
+  const [message, setMessage] = useState<string | undefined>(undefined);
+  const [isSuccess, setIsSuccess] = useState<boolean | undefined>(undefined);
 
   const fetchCode = async () => {
     try {
@@ -114,10 +119,17 @@ export default function OrderForm({
         });
       }
 
-      alert('Order created successfully!');
+      setMessage(
+        `${orderRequest == null ? 'Creada' : 'Actualitzada'} Corretament`
+      );
+      setIsSuccess(true);
+      setTimeout(() => {
+        router.push(ROUTES.orders.purchase);
+      }, 1000);
     } catch (error) {
       console.error(error);
-      alert('Error creating order');
+      setIsSuccess(false);
+      setMessage('Error ' + error);
     }
   };
 
@@ -217,6 +229,7 @@ export default function OrderForm({
           handleChangeProvider={handleChangeProvider}
           loadOrderFromScratch={handleLoadOrderFromScratch}
           isEditing={orderRequest != null}
+          disabledSearchPurchaseOrder={purchaseOrderId != null}
         />
         {orderPurchase && <OrderPurchase order={orderPurchase} />}
         {order.type == OrderType.Purchase && selectedProvider && (
@@ -250,6 +263,15 @@ export default function OrderForm({
           >
             {orderRequest == null ? headerName : 'Actualitzar'}
           </button>
+          {message && (
+            <div
+              className={`w-full p-2 mt-2 rounded-md font-semibold ${
+                isSuccess ? 'bg-green-200' : 'bg-red-200'
+              }`}
+            >
+              {message}
+            </div>
+          )}
         </div>
       </div>
     </div>

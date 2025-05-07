@@ -16,12 +16,12 @@ export const WorkOrderSparePartsReport = ({
 
       <div className="w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm">
         {/* Table Header - now uses exact fractional widths */}
-        <div className="bg-gray-50 grid grid-cols-[3fr_2fr_2fr_2fr_1fr] p-3 font-medium text-gray-700">
+        <div className="bg-gray-50 grid grid-cols-[3fr_2fr_2fr_2fr_1fr] p-3 text-lg font-semibold  text-gray-700">
           <p>Recanvi</p>
-          <p className="text-right pr-4">Quantitat</p>
+          <p className="text-right pr-12">Quantitat</p>
           <p>Data</p>
           <p>Magatzem</p>
-          <p>Operari</p>
+          <p className="flex justify-end pr-2">Operari</p>
         </div>
 
         {/* Empty State */}
@@ -34,24 +34,24 @@ export const WorkOrderSparePartsReport = ({
           workorder.workOrderSpareParts.map((sparePart, index) => (
             <div
               key={index}
-              className={`grid grid-cols-[3fr_2fr_2fr_2fr_1fr] p-3 items-center border-b`}
+              className={`grid grid-cols-[3fr_2fr_2fr_2fr_1fr] p-3 items-center text-l border-b`}
               aria-label={`Recanvi: ${sparePart.sparePart?.description}`}
             >
               {/* Spare Part Name with truncation */}
               <p
-                className="text-gray-800 font-medium truncate pr-2"
+                className="text-gray-800 truncate"
                 title={sparePart.sparePart?.description}
               >
                 {sparePart.sparePart?.description || '-'}
               </p>
 
               {/* Quantity - right aligned */}
-              <p className="text-gray-600 text-right pr-4">
+              <p className="text-gray-600 text-right pr-12">
                 {sparePart.quantity || '-'}
               </p>
 
               {/* Date */}
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500">
                 {formatDate(sparePart.creationDate)}
               </p>
 
@@ -65,7 +65,7 @@ export const WorkOrderSparePartsReport = ({
 
               {/* Operator name */}
               <p
-                className="text-gray-500 truncate"
+                className="text-gray-500 truncate flex justify-end pr-2"
                 title={sparePart.operator?.name}
               >
                 {sparePart.operator?.name || '-'}

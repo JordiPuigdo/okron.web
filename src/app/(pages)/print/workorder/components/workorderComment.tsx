@@ -11,10 +11,10 @@ export const WorkOrderComment = ({ workorder }: { workorder: WorkOrder }) => {
       </div>
 
       <div className="w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm">
-        <div className="bg-gray-50 grid grid-cols-[1fr_2fr_1fr] p-3 font-medium text-gray-700">
+        <div className="bg-gray-50 grid grid-cols-[1fr_2fr_1fr] p-3 text-lg font-semibold text-gray-700">
           <p>Operari</p>
           <p>Comentari</p>
-          <p>Data</p>
+          <p className="flex justify-end pr-2">Data</p>
         </div>
 
         {!workorder.workOrderComments?.length ? (
@@ -25,11 +25,11 @@ export const WorkOrderComment = ({ workorder }: { workorder: WorkOrder }) => {
           workorder.workOrderComments.map((comment, index) => (
             <div
               key={index}
-              className={`grid grid-cols-[1fr_2fr_1fr] p-3 items-center border-b border-gray-100`}
+              className={`grid grid-cols-[1fr_2fr_1fr] p-3 items-center border-b text-l border-gray-100`}
               aria-label={`Comentari de ${comment.operator?.name}`}
             >
               <p
-                className="text-gray-800 font-medium truncate pr-2"
+                className="text-gray-800 truncate pr-2"
                 title={comment.operator?.name}
               >
                 {comment.operator?.name || 'Sense nom'}
@@ -40,7 +40,7 @@ export const WorkOrderComment = ({ workorder }: { workorder: WorkOrder }) => {
               >
                 {comment.comment || '-'}
               </p>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 flex justify-end pr-2">
                 {formatDate(comment.creationDate)}
               </p>
             </div>

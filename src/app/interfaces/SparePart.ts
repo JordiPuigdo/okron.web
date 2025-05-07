@@ -6,7 +6,6 @@ interface SparePart {
   id: string;
   code: string;
   description: string;
-  refProvider: string;
   family: string;
   ubication: string;
   stock: number;
@@ -32,6 +31,7 @@ export interface ProviderSpareParts {
   provider?: Provider;
   isDefault: boolean;
   discount: number;
+  refProvider: string;
 }
 
 export interface WarehousesSparePart {
@@ -57,7 +57,6 @@ export interface ConsumeSparePart {
 export interface CreateSparePartRequest {
   code: string;
   description: string;
-  refProvider: string;
   family: string;
   ubication?: string;
   stock?: number;

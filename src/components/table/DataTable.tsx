@@ -116,7 +116,7 @@ const DataTable: React.FC<DataTableProps> = ({
         setPathDetail(ROUTES.configuration.provider);
         break;
       case EntityTable.ORDER:
-        setPathDetail(ROUTES.orders);
+        setPathDetail(ROUTES.orders.order);
         break;
       default:
         setPathDetail('error');

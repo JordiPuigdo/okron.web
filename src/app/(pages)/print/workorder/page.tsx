@@ -8,7 +8,7 @@ import { WorkOrderSparePartsReport } from './components/workorderSparePartsRepor
 
 async function getWorkOrders(): Promise<WorkOrder> {
   try {
-    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}workOrder/67fd3262395b699f5e9c7aa9`;
+    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}workOrder/67ffb9c1f06eb0ce444158f2`;
     const res = await fetch(url, {
       cache: 'no-store',
     });
@@ -28,7 +28,7 @@ export default async function WorkOrderPage() {
   const orders = await getWorkOrders();
 
   return (
-    <div className="container mx-auto p-24">
+    <div className="container mx-auto p-24 ">
       <WorkOrderHeader workOrder={orders} />
       <HoursOperator workOrder={orders} />
       {orders.workOrderType == WorkOrderType.Preventive && (

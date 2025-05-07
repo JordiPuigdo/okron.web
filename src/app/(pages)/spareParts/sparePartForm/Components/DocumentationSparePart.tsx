@@ -85,7 +85,7 @@ export default function DocumentationSparePart({
   }
 
   return (
-    <div className="flex flex-col p-2 border border-gray-200 rounded-lg bg-white shadow-sm">
+    <div className="flex flex-col w-full p-2 border border-gray-200 rounded-lg bg-white shadow-sm">
       <h2 className="font-semibold mb-2">Documentació</h2>
 
       <div className="flex flex-col flex-grow gap-2">

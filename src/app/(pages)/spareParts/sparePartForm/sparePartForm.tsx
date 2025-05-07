@@ -80,7 +80,6 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
         setValue('code', sparePartLoaded!.code);
         setValue('description', sparePartLoaded!.description);
         setValue('ubication', sparePartLoaded!.ubication);
-        setValue('refProvider', sparePartLoaded!.refProvider);
         setValue('family', sparePartLoaded!.family);
         setValue('brand', sparePartLoaded!.brand);
         setValue('stock', sparePartLoaded!.stock);
@@ -109,7 +108,6 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
       id: '',
       code: '',
       description: '',
-      refProvider: '',
       family: '',
       ubication: '',
       stock: 0,
@@ -234,6 +232,16 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
     });
   }
 
+  function handleUpdateRefProvider(providerId: string, refProvider: string) {
+    setSparePart(prevSparePart => {
+      if (!prevSparePart) return prevSparePart;
+      const updatedProviders = prevSparePart.providers.map(x =>
+        x.providerId === providerId ? { ...x, refProvider } : x
+      );
+      return { ...prevSparePart, providers: updatedProviders };
+    });
+  }
+
   const headerText = sparePartLoaded ? 'Editar Recanvi' : 'Crear Recanvi';
 
   return (
@@ -243,10 +251,10 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
         isCreate={sparePartLoaded ? false : true}
       />
       <div className="flex flex-col flex-1 bg-white p-6 rounded-md shadow-md my-4 gap-6">
-        <div className="grid md:grid-cols-1 xl:grid-cols-3 gap-6 h-full flex-1 min-h-0">
+        <div className="flex flex-col md:flex-col xl:flex-row gap-6 h-full flex-1 min-h-0">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4 p-4 border rounded-md"
+            className="space-y-4 p-4 border rounded-md md:w-[20%]"
           >
             <h2 className="font-semibold mb-2">
               {sparePartLoaded
@@ -254,7 +262,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                 : 'Nou Recanvi'}
             </h2>
             <div className="flex flex-row gap-4 items-start w-full">
-              <div className="mb-4">
+              <div className="mb-4 w-full">
                 <label className="block text-sm font-medium text-gray-600">
                   Codi
                 </label>
@@ -268,25 +276,24 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                   }
                 />
               </div>
-
-              <div className="flex-grow mb-4">
-                <label className="block text-sm font-medium text-gray-600">
-                  Descripció
-                </label>
-                <input
-                  {...register('description')}
-                  className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-                  onChange={e =>
-                    setSparePart({
-                      ...sparePart!,
-                      description: e.target.value,
-                    })
-                  }
-                />
-              </div>
+            </div>
+            <div className="flex-grow mb-4">
+              <label className="block text-sm font-medium text-gray-600">
+                Descripció
+              </label>
+              <input
+                {...register('description')}
+                className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                onChange={e =>
+                  setSparePart({
+                    ...sparePart!,
+                    description: e.target.value,
+                  })
+                }
+              />
             </div>
             <div className="flex flex-row gap-4 items-start w-full">
-              <div className="mb-4">
+              <div className="mb-4 w-full">
                 <label className="block text-sm font-medium text-gray-600">
                   Ubicació
                 </label>
@@ -295,22 +302,6 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                   className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
                   onChange={e =>
                     setSparePart({ ...sparePart!, ubication: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-600">
-                  Ref Proveïdor
-                </label>
-                <input
-                  {...register('refProvider')}
-                  className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-                  onChange={e =>
-                    setSparePart({
-                      ...sparePart!,
-                      refProvider: e.target.value,
-                    })
                   }
                 />
               </div>
@@ -374,7 +365,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
               </div>
             </div>
           </form>
-          <div className="flex flex-col flex-grow border rounded-md p-2">
+          <div className="flex flex-col flex-grow border rounded-md p-2 md:w-[40%]">
             <div className="flex flex-col flex-grow">
               <h2 className="font-semibold mb-2">Selecciona Magatzem</h2>
               <div>
@@ -413,10 +404,13 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                 handleUpdatePrice={handleUpdatePrice}
                 handleUpdateIsDefault={handleUpdateIsDefault}
                 handleUpdateDiscount={handleUpdateDiscount}
+                handleUpdateRefProvider={handleUpdateRefProvider}
               />
             </div>
           </div>
-          <DocumentationSparePart sparePart={sparePart!} />
+          <div className="flex w-full md:w-[30%]">
+            <DocumentationSparePart sparePart={sparePart!} />
+          </div>
         </div>
         <div className="flex mt-auto bottom-0 items-end">
           <button

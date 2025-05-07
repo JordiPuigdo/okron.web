@@ -330,7 +330,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
   }, []);
 
   useEffect(() => {
-    if (aviableOperators && availableSpareParts.length > 0) fetchWorkOrder();
+    if (aviableOperators) fetchWorkOrder();
   }, [aviableOperators, availableSpareParts]);
 
   function isWorkOrderTimeExceeded(workOrder: WorkOrder): boolean {

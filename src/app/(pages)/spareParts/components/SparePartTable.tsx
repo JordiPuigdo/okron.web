@@ -60,11 +60,6 @@ const columns: Column[] = [
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Ref. Proveïdor',
-    key: 'refProvider',
-    format: ColumnFormat.TEXT,
-  },
-  {
     label: 'Ubicació',
     key: 'ubication',
     format: ColumnFormat.TEXT,
@@ -167,11 +162,6 @@ const filters: Filters[] = [
   {
     key: 'family',
     label: 'Família',
-    format: FiltersFormat.TEXT,
-  },
-  {
-    key: 'refProvider',
-    label: 'Referència Proveïdor',
     format: FiltersFormat.TEXT,
   },
   {

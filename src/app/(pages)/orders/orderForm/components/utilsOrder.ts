@@ -26,7 +26,7 @@ export function mapItems(orderSelected: Order, warehouses: WareHouse[]) {
       quantityReceived: x.quantityReceived,
       quantityPendient: x.quantity - (x.quantityReceived ?? 0),
       estimatedDeliveryDate: x.estimatedDeliveryDate,
-      refProvider: x.sparePart.refProvider,
+      refProvider: x.refProvider,
       discount: x.discount,
     };
   });
