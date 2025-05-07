@@ -81,7 +81,9 @@ export const TableButtonsComponent = ({
             />
           </>
         )}
-        {entity == EntityTable.ORDER && <OrdersButtons orderId={item.id} />}
+        {entity == EntityTable.ORDER && (
+          <OrdersButtons orderId={item.id} order={item} />
+        )}
       </div>
     </td>
   );

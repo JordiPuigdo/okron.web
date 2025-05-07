@@ -20,7 +20,7 @@ export function translateOrderType(type: OrderType) {
     case OrderType.Purchase:
       return 'Compra';
     case OrderType.Delivery:
-      return 'Lliurament';
+      return 'Recepció';
     case OrderType.Return:
       return 'Devolució';
     default:

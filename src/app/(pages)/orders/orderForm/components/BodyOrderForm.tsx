@@ -168,6 +168,7 @@ export function BodyOrderForm({
 
       setOrder({
         ...order,
+        status: OrderStatus.Completed,
         items: updatedOrderItems,
       });
       setOrderPurchase({

@@ -13,10 +13,11 @@ import {
 import { Provider } from 'app/interfaces/Provider';
 import SparePart from 'app/interfaces/SparePart';
 import useRoutes from 'app/utils/useRoutes';
+import { translateOrderType } from 'app/utils/utilsOrder';
 import { HeaderForm } from 'components/layout/HeaderForm';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 import { BodyOrderForm } from './BodyOrderForm';
 import HeaderOrderForm from './HeaderOrderForm';
@@ -51,8 +52,7 @@ export default function OrderForm({
     active: true,
     providerName: '',
   });
-  const router = useRouter();
-  const ROUTES = useRoutes();
+
   const [orderPurchase, setOrderPurchase] = useState<OrderSimple | undefined>(
     undefined
   );
@@ -64,7 +64,7 @@ export default function OrderForm({
   >(undefined);
   const [message, setMessage] = useState<string | undefined>(undefined);
   const [isSuccess, setIsSuccess] = useState<boolean | undefined>(undefined);
-
+  const ROUTES = useRoutes();
   const fetchCode = async () => {
     try {
       const code = await getNextCode(
@@ -77,8 +77,9 @@ export default function OrderForm({
           code: code,
           providerId: orderResponse.providerId,
           providerName: orderResponse.provider?.name,
-          relationOrderId: orderResponse.id,
-          relationOrderCode: orderResponse.code,
+          relationOrderId: orderResponse.relationOrderId,
+          relationOrderCode: orderResponse.relationOrderCode,
+          status: orderResponse.status,
         });
         setOrderPurchase({
           ...orderResponse,
@@ -120,11 +121,11 @@ export default function OrderForm({
       }
 
       setMessage(
-        `${orderRequest == null ? 'Creada' : 'Actualitzada'} Corretament`
+        `${orderRequest == null ? 'Creada' : 'Actualitzada'} Correctament`
       );
       setIsSuccess(true);
       setTimeout(() => {
-        router.push(ROUTES.orders.purchase);
+        history.back();
       }, 1000);
     } catch (error) {
       console.error(error);
@@ -157,7 +158,8 @@ export default function OrderForm({
       setOrder(prev => ({
         ...prev,
         providerId: orderSelected.providerId,
-        relationOrderId: orderSelected.id,
+        relationOrderId: orderSelected.relationOrderId,
+        relationOrderCode: orderSelected.relationOrderCode,
         code: orderSelected.code,
         status: orderSelected.status,
         type: orderSelected.type,
@@ -199,6 +201,7 @@ export default function OrderForm({
         relationOrderId: orderSelected.relationOrderId,
         relationOrderCode: orderSelected.relationOrderCode,
         items: mapItems(orderSelected, warehouses),
+        status: orderSelected.status,
       }));
     }
   }
@@ -231,10 +234,26 @@ export default function OrderForm({
           isEditing={orderRequest != null}
           disabledSearchPurchaseOrder={purchaseOrderId != null}
         />
+        {order.relationOrderId && order.relationOrderCode && (
+          <div className="border p-2 rounded-md bg-gray-100 text-gray-700 font-semibold">
+            <Link
+              href={ROUTES.orders.order + '/' + order.relationOrderId}
+              className="text-blue-500 hover:underline"
+            >
+              {translateOrderType(
+                order.type == OrderType.Purchase
+                  ? OrderType.Delivery
+                  : OrderType.Purchase
+              )}
+              {' - '} {order.relationOrderCode}
+            </Link>
+          </div>
+        )}
         {orderPurchase && <OrderPurchase order={orderPurchase} />}
         {order.type == OrderType.Purchase && selectedProvider && (
           <ProviderInfo provider={selectedProvider} />
         )}
+
         <BodyOrderForm
           order={order}
           isEditing={orderRequest != null}
