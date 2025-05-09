@@ -77,8 +77,8 @@ export default function OrderForm({
           code: code,
           providerId: orderResponse.providerId,
           providerName: orderResponse.provider?.name,
-          relationOrderId: orderResponse.relationOrderId,
-          relationOrderCode: orderResponse.relationOrderCode,
+          relationOrderId: orderResponse.id,
+          relationOrderCode: orderResponse.code,
           status: orderResponse.status,
         });
         setOrderPurchase({
