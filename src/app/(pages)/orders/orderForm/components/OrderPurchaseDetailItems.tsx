@@ -57,7 +57,20 @@ export default function OrderPurchaseDetailItems({
                   )}
                   <td className="p-2 border text-center">{item.unitPrice}€</td>
                   <td className="p-2 border text-center">
-                    {(item.quantity * Number(item.unitPrice)).toFixed(2)}€
+                    {item.discount > 0 ? (
+                      <span>
+                        {(
+                          item.quantity *
+                          Number(item.unitPrice) *
+                          (1 - item.discount / 100)
+                        ).toFixed(2)}
+                        €
+                      </span>
+                    ) : (
+                      <span>
+                        {(item.quantity * Number(item.unitPrice)).toFixed(2)}€
+                      </span>
+                    )}
                   </td>
                   <td className="border p-2 text-center">
                     {isOrderPurchase ? (

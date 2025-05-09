@@ -269,10 +269,16 @@ export default function OrderForm({
           <div className="flex flex-row justify-between p-4 border-t border-b my-4 px-16">
             <div className="font-bold">Total:</div>
             <div className="font-bold">
-              {order.items.reduce(
-                (acc, item) => acc + Number(item.unitPrice) * item.quantity,
-                0
-              )}
+              {order.items
+                .reduce(
+                  (acc, item) =>
+                    acc +
+                    Number(item.unitPrice) *
+                      item.quantity *
+                      (1 - item.discount / 100),
+                  0
+                )
+                .toFixed(2)}
               €
             </div>
           </div>
