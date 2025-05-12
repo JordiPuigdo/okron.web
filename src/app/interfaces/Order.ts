@@ -12,11 +12,15 @@ export interface OrderSimple extends BaseModel {
   type: OrderType;
   comment: string;
   date: string;
-  relationOrderId?: string;
+  relationOrders?: RelationOrder[];
   providerName?: string;
-  relationOrderCode?: string;
   deliveryProviderDate?: string;
   deliveryProviderCode?: string;
+}
+
+export interface RelationOrder {
+  relationOrderId: string;
+  relationOrderCode: string;
 }
 
 export interface Order extends OrderSimple {
@@ -72,12 +76,14 @@ export interface OrderCreationRequest {
   providerName?: string;
   deliveryProviderDate?: string;
   deliveryProviderCode?: string;
+  relationOrders?: RelationOrder[];
 }
 
 export interface OrderItemRequest {
   id?: string;
   sparePartId: string;
   sparePart: SparePart;
+  sparePartName?: string;
   quantity: number;
   unitPrice: string;
   wareHouseId?: string;
@@ -98,8 +104,9 @@ export interface OrderUpdateRequest extends OrderCreationRequest {
 
 export interface GetOrderWithFiltersRequest {
   orderType?: OrderType;
-  from: Date;
-  to: Date;
+  from?: Date;
+  to?: Date;
   providerId?: string;
   sparePartId?: string;
+  ids?: string[];
 }

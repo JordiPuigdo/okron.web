@@ -8,12 +8,14 @@ interface OrderPurchaseDetailItemsProps {
     all?: boolean
   ) => void;
   isOrderPurchase: boolean;
+  showActionButtons?: boolean;
 }
 
 export default function OrderPurchaseDetailItems({
   items,
   handleRecieveItem,
   isOrderPurchase,
+  showActionButtons = true,
 }: OrderPurchaseDetailItemsProps) {
   const disableReceiveAll = items.some(x => x.quantityPendient ?? 0 > 0);
   return (
@@ -35,16 +37,20 @@ export default function OrderPurchaseDetailItems({
               )}
               <th className="p-2 border w-1/10">Preu Unitari</th>
               <th className="p-2 border w-1/10">Total</th>
-              <th className="p-2 border w-1/10">Acció</th>
+              {showActionButtons && (
+                <th className="p-2 border w-1/10">Acció</th>
+              )}
             </tr>
           </thead>
           <tbody>
             {items.map((item, index) => {
               const isDisabled = item.quantityPendient == 0;
+              const sparePartCode = item.sparePartName?.split('-')[0];
+              const sparePartName = item.sparePartName?.split('-')[1];
               return (
                 <tr key={index} className="border-t">
                   <td className="p-2 border">
-                    {item.sparePart.code} - {item.sparePart.description}
+                    {sparePartCode} - {sparePartName}
                   </td>
                   <td className="p-2 border text-center">
                     {item.wareHouse?.description}
@@ -72,38 +78,40 @@ export default function OrderPurchaseDetailItems({
                       </span>
                     )}
                   </td>
-                  <td className="border p-2 text-center">
-                    {isOrderPurchase ? (
-                      <div className="flex flex-row gap-2 items-center">
+                  {showActionButtons && (
+                    <td className="border p-2 text-center">
+                      {isOrderPurchase ? (
+                        <div className="flex flex-row gap-2 items-center">
+                          <button
+                            className={`flex w-full bg-blue-500 justify-center text-white px-2 py-1 rounded-md hover:bg-blue-600 ${
+                              isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                            onClick={() => handleRecieveItem(item, false)}
+                            disabled={isDisabled}
+                          >
+                            +
+                          </button>
+                          <button
+                            className={`flex w-full bg-orange-500 justify-center text-white px-2 py-1 rounded-md hover:bg-orange-600 ${
+                              isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                            onClick={() => handleRecieveItem(item, true)}
+                            disabled={isDisabled}
+                          >
+                            Parcial
+                          </button>
+                        </div>
+                      ) : (
                         <button
-                          className={`flex w-full bg-blue-500 justify-center text-white px-2 py-1 rounded-md hover:bg-blue-600 ${
-                            isDisabled ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
+                          className="flex w-full bg-red-500 justify-center text-white px-2 py-1 rounded-md hover:bg-red-600"
                           onClick={() => handleRecieveItem(item, false)}
                           disabled={isDisabled}
                         >
-                          +
+                          Retornar
                         </button>
-                        <button
-                          className={`flex w-full bg-orange-500 justify-center text-white px-2 py-1 rounded-md hover:bg-orange-600 ${
-                            isDisabled ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
-                          onClick={() => handleRecieveItem(item, true)}
-                          disabled={isDisabled}
-                        >
-                          Parcial
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        className="flex w-full bg-red-500 justify-center text-white px-2 py-1 rounded-md hover:bg-red-600"
-                        onClick={() => handleRecieveItem(item, false)}
-                        disabled={isDisabled}
-                      >
-                        Retornar
-                      </button>
-                    )}
-                  </td>
+                      )}
+                    </td>
+                  )}
                 </tr>
               );
             })}

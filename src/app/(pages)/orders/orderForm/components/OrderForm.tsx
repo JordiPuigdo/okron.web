@@ -22,6 +22,7 @@ import Link from 'next/link';
 import { BodyOrderForm } from './BodyOrderForm';
 import HeaderOrderForm from './HeaderOrderForm';
 import OrderPurchase from './OrderPurchase';
+import OrderPurchaseDetailItems from './OrderPurchaseDetailItems';
 import ProviderInfo from './ProviderInfo';
 import { generateNameHeader, mapItems } from './utilsOrder';
 
@@ -38,7 +39,14 @@ export default function OrderForm({
   orderRequest,
   purchaseOrderId,
 }: OrderFormProps) {
-  const { createOrder, getNextCode, updateOrder, fetchOrderById } = useOrder();
+  const {
+    createOrder,
+    getNextCode,
+    updateOrder,
+    fetchOrderById,
+    getOrderWithFilters,
+    orders,
+  } = useOrder();
   const { warehouses } = useWareHouses(true);
   const [order, setOrder] = useState<OrderCreationRequest>({
     code: '',
@@ -56,6 +64,7 @@ export default function OrderForm({
   const [orderPurchase, setOrderPurchase] = useState<OrderSimple | undefined>(
     undefined
   );
+
   const [selectedSparePart, setSelectedSparePart] = useState<
     SparePart | undefined
   >(undefined);
@@ -65,6 +74,7 @@ export default function OrderForm({
   const [message, setMessage] = useState<string | undefined>(undefined);
   const [isSuccess, setIsSuccess] = useState<boolean | undefined>(undefined);
   const ROUTES = useRoutes();
+
   const fetchCode = async () => {
     try {
       const code = await getNextCode(
@@ -80,6 +90,7 @@ export default function OrderForm({
           relationOrderId: orderResponse.id,
           relationOrderCode: orderResponse.code,
           status: orderResponse.status,
+          relationOrders: orderResponse.relationOrders,
         });
         setOrderPurchase({
           ...orderResponse,
@@ -111,6 +122,7 @@ export default function OrderForm({
 
   const handleCreateOrder = async () => {
     try {
+      debugger;
       if (orderRequest == null) {
         await createOrder(order);
       } else {
@@ -158,8 +170,8 @@ export default function OrderForm({
       setOrder(prev => ({
         ...prev,
         providerId: orderSelected.providerId,
-        relationOrderId: orderSelected.relationOrderId,
-        relationOrderCode: orderSelected.relationOrderCode,
+        relationOrderId: '', //orderSelected.relationOrderId,
+        relationOrderCode: '', //orderSelected.relationOrderCode,
         code: orderSelected.code,
         status: orderSelected.status,
         type: orderSelected.type,
@@ -168,42 +180,71 @@ export default function OrderForm({
         active: orderSelected.active,
         operatorId: '66156dc51a7347dfd58d8ca8',
         items: mapItems(orderSelected, warehouses),
+        relationOrders: orderSelected.relationOrders,
       }));
       setSelectedProvider(orderSelected.provider);
+      if (
+        orderSelected &&
+        orderSelected.relationOrders &&
+        orderSelected.relationOrders?.length > 0
+      )
+        handleLoadDeliveryOrders(
+          orderSelected.relationOrders?.map(x => x.relationOrderId)
+        );
     } else {
-      const orderResponse = await fetchOrderById(
-        orderSelected.relationOrderId!
-      );
-      setOrderPurchase({
-        id: orderSelected.id,
-        creationDate: orderSelected.creationDate,
-        active: true,
-        code: orderSelected.relationOrderCode ?? '',
-        providerId: orderSelected.providerId,
-        items: mapItems(orderResponse, warehouses),
-        status: orderResponse.status,
-        type: orderResponse.type,
-        comment: orderResponse.comment,
-        date: orderResponse.date,
-        provider: orderResponse.provider,
-        relationOrderId: orderSelected.relationOrderId,
-        relationOrderCode: orderSelected.relationOrderCode,
-      });
-      setOrder(prev => ({
-        ...prev,
-        code: orderSelected.code,
-        comment: orderSelected.comment,
-        date: orderSelected.date,
-        active: orderSelected.active,
-        deliveryProviderDate: orderSelected.deliveryProviderDate,
-        deliveryProviderCode: orderSelected.deliveryProviderCode,
-        providerId: orderSelected.providerId,
-        relationOrderId: orderSelected.relationOrderId,
-        relationOrderCode: orderSelected.relationOrderCode,
-        items: mapItems(orderSelected, warehouses),
-        status: orderSelected.status,
-      }));
+      if (
+        orderSelected &&
+        orderSelected.relationOrders &&
+        orderSelected.relationOrders.length > 0
+      ) {
+        const orderResponse = await fetchOrderById(
+          orderSelected.relationOrders[0].relationOrderId
+        );
+        setOrderPurchase({
+          id: orderSelected.id,
+          creationDate: orderSelected.creationDate,
+          active: true,
+          code: orderSelected.relationOrders[0].relationOrderCode,
+          providerId: orderSelected.providerId,
+          items: mapItems(orderResponse, warehouses),
+          status: orderResponse.status,
+          type: orderResponse.type,
+          comment: orderResponse.comment,
+          date: orderResponse.date,
+          provider: orderResponse.provider,
+          relationOrders: orderResponse.relationOrders,
+
+          //relationOrderId:'',// orderSelected.relationOrderId,
+          // relationOrderCode: ''//orderSelected.relationOrderCode,
+        });
+        setOrder(prev => ({
+          ...prev,
+          code: orderSelected.code,
+          comment: orderSelected.comment,
+          date: orderSelected.date,
+          active: orderSelected.active,
+          deliveryProviderDate: orderSelected.deliveryProviderDate,
+          deliveryProviderCode: orderSelected.deliveryProviderCode,
+          providerId: orderSelected.providerId,
+          relationOrders: orderSelected.relationOrders,
+          relationOrderId:
+            orderSelected.relationOrders != undefined
+              ? orderSelected.relationOrders[0].relationOrderId
+              : undefined,
+          // relationOrderCode: orderSelected.relationOrders[0].relationOrderCode,
+          //relationOrderId: orderSelected.relationOrderId,
+          //relationOrderCode: orderSelected.relationOrderCode,
+          items: mapItems(orderSelected, warehouses),
+          status: orderSelected.status,
+        }));
+      }
     }
+  }
+
+  async function handleLoadDeliveryOrders(relationOrderIds: string[]) {
+    await getOrderWithFilters({
+      ids: relationOrderIds,
+    });
   }
 
   const headerName = generateNameHeader(isPurchase!, orderRequest);
@@ -234,21 +275,33 @@ export default function OrderForm({
           isEditing={orderRequest != null}
           disabledSearchPurchaseOrder={purchaseOrderId != null}
         />
-        {order.relationOrderId && order.relationOrderCode && (
-          <div className="border p-2 rounded-md bg-gray-100 text-gray-700 font-semibold">
-            <Link
-              href={ROUTES.orders.order + '/' + order.relationOrderId}
-              className="text-blue-500 hover:underline"
-            >
-              {translateOrderType(
-                order.type == OrderType.Purchase
-                  ? OrderType.Delivery
-                  : OrderType.Purchase
-              )}
-              {' - '} {order.relationOrderCode}
-            </Link>
+
+        {orders && orders.length > 0 && (
+          <div className="flex flex-col border p-2 rounded-md bg-gray-100 text-gray-700 font-semibold">
+            {orders.map(x => (
+              <>
+                <Link
+                  href={ROUTES.orders.order + '/' + x.id}
+                  className="text-blue-500 hover:underline"
+                >
+                  {translateOrderType(
+                    order.type == OrderType.Purchase
+                      ? OrderType.Delivery
+                      : OrderType.Purchase
+                  )}
+                  {' - '} {x.code}
+                </Link>
+                <OrderPurchaseDetailItems
+                  handleRecieveItem={() => {}}
+                  items={x.items}
+                  isOrderPurchase={false}
+                  showActionButtons={false}
+                />
+              </>
+            ))}
           </div>
         )}
+
         {orderPurchase && <OrderPurchase order={orderPurchase} />}
         {order.type == OrderType.Purchase && selectedProvider && (
           <ProviderInfo provider={selectedProvider} />

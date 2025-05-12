@@ -88,7 +88,11 @@ export function BodyOrderForm({
             ? selectedWareHouse.warehouseId
             : selectedSparePart.warehouses[0].warehouseId)
       ),
-      wareHouseName: item.wareHouseName,
+      wareHouseName:
+        item.wareHouseName.length > 0
+          ? item.wareHouseName
+          : selectedWareHouse?.warehouseName ??
+            selectedSparePart.warehouses[0].warehouseName,
       estimatedDeliveryDate: new Date().toISOString().split('T')[0],
     };
 
@@ -146,7 +150,6 @@ export function BodyOrderForm({
       return;
     }
 
-    // Handle receive all items case
     if (receiveAll && orderPurchase?.items) {
       const updatedOrderItems = orderPurchase.items.map(orderItem => {
         const purchaseItem = orderPurchase.items.find(
@@ -155,6 +158,7 @@ export function BodyOrderForm({
         return purchaseItem
           ? {
               ...orderItem,
+              quantity: purchaseItem.quantityPendient ?? orderItem.quantity,
               quantityReceived:
                 (orderItem.quantityReceived ?? 0) +
                 (purchaseItem.quantityPendient ?? 0),
@@ -228,6 +232,8 @@ export function BodyOrderForm({
         refProvider: exists.refProvider,
         discount: exists.discount,
         wareHouseName: exists.wareHouseName,
+        sparePartName:
+          exists.sparePart.code + ' - ' + exists.sparePart.description,
       };
       exists.quantityPendient = (exists.quantityPendient ?? 0) - units;
       const updatedItems = order.items.map(x =>
@@ -252,6 +258,7 @@ export function BodyOrderForm({
           refProvider: item.refProvider,
           discount: item.discount,
           wareHouseName: item.wareHouseName,
+          sparePartName: item.sparePartName,
         };
         setOrder({
           ...order,
