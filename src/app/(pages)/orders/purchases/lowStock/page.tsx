@@ -9,7 +9,7 @@ export default function Page() {
     <MainLayout>
       <Container className="flex flex-col">
         <HeaderForm
-          header={'Proposta de compres automàtica'}
+          header={'Proposta de comandes automàtica'}
           isCreate={false}
         />
         <LowStockPurchase />

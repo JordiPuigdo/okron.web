@@ -7,9 +7,9 @@ export default function PurchaseComponent() {
   return (
     <div className="flex flex-col h-full">
       <HeaderTable
-        title="Compra"
-        subtitle="Inici - Llistat de Compres"
-        createButton="Crear Compra"
+        title="Comanda"
+        subtitle="Inici - Llistat de Comandes"
+        createButton="Crear Comanda"
         urlCreateButton="/orders/orderForm?isPurchase=true"
       />
       <TableDataOrders

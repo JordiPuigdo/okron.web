@@ -86,7 +86,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
-    title: 'Comandes',
+    title: 'Comandes i Recepcions',
     path: '',
     permission: [UserPermission.Administrator],
     userType: [UserType.Maintenance, UserType.Warehouse],
@@ -95,7 +95,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     submenuItems: [
       {
         key: generateKey(),
-        title: 'Compres',
+        title: 'Comandes',
         path: '/orders/purchases',
         icon: SvgGear,
         permission: [UserPermission.Administrator],
@@ -103,7 +103,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },
       {
         key: generateKey(),
-        title: 'Sol·licitud Compres',
+        title: 'Proposta Automàtica Compra',
         path: '/orders/purchases/lowStock',
         icon: SvgGear,
         permission: [UserPermission.Administrator],

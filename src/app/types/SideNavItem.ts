@@ -1,5 +1,5 @@
-import { SVGProps } from "react";
-import { UserPermission, UserType } from "app/interfaces/User";
+import { SVGProps } from 'react';
+import { UserPermission, UserType } from 'app/interfaces/User';
 
 export type SideNavItem = {
   key: number;
