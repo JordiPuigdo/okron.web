@@ -122,7 +122,6 @@ export default function OrderForm({
 
   const handleCreateOrder = async () => {
     try {
-      debugger;
       if (orderRequest == null) {
         await createOrder(order);
       } else {
