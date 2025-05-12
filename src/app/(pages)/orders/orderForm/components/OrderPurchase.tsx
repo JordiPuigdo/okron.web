@@ -1,6 +1,7 @@
 import { OrderSimple } from 'app/interfaces/Order';
 import { formatDate } from 'app/utils/utils';
 import { translateOrderStatus } from 'app/utils/utilsOrder';
+import Link from 'next/link';
 
 export interface OrderPurchaseProps {
   order: OrderSimple;
@@ -13,7 +14,12 @@ export default function OrderPurchase({ order }: OrderPurchaseProps) {
         <div className="flex justify-between gap-4">
           <div className="text-sm font-medium text-gray-900">Ordre Compra:</div>
           <div className="text-sm text-gray-500">
-            {order.code} - {formatDate(order.creationDate, false)}
+            <Link
+              href={`/orders/${order.id}`}
+              className="text-blue-500 hover:cursor-pointer hover:underline"
+            >
+              {order.code} - {formatDate(order.creationDate, false)}
+            </Link>
           </div>
         </div>
         <div className="flex justify-between gap-4">

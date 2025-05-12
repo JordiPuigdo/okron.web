@@ -45,15 +45,24 @@ export default function OrderPurchaseDetailItems({
           <tbody>
             {items.map((item, index) => {
               const isDisabled = item.quantityPendient == 0;
-              const sparePartCode = item.sparePartName?.split('-')[0];
-              const sparePartName = item.sparePartName?.split('-')[1];
+
+              const sparePartCode = item.sparePartName
+                ? item.sparePartName?.split('-')[0]
+                : item.sparePart
+                ? item.sparePart.code
+                : '';
+              const sparePartName = item.sparePartName
+                ? item.sparePartName?.split('-')[1]
+                : item.sparePart
+                ? item.sparePart.description
+                : '';
               return (
                 <tr key={index} className="border-t">
                   <td className="p-2 border">
                     {sparePartCode} - {sparePartName}
                   </td>
                   <td className="p-2 border text-center">
-                    {item.wareHouse?.description}
+                    {item.wareHouseName ?? item.wareHouse?.description}
                   </td>
                   <td className="p-2 border text-center">{item.quantity}</td>
                   {isOrderPurchase && (
@@ -118,7 +127,7 @@ export default function OrderPurchaseDetailItems({
           </tbody>
         </table>
       </div>
-      {isOrderPurchase && (
+      {isOrderPurchase && showActionButtons && (
         <div className="my-4 flex justify-end">
           <button
             className={`bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 ${

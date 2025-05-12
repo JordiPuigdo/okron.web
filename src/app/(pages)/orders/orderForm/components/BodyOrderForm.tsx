@@ -338,11 +338,13 @@ export function BodyOrderForm({
             handleRecieveItem={handleReceiveItem}
             items={orderPurchase?.items ?? []}
             isOrderPurchase={true}
+            showActionButtons={order.status != OrderStatus.Completed}
           />
           <OrderPurchaseDetailItems
             handleRecieveItem={handleReturnItem}
             items={order.items}
             isOrderPurchase={false}
+            showActionButtons={order.status != OrderStatus.Completed}
           />
         </>
       )}

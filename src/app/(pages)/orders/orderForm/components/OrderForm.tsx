@@ -200,7 +200,7 @@ export default function OrderForm({
           orderSelected.relationOrders[0].relationOrderId
         );
         setOrderPurchase({
-          id: orderSelected.id,
+          id: orderSelected.relationOrders[0].relationOrderId,
           creationDate: orderSelected.creationDate,
           active: true,
           code: orderSelected.relationOrders[0].relationOrderCode,
