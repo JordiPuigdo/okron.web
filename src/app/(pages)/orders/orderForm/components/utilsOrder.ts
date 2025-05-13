@@ -5,7 +5,7 @@ export function generateNameHeader(isPurchase: boolean, orderRequest?: Order) {
   if (orderRequest != null) {
     return orderRequest.code;
   }
-  return isPurchase ? 'Crear Compra' : 'Crear Recepció';
+  return isPurchase ? 'Crear Comanda' : 'Crear Recepció';
 }
 
 export function mapItems(orderSelected: Order, warehouses: WareHouse[]) {
