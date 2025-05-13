@@ -18,7 +18,7 @@ export function translateOrderStatus(status: OrderStatus) {
 export function translateOrderType(type: OrderType) {
   switch (type) {
     case OrderType.Purchase:
-      return 'Compra';
+      return 'Comanda';
     case OrderType.Delivery:
       return 'Recepció';
     case OrderType.Return:

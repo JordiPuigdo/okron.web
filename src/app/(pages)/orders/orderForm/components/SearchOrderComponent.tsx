@@ -44,7 +44,7 @@ export default function SearchOrderComponent({
       <input
         type="text"
         className="w-full p-2 border rounded-md mb-2"
-        placeholder="Buscar Compra..."
+        placeholder="Buscar Comanda..."
         value={searchOrder}
         onChange={e => {
           setSearchOrder(e.target.value);
@@ -64,7 +64,7 @@ export default function SearchOrderComponent({
               }
             }}
           >
-            <option value="">Selecciona una compra</option>
+            <option value="">Selecciona una comanda</option>
             {filteredOrders?.map(sp => (
               <option key={sp.id} value={sp.id}>
                 {sp.code}

@@ -61,9 +61,7 @@ export default function HeaderOrderForm({
           {!isEditing && !disabledSearchPurchaseOrder && (
             <>
               <label className="block text-sm font-semibold">
-                {order.type == OrderType.Purchase
-                  ? 'Proveeïdor'
-                  : 'Ordre Compra:'}
+                {order.type == OrderType.Purchase ? 'Proveeïdor' : 'Comanada:'}
               </label>
               {order.type == OrderType.Purchase ? (
                 <SearchProviderComponent

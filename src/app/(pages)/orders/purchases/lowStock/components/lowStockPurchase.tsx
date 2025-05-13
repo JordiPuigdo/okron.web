@@ -344,7 +344,7 @@ export default function LowStockPurchase() {
               Cancel·lar
             </Button>
             <Button disabled={purchaseProposal.length === 0} onClick={onCreate}>
-              Generar Compra
+              Generar Comanda
             </Button>
           </div>
         </div>
