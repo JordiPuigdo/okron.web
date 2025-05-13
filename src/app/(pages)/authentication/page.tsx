@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { User } from 'app/interfaces/User';
 import AuthenticationService from 'app/services/authentication';
+import ConfigService from 'app/services/configService';
 import { useSessionStore } from 'app/stores/globalStore';
 import useRoutes from 'app/utils/useRoutes';
 import { useRouter } from 'next/navigation';
@@ -20,6 +21,10 @@ export default function AuthenticationPage() {
 
   const authService = new AuthenticationService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
+  );
+
+  const configService = new ConfigService(
+    process.env.NEXT_PUBLIC_API_BASE_URL!
   );
 
   const handleUserNameChange = (event: any) => {
@@ -62,6 +67,10 @@ export default function AuthenticationPage() {
     setUserName('');
     setPassword('');
   }
+
+  useEffect(() => {
+    configService.get();
+  }, []);
 
   return (
     <>
