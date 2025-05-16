@@ -1,7 +1,8 @@
-"use client";
-import { useEffect, useState } from "react";
-import InspectionPoint from "app/interfaces/inspectionPoint";
-import AutocompleteSearchBar from "components/selector/AutocompleteSearchBar";
+'use client';
+import { useEffect, useState } from 'react';
+import InspectionPoint from 'app/interfaces/inspectionPoint';
+import InspectionPointService from 'app/services/inspectionPointService';
+import AutocompleteSearchBar from 'components/selector/AutocompleteSearchBar';
 
 interface ChooseInspectionPointProps {
   preventiveInspectionPoints: InspectionPoint[];
@@ -19,25 +20,47 @@ const ChooseInspectionPoint: React.FC<ChooseInspectionPointProps> = ({
   const [selectedInspectionPoints, setSelectedInspectionPoints] = useState<
     InspectionPoint[]
   >([]);
+  const apiURL = process.env.NEXT_PUBLIC_API_BASE_URL!;
+  const inspectionPointService = new InspectionPointService(apiURL);
 
   useEffect(() => {
-    const selectedPoints = preventiveInspectionPoints.filter((point) =>
+    const selectedPoints = preventiveInspectionPoints.filter(point =>
       preventiveSelectedInspectionPoints.includes(point.id)
     );
     setSelectedInspectionPoints(selectedPoints);
   }, [preventiveInspectionPoints, preventiveSelectedInspectionPoints]);
 
   const handleDeleteSelectedPoint = (pointId: string) => {
-    setSelectedInspectionPoints((prevSelected) =>
-      prevSelected.filter((point) => point.id !== pointId)
+    setSelectedInspectionPoints(prevSelected =>
+      prevSelected.filter(point => point.id !== pointId)
     );
     onDeleteInspectionPointSelected(pointId);
   };
   const handleInspectionPointSelected = (id: string) => {
-    if (id == "") return;
-    const x = preventiveInspectionPoints.find((point) => point.id === id);
-    setSelectedInspectionPoints((prevSelected) => [...prevSelected, x!]);
+    if (id == '') return;
+    const x = preventiveInspectionPoints.find(point => point.id === id);
+    setSelectedInspectionPoints(prevSelected => [...prevSelected, x!]);
     onInspectionPointSelected(id);
+  };
+
+  const handleCreateInspectionPoint = async (text: string) => {
+    const newPoint: InspectionPoint = {
+      id: text,
+      description: text.trim(),
+      active: true,
+    };
+    await inspectionPointService
+      .createInspectionPoint({
+        active: true,
+        description: text,
+        id: text,
+      })
+      .then(x => {
+        newPoint.id = x.id;
+      });
+    preventiveInspectionPoints.push(newPoint);
+    setSelectedInspectionPoints(prevSelected => [...prevSelected, newPoint]);
+    onInspectionPointSelected(newPoint.id);
   };
 
   return (
@@ -48,14 +71,14 @@ const ChooseInspectionPoint: React.FC<ChooseInspectionPointProps> = ({
         </label>
         <AutocompleteSearchBar
           elements={preventiveInspectionPoints.filter(
-            (x) =>
-              x.active && !selectedInspectionPoints.some((y) => y.id === x.id)
+            x => x.active && !selectedInspectionPoints.some(y => y.id === x.id)
           )}
           setCurrentId={handleInspectionPointSelected}
           placeholder="Buscar punts d'inspecció"
+          onCreate={handleCreateInspectionPoint}
         />
         <div className="mt-4 p-2">
-          {selectedInspectionPoints.map((point) => (
+          {selectedInspectionPoints.map(point => (
             <div
               key={point.id}
               className="flex items-center justify-between mb-2 border-b-2 border-gray-800 p-2"

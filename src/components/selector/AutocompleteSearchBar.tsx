@@ -11,6 +11,7 @@ type AutocompleteSearchBarProps = {
   selectedId?: string | null;
   className?: string;
   parentClassName?: string;
+  onCreate?(text: string): void;
 };
 
 const AutocompleteSearchBar: React.FC<AutocompleteSearchBarProps> = ({
@@ -21,6 +22,7 @@ const AutocompleteSearchBar: React.FC<AutocompleteSearchBarProps> = ({
   selectedId,
   className = '',
   parentClassName = 'w-full',
+  onCreate,
 }) => {
   const [query, setQuery] = useState('');
   const [selectedElementIndex, setSelectedElementIndex] = useState<number>(-1);
@@ -61,6 +63,9 @@ const AutocompleteSearchBar: React.FC<AutocompleteSearchBarProps> = ({
         setQuery('');
         setSelectedElementIndex(-1);
         setSearchResults([]);
+      } else {
+        onCreate && onCreate(query);
+        setQuery('');
       }
     }
   };

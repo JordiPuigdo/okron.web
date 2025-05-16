@@ -8,7 +8,11 @@ interface ChooseElementProps<T> {
   onElementSelected: (id: string) => void;
   onDeleteElementSelected: (id: string) => void;
   placeholder: string;
-  mapElement: (element: T) => { id: string; description: string };
+  mapElement: (element: T) => {
+    id: string;
+    description: string;
+    code?: string;
+  };
   labelText?: string;
   disabled?: boolean;
   className?: string;
@@ -34,14 +38,14 @@ const ChooseElement = <T,>({
       .map(mapElement);
     setSelectedItems(selectedItems);
 
-    const filteredElements = elements
+    const filtered = elements
       .filter(
         element =>
           !selectedElements.includes(mapElement(element).id) &&
           mapElement(element).description.toLowerCase()
       )
       .map(mapElement);
-    setFilteredElements(filteredElements);
+    setFilteredElements(filtered);
   }, [elements, selectedElements]);
 
   const handleElementSelected = (id: string) => {

@@ -23,7 +23,9 @@ class InspectionPointService {
     return response.json();
   }
 
-  async createInspectionPoint(inspectionPoint: InspectionPoint): Promise<void> {
+  async createInspectionPoint(
+    inspectionPoint: InspectionPoint
+  ): Promise<InspectionPoint> {
     const response = await fetch(`${this.baseUrl}inspectionpoints`, {
       method: 'POST',
       headers: {
@@ -33,10 +35,15 @@ class InspectionPointService {
     });
     if (!response.ok) {
       throw new Error('Failed to create inspection point');
+    } else {
+      return response.json();
     }
   }
 
-  async updateInspectionPoint(id: string, inspectionPoint: InspectionPoint): Promise<void> {
+  async updateInspectionPoint(
+    id: string,
+    inspectionPoint: InspectionPoint
+  ): Promise<void> {
     const response = await fetch(`${this.baseUrl}inspectionpoints/${id}`, {
       method: 'PUT',
       headers: {

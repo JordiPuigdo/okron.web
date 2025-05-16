@@ -91,6 +91,7 @@ const PreventiveForm = () => {
           if (asset.createWorkOrder) {
             elements.push({
               id: asset.id,
+              code: asset.code,
               description: asset.description,
             });
           }
@@ -397,7 +398,8 @@ const PreventiveForm = () => {
                 placeholder="Buscar Equip"
                 mapElement={asset => ({
                   id: asset.id,
-                  description: asset.description,
+                  code: asset.code,
+                  description: asset.code + ' - ' + asset.description,
                 })}
                 labelText="Equips"
               />
