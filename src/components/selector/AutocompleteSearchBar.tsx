@@ -42,7 +42,7 @@ const AutocompleteSearchBar: React.FC<AutocompleteSearchBarProps> = ({
       elements.filter(element =>
         element.description
           .toLowerCase()
-          .includes(event.target.value.toLowerCase())
+          .includes(event.target.value.trim().toLowerCase())
       )
     );
   };
