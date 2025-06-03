@@ -53,7 +53,13 @@ const AssetListItem: React.FC<Props> = ({ asset, onDelete }) => {
           )}
           <div className="flex-grow">
             <strong>Codi:</strong> {asset.code} | <strong>Descripció:</strong>{' '}
-            {asset.description} | <strong>Nivell:</strong> {asset.level}
+            {asset.description} |{' '}
+            {asset.brand && (
+              <>
+                <strong>Marca:</strong> {asset.brand} |{' '}
+              </>
+            )}
+            <strong>Nivell:</strong> {asset.level}
           </div>
           <div className="flex flex-row">
             {asset.level < 7 && (
@@ -157,7 +163,10 @@ const AssetList: React.FC = () => {
     return assets.reduce((filtered: Asset[], asset) => {
       const includesTerm =
         asset.code.toLowerCase().includes(term.toLowerCase()) ||
-        asset.description.toLowerCase().includes(term.toLowerCase());
+        asset.description.toLowerCase().includes(term.toLowerCase()) ||
+        (asset.brand &&
+          asset.brand?.length > 0 &&
+          asset.brand.toLowerCase().includes(term.toLowerCase()));
 
       const filteredChildren = filterAssetsRecursive(asset.childs, term);
 
