@@ -60,7 +60,7 @@ export const TableDataOrders = ({
       sparePartId: sparePartId,
     });
     costCenterService.getAll().then(costCenters => {
-      setCostCenters(costCenters);
+      setCostCenters(costCenters.filter(x => x.active == true));
     });
     if (orderType) {
       filtersOrders.push({
