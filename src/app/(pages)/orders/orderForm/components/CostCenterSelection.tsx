@@ -18,7 +18,7 @@ export default function CostCenterSelection({
     async function fetchCostCenters() {
       try {
         const costCenters = await costCenterService.getAll();
-        setCostCenters(costCenters);
+        setCostCenters(costCenters.filter(x => x.active == true));
         if (costCenters.length > 0) {
           if (selectedId)
             onSelectedCostCenter(costCenters.find(x => x.id === selectedId)!);
