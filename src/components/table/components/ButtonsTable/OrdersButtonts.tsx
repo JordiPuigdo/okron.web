@@ -13,7 +13,8 @@ export const OrdersButtons = ({
   phoneNumber,
   order,
 }: OrdersButtonsProps) => {
-  if (order.type == OrderType.Delivery) return;
+  if (order.type == OrderType.Delivery) return null;
+
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
 
   const handleWhatsAppShare = () => {
@@ -29,7 +30,6 @@ export const OrdersButtons = ({
 
   return (
     <div className="flex items-center gap-2">
-      {/* WhatsApp Button */}
       <div className="relative group">
         <button
           className={`p-2 rounded-full transition-colors 
