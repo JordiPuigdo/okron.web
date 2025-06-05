@@ -67,6 +67,7 @@ const DataTable: React.FC<DataTableProps> = ({
     Math.ceil(data.length / itemsPerPage)
   );
   const [totalRecords, setTotalRecords] = useState(data.length);
+  const [totalAmountRecords, setTotalAmountRecords] = useState(totalCalculated);
   const ROUTES = useRoutes();
   const [pathDetail, setPathDetail] = useState<string>('');
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
@@ -142,8 +143,6 @@ const DataTable: React.FC<DataTableProps> = ({
     handleSortChange(sortText);
   };
 
-  const totalQuantity = totalCalculated || 0;
-
   const handleItemsPerPageChange = (value: number) => {
     setIsLoading(true);
     setItemsPerPage(value);
@@ -178,6 +177,7 @@ const DataTable: React.FC<DataTableProps> = ({
     }
 
     setTotalRecords(filteredRecords.length);
+
     setFilteredData(
       filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord)
     );
@@ -223,6 +223,12 @@ const DataTable: React.FC<DataTableProps> = ({
       setFilteredData(
         filteredData.slice(indexOfFirstRecord, indexOfLastRecord)
       );
+    }
+    if (totalCalculated && EntityTable.ORDER) {
+      const x = filteredData.reduce((acc, order) => {
+        return acc + (order.totalAmount ?? 0);
+      }, 0);
+      setTotalAmountRecords(x);
     }
     setTotalRecords(filteredData.length);
     setTotalCount(Math.ceil(filteredData.length / itemsPerPage));
@@ -316,7 +322,7 @@ const DataTable: React.FC<DataTableProps> = ({
                   pathDetail={pathDetail}
                   onDelete={onDelete ? onDelete : undefined}
                   totalCounts={totalCounts}
-                  totalQuantity={totalQuantity}
+                  totalQuantity={totalAmountRecords || 0}
                 />
               </table>
             </div>
