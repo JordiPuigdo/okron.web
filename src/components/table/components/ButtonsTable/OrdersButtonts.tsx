@@ -13,7 +13,7 @@ export const OrdersButtons = ({
   phoneNumber,
   order,
 }: OrdersButtonsProps) => {
-  if (order.type == OrderType.Delivery) return;
+  if (order.type == OrderType.Delivery) return null;
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
 
   const handleWhatsAppShare = () => {
