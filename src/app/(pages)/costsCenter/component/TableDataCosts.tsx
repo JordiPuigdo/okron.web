@@ -20,7 +20,7 @@ export default function TableDataCosts() {
     async function fetchCostCenters() {
       try {
         const costCenters = await costsService.getAll();
-        setCostCenters(costCenters.filter(x => x.active == true));
+        setCostCenters(costCenters);
       } catch (error) {
         console.error('Error fetching cost centers:', error);
       }
