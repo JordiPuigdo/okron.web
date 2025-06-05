@@ -22,6 +22,7 @@ const useRoutes = () => {
       order: '/orders',
       purchase: '/orders/purchases',
     },
+    costsCenter: '/costsCenter',
   };
 };
 

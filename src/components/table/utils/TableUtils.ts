@@ -129,6 +129,11 @@ export const formatCellContent = (
     value = getStatusText(value, 'ORDER');
   }
 
+  if (column.format === ColumnFormat.PRICE) {
+    className = 'flex justify-end text-end';
+    value = value.toFixed(2) + '€';
+  }
+
   if (column.format === ColumnFormat.STOCKMOVEMENTTYPE) {
     className = getStatusClassName(value, 'STOCKMOVEMENT');
     console.log(value);

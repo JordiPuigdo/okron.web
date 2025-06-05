@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useOrder } from 'app/hooks/useOrder';
 import { useWareHouses } from 'app/hooks/useWareHouses';
+import { CostCenter } from 'app/interfaces/CostCenter';
 import {
   Order,
   OrderCreationRequest,
@@ -59,7 +60,11 @@ export default function OrderForm({
     operatorId: '66156dc51a7347dfd58d8ca8',
     active: true,
     providerName: '',
+    costCenter: '',
+    costCenterId: '',
   });
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const [orderPurchase, setOrderPurchase] = useState<OrderSimple | undefined>(
     undefined
@@ -105,6 +110,7 @@ export default function OrderForm({
           code: code,
         });
       }
+      setIsLoading(false);
     } catch (error) {
       console.error('Error al obtener el código:', error);
     }
@@ -180,6 +186,8 @@ export default function OrderForm({
         operatorId: '66156dc51a7347dfd58d8ca8',
         items: mapItems(orderSelected, warehouses),
         relationOrders: orderSelected.relationOrders,
+        costCenterId: orderSelected.costCenterId,
+        costCenter: orderSelected.costCenter,
       }));
       setSelectedProvider(orderSelected.provider);
       if (
@@ -216,6 +224,7 @@ export default function OrderForm({
           //relationOrderId:'',// orderSelected.relationOrderId,
           // relationOrderCode: ''//orderSelected.relationOrderCode,
         });
+
         setOrder(prev => ({
           ...prev,
           code: orderSelected.code,
@@ -226,6 +235,8 @@ export default function OrderForm({
           deliveryProviderCode: orderSelected.deliveryProviderCode,
           providerId: orderSelected.providerId,
           relationOrders: orderSelected.relationOrders,
+          costCenterId: orderSelected.costCenterId,
+          costCenter: orderSelected.costCenter,
           relationOrderId:
             orderSelected.relationOrders != undefined
               ? orderSelected.relationOrders[0].relationOrderId
@@ -238,6 +249,7 @@ export default function OrderForm({
         }));
       }
     }
+    setIsLoading(false);
   }
 
   async function handleLoadDeliveryOrders(relationOrderIds: string[]) {
@@ -262,18 +274,30 @@ export default function OrderForm({
     }));
   }
 
+  function handleSelectedCostCenter(costCenter: CostCenter) {
+    if (isLoading) return;
+    setOrder(prev => ({
+      ...prev,
+      costCenter: costCenter.code + ' - ' + costCenter.description,
+      costCenterId: costCenter.id,
+    }));
+  }
+
   return (
     <div className="flex flex-col h-full pb-4">
       <HeaderForm header={headerName} isCreate={orderRequest == null} />
       <div className="bg-white p-4 rounded-lg shadow-md flex-grow flex flex-col space-y-4 h-full">
-        <HeaderOrderForm
-          order={order}
-          setOrder={setOrder}
-          handleChangeProvider={handleChangeProvider}
-          loadOrderFromScratch={handleLoadOrderFromScratch}
-          isEditing={orderRequest != null}
-          disabledSearchPurchaseOrder={purchaseOrderId != null}
-        />
+        {!isLoading && (
+          <HeaderOrderForm
+            order={order}
+            setOrder={setOrder}
+            handleChangeProvider={handleChangeProvider}
+            loadOrderFromScratch={handleLoadOrderFromScratch}
+            isEditing={orderRequest != null}
+            disabledSearchPurchaseOrder={purchaseOrderId != null}
+            setSelectedCostCenter={handleSelectedCostCenter}
+          />
+        )}
 
         {orders && orders.length > 0 && (
           <div className="flex flex-col border p-2 rounded-md bg-gray-100 text-gray-700 font-semibold">

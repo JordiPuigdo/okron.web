@@ -25,6 +25,7 @@ interface DataTableProps {
   isReport?: boolean;
   hideShadow?: boolean;
   hideExport?: boolean;
+  totalCalculated?: number;
 }
 
 export enum ButtonTypesTable {
@@ -49,6 +50,7 @@ const DataTable: React.FC<DataTableProps> = ({
   isReport = false,
   hideShadow = false,
   hideExport = false,
+  totalCalculated,
 }: DataTableProps) => {
   const itemsPerPageOptions = [5, 10, 15, 20, 25, 50];
   const [currentPage, setCurrentPage] = useState(1);
@@ -118,6 +120,9 @@ const DataTable: React.FC<DataTableProps> = ({
       case EntityTable.ORDER:
         setPathDetail(ROUTES.orders.order);
         break;
+      case EntityTable.COSTCENTER:
+        setPathDetail(ROUTES.costsCenter);
+        break;
       default:
         setPathDetail('error');
     }
@@ -137,7 +142,7 @@ const DataTable: React.FC<DataTableProps> = ({
     handleSortChange(sortText);
   };
 
-  const totalQuantity = 0;
+  const totalQuantity = totalCalculated || 0;
 
   const handleItemsPerPageChange = (value: number) => {
     setIsLoading(true);

@@ -3,7 +3,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
 import { useOrder } from 'app/hooks/useOrder';
-import { OrderStatus, OrderType } from 'app/interfaces/Order';
+import { CostCenter } from 'app/interfaces/CostCenter';
+import { Order, OrderStatus, OrderType } from 'app/interfaces/Order';
+import { CostService } from 'app/services/costService';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
 import { FilterType } from 'components/table/components/Filters/FilterType';
 import DataTable from 'components/table/DataTable';
@@ -42,10 +44,11 @@ export const TableDataOrders = ({
     endDate: null,
   });
 
-  const [filters, setFilters] = useState<{ [key: string]: OrderStatus[] }>({
+  const [filters, setFilters] = useState<{ [key: string]: any[] }>({
     status: [],
   });
-
+  const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
+  const costCenterService = new CostService();
   const [message, setMessage] = useState<string>('');
 
   useEffect(() => {
@@ -55,6 +58,9 @@ export const TableDataOrders = ({
       to: defaultDate,
       providerId: selectedProviderId,
       sparePartId: sparePartId,
+    });
+    costCenterService.getAll().then(costCenters => {
+      setCostCenters(costCenters);
     });
     if (orderType) {
       filtersOrders.push({
@@ -98,10 +104,28 @@ export const TableDataOrders = ({
     }
   }, [orders]);
 
-  const filteredOrders =
-    filters.status.length > 0
-      ? [...orders].filter(order => filters.status.includes(order.status))
-      : orders;
+  const getFilteredOrders = (): Order[] => {
+    return orders.filter(order => {
+      const statusMatches =
+        filters.status.length === 0 || filters.status.includes(order.status);
+
+      const costCenterMatches =
+        !filters.costCenter ||
+        filters.costCenter.length === 0 ||
+        filters.costCenter.includes(
+          order.costCenterId && order.costCenterId?.length > 0
+            ? order.costCenterId
+            : ''
+        );
+
+      return statusMatches && costCenterMatches;
+    });
+  };
+
+  const filteredOrders = getFilteredOrders();
+  const totalAmount = filteredOrders.reduce((acc, order) => {
+    return acc + (order.totalAmount ?? 0);
+  }, 0);
   return (
     <div className="flex flex-col h-full gap-4 w-full">
       {title && (
@@ -130,6 +154,21 @@ export const TableDataOrders = ({
               translateFn={translateOrderState}
             />
           </div>
+          <div className="flex-1">
+            <FilterType<string>
+              filters={filters}
+              setFilters={setFilters}
+              validTypes={costCenters.map(x => x.id)}
+              filterKey="costCenter"
+              placeholder="Centre de Costs"
+              translateFn={(id: string) => {
+                const costCenter = costCenters.find(c => c.id === id);
+                return costCenter
+                  ? `${costCenter.code} - ${costCenter.description}`
+                  : id;
+              }}
+            />
+          </div>
         </div>
         {message && <span className="text-red-500">{message}</span>}
       </div>
@@ -140,6 +179,8 @@ export const TableDataOrders = ({
         tableButtons={tableButtons}
         filters={filtersOrders}
         hideShadow={hideShadow}
+        totalCounts
+        totalCalculated={totalAmount}
       />
     </div>
   );
@@ -173,6 +214,16 @@ const columnsOrders: Column[] = [
     label: 'Data',
     key: 'date',
     format: ColumnFormat.DATE,
+  },
+  {
+    label: 'Centre de Costs',
+    key: 'costCenter',
+    format: ColumnFormat.TEXT,
+  },
+  {
+    label: 'Total',
+    key: 'totalAmount',
+    format: ColumnFormat.PRICE,
   },
 ];
 

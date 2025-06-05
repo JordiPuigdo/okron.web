@@ -13,6 +13,7 @@ export const OrdersButtons = ({
   phoneNumber,
   order,
 }: OrdersButtonsProps) => {
+  if (order.type == OrderType.Delivery) return;
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
 
   const handleWhatsAppShare = () => {
@@ -23,6 +24,8 @@ export const OrdersButtons = ({
     const waLink = `https://wa.me/${formattedPhone}?text=La seva comanda ${orderId} està preparada per entregar`;
     window.open(waLink, '_blank');
   };
+
+  const isCompleted = order.status == OrderStatus.Completed;
 
   return (
     <div className="flex items-center gap-2">
@@ -49,31 +52,41 @@ export const OrdersButtons = ({
         </div>
       </div>
 
-      {order.status != OrderStatus.Completed &&
-        order.type == OrderType.Purchase && (
-          <div className="relative group">
-            <Link href={`/orders/orderForm?purchaseOrderId=${orderId}`}>
-              <button className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-                  />
-                </svg>
-              </button>
-            </Link>
-            <div className="absolute invisible group-hover:visible bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
-              Crear Albarà
-            </div>
+      <div className="relative group">
+        <Link
+          href={`/orders/orderForm?purchaseOrderId=${orderId}`}
+          aria-disabled={isCompleted}
+          className={`${isCompleted} ? 'pointer-events-none' : ''}`}
+        >
+          <button
+            className={`p-2 ${
+              isCompleted
+                ? 'bg-gray-500 text-white'
+                : 'bg-blue-500 text-white hover:bg-blue-600 transition-colors'
+            } rounded-full `}
+            disabled={isCompleted}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+              />
+            </svg>
+          </button>
+        </Link>
+        {!isCompleted && (
+          <div className="absolute invisible group-hover:visible bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
+            Crear Albarà
           </div>
         )}
+      </div>
     </div>
   );
 };

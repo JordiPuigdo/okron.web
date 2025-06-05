@@ -38,6 +38,7 @@ export enum ColumnFormat {
   OPERATORTYPE = 'OPERATORTYPE',
   STOCKMOVEMENTTYPE = 'STOCKMOVEMENTTYPE',
   ORDERSTATE = 'ORDERSTATE',
+  PRICE = 'PRICE',
 }
 
 export enum ColumnnAlign {

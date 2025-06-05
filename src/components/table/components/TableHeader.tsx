@@ -56,6 +56,9 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             if (column.format == ColumnFormat.NUMBER) {
               classname += ' justify-end pr-4';
             }
+            if (column.format == ColumnFormat.PRICE) {
+              classname += ' justify-end';
+            }
             return (
               <th
                 key={column.key}

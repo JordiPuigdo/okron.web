@@ -1,6 +1,7 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
 import DatePicker from 'react-datepicker';
+import { CostCenter } from 'app/interfaces/CostCenter';
 import {
   Order,
   OrderCreationRequest,
@@ -12,6 +13,7 @@ import { translateOrderStatus } from 'app/utils/utilsOrder';
 import ca from 'date-fns/locale/ca';
 import dayjs from 'dayjs';
 
+import CostCenterSelection from './CostCenterSelection';
 import SearchOrderComponent from './SearchOrderComponent';
 import SearchProviderComponent from './SearchProviderComponent';
 
@@ -22,6 +24,7 @@ export interface HeaderOrderFormProps {
   isEditing: boolean;
   loadOrderFromScratch: (order: Order) => void;
   disabledSearchPurchaseOrder?: boolean;
+  setSelectedCostCenter: (costCenter: CostCenter) => void;
 }
 
 export default function HeaderOrderForm({
@@ -31,6 +34,7 @@ export default function HeaderOrderForm({
   isEditing,
   loadOrderFromScratch,
   disabledSearchPurchaseOrder = false,
+  setSelectedCostCenter,
 }: HeaderOrderFormProps) {
   const handleDateChange = (date: any, isProvider: boolean) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
@@ -48,7 +52,7 @@ export default function HeaderOrderForm({
   };
   return (
     <div className="flex flex-row gap-4">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col flex-1 gap-2">
         <div className="flex flex-col gap-2">
           <label className="block text-sm font-semibold">Codi:</label>
           <input
@@ -85,13 +89,13 @@ export default function HeaderOrderForm({
           </div>
         )}
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col flex-1 gap-2">
         <div className="flex flex-col gap-2">
           <label className="block text-sm font-semibold">Data:</label>
           <DatePicker
             dateFormat="dd/MM/yyyy"
             locale={ca}
-            className="rounded-md"
+            className="rounded-md w-full"
             selected={dayjs(order.date).toDate()}
             onChange={date => {
               handleDateChange(date, false);
@@ -120,8 +124,14 @@ export default function HeaderOrderForm({
           </select>
         </div>
       </div>
+      <div className="flex flex-col flex-1 gap-2">
+        <CostCenterSelection
+          onSelectedCostCenter={setSelectedCostCenter}
+          selectedId={order.costCenterId}
+        />
+      </div>
       {order.type == OrderType.Delivery && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col flex-1 gap-2">
           <div className="flex flex-col gap-2">
             <label className="block text-sm font-semibold">
               Data Albarà Proveeïdor:
@@ -129,7 +139,7 @@ export default function HeaderOrderForm({
             <DatePicker
               dateFormat="dd/MM/yyyy"
               locale={ca}
-              className="rounded-md"
+              className="w-full"
               selected={dayjs(order.deliveryProviderDate).toDate()}
               onChange={date => {
                 handleDateChange(date, true);
