@@ -21,7 +21,7 @@ export const TableTotalRowComponent: React.FC<TableTotalRowComponentProps> = ({
         colSpan={columnsLength - 2}
         className="text-lg text-gray-900 pr-2 font-semibold text-right"
       >
-        {totalQuantity}€
+        {totalQuantity.toFixed(2)}€
       </td>
       <td className="px-6 pr-8 text-lg text-gray-900 font-semibold text-right"></td>
     </tr>
