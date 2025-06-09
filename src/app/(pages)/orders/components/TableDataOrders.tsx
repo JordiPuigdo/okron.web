@@ -172,7 +172,7 @@ export const TableDataOrders = ({
               setFilters={setFilters}
               validTypes={costCenters.map(x => x.id)}
               filterKey="costCenter"
-              placeholder="Centre de Costs"
+              placeholder="Compta Comptable"
               translateFn={(id: string) => {
                 const costCenter = costCenters.find(c => c.id === id);
                 return costCenter
@@ -228,7 +228,7 @@ const columnsOrders: Column[] = [
     format: ColumnFormat.DATE,
   },
   {
-    label: 'Centre de Costs',
+    label: 'Compta Comptable',
     key: 'costCenter',
     format: ColumnFormat.TEXT,
   },

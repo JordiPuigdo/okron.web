@@ -44,7 +44,7 @@ export default function CostsCenterFormPage() {
       <Container>
         <HeaderForm header="Crear Centre Costs" isCreate />
         <BaseForm<CreateCostCenterRequest>
-          title="Nou Centre de Costs"
+          title="Nou Compta Comptable"
           fields={[
             {
               name: 'code',

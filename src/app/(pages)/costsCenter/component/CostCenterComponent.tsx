@@ -6,9 +6,9 @@ export default function CostCenterComponent() {
   return (
     <div className="flex flex-col h-full">
       <HeaderTable
-        title="Centre de Costs"
+        title="Compta Comptable"
         subtitle="Inici - Llistat de Centres de Costs"
-        createButton="Crear Centre de Costs"
+        createButton="Crear Compta Comptable"
         urlCreateButton="/costsCenter/costsCenterForm"
       />
       <TableDataCosts />

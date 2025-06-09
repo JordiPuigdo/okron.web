@@ -53,7 +53,7 @@ export default function CostsCenterDetailPage({
         />
         {!isLoadingPage && (
           <BaseForm<UpdateCostCenterRequest>
-            title="Actualitza Centre de Costs"
+            title="Actualitza Compta Comptable"
             fields={[
               {
                 name: 'code',

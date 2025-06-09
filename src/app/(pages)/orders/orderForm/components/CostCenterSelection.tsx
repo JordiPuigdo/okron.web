@@ -34,7 +34,7 @@ export default function CostCenterSelection({
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="block text-sm font-semibold">Centre de Costs:</label>
+      <label className="block text-sm font-semibold">Compta Comptable:</label>
       <select
         className="w-full p-2 border rounded-md"
         value={costCenters.find(x => x.id === selectedId)?.id}
