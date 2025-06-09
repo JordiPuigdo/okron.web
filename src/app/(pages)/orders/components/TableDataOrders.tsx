@@ -38,10 +38,14 @@ export const TableDataOrders = ({
   sparePartId,
 }: TableDataOrdersProps) => {
   const { orders, getOrderWithFilters } = useOrder();
+  const [isLoading, setIsLoading] = useState(true);
+  const [firstLoad, setFirstLoad] = useState(true);
+  const defaultDateStartDate = new Date(new Date().getFullYear(), 0, 1);
   const defaultDate = new Date();
+
   const [dateFilters, setDateFilters] = useState<DateFilters>({
-    startDate: null,
-    endDate: null,
+    startDate: defaultDateStartDate,
+    endDate: defaultDate,
   });
 
   const [filters, setFilters] = useState<{ [key: string]: any[] }>({
@@ -52,9 +56,10 @@ export const TableDataOrders = ({
   const [message, setMessage] = useState<string>('');
 
   useEffect(() => {
+    setIsLoading(true);
     getOrderWithFilters({
       orderType: orderType,
-      from: defaultDate,
+      from: defaultDateStartDate,
       to: defaultDate,
       providerId: selectedProviderId,
       sparePartId: sparePartId,
@@ -69,10 +74,12 @@ export const TableDataOrders = ({
         format: FiltersFormat.TEXT,
       });
     }
+    setIsLoading(false);
+    setFirstLoad(false);
   }, []);
 
   useEffect(() => {
-    if (dateFilters.startDate != null && dateFilters.endDate == null) {
+    /*if (dateFilters.startDate != null && dateFilters.endDate == null) {
       setDateFilters({
         startDate: dateFilters.startDate,
         endDate: defaultDate,
@@ -80,10 +87,10 @@ export const TableDataOrders = ({
     }
     if (dateFilters.startDate == null && dateFilters.endDate != null) {
       setDateFilters({
-        startDate: defaultDate,
+        startDate: defaultDateStartDate,
         endDate: dateFilters.endDate,
       });
-    }
+    }*/
     if (dateFilters.startDate && dateFilters.endDate) {
       getOrderWithFilters({
         orderType: orderType,
@@ -96,7 +103,12 @@ export const TableDataOrders = ({
   }, [dateFilters, filters]);
 
   useEffect(() => {
-    if (orders.length == 0 && dateFilters.startDate && dateFilters.endDate) {
+    if (
+      orders.length == 0 &&
+      dateFilters.startDate &&
+      dateFilters.endDate &&
+      !firstLoad
+    ) {
       setMessage('No hi ha comandes amb aquests filtres');
       setTimeout(() => {
         setMessage('');

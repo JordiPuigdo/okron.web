@@ -52,7 +52,7 @@ const DataTable: React.FC<DataTableProps> = ({
   hideExport = false,
   totalCalculated,
 }: DataTableProps) => {
-  const itemsPerPageOptions = [5, 10, 15, 20, 25, 50];
+  const itemsPerPageOptions = [50, 100, 150, 200, 250, 500];
   const [currentPage, setCurrentPage] = useState(1);
   const [sortColumn, setSortColumn] = useState('');
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('ASC');
