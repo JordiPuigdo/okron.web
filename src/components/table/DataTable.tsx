@@ -67,7 +67,10 @@ const DataTable: React.FC<DataTableProps> = ({
     Math.ceil(data.length / itemsPerPage)
   );
   const [totalRecords, setTotalRecords] = useState(data.length);
-  const [totalAmountRecords, setTotalAmountRecords] = useState(totalCalculated);
+
+  const [totalAmountRecords, setTotalAmountRecords] = useState<
+    number | undefined
+  >(undefined);
   const ROUTES = useRoutes();
   const [pathDetail, setPathDetail] = useState<string>('');
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
@@ -182,6 +185,7 @@ const DataTable: React.FC<DataTableProps> = ({
       filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord)
     );
 
+    calculateTotalAmountRecords(filteredRecords);
     setTotalCount(Math.ceil(filteredRecords.length / itemsPerPage));
     setIsLoading(false);
   }, [
@@ -193,6 +197,17 @@ const DataTable: React.FC<DataTableProps> = ({
     sortColumn,
     filterSparePartsUnderStock,
   ]);
+
+  const calculateTotalAmountRecords = (data: any[]) => {
+    if (EntityTable.ORDER && data.length > 0) {
+      const x = data.reduce((acc, order) => {
+        return acc + (order.totalAmount ?? 0);
+      }, 0);
+      setTotalAmountRecords(x);
+    } else {
+      setTotalAmountRecords(undefined);
+    }
+  };
 
   const handleFilterChange = (key: string, value: string | boolean | Date) => {
     const keys = key.split('.');
@@ -224,12 +239,7 @@ const DataTable: React.FC<DataTableProps> = ({
         filteredData.slice(indexOfFirstRecord, indexOfLastRecord)
       );
     }
-    if (totalCalculated && EntityTable.ORDER) {
-      const x = filteredData.reduce((acc, order) => {
-        return acc + (order.totalAmount ?? 0);
-      }, 0);
-      setTotalAmountRecords(x);
-    }
+    calculateTotalAmountRecords(filteredData);
     setTotalRecords(filteredData.length);
     setTotalCount(Math.ceil(filteredData.length / itemsPerPage));
   };
@@ -322,7 +332,7 @@ const DataTable: React.FC<DataTableProps> = ({
                   pathDetail={pathDetail}
                   onDelete={onDelete ? onDelete : undefined}
                   totalCounts={totalCounts}
-                  totalQuantity={totalAmountRecords || 0}
+                  totalQuantity={totalAmountRecords ?? 0}
                 />
               </table>
             </div>
