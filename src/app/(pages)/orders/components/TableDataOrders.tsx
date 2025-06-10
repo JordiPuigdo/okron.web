@@ -3,9 +3,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
 import { useOrder } from 'app/hooks/useOrder';
-import { CostCenter } from 'app/interfaces/CostCenter';
+import { Account } from 'app/interfaces/Account';
 import { Order, OrderStatus, OrderType } from 'app/interfaces/Order';
-import { CostService } from 'app/services/costService';
+import { AccountService } from 'app/services/accountService';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
 import { FilterType } from 'components/table/components/Filters/FilterType';
 import DataTable from 'components/table/DataTable';
@@ -51,8 +51,8 @@ export const TableDataOrders = ({
   const [filters, setFilters] = useState<{ [key: string]: any[] }>({
     status: [],
   });
-  const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
-  const costCenterService = new CostService();
+  const [Accounts, setAccounts] = useState<Account[]>([]);
+  const accountService = new AccountService();
   const [message, setMessage] = useState<string>('');
 
   useEffect(() => {
@@ -64,8 +64,8 @@ export const TableDataOrders = ({
       providerId: selectedProviderId,
       sparePartId: sparePartId,
     });
-    costCenterService.getAll().then(costCenters => {
-      setCostCenters(costCenters.filter(x => x.active == true));
+    accountService.getAll().then(Accounts => {
+      setAccounts(Accounts.filter(x => x.active == true));
     });
     if (orderType) {
       filtersOrders.push({
@@ -121,16 +121,14 @@ export const TableDataOrders = ({
       const statusMatches =
         filters.status.length === 0 || filters.status.includes(order.status);
 
-      const costCenterMatches =
-        !filters.costCenter ||
-        filters.costCenter.length === 0 ||
-        filters.costCenter.includes(
-          order.costCenterId && order.costCenterId?.length > 0
-            ? order.costCenterId
-            : ''
+      const AccountMatches =
+        !filters.Account ||
+        filters.Account.length === 0 ||
+        filters.Account.includes(
+          order.accountId && order.accountId?.length > 0 ? order.accountId : ''
         );
 
-      return statusMatches && costCenterMatches;
+      return statusMatches && AccountMatches;
     });
   };
 
@@ -170,13 +168,13 @@ export const TableDataOrders = ({
             <FilterType<string>
               filters={filters}
               setFilters={setFilters}
-              validTypes={costCenters.map(x => x.id)}
-              filterKey="costCenter"
+              validTypes={Accounts.map(x => x.id)}
+              filterKey="Account"
               placeholder="Compta Comptable"
               translateFn={(id: string) => {
-                const costCenter = costCenters.find(c => c.id === id);
-                return costCenter
-                  ? `${costCenter.code} - ${costCenter.description}`
+                const Account = Accounts.find(c => c.id === id);
+                return Account
+                  ? `${Account.code} - ${Account.description}`
                   : id;
               }}
             />
@@ -229,7 +227,7 @@ const columnsOrders: Column[] = [
   },
   {
     label: 'Compta Comptable',
-    key: 'costCenter',
+    key: 'account',
     format: ColumnFormat.TEXT,
   },
   {

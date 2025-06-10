@@ -22,7 +22,11 @@ const useRoutes = () => {
       order: '/orders',
       purchase: '/orders/purchases',
     },
-    costsCenter: '/costsCenter',
+    print: {
+      workOrder: '/print/workorder',
+      order: '/print/order',
+    },
+    accounts: '/account',
   };
 };
 

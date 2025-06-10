@@ -16,8 +16,8 @@ export interface OrderSimple extends BaseModel {
   providerName?: string;
   deliveryProviderDate?: string;
   deliveryProviderCode?: string;
-  costCenter?: string;
-  costCenterId?: string;
+  account?: string;
+  accountId?: string;
   totalAmount?: number;
 }
 
@@ -80,8 +80,8 @@ export interface OrderCreationRequest {
   deliveryProviderDate?: string;
   deliveryProviderCode?: string;
   relationOrders?: RelationOrder[];
-  costCenterId?: string;
-  costCenter?: string;
+  accountId?: string;
+  account?: string;
   totalAmount?: number;
 }
 

@@ -1,13 +1,13 @@
 import Container from 'components/layout/Container';
 import MainLayout from 'components/layout/MainLayout';
 
-import CostCenterComponent from './component/CostCenterComponent';
+import AccountComponent from './component/AccountComponent';
 
-export default function CostsCenterPage() {
+export default function AccountPage() {
   return (
     <MainLayout>
       <Container>
-        <CostCenterComponent />
+        <AccountComponent />
       </Container>
     </MainLayout>
   );

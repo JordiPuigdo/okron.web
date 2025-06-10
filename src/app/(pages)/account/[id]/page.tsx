@@ -1,42 +1,42 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { UpdateCostCenterRequest } from 'app/interfaces/CostCenter';
-import { CostService } from 'app/services/costService';
+import { UpdateAccountRequest } from 'app/interfaces/Account';
+import { AccountService } from 'app/services/accountService';
 import Container from 'components/layout/Container';
 import { HeaderForm } from 'components/layout/HeaderForm';
 import MainLayout from 'components/layout/MainLayout';
 import BaseForm from 'components/OkronForm/BaseForm';
 import { useRouter } from 'next/navigation';
 
-export default function CostsCenterDetailPage({
+export default function AccountDetailPage({
   params,
 }: {
   params: { id: string };
 }) {
   const id = params.id;
-  const costCenterService = new CostService();
-  const [costCenter, setCostCenter] = useState<UpdateCostCenterRequest>();
+  const accountService = new AccountService();
+  const [Account, setAccount] = useState<UpdateAccountRequest>();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingPage, setIsLoadingPage] = useState(true);
   const [isUpdated, setIsUpdated] = useState(false);
 
   useEffect(() => {
-    costCenterService.getById(id).then(data => {
-      setCostCenter(data);
+    accountService.getById(id).then(data => {
+      setAccount(data);
       setIsLoadingPage(false);
     });
   }, []);
 
   const router = useRouter();
 
-  async function handleUpdate(data: UpdateCostCenterRequest): Promise<void> {
+  async function handleUpdate(data: UpdateAccountRequest): Promise<void> {
     setIsLoading(true);
-    costCenterService
+    accountService
       .update(data)
       .then(data => {
         setIsUpdated(true);
-        router.push(`/costsCenter`);
+        router.push(`/account`);
       })
       .catch(error => {
         console.error('Error updating cost center:', error);
@@ -49,10 +49,10 @@ export default function CostsCenterDetailPage({
       <Container>
         <HeaderForm
           isCreate={false}
-          header={`${costCenter?.code} - ${costCenter?.description}`}
+          header={`${Account?.code} - ${Account?.description}`}
         />
         {!isLoadingPage && (
-          <BaseForm<UpdateCostCenterRequest>
+          <BaseForm<UpdateAccountRequest>
             title="Actualitza Compta Comptable"
             fields={[
               {
@@ -77,7 +77,7 @@ export default function CostsCenterDetailPage({
             ]}
             onSubmit={handleUpdate}
             onCancel={() => router.back()}
-            defaultValues={costCenter}
+            defaultValues={Account}
             isSubmitting={isLoading}
             isSubmitted={isUpdated}
           />

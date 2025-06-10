@@ -6,9 +6,9 @@ import { WorkOrderHeader } from './components/workorderHeader';
 import { WorkOrderPreventiveReport } from './components/workorderPreventiveReport';
 import { WorkOrderSparePartsReport } from './components/workorderSparePartsReport';
 
-async function getWorkOrders(): Promise<WorkOrder> {
+async function getWorkOrders(id: string): Promise<WorkOrder> {
   try {
-    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}workOrder/67ffb9c1f06eb0ce444158f2`;
+    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}workOrder/${id}`;
     const res = await fetch(url, {
       cache: 'no-store',
     });
@@ -24,8 +24,12 @@ async function getWorkOrders(): Promise<WorkOrder> {
   }
 }
 
-export default async function WorkOrderPage() {
-  const orders = await getWorkOrders();
+export default async function WorkOrderPage({
+  searchParams,
+}: {
+  searchParams: { id: string; parentId?: string };
+}) {
+  const orders = await getWorkOrders(searchParams.id);
 
   return (
     <div className="container mx-auto p-24 ">

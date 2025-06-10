@@ -124,8 +124,8 @@ const DataTable: React.FC<DataTableProps> = ({
       case EntityTable.ORDER:
         setPathDetail(ROUTES.orders.order);
         break;
-      case EntityTable.COSTCENTER:
-        setPathDetail(ROUTES.costsCenter);
+      case EntityTable.Account:
+        setPathDetail(ROUTES.accounts);
         break;
       default:
         setPathDetail('error');

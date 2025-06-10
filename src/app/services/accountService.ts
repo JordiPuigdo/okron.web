@@ -1,14 +1,14 @@
 import {
-  CostCenter,
-  CreateCostCenterRequest,
-  UpdateCostCenterRequest,
-} from 'app/interfaces/CostCenter';
+  Account,
+  CreateAccountRequest,
+  UpdateAccountRequest,
+} from 'app/interfaces/Account';
 
-export class CostService {
+export class AccountService {
   baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
-  async getAll(): Promise<CostCenter[]> {
-    const url = `${this.baseUrl}costCenter`;
+  async getAll(): Promise<Account[]> {
+    const url = `${this.baseUrl}Account`;
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -18,8 +18,8 @@ export class CostService {
     return await response.json();
   }
 
-  async getById(id: string): Promise<CostCenter> {
-    const url = `${this.baseUrl}costCenter/${id}`;
+  async getById(id: string): Promise<Account> {
+    const url = `${this.baseUrl}Account/${id}`;
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -29,31 +29,31 @@ export class CostService {
     return await response.json();
   }
 
-  async create(costCenter: CreateCostCenterRequest): Promise<CostCenter> {
-    const url = `${this.baseUrl}costCenter`;
+  async create(Account: CreateAccountRequest): Promise<Account> {
+    const url = `${this.baseUrl}Account`;
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(costCenter),
+      body: JSON.stringify(Account),
     });
     return await response.json();
   }
 
-  async update(costCenter: UpdateCostCenterRequest): Promise<void> {
-    const url = `${this.baseUrl}costCenter/${costCenter.id}`;
+  async update(Account: UpdateAccountRequest): Promise<void> {
+    const url = `${this.baseUrl}Account/${Account.id}`;
     await fetch(url, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(costCenter),
+      body: JSON.stringify(Account),
     });
   }
 
   async delete(id: string): Promise<void> {
-    const url = `${this.baseUrl}costCenter/${id}`;
+    const url = `${this.baseUrl}Account/${id}`;
     const response = await fetch(url, {
       method: 'DELETE',
       headers: {

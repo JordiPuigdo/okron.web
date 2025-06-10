@@ -1,30 +1,30 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { CostCenter, CreateCostCenterRequest } from 'app/interfaces/CostCenter';
-import { CostService } from 'app/services/costService';
+import { Account, CreateAccountRequest } from 'app/interfaces/Account';
+import { AccountService } from 'app/services/accountService';
 import Container from 'components/layout/Container';
 import { HeaderForm } from 'components/layout/HeaderForm';
 import MainLayout from 'components/layout/MainLayout';
 import BaseForm from 'components/OkronForm/BaseForm';
 import { useRouter } from 'next/navigation';
 
-export default function CostsCenterFormPage() {
+export default function AccountFormPage() {
   const router = useRouter();
-  const costCenterService = new CostService();
-  const [costCenter, setCostCenter] = useState<CostCenter[]>([]);
+  const accountService = new AccountService();
+  const [Account, setAccount] = useState<Account[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   );
 
   useEffect(() => {
-    costCenterService.getAll().then(data => {
-      setCostCenter(data);
+    accountService.getAll().then(data => {
+      setAccount(data);
     });
   }, []);
 
-  async function handleCreate(data: CreateCostCenterRequest): Promise<void> {
+  async function handleCreate(data: CreateAccountRequest): Promise<void> {
     if (
-      costCenter.find(
+      Account.find(
         x => x.code.toLocaleUpperCase() == data.code.toLocaleUpperCase()
       )
     ) {
@@ -34,16 +34,16 @@ export default function CostsCenterFormPage() {
       }, 2000);
       return;
     }
-    costCenterService.create(data).then(data => {
-      router.push(`/costsCenter`);
+    accountService.create(data).then(data => {
+      router.push(`/account`);
     });
   }
 
   return (
     <MainLayout>
       <Container>
-        <HeaderForm header="Crear Centre Costs" isCreate />
-        <BaseForm<CreateCostCenterRequest>
+        <HeaderForm header="Crear Compte Comptable" isCreate />
+        <BaseForm<CreateAccountRequest>
           title="Nou Compta Comptable"
           fields={[
             {

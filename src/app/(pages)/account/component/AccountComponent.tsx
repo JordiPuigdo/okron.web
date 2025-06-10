@@ -1,17 +1,17 @@
 import { HeaderTable } from 'components/layout/HeaderTable';
 
-import TableDataCosts from './TableDataCosts';
+import TableDataAccounts from './TableDataAccount';
 
-export default function CostCenterComponent() {
+export default function AccountComponent() {
   return (
     <div className="flex flex-col h-full">
       <HeaderTable
         title="Compta Comptable"
-        subtitle="Inici - Llistat de Centres de Costs"
+        subtitle="Inici - Llistat de Comptes Comptables"
         createButton="Crear Compta Comptable"
-        urlCreateButton="/costsCenter/costsCenterForm"
+        urlCreateButton="/account/accountForm"
       />
-      <TableDataCosts />
+      <TableDataAccounts />
     </div>
   );
 }

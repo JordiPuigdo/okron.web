@@ -502,6 +502,11 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
         {errorMessage !== '' && (
           <p className="text-red-500 text-xl">{errorMessage}</p>
         )}
+        <div>
+          <Link href={`/print/workorder/${currentWorkOrder?.id}`} passHref>
+            Imprimir
+          </Link>
+        </div>
       </div>
     );
   };

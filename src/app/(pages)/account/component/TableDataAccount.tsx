@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { CostCenter } from 'app/interfaces/CostCenter';
-import { CostService } from 'app/services/costService';
+import { Account } from 'app/interfaces/Account';
+import { AccountService } from 'app/services/accountService';
 import DataTable from 'components/table/DataTable';
 import {
   Column,
@@ -13,25 +13,25 @@ import {
 } from 'components/table/interface/interfaceTable';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 
-export default function TableDataCosts() {
-  const costsService = new CostService();
-  const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
+export default function TableDataAccounts() {
+  const acountService = new AccountService();
+  const [accounts, setAccounts] = useState<Account[]>([]);
   useEffect(() => {
-    async function fetchCostCenters() {
+    async function fetchAccounts() {
       try {
-        const costCenters = await costsService.getAll();
-        setCostCenters(costCenters);
+        const Accounts = await acountService.getAll();
+        setAccounts(Accounts);
       } catch (error) {
         console.error('Error fetching cost centers:', error);
       }
     }
-    fetchCostCenters();
+    fetchAccounts();
   }, []);
   return (
     <DataTable
-      data={costCenters}
+      data={accounts}
       columns={columnsOrders}
-      entity={EntityTable.COSTCENTER}
+      entity={EntityTable.Account}
       tableButtons={tableButtons}
       filters={filtersOrders}
       hideShadow

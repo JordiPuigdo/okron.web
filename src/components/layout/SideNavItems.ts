@@ -198,8 +198,8 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },*/
       {
         key: generateKey(),
-        title: 'Centre Costs',
-        path: '/costsCenter',
+        title: 'Comptes Comptables',
+        path: '/account',
         icon: SvgOperari,
         userType: [UserType.Production, UserType.Maintenance],
         permission: [UserPermission.Administrator],

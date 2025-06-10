@@ -1,7 +1,7 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
 import DatePicker from 'react-datepicker';
-import { CostCenter } from 'app/interfaces/CostCenter';
+import { Account } from 'app/interfaces/Account';
 import {
   Order,
   OrderCreationRequest,
@@ -13,7 +13,7 @@ import { translateOrderStatus } from 'app/utils/utilsOrder';
 import ca from 'date-fns/locale/ca';
 import dayjs from 'dayjs';
 
-import CostCenterSelection from './CostCenterSelection';
+import AccountSelection from './AccountSelection';
 import SearchOrderComponent from './SearchOrderComponent';
 import SearchProviderComponent from './SearchProviderComponent';
 
@@ -24,7 +24,7 @@ export interface HeaderOrderFormProps {
   isEditing: boolean;
   loadOrderFromScratch: (order: Order) => void;
   disabledSearchPurchaseOrder?: boolean;
-  setSelectedCostCenter: (costCenter: CostCenter) => void;
+  setSelectedAccount: (Account: Account) => void;
 }
 
 export default function HeaderOrderForm({
@@ -34,7 +34,7 @@ export default function HeaderOrderForm({
   isEditing,
   loadOrderFromScratch,
   disabledSearchPurchaseOrder = false,
-  setSelectedCostCenter,
+  setSelectedAccount,
 }: HeaderOrderFormProps) {
   const handleDateChange = (date: any, isProvider: boolean) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
@@ -125,9 +125,9 @@ export default function HeaderOrderForm({
         </div>
       </div>
       <div className="flex flex-col flex-1 gap-2">
-        <CostCenterSelection
-          onSelectedCostCenter={setSelectedCostCenter}
-          selectedId={order.costCenterId}
+        <AccountSelection
+          onSelectedAccount={setSelectedAccount}
+          selectedId={order.accountId}
         />
       </div>
       {order.type == OrderType.Delivery && (

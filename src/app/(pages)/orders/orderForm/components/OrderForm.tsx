@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useOrder } from 'app/hooks/useOrder';
 import { useWareHouses } from 'app/hooks/useWareHouses';
-import { CostCenter } from 'app/interfaces/CostCenter';
+import { Account } from 'app/interfaces/Account';
 import {
   Order,
   OrderCreationRequest,
@@ -60,8 +60,8 @@ export default function OrderForm({
     operatorId: '66156dc51a7347dfd58d8ca8',
     active: true,
     providerName: '',
-    costCenter: '',
-    costCenterId: '',
+    account: '',
+    accountId: '',
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -186,8 +186,8 @@ export default function OrderForm({
         operatorId: '66156dc51a7347dfd58d8ca8',
         items: mapItems(orderSelected, warehouses),
         relationOrders: orderSelected.relationOrders,
-        costCenterId: orderSelected.costCenterId,
-        costCenter: orderSelected.costCenter,
+        accountId: orderSelected.accountId,
+        account: orderSelected.account,
       }));
       setSelectedProvider(orderSelected.provider);
       if (
@@ -235,8 +235,8 @@ export default function OrderForm({
           deliveryProviderCode: orderSelected.deliveryProviderCode,
           providerId: orderSelected.providerId,
           relationOrders: orderSelected.relationOrders,
-          costCenterId: orderSelected.costCenterId,
-          costCenter: orderSelected.costCenter,
+          accountId: orderSelected.accountId,
+          account: orderSelected.account,
           relationOrderId:
             orderSelected.relationOrders != undefined
               ? orderSelected.relationOrders[0].relationOrderId
@@ -274,12 +274,12 @@ export default function OrderForm({
     }));
   }
 
-  function handleSelectedCostCenter(costCenter: CostCenter) {
+  function handleSelectedAccount(Account: Account) {
     if (isLoading) return;
     setOrder(prev => ({
       ...prev,
-      costCenter: costCenter.code + ' - ' + costCenter.description,
-      costCenterId: costCenter.id,
+      Account: Account.code + ' - ' + Account.description,
+      AccountId: Account.id,
     }));
   }
 
@@ -295,7 +295,7 @@ export default function OrderForm({
             loadOrderFromScratch={handleLoadOrderFromScratch}
             isEditing={orderRequest != null}
             disabledSearchPurchaseOrder={purchaseOrderId != null}
-            setSelectedCostCenter={handleSelectedCostCenter}
+            setSelectedAccount={handleSelectedAccount}
           />
         )}
 
