@@ -22,8 +22,10 @@ const ElementListComponent: React.FC<ElemntListProps> = ({
         <div
           key={element.id}
           id={`element-${index}`}
-          className={`py-2 px-4 flex items-center justify-between gap-8 bg-zinc-100 hover:bg-gray-200 cursor-pointer ${
-            selectedElementIndex === index ? 'bg-gray-200 ' : ''
+          className={`py-2 px-4 flex items-center justify-between gap-8   ${
+            selectedElementIndex === index
+              ? 'bg-gray-200 '
+              : 'bg-zinc-100/50 hover:bg-gray-200 cursor-pointer'
           }`}
           onClick={() => handleElementClick(element)}
         >
