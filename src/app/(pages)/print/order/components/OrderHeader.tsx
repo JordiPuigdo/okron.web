@@ -24,13 +24,13 @@ export const OrderHeader = ({ order }: { order: Order }) => {
           className="h-[150px] w-[150px] p-2 "
         />
         <div className="flex">
-          <div className="border border-black p-2 my-6">
+          <div className="border p-2 my-6">
             <p className="relative">Comanda</p>
             <div className="p-4">
               <p className="font-semibold">{order.code}</p>
             </div>
           </div>
-          <div className="border border-l-0 border-black p-2 my-6">
+          <div className="border p-2 my-6">
             <p className="relative">Data</p>
             <div className="p-4">
               <p className="font-semibold">

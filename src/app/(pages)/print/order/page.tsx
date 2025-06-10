@@ -23,6 +23,17 @@ async function getOrder(id: string): Promise<Order> {
   }
 }
 
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: { id: string };
+}) {
+  const order = await getOrder(searchParams.id);
+  return {
+    title: order.code || 'Order',
+  };
+}
+
 export default async function OrderPage({
   searchParams,
 }: {
