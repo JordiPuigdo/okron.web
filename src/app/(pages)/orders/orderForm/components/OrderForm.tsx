@@ -288,7 +288,11 @@ export default function OrderForm({
       <HeaderForm
         header={headerName}
         isCreate={orderRequest == null}
-        canPrint={'order?id=' + orderRequest?.id}
+        canPrint={
+          orderRequest?.type == OrderType.Purchase
+            ? 'order?isPurchase=true&purchaseOrderId=' + orderRequest?.id
+            : undefined
+        }
       />
       <div className="bg-white p-4 rounded-lg shadow-md flex-grow flex flex-col space-y-4 h-full">
         {!isLoading && (
