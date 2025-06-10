@@ -33,7 +33,7 @@ export default function MainLayout({
             isMenuOpen ? 'pl-3 w-60' : !hideHeader && !isMenuOpen && 'w-16'
           }`}
         >
-          {!hideHeader && <SideNav />}
+          {!hideHeader && <SideNav isOpenNavBar={isMenuOpen} />}
         </div>
 
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">

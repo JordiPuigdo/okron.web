@@ -11,7 +11,11 @@ import { usePathname } from 'next/navigation';
 
 import { SIDENAV_ITEMS } from './SideNavItems';
 
-const SideNav: React.FC = () => {
+interface SideNavProps {
+  isOpenNavBar: boolean;
+}
+
+const SideNav: React.FC<SideNavProps> = ({ isOpenNavBar }) => {
   const { loginUser, isMenuOpen } = useSessionStore(state => state);
   const loginPermission = loginUser?.permission!;
   const loginUserType = loginUser?.userType!;
@@ -34,6 +38,7 @@ const SideNav: React.FC = () => {
                 item={item}
                 userType={loginUserType}
                 menuOpen={isMenuOpen}
+                sideNavOpen={isOpenNavBar}
               />
             )
           );
@@ -50,6 +55,7 @@ const SideNav: React.FC = () => {
               item={configItem}
               userType={loginUserType}
               menuOpen={isMenuOpen}
+              sideNavOpen={isOpenNavBar}
             />
           )}
       </div>
@@ -61,10 +67,12 @@ const MenuItem = ({
   item,
   userType,
   menuOpen,
+  sideNavOpen,
 }: {
   item: SideNavItem;
   userType: UserType;
   menuOpen: boolean;
+  sideNavOpen: boolean;
 }) => {
   const pathname = usePathname();
 
@@ -129,7 +137,7 @@ const MenuItem = ({
           </button>
 
           {subMenuOpen && item.title != 'Configuració' && (
-            <div className="ml-8 flex flex-col">
+            <div className={`${sideNavOpen ? 'ml-8' : 'ml-4'} flex flex-col `}>
               {item.submenuItems?.map((subItem, idx) => {
                 const isSubItemActive = pathname === subItem.path;
                 return (
@@ -183,6 +191,10 @@ const MenuItem = ({
                 return (
                   <Link key={idx} href={subItem.path}>
                     <span
+                      data-tooltip-id={`tooltip-${subItem.key}`}
+                      data-tooltip-content={subItem.title}
+                      data-tooltip-place="right"
+                      data-tooltip-delay-show={500}
                       className={` text-sm font-small text-gray-700 flex hover:text-okron-main rounded-md mb-2 items-center ${
                         isSubItemActive ? 'bg-[#F2F2F2] text-okron-main' : ''
                       }`}
@@ -213,6 +225,7 @@ const MenuItem = ({
                         />
                       )}
                     </span>
+                    <Tooltip id={`tooltip-${subItem.key}`} />
                   </Link>
                 );
               })}
