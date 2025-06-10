@@ -49,7 +49,7 @@ export default function page({ params }: { params: { id: string } }) {
         <div className="p-4 bg-white">
           <TableDataOrders
             sparePartId={sparePart?.sparePart.id}
-            title="Històric de compres i recepcions"
+            title="Històric de compres"
             hideShadow
           />
         </div>

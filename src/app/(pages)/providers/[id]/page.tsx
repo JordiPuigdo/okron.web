@@ -131,7 +131,7 @@ export default function ProvidersPageDetail({
             <div className="flex flex-col gap-2 my-4 w-full bg-white rounded-xl p-4 shadow-md">
               <TableDataOrders
                 selectedProviderId={params.id}
-                title="Històric de compres i recepcions"
+                title="Històric de compres"
                 hideShadow
               />
             </div>
