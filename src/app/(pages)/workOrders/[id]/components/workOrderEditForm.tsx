@@ -8,6 +8,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import ModalDowntimeReasons from 'app/(pages)/corrective/components/ModalDowntimeReasons';
 import ModalGenerateCorrective from 'app/(pages)/corrective/components/ModalGenerateCorrective';
 import { useAssetHook } from 'app/hooks/useAssetHook';
+import { SvgPrint } from 'app/icons/designSystem/SvgPrint';
 import { SvgSpinner } from 'app/icons/icons';
 import Operator, { OperatorType } from 'app/interfaces/Operator';
 import { DowntimesReasons } from 'app/interfaces/Production/Downtimes';
@@ -503,8 +504,12 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
           <p className="text-red-500 text-xl">{errorMessage}</p>
         )}
         <div>
-          <Link href={`/print/workorder/${currentWorkOrder?.id}`} passHref>
-            Imprimir
+          <Link
+            href={`/print/workorder?id=${currentWorkOrder?.id}`}
+            passHref
+            target="_blank"
+          >
+            <SvgPrint className="text-black hover:text-blue-900" />
           </Link>
         </div>
       </div>

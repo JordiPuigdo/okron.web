@@ -7,45 +7,41 @@ export const WorkOrderSparePartsReport = ({
   workorder: WorkOrder;
 }) => {
   return (
-    <div className="flex flex-col p-6 ">
+    <div className="flex flex-col p-6 no-break ">
       <div className="w-[120px]">
-        <h2 className="text-xl font-semibold text-gray-800 border p-2 rounded-xl">
+        <h2 className="text-l font-semibold text-gray-800 border p-2 rounded-xl">
           Recanvis
         </h2>
       </div>
 
-      <div className="w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+      <div className="w-full rounded-lg border border-gray-200 shadow-sm">
         {/* Table Header - now uses exact fractional widths */}
-        <div className="bg-gray-50 grid grid-cols-[3fr_2fr_2fr_2fr_1fr] p-3 text-lg font-semibold  text-gray-700">
+        <div className="bg-gray-50 grid grid-cols-[3fr_2fr_2fr_2fr_1fr] p-3 text-l font-semibold  text-gray-700">
           <p>Recanvi</p>
-          <p className="text-right pr-12">Quantitat</p>
+          <p className="text-right pr-12">Qtt</p>
           <p>Data</p>
           <p>Magatzem</p>
           <p className="flex justify-end pr-2">Operari</p>
         </div>
 
-        {/* Empty State */}
         {!workorder.workOrderSpareParts?.length ? (
           <div className="p-4 text-center text-gray-500">
             No hi ha recanvis registrats
           </div>
         ) : (
-          /* Spare Parts List */
           workorder.workOrderSpareParts.map((sparePart, index) => (
             <div
               key={index}
-              className={`grid grid-cols-[3fr_2fr_2fr_2fr_1fr] p-3 items-center text-l border-b`}
+              className={`grid grid-cols-[3fr_2fr_2fr_2fr_1fr] p-3 items-center text-sm border-b`}
               aria-label={`Recanvi: ${sparePart.sparePart?.description}`}
             >
-              {/* Spare Part Name with truncation */}
               <p
-                className="text-gray-800 truncate"
+                className="text-gray-800"
                 title={sparePart.sparePart?.description}
               >
                 {sparePart.sparePart?.description || '-'}
               </p>
 
-              {/* Quantity - right aligned */}
               <p className="text-gray-600 text-right pr-12">
                 {sparePart.quantity || '-'}
               </p>
@@ -65,7 +61,7 @@ export const WorkOrderSparePartsReport = ({
 
               {/* Operator name */}
               <p
-                className="text-gray-500 truncate flex justify-end pr-2"
+                className="text-gray-500 flex justify-end text-end pr-2"
                 title={sparePart.operator?.name}
               >
                 {sparePart.operator?.name || '-'}

@@ -1,4 +1,5 @@
 import WorkOrder, { WorkOrderType } from 'app/interfaces/workOrder';
+import Loader from 'components/Loader/loader';
 
 import { HoursOperator } from './components/hoursOperator';
 import { WorkOrderComment } from './components/workorderComment';
@@ -23,6 +24,16 @@ async function getWorkOrders(id: string): Promise<WorkOrder> {
     return {} as WorkOrder;
   }
 }
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: { id: string };
+}) {
+  const orders = await getWorkOrders(searchParams.id);
+  return {
+    title: orders.code || 'Work Order',
+  };
+}
 
 export default async function WorkOrderPage({
   searchParams,
@@ -32,15 +43,23 @@ export default async function WorkOrderPage({
   const orders = await getWorkOrders(searchParams.id);
 
   return (
-    <div className="container mx-auto p-24 ">
-      <WorkOrderHeader workOrder={orders} />
-      <HoursOperator workOrder={orders} />
-      {orders.workOrderType == WorkOrderType.Preventive && (
-        <WorkOrderPreventiveReport workorder={orders} />
-      )}
-      <WorkOrderSparePartsReport workorder={orders} />
-      <WorkOrderComment workorder={orders} />
-      <div className="flex font-semibold p-10">Firma:</div>
+    <div className="min-h-screen flex flex-col items-center">
+      {orders == undefined && <Loader />}
+      <div className="flex flex-col  bg-white gap-4 p-4 w-full ">
+        <WorkOrderHeader workOrder={orders} />
+        <HoursOperator workOrder={orders} />
+        {orders.workOrderType == WorkOrderType.Preventive && (
+          <WorkOrderPreventiveReport workorder={orders} />
+        )}
+        <WorkOrderSparePartsReport workorder={orders} />
+        <WorkOrderComment workorder={orders} />
+        <div className="flex font-semibold p-10">Firma:</div>
+      </div>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.onload = function() { window.print(); }`,
+        }}
+      />
     </div>
   );
 }

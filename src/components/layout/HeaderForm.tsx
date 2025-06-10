@@ -1,13 +1,20 @@
 'use client';
+import { SvgPrint } from 'app/icons/designSystem/SvgPrint';
 import { SvgMachines } from 'app/icons/icons';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 interface HeaderFormProps {
   header: string;
   isCreate: boolean;
+  canPrint?: string | undefined;
 }
 
-export const HeaderForm = ({ header, isCreate }: HeaderFormProps) => {
+export const HeaderForm = ({
+  header,
+  isCreate,
+  canPrint = undefined,
+}: HeaderFormProps) => {
   const router = useRouter();
   if (isCreate)
     return (
@@ -45,6 +52,18 @@ export const HeaderForm = ({ header, isCreate }: HeaderFormProps) => {
           </div>
 
           <h2 className="text-2xl font-bold text-black mx-auto">{header}</h2>
+          {canPrint && (
+            <div>
+              <Link
+                href={`/print/${canPrint}`}
+                passHref
+                target="_blank"
+                className=""
+              >
+                <SvgPrint className="text-black hover:text-blue-900" />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     );

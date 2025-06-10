@@ -36,3 +36,44 @@ h1, td, label, span, input, textarea {
 
 /* Extra Large (xl) */
 @media (min-width: 1280px) { /* ... */ }
+
+
+/* Hide URL and timestamp in print */
+@page {
+  size: auto;
+  margin: 0mm;
+}
+
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Hide URL in print preview */
+  @page {
+    margin: 0;
+    size: auto;
+  }
+  
+  /* Optional: force portrait mode */
+  @page {
+    size: portrait;
+  }
+
+  .no-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Force page breaks */
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+}
+

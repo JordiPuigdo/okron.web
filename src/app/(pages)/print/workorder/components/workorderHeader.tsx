@@ -12,13 +12,13 @@ export const WorkOrderHeader = ({ workOrder }: { workOrder: WorkOrder }) => {
           className="h-[150px] w-[150px]"
         />
         <div className="flex flex-col justify-center items-end">
-          <h1 className="text-2xl font-bold">{workOrder.code}</h1>
-          <p className="text-2xl font-bold">{workOrder.description}</p>
-          <p className="text-2xl font-semibold">
+          <h1 className="text-xl font-bold">{workOrder.code}</h1>
+          <p className="text-xl font-bold">{workOrder.description}</p>
+          <p className="text-xl font-semibold">
             {workOrder.asset?.description}
           </p>
-          <p className="text-2xl font-semibold">
-            {formatDate(workOrder.startTime)}
+          <p className="text-xl font-semibold">
+            {formatDate(workOrder.startTime, false)}
           </p>
           {workOrder.workOrderType == WorkOrderType.Preventive && (
             <p>{workOrder.preventive?.description}</p>

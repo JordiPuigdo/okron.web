@@ -285,7 +285,11 @@ export default function OrderForm({
 
   return (
     <div className="flex flex-col h-full pb-4">
-      <HeaderForm header={headerName} isCreate={orderRequest == null} />
+      <HeaderForm
+        header={headerName}
+        isCreate={orderRequest == null}
+        canPrint={'order?id=' + orderRequest?.id}
+      />
       <div className="bg-white p-4 rounded-lg shadow-md flex-grow flex flex-col space-y-4 h-full">
         {!isLoading && (
           <HeaderOrderForm
