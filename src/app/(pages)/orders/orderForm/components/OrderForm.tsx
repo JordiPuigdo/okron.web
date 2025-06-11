@@ -290,7 +290,7 @@ export default function OrderForm({
         isCreate={orderRequest == null}
         canPrint={
           orderRequest?.type == OrderType.Purchase
-            ? 'order?isPurchase=true&purchaseOrderId=' + orderRequest?.id
+            ? 'order?id=' + orderRequest?.id
             : undefined
         }
       />
