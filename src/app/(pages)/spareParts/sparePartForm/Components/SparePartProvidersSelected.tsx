@@ -36,7 +36,7 @@ export default function SparePartProvidersSelected({
         <div className="w-2/5 font-semibold text-gray-700">Nom</div>
         <div className="w-2/5 font-semibold text-gray-700">Referència</div>
         <div className="w-1/5 font-semibold text-gray-700">Preu</div>
-        <div className="w-2/5 font-semibold text-gray-700">Desc. %</div>
+        <div className="w-2/5 font-semibold text-gray-700">% Dte.</div>
         <div className="w-1/5 font-semibold text-gray-700">Habitual</div>
         <div className="w-1/7 font-semibold text-gray-700">Accions</div>
       </div>

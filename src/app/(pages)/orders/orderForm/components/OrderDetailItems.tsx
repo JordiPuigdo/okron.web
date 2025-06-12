@@ -108,7 +108,7 @@ export default function OrderDetailItems({
               <th className="p-2 border w-1/10">Quantitat</th>
               <th className="p-2 border w-1/10">Data Estimada</th>
               <th className="p-2 border w-1/10">Preu Unitari</th>
-              <th className="p-2 border w-1/12">Desc. %</th>
+              <th className="p-2 border w-1/12">% Dte.</th>
               <th className="p-2 border w-1/10">Total</th>
               <th className="p-2 border w-1/10">Acció</th>
             </tr>
