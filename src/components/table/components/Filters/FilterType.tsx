@@ -48,7 +48,7 @@ export const FilterType = <T extends number | string>({
   };
 
   useEffect(() => {
-    if (filters[filterKey]?.length > 0) return;
+    // if (filters[filterKey]?.length > 0) return;
     setSelectedOptions(mapTypesToOptions(filters[filterKey] || []));
   }, [filters[filterKey]]);
 
