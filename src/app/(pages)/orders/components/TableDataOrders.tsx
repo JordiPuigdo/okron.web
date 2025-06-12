@@ -49,7 +49,7 @@ export const TableDataOrders = ({
   });
 
   const [filters, setFilters] = useState<{ [key: string]: any[] }>({
-    status: [],
+    status: [0, 1],
   });
   const [Accounts, setAccounts] = useState<Account[]>([]);
   const accountService = new AccountService();
