@@ -59,10 +59,16 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
 }) => {
   const { operatorLogged, loginUser, setFilterWorkOrders, filterWorkOrders } =
     useSessionStore(state => state);
+
+  const firstDayOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    1
+  );
   const [startDate, setStartDate] = useState<Date | null>(
     filterWorkOrders?.startDateTime
       ? new Date(filterWorkOrders?.startDateTime)
-      : new Date()
+      : firstDayOfMonth
   );
   const [endDate, setEndDate] = useState<Date | null>(
     filterWorkOrders?.endDateTime

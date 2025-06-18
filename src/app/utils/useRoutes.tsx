@@ -20,6 +20,7 @@ const useRoutes = () => {
     },
     orders: {
       order: '/orders',
+      orderPurchase: '/orders/orderForm?isPurchase=true',
       purchase: '/orders/purchases',
     },
     print: {

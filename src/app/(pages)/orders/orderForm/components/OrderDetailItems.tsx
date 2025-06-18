@@ -102,6 +102,7 @@ export default function OrderDetailItems({
         <table className="w-full border border-gray-300 mt-2">
           <thead>
             <tr className="bg-gray-100">
+              <th className="p-2  flex items-center justify-center ">Nº</th>
               <th className="p-2 border w-2/6">Recanvi</th>
               <th className="p-2 border w-1/10">Magatzem</th>
               <th className="p-2 border w-1/10">Referencia Proveidor</th>
@@ -117,6 +118,9 @@ export default function OrderDetailItems({
             {itemsDetail.map((item, index) => {
               return (
                 <tr key={index} className="border-t">
+                  <td className="p-2 flex items-center justify-center">
+                    {index + 1}
+                  </td>
                   <td className="p-2 border">
                     {item.sparePart.code || 'Unknown'} -{' '}
                     {item.sparePart.description.substring(0, 50)}

@@ -5,6 +5,7 @@ import { UserPermission, UserType } from 'app/interfaces/User';
 import { useSessionStore } from 'app/stores/globalStore';
 import useRoutes from 'app/utils/useRoutes';
 import SignOperator from 'components/operator/SignOperator';
+import QuickActions from 'components/QuickActions';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -80,6 +81,9 @@ const Header: React.FC = () => {
                 <GeneratePreventive />
               </div>
             )}
+        </div>
+        <div className="flex">
+          <QuickActions />
         </div>
         <div className="flex items-center justify-end pr-2 text-gray-700 gap-1">
           <SvgAccount />

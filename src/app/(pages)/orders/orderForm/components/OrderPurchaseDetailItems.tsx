@@ -27,6 +27,7 @@ export default function OrderPurchaseDetailItems({
         <table className="w-full border border-gray-300 mt-2">
           <thead>
             <tr className="bg-gray-100">
+              <th className="p-2 border w-2/5">Nº</th>
               <th className="p-2 border w-2/5">Recanvi</th>
               <th className="p-2 border w-1/5">Magatzem</th>
               <th className="p-2 border w-1/10">
@@ -58,6 +59,7 @@ export default function OrderPurchaseDetailItems({
                 : '';
               return (
                 <tr key={index} className="border-t">
+                  <td className="p-2 border">{index + 1}</td>
                   <td className="p-2 border">
                     {sparePartCode} - {sparePartName}
                   </td>
