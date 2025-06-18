@@ -387,7 +387,10 @@ export default function OrderForm({
           <div className="flex flex-row gap-2">
             <button
               onClick={handleCreateOrder}
-              className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
+              className={`w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 ${
+                order.items.length == 0 ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              disabled={order.items.length == 0}
             >
               {orderRequest == null ? headerName : 'Actualitzar'}
             </button>
