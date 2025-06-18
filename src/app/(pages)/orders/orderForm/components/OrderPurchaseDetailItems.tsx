@@ -73,7 +73,9 @@ export default function OrderPurchaseDetailItems({
 
               return (
                 <tr key={index} className="border-t text-sm">
-                  <td className="p-2 border text-center w-[5%]">{index + 1}</td>
+                  <td className="p-2 border text-center  w-[5%]">
+                    {index + 1}
+                  </td>
                   <td className="p-2 border w-[35%] whitespace-nowrap overflow-hidden text-ellipsis">
                     {sparePartCode} - {sparePartName}
                   </td>
