@@ -24,25 +24,38 @@ export default function OrderPurchaseDetailItems({
         <h3 className="text-lg font-semibold">
           {isOrderPurchase ? 'Llista de Recanvis' : 'Recepció'}
         </h3>
-        <table className="w-full border border-gray-300 mt-2">
+        <table className="w-full border border-gray-300 mt-2 ">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 border w-2/5">Nº</th>
-              <th className="p-2 border w-2/5">Recanvi</th>
-              <th className="p-2 border w-1/5">Magatzem</th>
-              <th className="p-2 border w-1/10">
+            <tr className="bg-gray-100 text-center">
+              <th className="p-2 border w-[5%]">Nº</th>
+              <th
+                className={`p-2 border ${
+                  showActionButtons ? 'w-[30%]' : 'w-[25%]'
+                }`}
+              >
+                Recanvi
+              </th>
+              <th className="p-2 border w-[15%]">Magatzem</th>
+              <th className="p-2 border w-[15%]">
                 {isOrderPurchase ? 'Quantitat Sol·licitada' : 'Quantitat'}
               </th>
               {isOrderPurchase && (
-                <th className="p-2 border w-1/10">Quantitat Pendent</th>
+                <th className="p-2 border w-[10%]">Quantitat Pend.</th>
               )}
-              <th className="p-2 border w-1/10">Preu Unitari</th>
-              <th className="p-2 border w-1/10">Total</th>
+              <th className="p-2 border w-[10%]">Preu Unitari</th>
+              <th
+                className={`p-2 ${
+                  showActionButtons ? 'w-[10%]' : 'w-[20%]'
+                } border `}
+              >
+                Total
+              </th>
               {showActionButtons && (
-                <th className="p-2 border w-1/10">Acció</th>
+                <th className="p-2 border w-[10%]">Acció</th>
               )}
             </tr>
           </thead>
+
           <tbody>
             {items.map((item, index) => {
               const isDisabled = item.quantityPendient == 0;
@@ -57,23 +70,31 @@ export default function OrderPurchaseDetailItems({
                 : item.sparePart
                 ? item.sparePart.description
                 : '';
+
               return (
-                <tr key={index} className="border-t">
-                  <td className="p-2 border">{index + 1}</td>
-                  <td className="p-2 border">
+                <tr key={index} className="border-t text-sm">
+                  <td className="p-2 border text-center w-[5%]">{index + 1}</td>
+                  <td className="p-2 border w-[35%] whitespace-nowrap overflow-hidden text-ellipsis">
                     {sparePartCode} - {sparePartName}
                   </td>
-                  <td className="p-2 border text-center">
+                  <td className="p-2 border text-center w-[15%]">
                     {item.wareHouseName ?? item.wareHouse?.description}
                   </td>
-                  <td className="p-2 border text-center">{item.quantity}</td>
+                  <td className="p-2 border text-center w-[15%]">
+                    {item.quantity}
+                  </td>
+
                   {isOrderPurchase && (
-                    <td className="p-2 border text-center">
+                    <td className="p-2 border text-center w-[10%]">
                       {item.quantityPendient}
                     </td>
                   )}
-                  <td className="p-2 border text-center">{item.unitPrice}€</td>
-                  <td className="p-2 border text-center">
+
+                  <td className="p-2 border text-center w-[10%]">
+                    {item.unitPrice}€
+                  </td>
+
+                  <td className="p-2 border text-center w-[10%]">
                     {item.discount > 0 ? (
                       <span>
                         {(
@@ -89,12 +110,13 @@ export default function OrderPurchaseDetailItems({
                       </span>
                     )}
                   </td>
+
                   {showActionButtons && (
-                    <td className="border p-2 text-center">
+                    <td className="p-2 border text-center w-[10%]">
                       {isOrderPurchase ? (
-                        <div className="flex flex-row gap-2 items-center">
+                        <div className="flex gap-2">
                           <button
-                            className={`flex w-full bg-blue-500 justify-center text-white px-2 py-1 rounded-md hover:bg-blue-600 ${
+                            className={`flex-1 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 ${
                               isDisabled ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                             onClick={() => handleRecieveItem(item, false)}
@@ -103,7 +125,7 @@ export default function OrderPurchaseDetailItems({
                             +
                           </button>
                           <button
-                            className={`flex w-full bg-orange-500 justify-center text-white px-2 py-1 rounded-md hover:bg-orange-600 ${
+                            className={`flex-1 bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600 ${
                               isDisabled ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                             onClick={() => handleRecieveItem(item, true)}
@@ -114,7 +136,7 @@ export default function OrderPurchaseDetailItems({
                         </div>
                       ) : (
                         <button
-                          className="flex w-full bg-red-500 justify-center text-white px-2 py-1 rounded-md hover:bg-red-600"
+                          className="w-full bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                           onClick={() => handleRecieveItem(item, false)}
                           disabled={isDisabled}
                         >

@@ -384,12 +384,28 @@ export default function OrderForm({
               </div>
             </div>
           </div>
-          <button
-            onClick={handleCreateOrder}
-            className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
-          >
-            {orderRequest == null ? headerName : 'Actualitzar'}
-          </button>
+          <div className="flex flex-row gap-2">
+            <button
+              onClick={handleCreateOrder}
+              className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
+            >
+              {orderRequest == null ? headerName : 'Actualitzar'}
+            </button>
+            {order.type == OrderType.Purchase &&
+              orderRequest?.status != OrderStatus.Completed &&
+              orderRequest?.id !== undefined && (
+                <Link
+                  href={
+                    ROUTES.orders.order +
+                    '/orderForm?purchaseOrderId=' +
+                    orderRequest?.id
+                  }
+                  className="w-full bg-okron-btCreate text-white p-2 rounded-md hover:bg-okron-btCreateHover text-center"
+                >
+                  Crear Albarà
+                </Link>
+              )}
+          </div>
           {message && (
             <div
               className={`w-full p-2 mt-2 rounded-md font-semibold ${

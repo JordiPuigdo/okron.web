@@ -47,7 +47,8 @@ const ModalUnits: React.FC<ModalUnitsProps> = ({ item, onAddUnits }) => {
     }
 
     if (e.key === 'Enter') {
-      onAddUnits(units, item.sparePart.id);
+      checkUnits(units);
+      if (!error && units > 0) onAddUnits(units, item.sparePart.id);
     }
   };
 
