@@ -65,6 +65,11 @@ const columns: Column[] = [
     format: ColumnFormat.TEXT,
   },
   {
+    label: 'Ref. Proveïdor',
+    key: 'refProviders',
+    format: ColumnFormat.TEXT,
+  },
+  {
     label: 'Mín',
     key: 'minium',
     format: ColumnFormat.NUMBER,
@@ -169,6 +174,11 @@ const filters: Filters[] = [
   {
     key: 'ubication',
     label: 'Ubicació',
+    format: FiltersFormat.TEXT,
+  },
+  {
+    key: 'refProviders',
+    label: 'Ref. Proveïdor',
     format: FiltersFormat.TEXT,
   },
 ];
