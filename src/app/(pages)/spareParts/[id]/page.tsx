@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { TableDataOrders } from 'app/(pages)/orders/components/TableDataOrders';
+import { OrderType } from 'app/interfaces/Order';
 import { SparePartDetailResponse } from 'app/interfaces/SparePart';
 import SparePartService from 'app/services/sparePartService';
 import Container from 'components/layout/Container';
@@ -8,7 +9,6 @@ import MainLayout from 'components/layout/MainLayout';
 
 import SparePartTable from '../components/SparePartTable';
 import SparePartForm from '../sparePartForm/sparePartForm';
-import { OrderType } from 'app/interfaces/Order';
 
 export default function page({ params }: { params: { id: string } }) {
   const sparePartService = new SparePartService(
