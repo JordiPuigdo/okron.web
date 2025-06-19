@@ -8,6 +8,7 @@ import MainLayout from 'components/layout/MainLayout';
 
 import SparePartTable from '../components/SparePartTable';
 import SparePartForm from '../sparePartForm/sparePartForm';
+import { OrderType } from 'app/interfaces/Order';
 
 export default function page({ params }: { params: { id: string } }) {
   const sparePartService = new SparePartService(
@@ -48,9 +49,11 @@ export default function page({ params }: { params: { id: string } }) {
         )}
         <div className="p-4 bg-white">
           <TableDataOrders
+            orderType={OrderType.Purchase}
             sparePartId={sparePart?.sparePart.id}
             title="Històric de compres"
             hideShadow
+            enableFilters={false}
           />
         </div>
       </Container>

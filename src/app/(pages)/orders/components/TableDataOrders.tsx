@@ -27,6 +27,7 @@ interface TableDataOrdersProps {
   title?: string;
   hideShadow?: boolean;
   sparePartId?: string;
+  enableFilters?: boolean;
 }
 
 export const TableDataOrders = ({
@@ -36,6 +37,7 @@ export const TableDataOrders = ({
   title = '',
   hideShadow = false,
   sparePartId,
+  enableFilters = true,
 }: TableDataOrdersProps) => {
   const { orders, getOrderWithFilters } = useOrder();
   const [isLoading, setIsLoading] = useState(true);
@@ -49,7 +51,7 @@ export const TableDataOrders = ({
   });
 
   const [filters, setFilters] = useState<{ [key: string]: any[] }>({
-    status: [0, 1],
+    status: enableFilters ? [0, 1] : [],
   });
   const [Accounts, setAccounts] = useState<Account[]>([]);
   const accountService = new AccountService();
