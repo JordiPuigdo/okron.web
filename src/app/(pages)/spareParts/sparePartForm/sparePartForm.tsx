@@ -246,15 +246,17 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
 
   return (
     <>
-      <HeaderForm
-        header={headerText}
-        isCreate={sparePartLoaded ? false : true}
-      />
+      <div className="sticky top-0 z-30 bg-white shadow-md">
+        <HeaderForm
+          header={headerText}
+          isCreate={sparePartLoaded ? false : true}
+        />
+      </div>
       <div className="flex flex-col flex-1 bg-white p-6 rounded-md shadow-md my-4 gap-6">
         <div className="flex flex-col md:flex-col xl:flex-row gap-6 h-full flex-1 min-h-0">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4 p-4 border rounded-md md:w-[20%]"
+            className="space-y-4 p-4 border rounded-md md:w-[25%]"
           >
             <h2 className="font-semibold mb-2">
               {sparePartLoaded
@@ -375,7 +377,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
               </div>
             </div>
           </form>
-          <div className="flex flex-col flex-grow border rounded-md p-2 md:w-[40%]">
+          <div className="flex flex-col flex-grow border rounded-md p-2 md:w-[55%]">
             <div className="flex flex-col flex-grow">
               <h2 className="font-semibold mb-2">Selecciona Magatzem</h2>
               <div>
@@ -402,23 +404,25 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                   ))}
               </div>
             </div>
-            <div className="flex flex-col flex-grow">
+            <div className="flex flex-col flex-grow gap-2">
               <h2 className="font-semibold mb-2">Selecciona Proveïdor</h2>
               <ProviderToSparePartRequest
                 sparePart={sparePart!}
                 setSparePart={setSparePart}
               />
-              <SparePartProvidersSelected
-                sparePart={sparePart!}
-                handleRemoveProvider={handleRemoveProvider}
-                handleUpdatePrice={handleUpdatePrice}
-                handleUpdateIsDefault={handleUpdateIsDefault}
-                handleUpdateDiscount={handleUpdateDiscount}
-                handleUpdateRefProvider={handleUpdateRefProvider}
-              />
+              {sparePart && sparePart?.providers?.length > 0 && (
+                <SparePartProvidersSelected
+                  sparePart={sparePart!}
+                  handleRemoveProvider={handleRemoveProvider}
+                  handleUpdatePrice={handleUpdatePrice}
+                  handleUpdateIsDefault={handleUpdateIsDefault}
+                  handleUpdateDiscount={handleUpdateDiscount}
+                  handleUpdateRefProvider={handleUpdateRefProvider}
+                />
+              )}
             </div>
           </div>
-          <div className="flex w-full md:w-[30%]">
+          <div className="flex w-full md:w-[15%]">
             <DocumentationSparePart sparePart={sparePart!} />
           </div>
         </div>
