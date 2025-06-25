@@ -199,9 +199,9 @@ export default function PreventiveCalendar() {
                     key={dayIndex}
                     sx={{
                       p: 1,
-                      minWidth: 150,
+                      minWidth: 170,
                       maxWidth: '100%',
-                      height: 230,
+                      height: isExpanded ? 'auto' : 250,
                       overflow: 'hidden',
                       display: 'flex',
                       flexDirection: 'column',
@@ -232,9 +232,9 @@ export default function PreventiveCalendar() {
                             {item.preventive.code}
                           </Typography>
                           <br />
-                          <Typography variant="caption" fontSize={11}>
-                            {item.preventive.description.length >= 20
-                              ? `${item.preventive.description.slice(0, 19)}...`
+                          <Typography variant="caption" fontSize={9}>
+                            {item.preventive.description.length >= 30
+                              ? `${item.preventive.description.slice(0, 29)}...`
                               : item.preventive.description}
                           </Typography>
                           <br />
