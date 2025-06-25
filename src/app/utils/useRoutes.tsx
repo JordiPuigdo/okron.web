@@ -5,6 +5,7 @@ const useRoutes = () => {
 
     preventive: {
       configuration: '/preventive',
+      preventiveForm: '/preventive/preventiveForm',
       inspectionPoints: '/inspectionPoints',
     },
     corrective: '/corrective',

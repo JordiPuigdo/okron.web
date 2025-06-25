@@ -16,7 +16,6 @@ import {
 } from 'app/interfaces/Preventive';
 import AssetService from 'app/services/assetService';
 import InspectionPointService from 'app/services/inspectionPointService';
-import MachineService from 'app/services/machineService';
 import OperatorService from 'app/services/operatorService';
 import PreventiveService from 'app/services/preventiveService';
 import ChooseElement from 'components/ChooseElement';
@@ -46,12 +45,10 @@ const PreventiveForm = () => {
   const preventiveService = new PreventiveService(apiURL);
   const inspectionPointService = new InspectionPointService(apiURL);
   const operatorService = new OperatorService(apiURL);
-  const machineService = new MachineService(apiURL);
+
   const { register, handleSubmit, setValue } = useForm<Preventive>();
   const [filterText, setFilterText] = useState<string>('');
-  const filteredInspectionPoints = availableInspectionPoints.filter(point =>
-    point.description.toLowerCase().includes(filterText.toLowerCase())
-  );
+
   const [operators, setOperators] = useState<Operator[]>([]);
   const [selectedOperator, setSelectedOperator] = useState<string[]>([]);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -118,6 +115,12 @@ const PreventiveForm = () => {
     const numberPreventive = params.get('counter');
     if (numberPreventive || 0 > 0) {
       counter = 1;
+    }
+
+    const assetId = params.get('assetId');
+
+    if (assetId) {
+      setSelectedAsset([assetId]);
     }
   }, []);
 

@@ -3,6 +3,7 @@ export type ElementList = {
   code?: string;
   description: string;
   image?: string;
+  [propName: string]: string | undefined;
 };
 
 type ElemntListProps = {

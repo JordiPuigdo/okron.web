@@ -3,6 +3,7 @@ import InspectionPoint from './inspectionPoint';
 import Machine from './machine';
 import Operator from './Operator';
 import SparePart from './SparePart';
+import WorkOrder from './workOrder';
 
 export interface Preventive {
   id: string;
@@ -57,4 +58,14 @@ export interface GetWOByPreventiveIdRequest {
 export interface AssignOperatorToPreventivesRequest {
   operatorId: string;
   preventiveIds: string[];
+}
+
+export interface DailyPreventives {
+  date: Date;
+  preventives?: DailyPreventivesAndOperations[];
+}
+
+export interface DailyPreventivesAndOperations {
+  preventive: Preventive;
+  workOrder: WorkOrder | null;
 }

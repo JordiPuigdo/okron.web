@@ -15,7 +15,9 @@ const fetchAssets = async (): Promise<ElementList[]> => {
       if (asset.createWorkOrder) {
         elements.push({
           id: asset.id,
+          code: asset.code,
           description: asset.description,
+          brand: asset.brand,
         });
       }
 
@@ -42,7 +44,7 @@ export const useAssetHook = () => {
     data: assets,
     error: assetsError,
     mutate: fetchAllAssets,
-  } = useSWR<ElementList[]>('operators', fetchAssets, {
+  } = useSWR<ElementList[]>('assets', fetchAssets, {
     revalidateOnFocus: false,
   });
 

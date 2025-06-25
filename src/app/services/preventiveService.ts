@@ -1,11 +1,12 @@
 import {
   AssignOperatorToPreventivesRequest,
   CreatePreventiveRequest,
+  DailyPreventives,
   GetWOByPreventiveIdRequest,
   Preventive,
   UpdatePreventiveRequest,
-} from "app/interfaces/Preventive";
-import { WorkOrder } from "app/interfaces/workOrder";
+} from 'app/interfaces/Preventive';
+import { WorkOrder } from 'app/interfaces/workOrder';
 
 class PreventiveService {
   private baseUrl: string;
@@ -17,7 +18,7 @@ class PreventiveService {
   async getPreventives(): Promise<Preventive[]> {
     const response = await fetch(`${this.baseUrl}preventive`);
     if (!response.ok) {
-      throw new Error("Failed to fetch inspection points");
+      throw new Error('Failed to fetch inspection points');
     }
     return response.json();
   }
@@ -28,9 +29,9 @@ class PreventiveService {
     try {
       const url = `${this.baseUrl}preventive`;
       const response = await fetch(url, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(createPreventiveRequest),
       });
@@ -39,7 +40,7 @@ class PreventiveService {
       }
       return true;
     } catch (error) {
-      console.error("Error creating operators:", error);
+      console.error('Error creating operators:', error);
       throw error;
     }
   }
@@ -48,9 +49,9 @@ class PreventiveService {
     try {
       const url = `${this.baseUrl}preventive/${id}`;
       const response = await fetch(url, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
@@ -61,7 +62,7 @@ class PreventiveService {
       const responseBody = await response.json();
       return responseBody as Preventive;
     } catch (error) {
-      console.error("Error getting preventive:", error);
+      console.error('Error getting preventive:', error);
       throw error;
     }
   }
@@ -72,9 +73,9 @@ class PreventiveService {
     try {
       const url = `${this.baseUrl}preventive`;
       const response = await fetch(url, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(updatePreventiveRequest),
       });
@@ -84,7 +85,7 @@ class PreventiveService {
       }
       return true;
     } catch (error) {
-      console.error("Error getting preventive:", error);
+      console.error('Error getting preventive:', error);
       throw error;
     }
   }
@@ -93,9 +94,9 @@ class PreventiveService {
     try {
       const url = `${this.baseUrl}preventive/${id}`;
       const response = await fetch(url, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
@@ -105,7 +106,7 @@ class PreventiveService {
 
       return true;
     } catch (error) {
-      console.error("Error getting preventive:", error);
+      console.error('Error getting preventive:', error);
       throw error;
     }
   }
@@ -118,7 +119,7 @@ class PreventiveService {
       `${this.baseUrl}preventive/CreateWorkOrderPreventivePerDay?userId=${userId}&operatorId=${operatorId}`
     );
     if (!response.ok) {
-      throw new Error("Failed to fetch inspection points");
+      throw new Error('Failed to fetch inspection points');
     }
     const responseBody = await response.json();
     return responseBody as Preventive[];
@@ -128,9 +129,9 @@ class PreventiveService {
     try {
       const url = `${this.baseUrl}preventive/Asset/${id}`;
       const response = await fetch(url, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
@@ -141,7 +142,7 @@ class PreventiveService {
       const responseBody = await response.json();
       return responseBody as Preventive[];
     } catch (error) {
-      console.error("Error getting preventive by asset id:", error);
+      console.error('Error getting preventive by asset id:', error);
       throw error;
     }
   }
@@ -154,9 +155,9 @@ class PreventiveService {
     try {
       const url = `${this.baseUrl}preventive/ForceExecutePreventive/${id}?userId=${userId}&operatorId=${operatorId}`;
       const response = await fetch(url, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
@@ -166,7 +167,7 @@ class PreventiveService {
 
       return response.json();
     } catch (error) {
-      console.error("Error getting preventive:", error);
+      console.error('Error getting preventive:', error);
       throw error;
     }
   }
@@ -177,9 +178,9 @@ class PreventiveService {
     try {
       const url = `${this.baseUrl}preventive/GetWOByPreventiveId`;
       const response = await fetch(url, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(request),
       });
@@ -191,7 +192,7 @@ class PreventiveService {
       const responseBody = await response.json();
       return responseBody as WorkOrder[];
     } catch (error) {
-      console.error("Error getting preventive by asset id:", error);
+      console.error('Error getting preventive by asset id:', error);
       throw error;
     }
   }
@@ -200,9 +201,9 @@ class PreventiveService {
     try {
       const url = `${this.baseUrl}preventive/GetPreventiveByOperatorId?operatorId=${operatorId}`;
       const response = await fetch(url, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
@@ -212,7 +213,7 @@ class PreventiveService {
 
       return (await response.json()) as Preventive[];
     } catch (error) {
-      console.error("Error getting preventive by operator ID:", error);
+      console.error('Error getting preventive by operator ID:', error);
       throw error;
     }
   }
@@ -223,9 +224,9 @@ class PreventiveService {
     try {
       const url = `${this.baseUrl}preventive/AssignOperatorsToPreventive`;
       const response = await fetch(url, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(request),
       });
@@ -236,7 +237,7 @@ class PreventiveService {
 
       return true;
     } catch (error) {
-      console.error("Error assigning operator to preventives:", error);
+      console.error('Error assigning operator to preventives:', error);
       throw error;
     }
   }
@@ -247,9 +248,9 @@ class PreventiveService {
     try {
       const url = `${this.baseUrl}preventive/UnAssignOperatorFromPreventives`;
       const response = await fetch(url, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(request),
       });
@@ -260,7 +261,33 @@ class PreventiveService {
 
       return true;
     } catch (error) {
-      console.error("Error assigning operator to preventives:", error);
+      console.error('Error assigning operator to preventives:', error);
+      throw error;
+    }
+  }
+
+  async generateSchedulePreventives(
+    startDate: string,
+    endDate: string
+  ): Promise<DailyPreventives[]> {
+    try {
+      const url = `${this.baseUrl}preventive/GenerateSchedule?startDate=${startDate}&endDate=${endDate}`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to generate preventive schedule`);
+      }
+
+      const data = await response.json(); // Aquí recibes List<DailyPreventives>
+      return data;
+    } catch (error) {
+      console.error('Error generating preventive schedule:', error);
       throw error;
     }
   }

@@ -7,6 +7,7 @@ import { Asset } from 'app/interfaces/Asset';
 import AssetService from 'app/services/assetService';
 import useRoutes from 'app/utils/useRoutes';
 import { ElementList } from 'components/selector/ElementList';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 interface AssetFormProps {
@@ -118,6 +119,12 @@ const AssetForm: React.FC<AssetFormProps> = ({
             >
               {loading ? <SvgSpinner /> : 'Cancelar'}
             </button>
+            <Link
+              href={ROUTES.preventive.preventiveForm + '?assetId=' + id}
+              className="flex items-center justify-center bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-900 transition duration-300 ease-in-out"
+            >
+              Crear Reivisó
+            </Link>
           </div>
         </div>
         <div className="w-full p-2">

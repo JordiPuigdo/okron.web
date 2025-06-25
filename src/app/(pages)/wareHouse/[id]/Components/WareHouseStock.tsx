@@ -40,6 +40,9 @@ const WarehouseStock: React.FC<WarehouseStockProps> = ({ stock }) => {
               <th className="px-4 py-2 text-right text-sm font-medium text-gray-600 uppercase">
                 Quantitat
               </th>
+              <th className="px-4 py-2 text-right text-sm font-medium text-gray-600 uppercase">
+                Preu
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -58,6 +61,9 @@ const WarehouseStock: React.FC<WarehouseStockProps> = ({ stock }) => {
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-700 text-right">
                   {stock.quantity}
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-700 text-right">
+                  {Number(stock.sparePart.price).toFixed(2)} €
                 </td>
               </tr>
             ))}
