@@ -8,7 +8,7 @@ import AssetService from 'app/services/assetService';
 import useRoutes from 'app/utils/useRoutes';
 import { ElementList } from 'components/selector/ElementList';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface AssetFormProps {
   id: string;
@@ -34,6 +34,10 @@ const AssetForm: React.FC<AssetFormProps> = ({
   const { register, handleSubmit, setValue } = useForm();
   const router = useRouter();
   const ROUTES = useRoutes();
+
+  const searchParams = useSearchParams();
+
+  const searchTermFromQuery = searchParams.get('search');
 
   useEffect(() => {
     if (assetData) {
@@ -114,7 +118,13 @@ const AssetForm: React.FC<AssetFormProps> = ({
               disabled={loading}
               className="flex items-center justify-center bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300 ease-in-out"
               onClick={() => {
-                router.push(ROUTES.configuration.assets);
+                router.push(
+                  ROUTES.configuration.assets +
+                    '?search=' +
+                    searchTermFromQuery +
+                    '&id=' +
+                    id
+                );
               }}
             >
               {loading ? <SvgSpinner /> : 'Cancelar'}

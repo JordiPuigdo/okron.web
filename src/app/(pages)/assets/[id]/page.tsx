@@ -6,7 +6,7 @@ import Downtimes from 'app/(pages)/machines/downtimes/downtime';
 import PreventiveTable from 'app/(pages)/preventive/preventiveTable/preventiveTable';
 import SparePartTable from 'app/(pages)/spareParts/components/SparePartTable';
 import WorkOrderTable from 'app/(pages)/workOrders/components/WorkOrderTable';
-import { SvgMachines, SvgSpinner } from 'app/icons/icons';
+import { SvgSpinner } from 'app/icons/icons';
 import {
   Asset,
   CreateAssetRequest,
@@ -16,6 +16,7 @@ import AssetService from 'app/services/assetService';
 import { useSessionStore } from 'app/stores/globalStore';
 import { CostsObjectComponent } from 'components/Costs/CostsObject';
 import Container from 'components/layout/Container';
+import { HeaderForm } from 'components/layout/HeaderForm';
 import MainLayout from 'components/layout/MainLayout';
 
 import AssetForm from '../components/assetForm';
@@ -132,7 +133,7 @@ export default function AssetDetailsPage({
     }
   };
 
-  const renderHeader = () => {
+  /*const renderHeader = () => {
     return (
       <div className="flex w-full py-4">
         <div className="w-full flex flex-col gap-2 items">
@@ -148,7 +149,7 @@ export default function AssetDetailsPage({
         </div>
       </div>
     );
-  };
+  };*/
 
   const handleOnChange = async (header: string, value: string) => {
     if (header === 'code') {
@@ -168,7 +169,17 @@ export default function AssetDetailsPage({
           <SvgSpinner className="items-center justify-center" />
         ) : (
           <>
-            {renderHeader()}
+            <HeaderForm
+              header={
+                currentAsset?.path ??
+                (parentAsset?.path
+                  ? parentAsset.path + '/' + description
+                  : '') ??
+                ''
+              }
+              isCreate={id === '0'}
+              subtitle={`Equip: ${code} - ${description}`}
+            />
             <div className="flex flex-row gap-5">
               <div className="w-full flex flex-col gap-5">
                 <div className="flex justify-start gap-12 bg-white shadow-md rounded-md w-full p-2">
