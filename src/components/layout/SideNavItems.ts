@@ -50,6 +50,14 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         permission: [UserPermission.Administrator],
         userType: [UserType.Maintenance],
       },
+      {
+        key: generateKey(),
+        title: 'Calendari',
+        path: '/preventive/calendar',
+        icon: SvgInspect,
+        permission: [UserPermission.Administrator],
+        userType: [UserType.Maintenance],
+      },
     ],
   },
   {
