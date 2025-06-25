@@ -70,9 +70,12 @@ const ChooseInspectionPoint: React.FC<ChooseInspectionPointProps> = ({
           Punts d'inspecció
         </label>
         <AutocompleteSearchBar
-          elements={preventiveInspectionPoints.filter(
-            x => x.active && !selectedInspectionPoints.some(y => y.id === x.id)
-          )}
+          elements={preventiveInspectionPoints
+            .filter(
+              x =>
+                x.active && !selectedInspectionPoints.some(y => y.id === x.id)
+            )
+            .map(x => ({ id: x.id, description: x.description }))}
           setCurrentId={handleInspectionPointSelected}
           placeholder="Buscar punts d'inspecció"
           onCreate={handleCreateInspectionPoint}
