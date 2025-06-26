@@ -162,9 +162,9 @@ export const formatCellContent = (
 
 export function getStatusText(statusText: string, entity: string): string {
   const lowercaseStatus = statusText;
-  console.log(entity);
+
   const config = entityStatusConfig[entity];
-  console.log(config);
+
   if (config && lowercaseStatus in config.names) {
     return config.names[lowercaseStatus];
   }

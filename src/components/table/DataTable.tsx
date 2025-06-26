@@ -125,8 +125,10 @@ const DataTable: React.FC<DataTableProps> = ({
   };
 
   useEffect(() => {
+    if (!data || data.length === 0) return;
+
     console.log('useEffect DataTable');
-    console.log(isLoaded);
+
     const indexOfLastRecord = currentPage * itemsPerPage;
     const indexOfFirstRecord = indexOfLastRecord - itemsPerPage;
 
@@ -175,12 +177,15 @@ const DataTable: React.FC<DataTableProps> = ({
   ]);
 
   const handleFilterChange = (key: string, value: string | boolean | Date) => {
+    if (!isLoaded || data.length === 0) return;
+    console.log('handleFilterChange', key, value);
     const newFilters = {
       ...filtersApplied,
       [key]: value,
     };
+
     setFiltersApplied(newFilters);
-    setCurrentPage(1);
+    if (currentPage !== 1) setCurrentPage(1);
 
     const filteredData = data.filter(item => {
       return Object.entries(newFilters).every(([filterKey, filterValue]) => {
