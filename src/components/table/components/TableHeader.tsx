@@ -53,12 +53,13 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             column.label.toLocaleUpperCase() !== 'ID'
           ) {
             let classname = 'flex';
-            if (column.format == ColumnFormat.NUMBER) {
+            if (
+              column.format == ColumnFormat.NUMBER ||
+              column.format == ColumnFormat.PRICE
+            ) {
               classname += ' justify-end pr-4';
             }
-            if (column.format == ColumnFormat.PRICE) {
-              classname += ' justify-end';
-            }
+
             return (
               <th
                 key={column.key}

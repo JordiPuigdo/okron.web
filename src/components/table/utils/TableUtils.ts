@@ -197,7 +197,8 @@ export const calculateTotalAmountRecords = (data: any[]) => {
 export const exportTableToExcel = (
   data: any[],
   columns: Column[],
-  filename: string
+  filename: string,
+  footerData?: Record<string, any>
 ) => {
   const filteredColumns = columns.filter(
     col =>
@@ -208,7 +209,6 @@ export const exportTableToExcel = (
 
   const headers = filteredColumns.map(col => col.label);
 
-  // Step 2: Map data rows using the `key` property of each column
   const rows = data.map(row =>
     filteredColumns.map(col => {
       const cellValue = row[col.key];
@@ -218,8 +218,13 @@ export const exportTableToExcel = (
         : cellValue;
     })
   );
-  // Combine headers and rows for the worksheet data
-  const worksheetData = [headers, ...rows];
+
+  let worksheetData = [headers, ...rows];
+
+  if (footerData) {
+    const footerRow = filteredColumns.map(col => footerData[col.key] ?? '');
+    worksheetData.push(footerRow);
+  }
 
   // Step 3: Create worksheet and workbook
   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);

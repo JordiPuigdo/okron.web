@@ -88,6 +88,12 @@ const columns: Column[] = [
     align: ColumnnAlign.RIGHT,
   },
   {
+    label: 'Preu',
+    key: 'price',
+    format: ColumnFormat.PRICE,
+    align: ColumnnAlign.RIGHT,
+  },
+  {
     key: 'lastMovementConsume',
     label: 'Últim Consum',
     format: ColumnFormat.DATETIME,

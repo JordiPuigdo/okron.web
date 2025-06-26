@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SvgExportExcel, SvgSpinner } from 'app/icons/icons';
 import { useSessionStore } from 'app/stores/globalStore';
 import { FilterValue } from 'app/types/filters';
@@ -58,7 +58,7 @@ const DataTable: React.FC<DataTableProps> = ({
   hideExport = false,
   totalCalculated,
 }: DataTableProps) => {
-  const itemsPerPageOptions = [50, 100, 150, 200, 250, 500];
+  const itemsPerPageOptions = [250, 500, 1000, 2000, 3000, 5000, 10000];
   const [currentPage, setCurrentPage] = useState(1);
   const [sortColumn, setSortColumn] = useState('');
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('ASC');
@@ -256,6 +256,31 @@ const DataTable: React.FC<DataTableProps> = ({
   const isAllSelected =
     data.length > 0 && selectedRows.size === data.length ? true : false;
 
+  const totalPrice = useMemo(() => {
+    return filteredData.reduce((acc, item) => {
+      const price = Number(item.price) || 0;
+      const stock = Number(item.stock) || 0;
+      return acc + price * stock;
+    }, 0);
+  }, [filteredData]);
+
+  const totalStock = useMemo(() => {
+    return filteredData.reduce((acc, item) => {
+      return acc + (Number(item.stock) || 0);
+    }, 0);
+  }, [filteredData]);
+
+  const footerData = columns.reduce((acc, col) => {
+    if (col.key === 'stock') {
+      acc[col.key] = totalStock;
+    } else if (col.key === 'price') {
+      acc[col.key] = `${totalPrice.toFixed(2)} €`;
+    } else {
+      acc[col.key] = ''; // o algún otro valor si lo necesitas
+    }
+    return acc;
+  }, {} as Record<string, any>);
+
   if (filteredData)
     return (
       <div
@@ -283,7 +308,9 @@ const DataTable: React.FC<DataTableProps> = ({
               <div
                 className="p-2 rounded-lg m-2 items-center bg-green-700 text-white hover:bg-green-900 cursor-pointer"
                 title="Exportar a Excel"
-                onClick={() => exportTableToExcel(data, columns, entity)}
+                onClick={() =>
+                  exportTableToExcel(data, columns, entity, footerData)
+                }
               >
                 <SvgExportExcel />
               </div>
@@ -324,6 +351,39 @@ const DataTable: React.FC<DataTableProps> = ({
                   totalQuantity={totalAmountRecords ?? 0}
                   filtersApplied={filtersApplied}
                 />
+                {entity === EntityTable.SPAREPART &&
+                  columns?.find(x => x.key === 'price') && (
+                    <tfoot>
+                      <tr className="bg-gray-200 font-semibold text-2xl text-right">
+                        {columns
+                          .filter(x => x.key !== 'id')
+                          .map(col => {
+                            if (col.key === 'stock') {
+                              return (
+                                <td
+                                  key={col.key}
+                                  className="px-4 py-2 text-right"
+                                >
+                                  {totalStock}
+                                </td>
+                              );
+                            }
+                            if (col.key === 'price') {
+                              return (
+                                <td
+                                  key={col.key}
+                                  className="px-4 py-2 text-right"
+                                >
+                                  {totalPrice.toFixed(2)}€
+                                </td>
+                              );
+                            }
+                            return <td key={col.key}></td>;
+                          })}
+                        <td className="px-4 py-2 text-right"></td>
+                      </tr>
+                    </tfoot>
+                  )}
               </table>
             </div>
           )}
