@@ -130,7 +130,6 @@ export const formatCellContent = (
   }
 
   if (column.format === ColumnFormat.PRICE) {
-    className = 'flex justify-end text-end';
     value = value.toFixed(2) + '€';
   }
 
@@ -219,7 +218,7 @@ export const exportTableToExcel = (
     })
   );
 
-  let worksheetData = [headers, ...rows];
+  const worksheetData = [headers, ...rows];
 
   if (footerData) {
     const footerRow = filteredColumns.map(col => footerData[col.key] ?? '');
