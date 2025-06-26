@@ -12,6 +12,7 @@ import DataTable from 'components/table/DataTable';
 import {
   Column,
   ColumnFormat,
+  ColumnnAlign,
   Filters,
   FiltersFormat,
   TableButtons,
@@ -236,6 +237,7 @@ const columnsOrders: Column[] = [
     label: 'Total',
     key: 'totalAmount',
     format: ColumnFormat.PRICE,
+    align: ColumnnAlign.RIGHT,
   },
 ];
 
