@@ -175,25 +175,30 @@ const DataTable: React.FC<DataTableProps> = ({
   ]);
 
   const handleFilterChange = (key: string, value: string | boolean | Date) => {
-    console.log('handleFilterChange', key, value);
-    setFiltersApplied(prevFilters => ({
-      ...prevFilters,
+    const newFilters = {
+      ...filtersApplied,
       [key]: value,
-    }));
+    };
+    setFiltersApplied(newFilters);
+    setCurrentPage(1);
 
-    const keys = key.split('.');
     const filteredData = data.filter(item => {
-      const nestedPropertyValue = keys.reduce(
-        (obj, prop) => obj && obj[prop],
-        item
-      );
-      if (value === '') return true;
-      if (nestedPropertyValue) {
+      return Object.entries(newFilters).every(([filterKey, filterValue]) => {
+        if (filterValue === '') return true;
+
+        const keys = filterKey.split('.');
+        const nestedPropertyValue = keys.reduce(
+          (obj, prop) => obj && obj[prop],
+          item
+        );
+
+        if (!nestedPropertyValue) return false;
+
         const itemValue = String(nestedPropertyValue);
-        const filterValue = String(value);
-        return itemValue.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      return false;
+        const searchValue = String(filterValue);
+
+        return itemValue.toLowerCase().includes(searchValue.toLowerCase());
+      });
     });
 
     const indexOfLastRecord = currentPage * itemsPerPage;
