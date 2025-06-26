@@ -130,6 +130,7 @@ export const formatCellContent = (
   }
 
   if (column.format === ColumnFormat.PRICE) {
+    className = ' justify-end pr-4';
     value = value.toFixed(2) + '€';
   }
 
