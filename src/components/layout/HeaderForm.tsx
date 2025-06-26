@@ -36,13 +36,13 @@ export const HeaderForm = ({
         }
       });
 
+      finalRoute += `${query.toString() ? '?' + query.toString() : ''}`;
+
       if (id.length > 0) {
         finalRoute += `${query.toString().length > 0 ? '&' : '?'}id=${id}`;
       }
 
-      const finalUrl = `${finalRoute}${
-        query.toString() ? '?' + query.toString() : ''
-      }`;
+      const finalUrl = finalRoute;
 
       router.push(finalUrl);
     } else {
