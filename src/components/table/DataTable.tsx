@@ -254,19 +254,18 @@ const DataTable: React.FC<DataTableProps> = ({
         } w-full h-full flex flex-col`}
       >
         <div className="flex py-2">
-          {filteredData.length > 0 &&
-            ((filters !== undefined && filters?.length > 0) ||
-              enableFilterActive) && (
-              <RenderFilters
-                filters={filters}
-                onFilterChange={handleFilterChange}
-                onFilterActive={setFilterActive}
-                onFilterSparePartsUnderStock={setFilterSparePartsUnderStock}
-                enableFilterActive={enableFilterActive}
-                entity={entity}
-                isReport={isReport}
-              />
-            )}
+          {((filters !== undefined && filters?.length > 0) ||
+            enableFilterActive) && (
+            <RenderFilters
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              onFilterActive={setFilterActive}
+              onFilterSparePartsUnderStock={setFilterSparePartsUnderStock}
+              enableFilterActive={enableFilterActive}
+              entity={entity}
+              isReport={isReport}
+            />
+          )}
           {!hideExport && (
             <div className="flex w-full justify-end">
               <div
