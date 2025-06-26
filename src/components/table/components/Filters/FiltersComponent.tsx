@@ -45,6 +45,8 @@ const FiltersComponent: React.FC<FiltersComponentProps> = ({
   };
 
   useEffect(() => {
+    if (searchParams.size == 0) return;
+
     const initialFilters: { [key: string]: string | boolean | Date } = {};
 
     searchParams.forEach((value, key) => {

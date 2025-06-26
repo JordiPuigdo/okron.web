@@ -125,7 +125,6 @@ const DataTable: React.FC<DataTableProps> = ({
   };
 
   useEffect(() => {
-    if (isLoaded) return;
     const indexOfLastRecord = currentPage * itemsPerPage;
     const indexOfFirstRecord = indexOfLastRecord - itemsPerPage;
 
@@ -161,7 +160,6 @@ const DataTable: React.FC<DataTableProps> = ({
     setTotalAmountRecords(calculateTotalAmountRecords(filteredRecords));
     setTotalCount(Math.ceil(filteredRecords.length / itemsPerPage));
     setIsLoading(false);
-    setIsLoaded(true);
   }, [
     data,
     currentPage,
@@ -173,7 +171,6 @@ const DataTable: React.FC<DataTableProps> = ({
   ]);
 
   const handleFilterChange = (key: string, value: string | boolean | Date) => {
-    if (!isLoaded) return;
     setFiltersApplied(prevFilters => ({
       ...prevFilters,
       [key]: value,
