@@ -18,6 +18,7 @@ import { CostsObjectComponent } from 'components/Costs/CostsObject';
 import Container from 'components/layout/Container';
 import { HeaderForm } from 'components/layout/HeaderForm';
 import MainLayout from 'components/layout/MainLayout';
+import { EntityTable } from 'components/table/interface/tableEntitys';
 
 import AssetForm from '../components/assetForm';
 
@@ -179,6 +180,7 @@ export default function AssetDetailsPage({
               }
               isCreate={id === '0'}
               subtitle={`Equip: ${code} - ${description}`}
+              entity={EntityTable.ASSET}
             />
             <div className="flex flex-row gap-5">
               <div className="w-full flex flex-col gap-5">

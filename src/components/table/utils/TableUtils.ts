@@ -183,6 +183,17 @@ export const getStatusClassName = (status: string, entity: string): string => {
 
 const validColumns = [ColumnFormat.DATE, ColumnFormat.DATETIME];
 
+export const calculateTotalAmountRecords = (data: any[]) => {
+  if (EntityTable.ORDER && data.length > 0) {
+    const x = data.reduce((acc, order) => {
+      return acc + (order.totalAmount ?? 0);
+    }, 0);
+    return x;
+  } else {
+    return undefined;
+  }
+};
+
 export const exportTableToExcel = (
   data: any[],
   columns: Column[],

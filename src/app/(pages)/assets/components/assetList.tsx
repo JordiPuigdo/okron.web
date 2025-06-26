@@ -110,7 +110,7 @@ const AssetListItem: React.FC<Props> = ({
             <Link
               href={`/assets/${asset.id}?search=${encodeURIComponent(
                 searchTerm ?? ''
-              )}`}
+              )}&id=${asset.id}`}
               passHref
             >
               <button
@@ -164,10 +164,13 @@ const AssetList: React.FC = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
   const [message, setMessage] = useState<string>('');
+
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search') ?? '';
-  const [searchTerm, setSearchTerm] = useState<string>(initialSearch);
   const expandedTargetId = searchParams.get('id');
+
+  const [searchTerm, setSearchTerm] = useState<string>(initialSearch);
+
   useEffect(() => {
     assetService
       .getAll()

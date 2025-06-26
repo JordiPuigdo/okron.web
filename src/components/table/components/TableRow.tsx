@@ -1,3 +1,5 @@
+import { FilterValue } from 'app/types/filters';
+
 import { Column, ColumnFormat } from '../interface/interfaceTable';
 import { EntityTable } from '../interface/tableEntitys';
 import { formatCellContent } from '../utils/TableUtils';
@@ -16,6 +18,7 @@ interface TableRowComponentProps {
   loginUser: any;
   pathDetail: string;
   onDelete?: (id: string) => void;
+  filtersApplied: FilterValue;
 }
 
 export const TableRowComponent: React.FC<TableRowComponentProps> = ({
@@ -31,6 +34,7 @@ export const TableRowComponent: React.FC<TableRowComponentProps> = ({
   loginUser,
   pathDetail,
   onDelete,
+  filtersApplied,
 }) => {
   if (rowData.length == 0) return null;
 
@@ -86,7 +90,13 @@ export const TableRowComponent: React.FC<TableRowComponentProps> = ({
         tableButtons={tableButtons}
         entity={entity}
         loginUser={loginUser}
-        pathDetail={`${finalPath}/${rowData[columns[0].key]}`}
+        pathDetail={`${finalPath}/${rowData[columns[0].key]}${
+          filtersApplied !== undefined
+            ? `?${Object.keys(filtersApplied)
+                .map(key => `${key}=${filtersApplied[key]}`)
+                .join('&')}`
+            : ''
+        }`}
         onDelete={onDelete}
       />
     </tr>

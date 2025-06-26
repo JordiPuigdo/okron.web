@@ -77,3 +77,51 @@ export const useGlobalStore = create<GlobalStore & GlobalActions>(set => ({
     set({ isMainScrollEnabled: value });
   },
 }));
+
+/*
+interface FilterValue {
+  [key: string]: string | boolean | Date;
+}
+
+interface FilterStore {
+  lastVisitedRoute: string;
+  setLastVisitedRoute: (route: string) => void;
+
+  filtersByRoute: Record<string, FilterValue>;
+  setFilterForRoute: (
+    route: string,
+    key: string,
+    value: string | boolean | Date
+  ) => void;
+  getFiltersForRoute: (route: string) => FilterValue;
+  clearFiltersForRoute: (route: string) => void;
+}
+
+const filterStore = create<FilterStore>((set, get) => ({
+  lastVisitedRoute: '',
+  setLastVisitedRoute: route => set({ lastVisitedRoute: route }),
+  filtersByRoute: {},
+  setFilterForRoute: (route, key, value) =>
+    set(state => ({
+      filtersByRoute: {
+        ...state.filtersByRoute,
+        [route]: {
+          ...state.filtersByRoute[route],
+          [key]: value,
+        },
+      },
+    })),
+
+  getFiltersForRoute: route => {
+    return get().filtersByRoute[route] ?? {};
+  },
+
+  clearFiltersForRoute: route =>
+    set(state => {
+      const { [route]: _, ...rest } = state.filtersByRoute;
+      return { filtersByRoute: rest };
+    }),
+}));
+
+export const useFilterStore = filterStore;
+*/

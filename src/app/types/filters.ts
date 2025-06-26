@@ -1,4 +1,4 @@
-import { WorkOrderType } from "app/interfaces/workOrder";
+import { WorkOrderType } from 'app/interfaces/workOrder';
 
 export interface FilterWorkOrders extends Filter {
   workOrderType?: WorkOrderType;
@@ -17,4 +17,8 @@ export interface FilterSpareParts {
   family?: string;
   refSupplier?: string;
   ubication?: string;
+}
+
+export interface FilterValue {
+  [key: string]: string | boolean | Date;
 }

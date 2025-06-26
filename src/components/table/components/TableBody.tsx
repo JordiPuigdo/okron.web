@@ -1,7 +1,9 @@
-import { Column } from "../interface/interfaceTable";
-import { EntityTable } from "../interface/tableEntitys";
-import { TableRowComponent } from "./TableRow";
-import { TableTotalRowComponent } from "./TableTotalRowComponent";
+import { FilterValue } from 'app/types/filters';
+
+import { Column } from '../interface/interfaceTable';
+import { EntityTable } from '../interface/tableEntitys';
+import { TableRowComponent } from './TableRow';
+import { TableTotalRowComponent } from './TableTotalRowComponent';
 
 interface TableBodyProps {
   filteredData: any[];
@@ -18,6 +20,7 @@ interface TableBodyProps {
   onDelete?: (id: string) => void;
   totalCounts: boolean;
   totalQuantity: number;
+  filtersApplied: FilterValue;
 }
 
 export const TableBodyComponent: React.FC<TableBodyProps> = ({
@@ -35,6 +38,7 @@ export const TableBodyComponent: React.FC<TableBodyProps> = ({
   onDelete,
   totalCounts,
   totalQuantity,
+  filtersApplied,
 }) => (
   <tbody className="border-b">
     {filteredData.slice(0, itemsPerPage).map((rowData, rowIndex) => (
@@ -51,6 +55,7 @@ export const TableBodyComponent: React.FC<TableBodyProps> = ({
         loginUser={loginUser}
         pathDetail={pathDetail}
         onDelete={onDelete}
+        filtersApplied={filtersApplied}
       />
     ))}
     <TableTotalRowComponent

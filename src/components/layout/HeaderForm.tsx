@@ -1,14 +1,17 @@
 'use client';
 import { SvgPrint } from 'app/icons/designSystem/SvgPrint';
 import { SvgMachines } from 'app/icons/icons';
+import { getRoute } from 'app/utils/utils';
+import { EntityTable } from 'components/table/interface/tableEntitys';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface HeaderFormProps {
   header: string;
   isCreate: boolean;
   subtitle?: string;
   canPrint?: string | undefined;
+  entity?: EntityTable;
 }
 
 export const HeaderForm = ({
@@ -16,8 +19,37 @@ export const HeaderForm = ({
   isCreate,
   subtitle,
   canPrint = undefined,
+  entity,
 }: HeaderFormProps) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const query = new URLSearchParams();
+  const id = searchParams.get('id') ?? '';
+
+  function handleOnClick() {
+    if (entity) {
+      let finalRoute = getRoute(entity);
+
+      searchParams.forEach((value, key) => {
+        if (key !== 'id' && value) {
+          query.set(key, value);
+        }
+      });
+
+      if (id.length > 0) {
+        finalRoute += `${query.toString().length > 0 ? '&' : '?'}id=${id}`;
+      }
+
+      const finalUrl = `${finalRoute}${
+        query.toString() ? '?' + query.toString() : ''
+      }`;
+
+      router.push(finalUrl);
+    } else {
+      router.back();
+    }
+  }
+
   if (isCreate)
     return (
       <div className="flex p-2 my-2">
@@ -35,7 +67,7 @@ export const HeaderForm = ({
         <div className="flex sm:px-12 items-center flex-col sm:flex-row">
           <div
             className="cursor-pointer mb-4 sm:mb-0"
-            onClick={() => router.back()}
+            onClick={() => handleOnClick()}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

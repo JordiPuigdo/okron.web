@@ -7,6 +7,7 @@ import { useWareHouses } from 'app/hooks/useWareHouses';
 import SparePart from 'app/interfaces/SparePart';
 import SparePartService from 'app/services/sparePartService';
 import { HeaderForm } from 'components/layout/HeaderForm';
+import { EntityTable } from 'components/table/interface/tableEntitys';
 import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
 
@@ -249,6 +250,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
       <HeaderForm
         header={headerText}
         isCreate={sparePartLoaded ? false : true}
+        entity={EntityTable.SPAREPART}
       />
       <div className="flex flex-col flex-1 bg-white p-6 rounded-md shadow-md my-4 gap-6">
         <div className="flex flex-col md:flex-col xl:flex-row gap-6 h-full flex-1 min-h-0">

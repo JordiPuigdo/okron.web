@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { SvgExportExcel, SvgSpinner } from 'app/icons/icons';
 import { useSessionStore } from 'app/stores/globalStore';
-import useRoutes from 'app/utils/useRoutes';
+import { FilterValue } from 'app/types/filters';
+import { getRoute } from 'app/utils/utils';
+import { useSearchParams } from 'next/navigation';
 
 import { RenderFilters } from './components/Filters/RenderFilters';
 import { TableBodyComponent } from './components/TableBody';
@@ -9,7 +11,11 @@ import { TableHeader } from './components/TableHeader';
 import { Column, Filters, TableButtons } from './interface/interfaceTable';
 import { EntityTable } from './interface/tableEntitys';
 import Pagination from './Pagination';
-import { exportTableToExcel, sortData } from './utils/TableUtils';
+import {
+  calculateTotalAmountRecords,
+  exportTableToExcel,
+  sortData,
+} from './utils/TableUtils';
 
 interface DataTableProps {
   data: any[];
@@ -71,12 +77,11 @@ const DataTable: React.FC<DataTableProps> = ({
   const [totalAmountRecords, setTotalAmountRecords] = useState<
     number | undefined
   >(undefined);
-  const ROUTES = useRoutes();
+
   const [pathDetail, setPathDetail] = useState<string>('');
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
-  const { loginUser, setFilterSpareParts, filterSpareParts } = useSessionStore(
-    state => state
-  );
+  const { loginUser } = useSessionStore(state => state);
+  const [filtersApplied, setFiltersApplied] = useState<FilterValue>({});
 
   const handlePageChange = (page: number) => {
     if (page < 1) return;
@@ -97,40 +102,6 @@ const DataTable: React.FC<DataTableProps> = ({
     setCurrentPage(currentPage - 1);
     setIsLoading(false);
   };
-
-  useEffect(() => {
-    switch (entity) {
-      case EntityTable.WORKORDER:
-        setPathDetail(ROUTES.workOrders);
-        break;
-      case EntityTable.PREVENTIVE:
-        setPathDetail(ROUTES.preventive.configuration);
-        break;
-      case EntityTable.SPAREPART:
-        setPathDetail(ROUTES.spareParts);
-        break;
-      case EntityTable.OPERATOR:
-        setPathDetail(ROUTES.configuration.operators);
-        break;
-      case EntityTable.MACHINE:
-        setPathDetail(ROUTES.configuration.machines);
-        break;
-      case EntityTable.WAREHOUSE:
-        setPathDetail(ROUTES.configuration.warehouse);
-        break;
-      case EntityTable.PROVIDER:
-        setPathDetail(ROUTES.configuration.provider);
-        break;
-      case EntityTable.ORDER:
-        setPathDetail(ROUTES.orders.order);
-        break;
-      case EntityTable.Account:
-        setPathDetail(ROUTES.accounts);
-        break;
-      default:
-        setPathDetail('error');
-    }
-  }, []);
 
   const handleSortChange = async (sortedBy: string) => {
     if (sortedBy == '') return;
@@ -185,7 +156,7 @@ const DataTable: React.FC<DataTableProps> = ({
       filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord)
     );
 
-    calculateTotalAmountRecords(filteredRecords);
+    setTotalAmountRecords(calculateTotalAmountRecords(filteredRecords));
     setTotalCount(Math.ceil(filteredRecords.length / itemsPerPage));
     setIsLoading(false);
   }, [
@@ -198,18 +169,12 @@ const DataTable: React.FC<DataTableProps> = ({
     filterSparePartsUnderStock,
   ]);
 
-  const calculateTotalAmountRecords = (data: any[]) => {
-    if (EntityTable.ORDER && data.length > 0) {
-      const x = data.reduce((acc, order) => {
-        return acc + (order.totalAmount ?? 0);
-      }, 0);
-      setTotalAmountRecords(x);
-    } else {
-      setTotalAmountRecords(undefined);
-    }
-  };
-
   const handleFilterChange = (key: string, value: string | boolean | Date) => {
+    setFiltersApplied(prevFilters => ({
+      ...prevFilters,
+      [key]: value,
+    }));
+
     const keys = key.split('.');
     const filteredData = data.filter(item => {
       const nestedPropertyValue = keys.reduce(
@@ -244,6 +209,12 @@ const DataTable: React.FC<DataTableProps> = ({
     setTotalCount(Math.ceil(filteredData.length / itemsPerPage));
   };
 
+  useEffect(() => {
+    setPathDetail(() => {
+      return getRoute(entity);
+    });
+  }, []);
+
   const handleSelectedRow = (id: string) => {
     setSelectedRows(prevSelectedRows => {
       const newSelectedRows = new Set(prevSelectedRows);
@@ -277,18 +248,19 @@ const DataTable: React.FC<DataTableProps> = ({
         } w-full h-full flex flex-col`}
       >
         <div className="flex py-2">
-          {((filters !== undefined && filters?.length > 0) ||
-            enableFilterActive) && (
-            <RenderFilters
-              filters={filters}
-              onFilterChange={handleFilterChange}
-              onFilterActive={setFilterActive}
-              onFilterSparePartsUnderStock={setFilterSparePartsUnderStock}
-              enableFilterActive={enableFilterActive}
-              entity={entity}
-              isReport={isReport}
-            />
-          )}
+          {data.length > 0 &&
+            ((filters !== undefined && filters?.length > 0) ||
+              enableFilterActive) && (
+              <RenderFilters
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onFilterActive={setFilterActive}
+                onFilterSparePartsUnderStock={setFilterSparePartsUnderStock}
+                enableFilterActive={enableFilterActive}
+                entity={entity}
+                isReport={isReport}
+              />
+            )}
           {!hideExport && (
             <div className="flex w-full justify-end">
               <div
@@ -333,6 +305,7 @@ const DataTable: React.FC<DataTableProps> = ({
                   onDelete={onDelete ? onDelete : undefined}
                   totalCounts={totalCounts}
                   totalQuantity={totalAmountRecords ?? 0}
+                  filtersApplied={filtersApplied}
                 />
               </table>
             </div>
