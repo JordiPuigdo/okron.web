@@ -113,22 +113,19 @@ const AssetForm: React.FC<AssetFormProps> = ({
             >
               {loading ? <SvgSpinner /> : id !== '0' ? 'Actualitzar' : 'Afegir'}
             </button>
-            <button
-              type="button"
-              disabled={loading}
-              className="flex items-center justify-center bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300 ease-in-out"
-              onClick={() => {
-                router.push(
-                  ROUTES.configuration.assets +
-                    '?search=' +
-                    searchTermFromQuery +
-                    '&id=' +
-                    id
-                );
-              }}
-            >
-              {loading ? <SvgSpinner /> : 'Cancelar'}
-            </button>
+            {!id ||
+              (id === '0' && (
+                <button
+                  type="button"
+                  disabled={loading}
+                  className="flex items-center justify-center bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300 ease-in-out"
+                  onClick={() => {
+                    router.back();
+                  }}
+                >
+                  {loading ? <SvgSpinner /> : 'Cancelar'}
+                </button>
+              ))}
             <Link
               href={ROUTES.preventive.preventiveForm + '?assetId=' + id}
               className="flex items-center justify-center bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-900 transition duration-300 ease-in-out"
