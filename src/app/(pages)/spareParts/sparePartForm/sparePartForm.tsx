@@ -256,7 +256,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
         <div className="flex flex-col md:flex-col xl:flex-row gap-6 h-full flex-1 min-h-0">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4 p-4 border rounded-md md:w-[20%]"
+            className="space-y-4 p-4 border rounded-md md:w-[25%]"
           >
             <h2 className="font-semibold mb-2">
               {sparePartLoaded
@@ -377,7 +377,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
               </div>
             </div>
           </form>
-          <div className="flex flex-col flex-grow border rounded-md p-2 md:w-[40%]">
+          <div className="flex flex-col flex-grow border rounded-md p-2 md:w-[55%]">
             <div className="flex flex-col flex-grow">
               <h2 className="font-semibold mb-2">Selecciona Magatzem</h2>
               <div>
@@ -420,7 +420,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
               />
             </div>
           </div>
-          <div className="flex w-full md:w-[30%]">
+          <div className="flex w-full md:w-[15%]">
             <DocumentationSparePart sparePart={sparePart!} />
           </div>
         </div>
