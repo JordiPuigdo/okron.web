@@ -1,10 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-
+import { FaHistory } from 'react-icons/fa';
 import { TableDataOrders } from 'app/(pages)/orders/components/TableDataOrders';
 import { SparePartDetailResponse } from 'app/interfaces/SparePart';
 import SparePartService from 'app/services/sparePartService';
-import { FaHistory } from 'react-icons/fa';
 import Container from 'components/layout/Container';
 import MainLayout from 'components/layout/MainLayout';
 
