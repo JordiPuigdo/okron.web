@@ -40,52 +40,53 @@ export default function SparePartProvidersSelected({
         <div className="w-1/5 font-semibold text-gray-700">Habitual</div>
         <div className="w-1/7 font-semibold text-gray-700">Accions</div>
       </div>
-
-      {sparePart?.providers.map(x => (
-        <div
-          key={x.providerId}
-          className="flex flex-row gap-2 justify-between items-center p-3 hover:bg-gray-50 rounded-lg transition-colors"
-        >
-          <div className="w-1/5 text-gray-600 ">
-            <span className="truncate">{x.provider?.name}</span>
-          </div>
-          <div className="w-1/5 text-gray-600 ">
-            <EditableCell
-              value={x.refProvider}
-              onUpdate={newValue =>
-                handleUpdateRefProvider(x.providerId, newValue)
-              }
-            />
-          </div>
-          <div className="w-1/12 text-gray-600">
-            <EditableCell
-              value={x.price}
-              onUpdate={newValue => handleUpdatePrice(x.providerId, newValue)}
-            />
-          </div>
-          <div className="w-1/4 text-gray-600">
-            <EditableCell
-              value={x.discount.toString()}
-              onUpdate={newValue =>
-                handleUpdateDiscount(x.providerId, newValue)
-              }
-            />
-          </div>
-          <div className="w-1/12 text-gray-600">
-            <input
-              type="checkbox"
-              checked={x.isDefault}
-              onChange={() => handleCheckIsDefault(x.providerId)}
-            />
-          </div>
-          <button
-            onClick={() => handleRemoveProvider(x.providerId)}
-            className="px-2 py-1 bg-gray-400 hover:bg-gray-500 text-white rounded text-sm"
+      <div className="overflow-y-auto max-h-[300px] divide-y divide-gray-200">
+        {sparePart?.providers.map(x => (
+          <div
+            key={x.providerId}
+            className="flex flex-row gap-2 justify-between items-center p-3 hover:bg-gray-50 rounded-lg transition-colors"
           >
-            ×
-          </button>
-        </div>
-      ))}
+            <div className="w-1/5 text-gray-600 ">
+              <span className="truncate">{x.provider?.name}</span>
+            </div>
+            <div className="w-1/5 text-gray-600 ">
+              <EditableCell
+                value={x.refProvider}
+                onUpdate={newValue =>
+                  handleUpdateRefProvider(x.providerId, newValue)
+                }
+              />
+            </div>
+            <div className="w-1/12 text-gray-600">
+              <EditableCell
+                value={x.price}
+                onUpdate={newValue => handleUpdatePrice(x.providerId, newValue)}
+              />
+            </div>
+            <div className="w-1/4 text-gray-600">
+              <EditableCell
+                value={x.discount.toString()}
+                onUpdate={newValue =>
+                  handleUpdateDiscount(x.providerId, newValue)
+                }
+              />
+            </div>
+            <div className="w-1/12 text-gray-600">
+              <input
+                type="checkbox"
+                checked={x.isDefault}
+                onChange={() => handleCheckIsDefault(x.providerId)}
+              />
+            </div>
+            <button
+              onClick={() => handleRemoveProvider(x.providerId)}
+              className="px-2 py-1 bg-gray-400 hover:bg-gray-500 text-white rounded text-sm"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
