@@ -27,9 +27,9 @@ const WarehouseStock: React.FC<WarehouseStockProps> = ({ stock }) => {
         />
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[350px] overflow-y-auto">
         <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 sticky top-0 z-10">
             <tr>
               <th className="px-4 py-2 text-left text-sm font-medium text-gray-600 uppercase">
                 Codi

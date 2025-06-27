@@ -13,8 +13,8 @@ export const TableTotalRowComponent: React.FC<TableTotalRowComponentProps> = ({
 }) => {
   if (!totalCounts) return null;
   return (
-    <tr className="bg-gray-100 border-t-2 border-gray-900">
-      <td className="px-6 py-4 whitespace-nowrap font-semibold text-left">
+    <tr className="bg-gray-100 border-t-2 border-gray-300">
+      <td className="px-6 py-4 whitespace-nowrap font-semibold text-md text-left">
         {placeholder || 'Total'}
       </td>
       <td
