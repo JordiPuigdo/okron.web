@@ -125,8 +125,6 @@ const DataTable: React.FC<DataTableProps> = ({
   };
 
   useEffect(() => {
-    if (!data || data.length === 0) return;
-
     console.log('useEffect DataTable');
 
     const indexOfLastRecord = currentPage * itemsPerPage;
@@ -163,6 +161,7 @@ const DataTable: React.FC<DataTableProps> = ({
 
     setTotalAmountRecords(calculateTotalAmountRecords(filteredRecords));
     setTotalCount(Math.ceil(filteredRecords.length / itemsPerPage));
+
     setIsLoading(false);
 
     if (filteredRecords.length > 0) setIsLoaded(true);
