@@ -142,7 +142,7 @@ export interface SearchWorkOrderFilters {
   stateWorkOrder?: StateWorkOrder;
   userType: UserType;
   originWorkOrder: OriginWorkOrder;
-  showNextWO: boolean;
+  showNextWO?: boolean;
 }
 
 export enum WorkOrderType {
