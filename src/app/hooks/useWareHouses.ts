@@ -17,7 +17,6 @@ export const useWareHouses = (
   shouldFetchWarehouses: boolean = false,
   wareHouseService: IWareHouseService = new WareHouseService()
 ) => {
-  //const [warehouses, setWarehouses] = useState<WareHouse[]>([]);
   const [isWareHouseSuccessFull, setIsSuccessFull] = useState<boolean | null>(
     null
   );
@@ -37,17 +36,6 @@ export const useWareHouses = (
       revalidateOnReconnect: false,
     }
   );
-
-  /*const fetchWareHouses = async (): Promise<WareHouse[]> => {
-    try {
-      const response = await wareHouseService.getWareHouses();
-      setWarehouses(response);
-      return response;
-    } catch (error) {
-      console.error('Error fetching warehouses:', error);
-      throw error;
-    }
-  };*/
 
   const createWareHouse = async (
     wareHouse: WareHouseRequest

@@ -1,21 +1,22 @@
-"use client";
+'use client';
 
-import "react-datepicker/dist/react-datepicker.css";
+import 'react-datepicker/dist/react-datepicker.css';
 
-import { useEffect, useState } from "react";
-import DatePicker from "react-datepicker";
-import { SvgDetail,SvgSpinner } from "app/icons/icons";
-import { GetWOByPreventiveIdRequest } from "app/interfaces/Preventive";
-import { WorkOrder } from "app/interfaces/workOrder";
-import PreventiveService from "app/services/preventiveService";
-import useRoutes from "app/utils/useRoutes";
-import { formatDate, translateStateWorkOrder } from "app/utils/utils";
-import ca from "date-fns/locale/ca";
-import { Button } from "designSystem/Button/Buttons";
+import { useEffect, useState } from 'react';
+import DatePicker from 'react-datepicker';
+import { SvgDetail, SvgSpinner } from 'app/icons/icons';
+import { GetWOByPreventiveIdRequest } from 'app/interfaces/Preventive';
+import { WorkOrder } from 'app/interfaces/workOrder';
+import PreventiveService from 'app/services/preventiveService';
+import useRoutes from 'app/utils/useRoutes';
+import { formatDate, translateStateWorkOrder } from 'app/utils/utils';
+import ca from 'date-fns/locale/ca';
+import dayjs from 'dayjs';
+import { Button } from 'designSystem/Button/Buttons';
 
 export const WorkOrderPerPreventive = ({ id }: { id: string }) => {
   const preventiveService = new PreventiveService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const Routes = useRoutes();
@@ -36,23 +37,23 @@ export const WorkOrderPerPreventive = ({ id }: { id: string }) => {
 
     await preventiveService
       .getWOByPreventiveId(request)
-      .then((workOrders) => {
+      .then(workOrders => {
         if (workOrders) {
           setWorkOrders(workOrders);
         }
       })
-      .catch((error) => {
-        console.error("Error fetching work orders:", error);
+      .catch(error => {
+        console.error('Error fetching work orders:', error);
       });
   };
   const toggleLoading = (id: string) => {
-    setIsLoading((prev) => ({ ...prev, [id]: !prev[id] }));
+    setIsLoading(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   const handleSearch = async () => {
-    toggleLoading(id + "_Search");
+    toggleLoading(id + '_Search');
     await fetchWOByPreventiveId(id);
-    toggleLoading(id + "_Search");
+    toggleLoading(id + '_Search');
   };
   useEffect(() => {
     fetchWOByPreventiveId(id);
@@ -60,6 +61,7 @@ export const WorkOrderPerPreventive = ({ id }: { id: string }) => {
 
   const itemsPerPage = 10; // Number of items to display per page
   const [currentPage, setCurrentPage] = useState(1);
+  const now = new Date();
 
   // Calculate pagination range
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -98,7 +100,7 @@ export const WorkOrderPerPreventive = ({ id }: { id: string }) => {
             onClick={() => handleSearch()}
             customStyles="flex"
           >
-            {isLoading[id + "_Search"] ? <SvgSpinner /> : "Buscar"}
+            {isLoading[id + '_Search'] ? <SvgSpinner /> : 'Buscar'}
           </Button>
         </div>
       </div>
@@ -116,8 +118,8 @@ export const WorkOrderPerPreventive = ({ id }: { id: string }) => {
           {currentWorkOrders.map((workOrder, index) => (
             <div
               key={index}
-              className={`flex flex-row items-center ${
-                index % 2 === 2 ? "bg-gray-100" : ""
+              className={`flex flex-row items-center border-b border-gray-200 ${
+                dayjs(workOrder.startTime).isAfter(now) ? 'bg-yellow-500' : ''
               }`}
             >
               <div className="p-2 w-full">{workOrder.code}</div>
@@ -128,20 +130,22 @@ export const WorkOrderPerPreventive = ({ id }: { id: string }) => {
               <div className="p-2 w-full">
                 {translateStateWorkOrder(workOrder.stateWorkOrder)}
               </div>
-              <Button
-                type="none"
-                onClick={() => {
-                  toggleLoading(workOrder.id + "_Detail");
-                }}
-                href={`${Routes.workOrders}/${workOrder.id}`}
-                className="bg-okron-btDetail hover:bg-okron-btnDetailHover rounded flex text-center p-2 w-full justify-center align-middle text-white"
-              >
-                {isLoading[workOrder.id + "_Detail"] ? (
-                  <SvgSpinner />
-                ) : (
-                  <SvgDetail />
-                )}
-              </Button>
+              {dayjs(workOrder.startTime).isBefore(now) && (
+                <Button
+                  type="none"
+                  onClick={() => {
+                    toggleLoading(workOrder.id + '_Detail');
+                  }}
+                  href={`${Routes.workOrders}/${workOrder.id}`}
+                  className="bg-okron-btDetail hover:bg-okron-btnDetailHover rounded flex text-center p-2 w-full justify-center align-middle text-white"
+                >
+                  {isLoading[workOrder.id + '_Detail'] ? (
+                    <SvgSpinner />
+                  ) : (
+                    <SvgDetail />
+                  )}
+                </Button>
+              )}
             </div>
           ))}
         </div>
@@ -152,8 +156,8 @@ export const WorkOrderPerPreventive = ({ id }: { id: string }) => {
         <button
           className={`px-4 py-2 rounded-md ${
             currentPage === 1
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-gray-200 hover:bg-gray-300"
+              ? 'bg-gray-300 cursor-not-allowed'
+              : 'bg-gray-200 hover:bg-gray-300'
           }`}
           onClick={() => setCurrentPage(currentPage - 1)}
           disabled={currentPage === 1}
@@ -166,8 +170,8 @@ export const WorkOrderPerPreventive = ({ id }: { id: string }) => {
         <button
           className={`px-4 py-2 rounded-md ${
             indexOfLastItem >= workOrders.length
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-gray-200 hover:bg-gray-300"
+              ? 'bg-gray-300 cursor-not-allowed'
+              : 'bg-gray-200 hover:bg-gray-300'
           }`}
           onClick={() => setCurrentPage(currentPage + 1)}
           disabled={indexOfLastItem >= workOrders.length}

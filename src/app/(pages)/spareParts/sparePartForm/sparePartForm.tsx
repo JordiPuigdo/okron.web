@@ -378,7 +378,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
             </div>
           </form>
           <div className="flex flex-col flex-grow border rounded-md p-2 md:w-[55%]">
-            <div className="flex flex-col flex-grow">
+            <div className="flex flex-col flex-grow mb-8">
               <h2 className="font-semibold mb-2">Selecciona Magatzem</h2>
               <div>
                 <SparePartWareHouseSelected
@@ -390,18 +390,31 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                       spWarehouse => spWarehouse.warehouseId === warehouse.id
                     )
                   )
-                  .map(warehouse => (
-                    <div key={warehouse.id} className="border p-2 rounded-md">
-                      {warehouse.code} - {warehouse.description}
-                      <Button
-                        type="delete"
-                        className="ml-2"
-                        onClick={() => handleRemoveWareHouse(warehouse.id)}
+                  .map(warehouse => {
+                    const currentWarehouse = warehouses.find(
+                      w => w.id === warehouse.id
+                    );
+                    const quantity = currentWarehouse?.stock?.find(
+                      s => s.sparePartId === sparePart?.id
+                    )?.quantity;
+
+                    return (
+                      <div
+                        key={warehouse.id}
+                        className="border p-2 flex justify-between items-center rounded-md"
                       >
-                        -
-                      </Button>
-                    </div>
-                  ))}
+                        {warehouse.code} - {warehouse.description}
+                        {quantity}
+                        <Button
+                          type="delete"
+                          className="ml-2"
+                          onClick={() => handleRemoveWareHouse(warehouse.id)}
+                        >
+                          -
+                        </Button>
+                      </div>
+                    );
+                  })}
               </div>
             </div>
             <div className="flex flex-col flex-grow">

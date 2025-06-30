@@ -201,7 +201,7 @@ export default function PreventiveCalendar() {
                       p: 1,
                       minWidth: 170,
                       maxWidth: '100%',
-                      height: isExpanded ? 'auto' : 250,
+                      height: isExpanded ? 'auto' : 260,
                       overflow: 'hidden',
                       display: 'flex',
                       flexDirection: 'column',
@@ -228,11 +228,11 @@ export default function PreventiveCalendar() {
                             borderRadius: 1,
                           }}
                         >
-                          <Typography variant="caption" fontSize={11}>
+                          <Typography variant="caption" fontSize={12}>
                             {item.preventive.code}
                           </Typography>
                           <br />
-                          <Typography variant="caption" fontSize={9}>
+                          <Typography variant="caption" fontSize={12}>
                             {item.preventive.description.length >= 30
                               ? `${item.preventive.description.slice(0, 29)}...`
                               : item.preventive.description}
