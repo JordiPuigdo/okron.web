@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
 const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
+const logoCSS = process.env.NEXT_PUBLIC_LOGO_CSS!;
 
 export const metadata = {
   title: 'Okron',
@@ -50,14 +51,11 @@ const Header: React.FC = () => {
           <SvgMenu width={30} height={30} className="text-okron-main" />
         </button>
         <div className="ml-2 flex">
-          <Link
-            className="hidden md:flex sm:flex items-center font-semibold text-lg text-gray-900 p-1 bg-white rounded-md"
-            href={'/menu'}
-          >
+          <Link href={'/menu'}>
             <img
               src={logoUrl}
               alt="Components Mecànics Logo"
-              className="h-[45px] w-[45px]"
+              className={logoCSS}
             />
           </Link>
         </div>

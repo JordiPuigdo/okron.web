@@ -294,6 +294,10 @@ export function differenceBetweenDates(date1: Date, date2: Date) {
   };
 }
 
+export const formatTime = (time: string): string => {
+  return time.length === 5 ? `${time}:00` : time; // convierte "14:30" → "14:30:00"
+};
+
 export function isValidDateTimeFormat(dateTime: string): boolean {
   // Regular expression to match "DD/MM/YYYY HH:mm:ss" format
   const dateTimeRegex =

@@ -22,8 +22,12 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     title: 'Dashboard',
     icon: SvgPanel,
     path: '/menu',
-    permission: [UserPermission.Administrator, UserPermission.Worker],
-    userType: [UserType.Maintenance, UserType.Production],
+    permission: [
+      UserPermission.Administrator,
+      UserPermission.Worker,
+      UserPermission.AdminCRM,
+    ],
+    userType: [UserType.Maintenance, UserType.Production, UserType.CRM],
   },
   {
     key: generateKey(),
@@ -157,10 +161,23 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
+    title: 'Clients',
+    icon: SvgReport,
+    path: '/customer',
+    permission: [UserPermission.AdminCRM, UserPermission.AdminCRM],
+    userType: [UserType.CRM],
+  },
+  {
+    key: generateKey(),
     title: 'Configuració',
     path: '',
-    permission: [UserPermission.Administrator],
-    userType: [UserType.Maintenance, UserType.Production, UserType.Warehouse],
+    permission: [UserPermission.Administrator, UserPermission.AdminCRM],
+    userType: [
+      UserType.Maintenance,
+      UserType.Production,
+      UserType.Warehouse,
+      UserType.CRM,
+    ],
     submenu: true,
     icon: SvgGear,
     submenuItems: [
@@ -204,6 +221,14 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         userType: [],
         permission: [],
       },*/
+      {
+        key: generateKey(),
+        title: 'Sistema',
+        path: '/system',
+        icon: SvgOperari,
+        userType: [UserType.CRM],
+        permission: [UserPermission.AdminCRM],
+      },
       {
         key: generateKey(),
         title: 'Comptes Comptables',

@@ -23,12 +23,14 @@ export enum UserPermission {
   SpareParts,
   Production,
   Warehouse,
+  AdminCRM,
 }
 
 export enum UserType {
   Maintenance,
   Production,
   Warehouse,
+  CRM,
 }
 
 export interface OperatorLogged {
