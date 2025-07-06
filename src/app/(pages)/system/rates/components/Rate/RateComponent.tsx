@@ -112,10 +112,6 @@ export default function RateConfigurationPage() {
     await updateRate(id, toSave);
   };
 
-  useEffect(() => {
-    console.log(error);
-  }, [error]);
-
   return (
     <div className="space-y-6">
       <div className="bg-white shadow rounded p-6">

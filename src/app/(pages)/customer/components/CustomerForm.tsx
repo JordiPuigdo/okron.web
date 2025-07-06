@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 
 import { CustomerAddressList } from './CustomerAddressList';
 import { CustomerContactList } from './CustomerContactList';
+import CustomerInstallationList from './CustomerInstallation/CustomerInstallationList';
 import { CustomerPaymentMethods } from './CustomerPaymentMethods';
 import { CustomerRatesManager } from './CustomerRatesManager';
 
@@ -22,11 +23,27 @@ interface CustomerFormProps {
   onSuccess?: () => void;
 }
 
+enum CustomerFormTabs {
+  GENERAL = 'General',
+  ADDRESSES = 'Direccions',
+  CONTACTS = 'Contactes',
+  PAYMENTMETHODS = 'Pagaments',
+  RATES = 'Tarifes',
+  INSTALLATIONS = 'Botigues',
+}
+
 export default function CustomerForm({
   initialData,
   onSuccess,
 }: CustomerFormProps) {
-  const tabs = ['General', 'Direccions', 'Contactes', 'Pagaments', 'Tarifes'];
+  const tabs = [
+    CustomerFormTabs.GENERAL,
+    CustomerFormTabs.ADDRESSES,
+    CustomerFormTabs.CONTACTS,
+    CustomerFormTabs.PAYMENTMETHODS,
+    CustomerFormTabs.RATES,
+    CustomerFormTabs.INSTALLATIONS,
+  ];
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const router = useRouter();
   const isEdit = !!initialData;
@@ -45,12 +62,10 @@ export default function CustomerForm({
     if (initialData) {
       Object.keys(initialData).forEach(key => {
         const value = initialData[key as keyof Customer];
+
         const formattedValue =
-          typeof value === 'boolean'
-            ? value.toString()
-            : value instanceof Date
-            ? value.toISOString()
-            : value;
+          value instanceof Date ? value.toISOString() : value;
+
         setValue(
           key as keyof CreateCustomerRequest,
           formattedValue as unknown as never
@@ -112,7 +127,7 @@ export default function CustomerForm({
           ))}
         </nav>
 
-        {activeTab === 'General' && (
+        {activeTab === CustomerFormTabs.GENERAL && (
           <>
             <div>
               <label className="block font-medium">Codi</label>
@@ -139,9 +154,18 @@ export default function CustomerForm({
             </div>
 
             <div>
+              <label className="block font-medium">Nom Fiscal</label>
+              <input
+                {...register('fiscalName')}
+                className="w-full border rounded p-2"
+                placeholder="Número de compte"
+              />
+            </div>
+
+            <div>
               <label className="block font-medium">NIF/CIF</label>
               <input
-                {...register('nif_cif')}
+                {...register('taxId')}
                 className="w-full border rounded p-2"
                 placeholder="NIF o CIF"
               />
@@ -155,6 +179,33 @@ export default function CustomerForm({
                 placeholder="Número de compte"
               />
             </div>
+            <div>
+              <label className="block font-medium">Telèfon</label>
+              <input
+                {...register('phoneNumber')}
+                className="w-full border rounded p-2"
+                placeholder="Número de compte"
+              />
+            </div>
+            <div>
+              <label className="block font-medium">Whatsapp</label>
+              <input
+                {...register('whatsappNumber')}
+                className="w-full border rounded p-2"
+                placeholder="Número de compte"
+              />
+            </div>
+            {initialData && initialData?.id.length > 0 && (
+              <div className="flex flex-col">
+                <label className="block font-medium">Actiu</label>
+                <input
+                  type="checkbox"
+                  {...register('active')}
+                  className="border rounded p-2 w-[25px]"
+                  defaultChecked={initialData?.active}
+                />
+              </div>
+            )}
 
             {initialData && initialData?.address?.length > 0 && (
               <div className="pt-4 border-t">
@@ -197,36 +248,40 @@ export default function CustomerForm({
                 </div>
               </div>
             )}
+            <div className="flex justify-end items-end gap-4 border-t pt-4">
+              <Button
+                type="create"
+                customStyles="gap-2 flex"
+                disabled={isSubmitting}
+                onClick={handleSubmit(onSubmit)}
+              >
+                {isEdit ? 'Actualitzar Client' : 'Crear Client'}
+                {isSubmitting && <SvgSpinner />}
+              </Button>
+
+              <Button
+                type="cancel"
+                onClick={() => router.back()}
+                customStyles="gap-2 flex"
+                disabled={isSubmitting}
+              >
+                Cancel·lar {isSubmitting && <SvgSpinner />}
+              </Button>
+            </div>
           </>
         )}
 
-        {activeTab === 'Direccions' && <CustomerAddressList />}
-        {activeTab === 'Contactes' && <CustomerContactList />}
-        {activeTab === 'Pagaments' && <CustomerPaymentMethods />}
-        {activeTab === 'Tarifes' && <CustomerRatesManager />}
+        {activeTab === CustomerFormTabs.ADDRESSES && <CustomerAddressList />}
+        {activeTab === CustomerFormTabs.CONTACTS && <CustomerContactList />}
+        {activeTab === CustomerFormTabs.PAYMENTMETHODS && (
+          <CustomerPaymentMethods />
+        )}
+        {activeTab === CustomerFormTabs.RATES && <CustomerRatesManager />}
+        {activeTab === CustomerFormTabs.INSTALLATIONS && (
+          <CustomerInstallationList />
+        )}
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
-
-        <div className="flex justify-end items-end gap-4 border-t pt-4">
-          <Button
-            type="create"
-            customStyles="gap-2 flex"
-            disabled={isSubmitting}
-            onClick={handleSubmit(onSubmit)}
-          >
-            {isEdit ? 'Actualitzar Client' : 'Crear Client'}
-            {isSubmitting && <SvgSpinner />}
-          </Button>
-
-          <Button
-            type="cancel"
-            onClick={() => router.back()}
-            customStyles="gap-2 flex"
-            disabled={isSubmitting}
-          >
-            Cancel·lar {isSubmitting && <SvgSpinner />}
-          </Button>
-        </div>
       </form>
     </FormProvider>
   );

@@ -25,8 +25,12 @@ export interface PaymentMethod extends BaseModel {
 export interface Customer extends BaseModel {
   code: string;
   name: string;
-  nif_cif: string;
+  taxId: string;
   accountNumber: string;
+  fiscalName: string;
+  phoneNumber: string;
+  whatsappNumber: string;
+  email: string;
   address: CustomerAddress[];
   contacts: CustomerContact[];
   paymentMethods: PaymentMethod[];
@@ -37,12 +41,18 @@ export interface Customer extends BaseModel {
 export interface CreateCustomerRequest {
   code: string;
   name: string;
-  nif_cif?: string;
+  taxId?: string;
   accountNumber?: string;
+  fiscalName: string;
+  phoneNumber: string;
+  whatsappNumber: string;
+  email: string;
   address?: CustomerAddress[];
   contacts?: CustomerContact[];
   paymentMethods?: PaymentMethod[];
   rates?: Rate[];
+  installations?: CustomerInstallations[];
+  active?: boolean;
 }
 
 export interface UpdateCustomerRequest extends CreateCustomerRequest {
@@ -52,6 +62,6 @@ export interface UpdateCustomerRequest extends CreateCustomerRequest {
 export interface CustomerInstallations extends BaseModel {
   code: string;
   address: CustomerAddress;
-  contact: CustomerContact;
+  contact: CustomerContact[];
   rates?: Rate[];
 }

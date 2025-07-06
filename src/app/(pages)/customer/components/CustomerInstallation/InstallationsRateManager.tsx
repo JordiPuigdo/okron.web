@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { EditableTable } from 'app/(pages)/system/rates/components/EditableTable';
@@ -15,25 +17,14 @@ const dayOfWeekLabels = {
   [DayOfWeek.Sunday]: 'Diumenge',
 };
 
-export function CustomerRatesManager() {
-  const {
-    rates: generalRates,
-    rateTypes,
-    loading,
-
-    fetchRates,
-  } = useRates();
+export function InstallationRatesManager({ index }: { index: number }) {
+  const { rates: generalRates, rateTypes, loading, fetchRates } = useRates();
 
   const { control } = useFormContext();
 
-  const {
-    fields: rateFields,
-    append,
-    update,
-    remove,
-  } = useFieldArray({
+  const { fields, append, update, remove } = useFieldArray({
     control,
-    name: 'rates',
+    name: `installations.${index}.rates`,
   });
 
   const [ratesSelected, setRatesSelected] = useState<Rate[]>([]);
@@ -45,34 +36,42 @@ export function CustomerRatesManager() {
       setRatesSelected(prev => [...prev, method]);
     }
   };
+
   useEffect(() => {
     fetchRates();
-
-    if (rateFields.length > 0) {
-      console.log('rateFields', rateFields);
-      const parsedRates: Rate[] = rateFields.map((field: any) => ({
-        id: field.id,
-        price: Number(field.price),
-        daysOfWeek: Array.isArray(field.daysOfWeek)
-          ? field.daysOfWeek.map(Number)
-          : [],
-        startTime: field.startTime,
-        endTime: field.endTime,
-        rateTypeId: field.rateTypeId,
-        type: field.type,
-        active: field.active ?? true,
-        creationDate: field.creationDate ?? new Date().toISOString(),
-        customerId: field.customerId,
-      }));
-
-      setRatesSelected(parsedRates);
-    }
   }, []);
 
-  const onCreateClientRate = async (data: Omit<Rate, 'id'>) => {
-    const newRate: Rate = { ...data, id: '' };
+  useEffect(() => {
+    setRatesSelected(fields as Rate[]);
+  }, [fields]);
+
+  const onCreateRate = async (data: Omit<Rate, 'id'>) => {
+    const rateType = rateTypes.find(rt => rt.id === data.rateTypeId);
+    if (!rateType) return;
+    const newRate: Rate = { ...data, id: crypto.randomUUID(), type: rateType };
     append(newRate);
     setRatesSelected(prev => [...prev, newRate]);
+  };
+
+  const onDelete = (id: string) => {
+    const indexToRemove = fields.findIndex(r => r.id === id);
+    if (indexToRemove !== -1) {
+      remove(indexToRemove);
+      setRatesSelected(prev => prev.filter(r => r.id !== id));
+    }
+  };
+
+  const onUpdate = async (
+    id: string,
+    newData: Partial<Rate>
+  ): Promise<void> => {
+    const i = fields.findIndex(r => r.id === id);
+    if (i !== -1) {
+      update(i, { ...fields[i], ...newData });
+      setRatesSelected(prev =>
+        prev.map(r => (r.id === id ? { ...r, ...newData } : r))
+      );
+    }
   };
 
   const columns = [
@@ -116,45 +115,20 @@ export function CustomerRatesManager() {
     },
   ];
 
-  const availableRates = generalRates;
-
-  const onDelete = (id: string) => {
-    const index = rateFields.findIndex(field => field.id === id);
-    if (index === -1) return;
-
-    remove(index);
-    setRatesSelected(prev => prev.filter(r => r.id !== id));
-  };
-
-  const onUpdate = async (
-    id: string,
-    newData: Partial<Rate>
-  ): Promise<void> => {
-    const index = rateFields.findIndex(field => field.id === id);
-    if (index === -1) return;
-
-    update(index, { ...rateFields[index], ...newData });
-
-    setRatesSelected(prev =>
-      prev.map(r => (r.id === id ? { ...r, ...newData } : r))
-    );
-  };
-
   return (
-    <div className="space-y-6 bg-gray-50 rounded-xl">
-      <section>
-        <h2 className="text-lg font-semibold">Tarifes del client</h2>
-        <EditableTable
-          columns={columns}
-          data={ratesSelected}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-          loading={loading}
-        />
-      </section>
+    <div className="space-y-6 bg-gray-50 rounded-xl p-4 mt-4">
+      <h4 className="text-md font-semibold mb-2">Tarifes de la botiga</h4>
+
+      <EditableTable
+        columns={columns}
+        data={ratesSelected}
+        onUpdate={onUpdate}
+        onDelete={onDelete}
+        loading={loading}
+      />
 
       <section>
-        {availableRates.map(rate => (
+        {generalRates.map(rate => (
           <div
             key={rate.id}
             className="flex justify-between border p-2 rounded mb-2"
@@ -170,7 +144,7 @@ export function CustomerRatesManager() {
               className="text-blue-600 hover:underline"
               onClick={() => addGeneralMethod(rate)}
             >
-              Afegir a client
+              Afegir a botiga
             </button>
           </div>
         ))}
@@ -179,7 +153,7 @@ export function CustomerRatesManager() {
       <RateForm
         rateTypes={rateTypes}
         isSubmit={false}
-        onSubmit={onCreateClientRate}
+        onSubmit={onCreateRate}
       />
     </div>
   );

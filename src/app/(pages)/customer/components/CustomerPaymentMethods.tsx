@@ -22,11 +22,8 @@ export const CustomerPaymentMethods = () => {
     name: 'paymentMethods',
   });
 
-  // Para controlar mostrar/ocultar lista de métodos generales
   const [showGeneral, setShowGeneral] = useState(false);
-
   const addGeneralMethod = (method: { id: string; description: string }) => {
-    // Verificamos que no esté ya agregado para evitar duplicados
     const exists = fields.some(f => f.id === method.id);
     if (!exists) {
       const newMethod = generalMethods.find(m => m.id === method.id);

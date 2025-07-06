@@ -2,7 +2,7 @@ const useRoutes = () => {
   return {
     home: '/',
     menu: '/menu',
-
+    customer: '/customer',
     preventive: {
       configuration: '/preventive',
       preventiveForm: '/preventive/preventiveForm',

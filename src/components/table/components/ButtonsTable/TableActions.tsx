@@ -128,6 +128,7 @@ export const TableButtonsComponentStandard = ({
   const validPermission = [
     UserPermission.Administrator,
     UserPermission.SpareParts,
+    UserPermission.AdminCRM,
   ];
 
   const canEdit = validPermission.includes(loginUser?.permission!);

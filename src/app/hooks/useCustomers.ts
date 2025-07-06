@@ -18,8 +18,12 @@ export function useCustomers() {
     try {
       const data = await customerService.getAll();
       setCustomers(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -30,13 +34,46 @@ export function useCustomers() {
   }, []);
 
   const createCustomer = async (data: CreateCustomerRequest) => {
+    const newRates = data.rates?.map(({ id, ...rest }) => rest);
+
+    const addresses = data.address?.map(({ id, ...rest }) => rest);
+
+    const newInstallations = data.installations?.map(
+      ({ id, rates, ...rest }) => ({
+        ...rest,
+        rates: rates?.map(({ id, ...rateRest }) => rateRest),
+      })
+    );
+
+    const dataNew = {
+      ...data,
+      rates: newRates,
+      installations: newInstallations,
+      address: addresses,
+    };
+
     setLoading(true);
     setError(null);
     try {
-      const newCustomer = await customerService.create(data);
+      const newCustomer = await customerService.create(dataNew);
       setCustomers(prev => [...prev, newCustomer]);
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getById = async (id: string) => {
+    try {
+      const customer = await customerService.getById(id);
+      return customer;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -76,5 +113,6 @@ export function useCustomers() {
     createCustomer,
     updateCustomer,
     deleteCustomer,
+    getById,
   };
 }

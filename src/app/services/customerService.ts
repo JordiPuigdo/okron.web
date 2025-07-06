@@ -32,11 +32,11 @@ export class CustomerService {
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Error creating customer');
-    return res.json();
+    return data as Customer;
   }
 
   async update(data: UpdateCustomerRequest): Promise<Customer> {
-    const res = await fetch(`${this.baseUrl}/${data.id}`, {
+    const res = await fetch(`${this.baseUrl}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

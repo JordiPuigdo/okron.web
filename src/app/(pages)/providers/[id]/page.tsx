@@ -133,6 +133,7 @@ export default function ProvidersPageDetail({
                 selectedProviderId={params.id}
                 title="Històric de compres"
                 hideShadow
+                enableFilters={false}
               />
             </div>
           </>

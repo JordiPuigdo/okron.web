@@ -51,7 +51,7 @@ const Header: React.FC = () => {
           <SvgMenu width={30} height={30} className="text-okron-main" />
         </button>
         <div className="ml-2 flex">
-          <Link href={'/menu'}>
+          <Link href="/menu">
             <img
               src={logoUrl}
               alt="Components Mecànics Logo"
@@ -59,6 +59,7 @@ const Header: React.FC = () => {
             />
           </Link>
         </div>
+
         <div className="flex items-center">
           <SignOperator />
         </div>

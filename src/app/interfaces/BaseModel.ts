@@ -1,5 +1,5 @@
 export interface BaseModel {
-    id : string;
-    creationDate: Date;
-    active: boolean;
+  id: string;
+  creationDate: Date;
+  active: boolean;
 }

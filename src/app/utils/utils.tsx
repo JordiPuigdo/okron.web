@@ -395,6 +395,8 @@ export const getRoute = (entity: EntityTable) => {
     case EntityTable.ASSET:
       return ROUTES.configuration.assets;
       break;
+    case EntityTable.CUSTOMER:
+      return ROUTES.customer;
     default:
       return 'error';
   }

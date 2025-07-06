@@ -87,7 +87,11 @@ export function EditableTable<T extends { id: string }>({
         </thead>
         <tbody>
           {data.map(row => {
+            {
+              row.id;
+            }
             const isEditing = editingId === row.id;
+
             return (
               <tr key={row.id} className="border-t">
                 {columns.map((col, idx) => {
@@ -215,6 +219,7 @@ export function EditableTable<T extends { id: string }>({
                   {isEditing ? (
                     <>
                       <button
+                        type="button"
                         disabled={loading}
                         onClick={handleSave}
                         className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 disabled:opacity-50"
@@ -222,6 +227,7 @@ export function EditableTable<T extends { id: string }>({
                         Guardar
                       </button>
                       <button
+                        type="button"
                         onClick={handleCancel}
                         className="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
                       >
@@ -231,12 +237,14 @@ export function EditableTable<T extends { id: string }>({
                   ) : (
                     <>
                       <button
+                        type="button"
                         onClick={() => startEditing(row)}
                         className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
                       >
                         Editar
                       </button>
                       <button
+                        type="button"
                         disabled={loading}
                         onClick={() => onDelete(row.id)}
                         className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 disabled:opacity-50"
