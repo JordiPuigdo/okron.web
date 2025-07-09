@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Tooltip } from 'react-tooltip';
 import { SvgArrowDown, SvgArrowRight, SvgSpinner } from 'app/icons/icons';
-import { UserType } from 'app/interfaces/User';
+import { UserPermission, UserType } from 'app/interfaces/User';
 import { useSessionStore } from 'app/stores/globalStore';
 import { SideNavItem } from 'app/types/SideNavItem';
 import Link from 'next/link';
@@ -39,6 +39,7 @@ const SideNav: React.FC<SideNavProps> = ({ isOpenNavBar }) => {
                 userType={loginUserType}
                 menuOpen={isMenuOpen}
                 sideNavOpen={isOpenNavBar}
+                userPermission={loginPermission}
               />
             )
           );
@@ -55,6 +56,7 @@ const SideNav: React.FC<SideNavProps> = ({ isOpenNavBar }) => {
               item={configItem}
               userType={loginUserType}
               menuOpen={isMenuOpen}
+              userPermission={loginPermission}
               sideNavOpen={isOpenNavBar}
             />
           )}
@@ -66,6 +68,7 @@ const SideNav: React.FC<SideNavProps> = ({ isOpenNavBar }) => {
 const MenuItem = ({
   item,
   userType,
+  userPermission,
   menuOpen,
   sideNavOpen,
 }: {
@@ -73,6 +76,7 @@ const MenuItem = ({
   userType: UserType;
   menuOpen: boolean;
   sideNavOpen: boolean;
+  userPermission: UserPermission;
 }) => {
   const pathname = usePathname();
 
@@ -140,6 +144,13 @@ const MenuItem = ({
             <div className={`${sideNavOpen ? 'ml-8' : 'ml-4'} flex flex-col `}>
               {item.submenuItems?.map((subItem, idx) => {
                 const isSubItemActive = pathname === subItem.path;
+
+                const isValidPermission =
+                  subItem.permission.includes(userPermission) &&
+                  subItem.userType.includes(userType);
+
+                if (!isValidPermission) return null;
+
                 return (
                   <Link key={idx} href={subItem.path}>
                     <span
@@ -187,6 +198,12 @@ const MenuItem = ({
             <div className="ml-2 flex flex-col">
               {item.submenuItems?.map((subItem, idx) => {
                 const isSubItemActive = pathname === subItem.path;
+                const isValidPermission =
+                  subItem.permission.includes(userPermission) &&
+                  subItem.userType.includes(userType);
+
+                if (!isValidPermission) return null;
+
                 if (!subMenuOpen) return <div className="p-3 m-0.5"></div>;
                 return (
                   <Link key={idx} href={subItem.path}>
