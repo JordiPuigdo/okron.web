@@ -27,7 +27,7 @@ class WorkOrderService {
   async createWorkOrder(
     WorkOrder: CreateWorkOrderRequest,
     machineId: string
-  ): Promise<void> {
+  ): Promise<WorkOrder> {
     const response = await fetch(`${this.baseUrl}workorder`, {
       method: 'POST',
       headers: {
@@ -38,6 +38,7 @@ class WorkOrderService {
     if (!response.ok) {
       throw new Error('Failed to create machine WorkOrder');
     }
+    return response.json();
   }
 
   async addWorkOrderOperatorTimes(
@@ -472,6 +473,29 @@ class WorkOrderService {
       return response.json();
     } catch (error) {
       console.error('Error fetching GetDowntimesTicketReport:', error);
+      throw error;
+    }
+  }
+
+  async generateWorkOrderCode(workOrderType: WorkOrderType): Promise<string> {
+    try {
+      const url = `${this.baseUrl}workOrder/GenerateWorkOrderCode?workOrderType=${workOrderType}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch GenerateWorkOrderCode');
+      }
+      if (response.status === 204) {
+        return '';
+      }
+      return response.text();
+    } catch (error) {
+      console.error('Error fetching GenerateWorkOrderCode:', error);
       throw error;
     }
   }

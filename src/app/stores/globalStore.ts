@@ -1,3 +1,4 @@
+import { SystemConfiguration } from 'app/interfaces/Config';
 import { LoginUser, OperatorLogged } from 'app/interfaces/User';
 import { FilterSpareParts, FilterWorkOrders } from 'app/types/filters';
 import { create } from 'zustand';
@@ -9,6 +10,7 @@ interface SessionStore {
   filterWorkOrders: FilterWorkOrders | undefined;
   filterSpareParts: FilterSpareParts | undefined;
   isMenuOpen: boolean;
+  config: SystemConfiguration | undefined;
 }
 
 interface SessionActions {
@@ -17,6 +19,7 @@ interface SessionActions {
   setFilterWorkOrders: (filterWorkOrders: FilterWorkOrders | undefined) => void;
   setFilterSpareParts: (filterSpareParts: FilterSpareParts | undefined) => void;
   setIsMenuOpen: (isMenuOpen: boolean) => void;
+  setConfig: (config: SystemConfiguration) => void;
 }
 
 export const useSessionStore = create(
@@ -27,6 +30,7 @@ export const useSessionStore = create(
       filterWorkOrders: undefined,
       filterSpareParts: undefined,
       isMenuOpen: false,
+      config: undefined,
       setLoginUser: value => {
         set({ loginUser: value });
       },
@@ -41,6 +45,9 @@ export const useSessionStore = create(
       },
       setIsMenuOpen: value => {
         set({ isMenuOpen: value });
+      },
+      setConfig: value => {
+        set({ config: value });
       },
     }),
     {

@@ -1,10 +1,11 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useConfig } from 'app/hooks/useConfig';
 import { User } from 'app/interfaces/User';
 import AuthenticationService from 'app/services/authentication';
-import ConfigService from 'app/services/configService';
 import { useSessionStore } from 'app/stores/globalStore';
 import useRoutes from 'app/utils/useRoutes';
+import Loader from 'components/Loader/loader';
 import { useRouter } from 'next/navigation';
 
 import AuthenticationComponent from './authentication';
@@ -18,13 +19,10 @@ export default function AuthenticationPage() {
   const [errorMessage, setErrorMessage] = useState<string | undefined>('');
   const [errorEmail, setErrorEmail] = useState<string | undefined>('');
   const { setLoginUser } = useSessionStore(state => state);
+  const { config } = useConfig();
 
   const authService = new AuthenticationService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
-  );
-
-  const configService = new ConfigService(
-    process.env.NEXT_PUBLIC_API_BASE_URL!
   );
 
   const handleUserNameChange = (event: any) => {
@@ -68,9 +66,9 @@ export default function AuthenticationPage() {
     setPassword('');
   }
 
-  useEffect(() => {
-    configService.get();
-  }, []);
+  if (!config) {
+    return <Loader />;
+  }
 
   return (
     <>

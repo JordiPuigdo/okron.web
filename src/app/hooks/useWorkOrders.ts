@@ -1,4 +1,7 @@
-import WorkOrder, { SearchWorkOrderFilters } from 'app/interfaces/workOrder';
+import WorkOrder, {
+  SearchWorkOrderFilters,
+  WorkOrderType,
+} from 'app/interfaces/workOrder';
 import WorkOrderService from 'app/services/workOrderService';
 import { Fetcher } from 'swr';
 
@@ -40,8 +43,34 @@ export const useWorkOrders = () => {
     return await fetchWorkOrdersWithFilters(filters);
   };
 
+  const generateWorkOrderCode = async (
+    workOrderType: WorkOrderType
+  ): Promise<string> => {
+    try {
+      const response = await workOrderService.generateWorkOrderCode(
+        workOrderType
+      );
+      return response;
+    } catch (error) {
+      console.error('Error generating work order code:', error);
+      throw error;
+    }
+  };
+
+  const createRepairWorkOrder = async (data: any): Promise<WorkOrder> => {
+    try {
+      const response = await workOrderService.createWorkOrder(data, '');
+      return response;
+    } catch (error) {
+      console.error('Error creating work order:', error);
+      throw error;
+    }
+  };
+
   return {
     fetchById,
     fetchWithFilters,
+    createRepairWorkOrder,
+    generateWorkOrderCode,
   };
 };

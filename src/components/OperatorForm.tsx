@@ -1,7 +1,8 @@
-import React from "react";
-import { Controller, SubmitHandler,useForm } from "react-hook-form";
-import Operator, { OperatorType } from "app/interfaces/Operator";
-import { translateOperatorType } from "app/utils/utils";
+import React from 'react';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { usePermissions } from 'app/hooks/usePermissions';
+import Operator, { OperatorType } from 'app/interfaces/Operator';
+import { translateOperatorType } from 'app/utils/utils';
 
 type OperatorFormProps = {
   operator?: Operator;
@@ -18,8 +19,17 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
   onDelete,
   onUpdatedSuccesfully,
 }) => {
+  const { filterOperatorTypes } = usePermissions();
+
+  const operatorTypes = filterOperatorTypes(
+    Object.values(OperatorType).filter(v => typeof v === 'number')
+  );
+
   const { handleSubmit, control, reset } = useForm<Operator>({
-    defaultValues: operator,
+    defaultValues: {
+      ...operator,
+      operatorType: operator?.operatorType ?? operatorTypes[0],
+    },
   });
 
   return (
@@ -37,7 +47,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
         <Controller
           name="code"
           control={control}
-          defaultValue={operator ? operator.code : ""}
+          defaultValue={operator ? operator.code : ''}
           render={({ field }) => (
             <input
               {...field}
@@ -59,7 +69,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
         <Controller
           name="name"
           control={control}
-          defaultValue={operator ? operator.name : ""}
+          defaultValue={operator ? operator.name : ''}
           render={({ field }) => (
             <input
               {...field}
@@ -106,18 +116,18 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
             <select
               {...field}
               className="border rounded-md w-full px-3 py-2 mt-1 text-gray-700 focus:outline-none focus:border-indigo-500"
-              onChange={(e) => {
+              onChange={e => {
                 const selectedValue = parseInt(e.target.value, 10);
                 field.onChange(selectedValue);
               }}
             >
-              {Object.values(OperatorType)
-                .filter((value) => typeof value === "number")
-                .map((operatorType) => (
-                  <option key={operatorType} value={Number(operatorType)}>
-                    {translateOperatorType(operatorType as OperatorType)}
-                  </option>
-                ))}
+              {filterOperatorTypes(
+                Object.values(OperatorType).filter(v => typeof v === 'number')
+              ).map(operatorType => (
+                <option key={operatorType} value={operatorType}>
+                  {translateOperatorType(operatorType)}
+                </option>
+              ))}
             </select>
           )}
         />
@@ -138,7 +148,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
               type="checkbox"
               className="text-indigo-600 focus:ring-indigo-500 h-4 w-4"
               checked={field.value as boolean}
-              onChange={(e) => field.onChange(e.target.checked)}
+              onChange={e => field.onChange(e.target.checked)}
             />
           )}
         />
@@ -172,12 +182,12 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
         {onUpdatedSuccesfully !== null && (
           <div
             className={`mb-4 ${
-              onUpdatedSuccesfully ? "text-green-600" : "text-red-600"
+              onUpdatedSuccesfully ? 'text-green-600' : 'text-red-600'
             } text-center`}
           >
             {onUpdatedSuccesfully
-              ? "Operari actualitzat correctament!"
-              : "Error actualitzant operari!"}
+              ? 'Operari actualitzat correctament!'
+              : 'Error actualitzant operari!'}
           </div>
         )}
       </div>

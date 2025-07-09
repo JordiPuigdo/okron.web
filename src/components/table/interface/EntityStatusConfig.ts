@@ -56,6 +56,8 @@ export const entityStatusConfig: Record<string, StatusConfig> = {
       '0': 'bg-indigo-400',
       '1': 'bg-okron-finished',
       '2': 'bg-cyan-600',
+      '3': 'bg-indigo-400',
+      '4': 'bg-okron-finished',
     },
   },
   STOCKMOVEMENT: {

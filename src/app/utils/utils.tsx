@@ -244,6 +244,10 @@ export const translateOperatorType = (operatorType: any): string => {
       return 'Producció';
     case OperatorType.Quality:
       return 'Qualitat';
+    case OperatorType.Repairs:
+      return 'Reparació';
+    case OperatorType.Assembly:
+      return 'Muntatge';
     default:
       return '';
   }
