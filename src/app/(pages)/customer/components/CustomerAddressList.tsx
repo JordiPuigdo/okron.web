@@ -28,12 +28,10 @@ export const CustomerAddressList = () => {
 
       {showAddresses && (
         <>
-          <h3 className="text-md font-semibold text-gray-700">Adreces</h3>
-
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded"
+              className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded border-2 border-blue-200 rounded-lg p-4 bg-blue-50 "
             >
               <div>
                 <label>Adreça</label>

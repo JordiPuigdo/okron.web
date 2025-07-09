@@ -36,7 +36,7 @@ export function useCustomers() {
   const createCustomer = async (data: CreateCustomerRequest) => {
     const newRates = data.rates?.map(({ id, ...rest }) => rest);
 
-    const addresses = data.address?.map(({ id, ...rest }) => rest);
+    const addresses = data.address?.map(({ ...rest }) => rest);
 
     const newInstallations = data.installations?.map(
       ({ id, rates, ...rest }) => ({
@@ -84,7 +84,8 @@ export function useCustomers() {
     setError(null);
     try {
       const updated = await customerService.update(data);
-      setCustomers(prev => prev.map(c => (c.id === updated.id ? updated : c)));
+      //setCustomers(prev => prev.map(c => (c.id === updated.id ? updated : c)));
+      return true;
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -105,6 +106,17 @@ export function useCustomers() {
     }
   };
 
+  const getNewCustomerCode = async () => {
+    try {
+      const code = await customerService.getCode();
+      return code;
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     customers,
     loading,
@@ -114,5 +126,6 @@ export function useCustomers() {
     updateCustomer,
     deleteCustomer,
     getById,
+    getNewCustomerCode,
   };
 }

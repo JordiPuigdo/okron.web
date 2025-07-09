@@ -25,7 +25,7 @@ export class CustomerService {
     return res.json();
   }
 
-  async create(data: CreateCustomerRequest): Promise<Customer> {
+  async create(data: any): Promise<Customer> {
     const res = await fetch(this.baseUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -35,18 +35,24 @@ export class CustomerService {
     return data as Customer;
   }
 
-  async update(data: UpdateCustomerRequest): Promise<Customer> {
+  async update(data: UpdateCustomerRequest): Promise<boolean> {
     const res = await fetch(`${this.baseUrl}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Error updating customer');
-    return res.json();
+    return res.ok;
   }
 
   async remove(id: string): Promise<void> {
     const res = await fetch(`${this.baseUrl}/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Error deleting customer');
+  }
+
+  async getCode(): Promise<string> {
+    const res = await fetch(`${this.baseUrl}/code`);
+    if (!res.ok) throw new Error('Error getting customer code');
+    return res.text();
   }
 }

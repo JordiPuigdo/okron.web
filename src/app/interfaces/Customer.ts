@@ -47,12 +47,20 @@ export interface CreateCustomerRequest {
   phoneNumber: string;
   whatsappNumber: string;
   email: string;
-  address?: CustomerAddress[];
+  address?: CustomerAddressRequest[];
   contacts?: CustomerContact[];
   paymentMethods?: PaymentMethod[];
   rates?: Rate[];
   installations?: CustomerInstallations[];
   active?: boolean;
+}
+
+export interface CustomerAddressRequest {
+  postalCode: string;
+  address: string;
+  city: string;
+  country: string;
+  isPrimary: boolean;
 }
 
 export interface UpdateCustomerRequest extends CreateCustomerRequest {

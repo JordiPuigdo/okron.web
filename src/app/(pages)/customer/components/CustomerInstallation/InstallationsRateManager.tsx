@@ -7,6 +7,8 @@ import { RateForm } from 'app/(pages)/system/rates/components/Rate/RateForm';
 import { useRates } from 'app/hooks/useRates';
 import { DayOfWeek, Rate } from 'app/interfaces/Rate';
 
+import { RateField } from '../CustomerRatesManager';
+
 const dayOfWeekLabels = {
   [DayOfWeek.Monday]: 'Dilluns',
   [DayOfWeek.Tuesday]: 'Dimarts',
@@ -17,17 +19,34 @@ const dayOfWeekLabels = {
   [DayOfWeek.Sunday]: 'Diumenge',
 };
 
-export function InstallationRatesManager({ index }: { index: number }) {
-  const { rates: generalRates, rateTypes, loading, fetchRates } = useRates();
+export function InstallationRatesManager({
+  index,
+  customerInstallationId,
+  customerId,
+}: {
+  index: number;
+  customerInstallationId: string;
+  customerId: string;
+}) {
+  const {
+    rates: generalRates,
+    rateTypes,
+    loading,
+    fetchRates,
+    createRate,
+    updateRate,
+    deleteRate,
+  } = useRates();
 
   const { control } = useFormContext();
 
   const { fields, append, update, remove } = useFieldArray({
     control,
     name: `installations.${index}.rates`,
+    keyName: '_id',
   });
 
-  const [ratesSelected, setRatesSelected] = useState<Rate[]>([]);
+  const [ratesSelected, setRatesSelected] = useState<RateField[]>([]);
 
   const addGeneralMethod = (method: any) => {
     const exists = ratesSelected.find(r => r.type?.id === method.type.id);
@@ -42,21 +61,47 @@ export function InstallationRatesManager({ index }: { index: number }) {
   }, []);
 
   useEffect(() => {
-    setRatesSelected(fields as Rate[]);
+    setRatesSelected(fields as unknown as RateField[]);
   }, [fields]);
 
   const onCreateRate = async (data: Omit<Rate, 'id'>) => {
     const rateType = rateTypes.find(rt => rt.id === data.rateTypeId);
     if (!rateType) return;
-    const newRate: Rate = { ...data, id: crypto.randomUUID(), type: rateType };
+
+    const newRate: RateField = {
+      ...data,
+      id: '',
+      rhfId: crypto.randomUUID(),
+      type: rateType,
+    };
+    debugger;
+    const rate = await createRate({
+      daysOfWeek: data.daysOfWeek,
+      startTime: data.startTime,
+      endTime: data.endTime,
+      rateTypeId: data.rateTypeId,
+      type: data.type,
+      active: data.active,
+      creationDate: data.creationDate,
+      customerId: customerId,
+      customerInstallationId: customerInstallationId,
+      price: data.price,
+    });
+
+    newRate.id = rate.id;
+    newRate.customerId = customerId;
+    newRate.customerInstallationId = customerInstallationId;
+
     append(newRate);
     setRatesSelected(prev => [...prev, newRate]);
   };
 
   const onDelete = (id: string) => {
-    const indexToRemove = fields.findIndex(r => r.id === id);
-    if (indexToRemove !== -1) {
-      remove(indexToRemove);
+    const guidId = ratesSelected.find(field => field.id === id)?.rhfId;
+    const index = fields.findIndex(field => field._id === guidId);
+
+    if (index !== -1) {
+      remove(index);
       setRatesSelected(prev => prev.filter(r => r.id !== id));
     }
   };
@@ -65,9 +110,10 @@ export function InstallationRatesManager({ index }: { index: number }) {
     id: string,
     newData: Partial<Rate>
   ): Promise<void> => {
-    const i = fields.findIndex(r => r.id === id);
-    if (i !== -1) {
-      update(i, { ...fields[i], ...newData });
+    const guidId = ratesSelected.find(field => field.id === id)?.rhfId;
+    const index = fields.findIndex(field => field._id === guidId);
+    if (index !== -1) {
+      update(index, { ...fields[index], ...newData });
       setRatesSelected(prev =>
         prev.map(r => (r.id === id ? { ...r, ...newData } : r))
       );
@@ -116,16 +162,16 @@ export function InstallationRatesManager({ index }: { index: number }) {
   ];
 
   return (
-    <div className="space-y-6 bg-gray-50 rounded-xl p-4 mt-4">
-      <h4 className="text-md font-semibold mb-2">Tarifes de la botiga</h4>
-
-      <EditableTable
-        columns={columns}
-        data={ratesSelected}
-        onUpdate={onUpdate}
-        onDelete={onDelete}
-        loading={loading}
-      />
+    <div className="space-y-6 rounded-xl p-4 mt-4">
+      <section className="flex flex-col gap-4 border-2 border-green-200 rounded-lg p-4 bg-green-50">
+        <EditableTable
+          columns={columns}
+          data={ratesSelected}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+          loading={loading}
+        />
+      </section>
 
       <section>
         {generalRates.map(rate => (
@@ -150,11 +196,13 @@ export function InstallationRatesManager({ index }: { index: number }) {
         ))}
       </section>
 
-      <RateForm
-        rateTypes={rateTypes}
-        isSubmit={false}
-        onSubmit={onCreateRate}
-      />
+      <div className=" border-blue-200  bg-blue-50 rounded-xl">
+        <RateForm
+          rateTypes={rateTypes}
+          isSubmit={false}
+          onSubmit={onCreateRate}
+        />
+      </div>
     </div>
   );
 }

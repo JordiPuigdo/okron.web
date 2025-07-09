@@ -13,6 +13,7 @@ export interface Rate extends BaseModel {
   rateTypeId: string;
   type?: RateType;
   customerId?: string | null;
+  customerInstallationId?: string | null;
 }
 
 export enum DayOfWeek {

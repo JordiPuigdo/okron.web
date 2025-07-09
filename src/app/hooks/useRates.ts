@@ -41,15 +41,16 @@ export function useRates() {
     fetchRateTypes();
   }, []);
 
-  const createRate = async (data: Omit<Rate, 'id'>) => {
+  const createRate = async (data: Omit<Rate, 'id'>): Promise<Rate> => {
     setLoading(true);
     setError(null);
     try {
-      data;
       const newRate = await rateService.create(data);
       setRates(prev => [...prev, newRate]);
+      return newRate;
     } catch (err: any) {
       setError(err.message);
+      throw err; // <--- Esto soluciona el error
     } finally {
       setLoading(false);
     }

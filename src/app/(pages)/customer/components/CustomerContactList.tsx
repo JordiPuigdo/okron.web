@@ -15,19 +15,15 @@ export const CustomerContactList = () => {
     name: 'contacts',
   });
 
-  const [showContacts, setShowContacts] = useState(true);
+  const [showContacts, setShowContacts] = useState(false);
 
   return (
     <div className="space-y-4 border-t pt-4">
-      <div className="flex justify-between items-center">
+      <div
+        className="flex justify-between items-center bg-gray-100 rounded-xl p-2 hover:cursor-pointer"
+        onClick={() => setShowContacts(!showContacts)}
+      >
         <h3 className="text-md font-semibold text-gray-700">Contactes</h3>
-        <button
-          type="button"
-          onClick={() => setShowContacts(!showContacts)}
-          className="text-sm text-blue-600 hover:underline"
-        >
-          {showContacts ? 'Amagar contactes' : 'Mostrar contactes'}
-        </button>
       </div>
 
       {showContacts && (
@@ -35,7 +31,7 @@ export const CustomerContactList = () => {
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded"
+              className="grid grid-cols-1 md:grid-cols-2 gap-4 border-blue-200 rounded-lg p-4 bg-blue-50"
             >
               <div>
                 <label>Nom</label>
