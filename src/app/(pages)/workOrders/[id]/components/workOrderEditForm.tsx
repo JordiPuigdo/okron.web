@@ -8,6 +8,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import ModalDowntimeReasons from 'app/(pages)/corrective/components/ModalDowntimeReasons';
 import ModalGenerateCorrective from 'app/(pages)/corrective/components/ModalGenerateCorrective';
 import { useAssetHook } from 'app/hooks/useAssetHook';
+import { usePermissions } from 'app/hooks/usePermissions';
 import { SvgPrint } from 'app/icons/designSystem/SvgPrint';
 import { SvgSpinner } from 'app/icons/icons';
 import Operator, { OperatorType } from 'app/interfaces/Operator';
@@ -68,6 +69,8 @@ enum Tab {
 
 const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
   const { register, handleSubmit, setValue } = useForm<WorkOrder>({});
+  const { filterOperatorTypesWorkOrder, workorderHeader, isAdmin, isCRM } =
+    usePermissions();
   const router = useRouter();
   const [currentWorkOrder, setCurrentWorkOrder] = useState<WorkOrder>();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -213,9 +216,12 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
       setValue('downtimeReason', responseWorkOrder.downtimeReason);
       setValue('visibleReport', responseWorkOrder.visibleReport);
 
-      setSelectedAssetId(responseWorkOrder.asset!.id);
+      if (responseWorkOrder.asset) {
+        setSelectedAssetId(responseWorkOrder.asset!.id);
+      }
       const finalData = new Date(responseWorkOrder.startTime);
       setStartDate(finalData);
+
       const operatorsToAdd = aviableOperators?.filter((operator: any) =>
         responseWorkOrder.operatorId!.includes(operator.id)
       );
@@ -496,7 +502,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
           </div>
           <div>
             <span className="text-xl font-bold text-black mx-auto">
-              Equip - {currentWorkOrder?.asset?.description}
+              {workorderHeader(currentWorkOrder!)}
             </span>
           </div>
         </div>
@@ -616,16 +622,15 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                 >
                   Operaris
                 </label>
-
                 {aviableOperators !== undefined &&
                   aviableOperators?.length > 0 && (
                     <ChooseElement
-                      elements={aviableOperators!
-                        .filter(x => x.operatorType == OperatorType.Maintenance)
-                        .map(x => ({
-                          id: x.id,
-                          description: x.name,
-                        }))}
+                      elements={filterOperatorTypesWorkOrder(
+                        aviableOperators!
+                      ).map(x => ({
+                        id: x.id,
+                        description: x.name,
+                      }))}
                       onDeleteElementSelected={handleDeleteSelectedOperator}
                       onElementSelected={handleSelectOperator}
                       placeholder={'Selecciona un Operari'}
@@ -682,7 +687,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
             )}
           </div>
           <div className="py-4 flex gap-2">
-            {loginUser?.permission == UserPermission.Administrator && (
+            {isAdmin() && (
               <>
                 <Button
                   onClick={() => handleSubmitForm()}
@@ -706,12 +711,14 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                     'Eliminar'
                   )}
                 </Button>
+
                 <Button
                   href={`${Routes.configuration.assets}/${currentWorkOrder?.asset?.id}`}
                   type="none"
                   className="bg-blue-700 hover:bg-blue-900 text-white font-semibold p2- rounded-l"
                   customStyles="flex"
                   onClick={() => toggleLoading('SEEACTIVE')}
+                  isHide={isCRM}
                 >
                   {isLoading['SEEACTIVE'] ? (
                     <SvgSpinner className="text-white" />
@@ -786,14 +793,6 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
       </>
     );
   };
-
-  const availableTabs = Object.values(Tab).filter(tab => {
-    if (currentWorkOrder?.workOrderType === WorkOrderType.Corrective) {
-      return tab !== Tab.INSPECTIONPOINTS;
-    } else if (currentWorkOrder?.workOrderType === WorkOrderType.Preventive) {
-      return tab !== Tab.SPAREPARTS;
-    }
-  });
 
   const [sortOrder, setSortOrder] = useState('asc');
   const toggleSortOrder = () => {
@@ -924,67 +923,66 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
         />
       </div>
       <div className="py-2 p-2 bg-blue-900 rounded-lg shadow-md  w-full  flex flex-col">
-        {currentWorkOrder &&
-          loginUser?.permission == UserPermission.Administrator && (
-            <div className="flex flex-col  bg-gray-100 rounded-lg shadow-md justify-start">
-              <div className="flex flex-row gap-4 p-4">
-                <div
-                  className="text-gray-600 font-semibold text-lg w-[20%]"
-                  onClick={toggleSortOrder}
-                >
-                  Data Acció {sortOrder === 'asc' ? '▲' : '▼'}
-                </div>
-                <div className="text-gray-600 font-semibold w-[20%] text-lg">
-                  Acció
-                </div>
-                <div className="text-gray-600 font-semibold w-[20%] text-lg">
-                  Operari
-                </div>
-                <div
-                  className="text-gray-600 font-semibold text-lg w-[20%]"
-                  onClick={toggleSortOrder}
-                >
-                  Final
-                </div>
-                <div className="text-gray-600 font-semibold w-[20%] text-lg">
-                  Total
-                </div>
+        {currentWorkOrder && isAdmin() && (
+          <div className="flex flex-col  bg-gray-100 rounded-lg shadow-md justify-start">
+            <div className="flex flex-row gap-4 p-4">
+              <div
+                className="text-gray-600 font-semibold text-lg w-[20%]"
+                onClick={toggleSortOrder}
+              >
+                Data Acció {sortOrder === 'asc' ? '▲' : '▼'}
               </div>
-              {sortedEvents.map((x, index) => {
-                return (
-                  <div
-                    key={index}
-                    className={`flex flex-row gap-4 p-4 rounded-lg items-center ${
-                      index % 2 == 0 ? 'bg-gray-200' : ''
-                    }`}
-                  >
-                    <div className="text-gray-600 w-[20%]">
-                      {formatDate(x.date)}
-                    </div>
-                    <div className=" w-[20%]">
-                      {translateWorkOrderEventType(x.workOrderEventType)}
-                    </div>
-                    <div className="w-[20%]">{x.operator?.name || ''}</div>
-                    <div className="text-gray-600 w-[20%]">
-                      {formatDate(x.endDate)}
-                    </div>
-                    <div className="text-gray-600 w-[20%]">
-                      {x.endDate != undefined && (
-                        <span>
-                          {
-                            differenceBetweenDates(
-                              new Date(x.date),
-                              new Date(x.endDate)
-                            ).fullTime
-                          }
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+              <div className="text-gray-600 font-semibold w-[20%] text-lg">
+                Acció
+              </div>
+              <div className="text-gray-600 font-semibold w-[20%] text-lg">
+                Operari
+              </div>
+              <div
+                className="text-gray-600 font-semibold text-lg w-[20%]"
+                onClick={toggleSortOrder}
+              >
+                Final
+              </div>
+              <div className="text-gray-600 font-semibold w-[20%] text-lg">
+                Total
+              </div>
             </div>
-          )}
+            {sortedEvents.map((x, index) => {
+              return (
+                <div
+                  key={index}
+                  className={`flex flex-row gap-4 p-4 rounded-lg items-center ${
+                    index % 2 == 0 ? 'bg-gray-200' : ''
+                  }`}
+                >
+                  <div className="text-gray-600 w-[20%]">
+                    {formatDate(x.date)}
+                  </div>
+                  <div className=" w-[20%]">
+                    {translateWorkOrderEventType(x.workOrderEventType)}
+                  </div>
+                  <div className="w-[20%]">{x.operator?.name || ''}</div>
+                  <div className="text-gray-600 w-[20%]">
+                    {formatDate(x.endDate)}
+                  </div>
+                  <div className="text-gray-600 w-[20%]">
+                    {x.endDate != undefined && (
+                      <span>
+                        {
+                          differenceBetweenDates(
+                            new Date(x.date),
+                            new Date(x.endDate)
+                          ).fullTime
+                        }
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
       {showModal && (
         <ModalGenerateCorrective

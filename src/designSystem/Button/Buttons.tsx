@@ -24,6 +24,7 @@ type ButtonProps = {
   children: ReactNode;
   disabled?: boolean;
   isAnimated?: boolean;
+  isHide?: boolean;
   origin?: 'top' | 'right' | 'bottom' | 'left';
   [key: string]: any;
 };
@@ -42,6 +43,7 @@ export const Button = ({
   origin = 'bottom',
   id = '',
   tooltip = '',
+  isHide = false,
   ...rest
 }: ButtonProps) => {
   const handleClick = () => {
@@ -49,6 +51,8 @@ export const Button = ({
       onClick();
     }
   };
+
+  if (isHide) return null;
   if (href) {
     return (
       <Link

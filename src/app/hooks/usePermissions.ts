@@ -1,5 +1,6 @@
-// hooks/useCrmPermissions.ts
-import { OperatorType } from 'app/interfaces/Operator';
+import Operator, { OperatorType } from 'app/interfaces/Operator';
+import { UserPermission } from 'app/interfaces/User';
+import WorkOrder from 'app/interfaces/workOrder';
 import { useSessionStore } from 'app/stores/globalStore';
 
 type PermissionFilter<T> = {
@@ -9,25 +10,14 @@ type PermissionFilter<T> = {
 
 export const usePermissions = () => {
   const isCRM = useSessionStore(state => state.config?.isCRM ?? false);
+  const { loginUser } = useSessionStore(state => state);
 
-  /**
-   * Filtra un array de valores según los permisos CRM
-   * @param options Las opciones de filtrado { crmValues: valores permitidos en CRM, defaultValues: valores por defecto }
-   * @returns Array filtrado según los permisos
-   */
   const filterByCrm = <T>({
     crmValues,
     defaultValues,
   }: PermissionFilter<T>): T[] => {
     return isCRM ? crmValues : defaultValues;
   };
-
-  /**
-   * Determina si un valor específico está permitido según los permisos CRM
-   * @param value El valor a comprobar
-   * @param options Las opciones de filtrado { crmAllowed: permitido en CRM, defaultAllowed: permitido por defecto }
-   * @returns Booleano indicando si está permitido
-   */
   const isAllowed = <T>(
     value: T,
     {
@@ -38,11 +28,18 @@ export const usePermissions = () => {
     return isCRM ? crmAllowed : defaultAllowed;
   };
 
+  const isAdmin = (): boolean => {
+    if (!loginUser?.permission) return false;
+
+    return isCRM
+      ? loginUser.permission === UserPermission.AdminCRM
+      : loginUser.permission === UserPermission.Administrator;
+  };
+
   return {
     isCRM,
     filterByCrm,
     isAllowed,
-    // Métodos específicos reutilizables
     filterOperatorTypes: (operatorTypes: any[]) =>
       filterByCrm({
         crmValues: operatorTypes.filter(
@@ -51,5 +48,22 @@ export const usePermissions = () => {
         ),
         defaultValues: operatorTypes,
       }),
+    filterOperatorTypesWorkOrder: (operatorTypes: Operator[]) =>
+      filterByCrm({
+        crmValues: operatorTypes.filter(
+          operator =>
+            operator.operatorType === OperatorType.Assembly ||
+            operator.operatorType === OperatorType.Repairs
+        ),
+        defaultValues: operatorTypes.filter(
+          operator => operator.operatorType === OperatorType.Maintenance
+        ),
+      }),
+    workorderHeader: (workOrder: WorkOrder): string => {
+      return isCRM
+        ? `Client - ${workOrder?.customerWorkOrder?.customerName ?? ''}`
+        : `Equip - ${workOrder?.asset?.description ?? ''}`;
+    },
+    isAdmin,
   };
 };

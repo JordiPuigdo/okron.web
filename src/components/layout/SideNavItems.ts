@@ -89,8 +89,12 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     title: 'Ordres de treball',
     path: '/workOrders',
     icon: SvgOrder,
-    permission: [UserPermission.Administrator, UserPermission.Worker],
-    userType: [UserType.Maintenance],
+    permission: [
+      UserPermission.Administrator,
+      UserPermission.Worker,
+      UserPermission.AdminCRM,
+    ],
+    userType: [UserType.Maintenance, UserType.CRM],
   },
   {
     key: generateKey(),

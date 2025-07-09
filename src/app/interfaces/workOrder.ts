@@ -1,5 +1,6 @@
 import { Asset } from './Asset';
 import { BaseModel } from './BaseModel';
+import { CustomerAddress } from './Customer';
 import InspectionPoint from './inspectionPoint';
 import Machine from './machine';
 import Operator from './Operator';
@@ -35,6 +36,7 @@ export interface WorkOrder extends BaseModel {
   originalWorkOrderId?: string;
   workOrderCreatedId?: string;
   visibleReport?: boolean;
+  customerWorkOrder?: CustomerWorkOrder;
 }
 
 export default WorkOrder;
@@ -211,4 +213,13 @@ export interface WorkOrdersFilters {
   };
   searchTerm: string;
   assetId: string;
+}
+
+export interface CustomerWorkOrder {
+  customerId: string;
+  customerName: string;
+  customerAddress: CustomerAddress;
+  customerInstallaionId: string;
+  customerInstallationCode: string;
+  customerInstallationAddress: CustomerAddress;
 }
