@@ -80,7 +80,7 @@ export default function CustomerForm({
         );
       });
     } else {
-      fetchCode();
+      if (!initialData) fetchCode();
     }
   }, [initialData, setValue]);
 

@@ -10,6 +10,7 @@ import { Checkbox, Input, ListItemText, MenuItem, Select } from '@mui/material';
 import { SvgArrowDown } from 'app/icons/icons';
 import { DayOfWeek, Rate, RateType } from 'app/interfaces/Rate';
 import { formatTime } from 'app/utils/utils';
+import TimePickerWrapper from 'components/timepicker/TimePickerWrapper';
 import { Button } from 'designSystem/Button/Buttons';
 import { CheckIcon } from 'lucide-react';
 
@@ -179,12 +180,9 @@ export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
-                <TimePicker
-                  {...field}
-                  disableClock
-                  format="HH:mm"
-                  locale="ca-ES"
-                  clearIcon={null}
+                <TimePickerWrapper
+                  value={field.value}
+                  onChange={field.onChange}
                 />
               )}
             />
