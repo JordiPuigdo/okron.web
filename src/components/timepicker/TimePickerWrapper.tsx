@@ -32,7 +32,6 @@ const TimePickerWrapper = ({ value, onChange }: TimePickerWrapperProps) => {
   }, []);
 
   const changeEventHandler = (value: string | null) => {
-    debugger;
     console.log('value', value);
     // const target = event.target as HTMLInputElement;
     //const value = target.value;

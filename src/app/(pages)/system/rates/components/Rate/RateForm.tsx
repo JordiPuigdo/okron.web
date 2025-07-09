@@ -1,16 +1,14 @@
 'use client';
 
-import 'react-time-picker/dist/TimePicker.css';
-
 import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import TimePicker from 'react-time-picker';
 import { Combobox } from '@headlessui/react';
-import { Checkbox, Input, ListItemText, MenuItem, Select } from '@mui/material';
+import { Checkbox, ListItemText, MenuItem, Select } from '@mui/material';
 import { SvgArrowDown } from 'app/icons/icons';
 import { DayOfWeek, Rate, RateType } from 'app/interfaces/Rate';
 import { formatTime } from 'app/utils/utils';
-import TimePickerWrapper from 'components/timepicker/TimePickerWrapper';
+import { Input } from 'components/input/Input';
+import TimeInput from 'components/input/TimeInput';
 import { Button } from 'designSystem/Button/Buttons';
 import { CheckIcon } from 'lucide-react';
 
@@ -128,8 +126,9 @@ export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
           <Input
             type="number"
             {...register('price', { required: true, min: 0 })}
-            inputProps={{ step: 0.01 }}
-            fullWidth
+            id="rate-price"
+            step="0.01"
+            min="0"
             placeholder="Ex: 12.50"
           />
         </div>
@@ -180,9 +179,9 @@ export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
-                <TimePickerWrapper
+                <TimeInput
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={e => field.onChange(e)}
                 />
               )}
             />
@@ -196,12 +195,9 @@ export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
-                <TimePicker
-                  {...field}
-                  disableClock
-                  format="HH:mm"
-                  locale="ca-ES"
-                  clearIcon={null}
+                <TimeInput
+                  value={field.value}
+                  onChange={e => field.onChange(e)}
                 />
               )}
             />
