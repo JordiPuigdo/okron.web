@@ -37,6 +37,7 @@ export interface WorkOrder extends BaseModel {
   workOrderCreatedId?: string;
   visibleReport?: boolean;
   customerWorkOrder?: CustomerWorkOrder;
+  refCustomerId?: string;
 }
 
 export default WorkOrder;
@@ -86,6 +87,7 @@ export interface UpdateWorkOrderRequest extends CreateWorkOrderRequest {
   downtimeReason?: DowntimesReasons;
   startTime?: Date;
   visibleReport?: boolean;
+  refCustomerId?: string;
 }
 
 export interface CreateWorkOrderRequest {
@@ -107,7 +109,6 @@ export interface CreateWorkOrderRequest {
   originalWorkOrderId?: string;
   originalWorkOrderCode?: string;
   workOrderCreatedId?: string;
-  VisibleReport?: boolean;
 }
 
 export interface AddWorkOrderOperatorTimes {
@@ -213,6 +214,8 @@ export interface WorkOrdersFilters {
   };
   searchTerm: string;
   assetId: string;
+  refCustomerId: string;
+  customerName: string;
 }
 
 export interface CustomerWorkOrder {

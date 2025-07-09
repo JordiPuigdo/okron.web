@@ -1,5 +1,10 @@
+import {
+  baseColumns,
+  columnsCRM,
+  columnsTicket,
+} from 'app/(pages)/workOrders/components/utilsWorkOrderTable';
 import Operator, { OperatorType } from 'app/interfaces/Operator';
-import { UserPermission } from 'app/interfaces/User';
+import { UserPermission, UserType } from 'app/interfaces/User';
 import WorkOrder from 'app/interfaces/workOrder';
 import { useSessionStore } from 'app/stores/globalStore';
 
@@ -63,6 +68,13 @@ export const usePermissions = () => {
       return isCRM
         ? `Client - ${workOrder?.customerWorkOrder?.customerName ?? ''}`
         : `Equip - ${workOrder?.asset?.description ?? ''}`;
+    },
+    workOrderColumns: () => {
+      return isCRM
+        ? columnsCRM
+        : loginUser?.userType == UserType.Maintenance
+        ? baseColumns
+        : columnsTicket;
     },
     isAdmin,
   };

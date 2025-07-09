@@ -3,6 +3,7 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
+import { usePermissions } from 'app/hooks/usePermissions';
 import { SvgSpinner } from 'app/icons/icons';
 import { Asset } from 'app/interfaces/Asset';
 import { OperatorType } from 'app/interfaces/Operator';
@@ -23,7 +24,6 @@ import { TableButtons } from 'components/table/interface/interfaceTable';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 import { Button } from 'designSystem/Button/Buttons';
 
-import { baseColumns, columnsTicket } from './utilsWorkOrderTable';
 import { WorkOrdersFiltersTable } from './WorkOrderFiltersTable/WorkOrdersFiltersTable';
 import { WorkOrderTypeCount } from './WorkOrderFiltersTable/WorkOrderTypeCount';
 
@@ -59,6 +59,8 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
 }) => {
   const { operatorLogged, loginUser, setFilterWorkOrders, filterWorkOrders } =
     useSessionStore(state => state);
+
+  const { workOrderColumns } = usePermissions();
 
   const firstDayOfMonth = new Date(
     new Date().getFullYear(),
@@ -99,6 +101,8 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
       workOrderState: [],
       searchTerm: '',
       assetId: '',
+      refCustomerId: '',
+      customerName: '',
     }
   );
 
@@ -272,7 +276,11 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
       () =>
         searchTerm.length === 0 ||
         order.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.code.toLowerCase().includes(searchTerm.toLowerCase()),
+        order.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.customerWorkOrder?.customerName
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        order.refCustomerId?.toLowerCase().includes(searchTerm.toLowerCase()),
       () =>
         selectedAssetId === undefined ||
         selectedAssetId.length === 0 ||
@@ -398,11 +406,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
         )}
         {filteredWorkOrders.length > 0 && (
           <DataTable
-            columns={
-              loginUser?.userType == UserType.Maintenance
-                ? baseColumns
-                : columnsTicket
-            }
+            columns={workOrderColumns()}
             data={filteredWorkOrders}
             tableButtons={tableButtons}
             entity={EntityTable.WORKORDER}

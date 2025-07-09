@@ -30,7 +30,7 @@ export interface RepairReport {
   initialDateTime: Date;
   customerId: string;
   installationId: string;
-  refclientId: string;
+  refCustomerId: string;
   stateWorkOrder: StateWorkOrder;
   workOrderType: WorkOrderType;
   originWorkOrder: OriginWorkOrder;
@@ -53,7 +53,7 @@ export function RepairReportForm() {
     initialDateTime: new Date(),
     installationId: '',
     customerId: undefined,
-    refclientId: undefined,
+    refCustomerId: undefined,
     stateWorkOrder: StateWorkOrder.Waiting,
     workOrderType: WorkOrderType.Corrective,
     originWorkOrder: OriginWorkOrder.Maintenance,
@@ -181,11 +181,11 @@ export function RepairReportForm() {
             <label className="font-semibold">Referència Client</label>
             <Input
               id="refclientId"
-              value={formData.refclientId || ''}
+              value={formData.refCustomerId || ''}
               onChange={e =>
                 setFormData(prev => ({
                   ...prev,
-                  refclientId: e.target.value,
+                  refCustomerId: e.target.value,
                 }))
               }
             />

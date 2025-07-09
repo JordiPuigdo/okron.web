@@ -215,6 +215,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
       setValue('startTime', responseWorkOrder.startTime);
       setValue('downtimeReason', responseWorkOrder.downtimeReason);
       setValue('visibleReport', responseWorkOrder.visibleReport);
+      setValue('refCustomerId', responseWorkOrder.refCustomerId);
 
       if (responseWorkOrder.asset) {
         setSelectedAssetId(responseWorkOrder.asset!.id);
@@ -422,6 +423,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
             : UserType.Maintenance,
         downtimeReason: data.downtimeReason,
         visibleReport: data.visibleReport,
+        refCustomerId: data.refCustomerId,
       };
       await workOrderService.updateWorkOrder(updatedWorkOrderData);
 
@@ -577,6 +579,29 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                 }}
               />
             </div>
+            {isCRM && (
+              <div className="w-full">
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700 py-2"
+                >
+                  Ref. Client
+                </label>
+                <input
+                  {...register('refCustomerId')}
+                  type="text"
+                  id="refCustomerId"
+                  name="refCustomerId"
+                  className="p-3 border text-sm border-gray-300 rounded-md w-full"
+                  disabled={isDisabledField}
+                  onKeyPress={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </div>
+            )}
             <div>
               <label
                 htmlFor="stateWorkOrder"

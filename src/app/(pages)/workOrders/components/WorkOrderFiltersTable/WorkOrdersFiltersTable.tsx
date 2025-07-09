@@ -1,3 +1,4 @@
+import { usePermissions } from 'app/hooks/usePermissions';
 import { StateWorkOrder, WorkOrdersFilters } from 'app/interfaces/workOrder';
 import AutocompleteSearchBar from 'components/selector/AutocompleteSearchBar';
 import { ElementList } from 'components/selector/ElementList';
@@ -36,10 +37,7 @@ export const WorkOrdersFiltersTable = ({
   enableFilterType,
   workOrderTypeCount,
 }: WorkOrdersFiltersTableProps) => {
-  function searchWorkOrders() {
-    console.log('searchWorkOrders');
-  }
-
+  const { isCRM } = usePermissions();
   function handleCleanFilters() {
     setWorkOrdersFilters({
       workOrderType: [],
@@ -47,6 +45,8 @@ export const WorkOrdersFiltersTable = ({
       dateRange: { startDate: null, endDate: null },
       searchTerm: '',
       assetId: '',
+      refCustomerId: '',
+      customerName: '',
     });
     setSearchTerm('');
     setSelectedAssetId('');
@@ -101,7 +101,7 @@ export const WorkOrdersFiltersTable = ({
           />
           {enableFinalizeWorkOrdersDayBefore && (
             <FinalizeWorkOrdersDaysBefore
-              onFinalizeWorkOrdersDayBefore={searchWorkOrders}
+              onFinalizeWorkOrdersDayBefore={() => {}}
             />
           )}
           <WorkOrderTypeCountComponent
@@ -110,7 +110,7 @@ export const WorkOrdersFiltersTable = ({
           <DeleteFilters />
         </div>
         <div className="flex w-full gap-2">
-          {enableFilterAssets && (
+          {enableFilterAssets && !isCRM && (
             <AutocompleteSearchBar
               elements={assets}
               setCurrentId={handleSelectedAssetId}

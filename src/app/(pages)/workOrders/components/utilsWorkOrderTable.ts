@@ -89,3 +89,46 @@ export const columnsTicket: Column[] = [
     format: ColumnFormat.TEXT,
   },
 ];
+
+export const columnsCRM: Column[] = [
+  {
+    label: 'ID',
+    key: 'id',
+    format: ColumnFormat.TEXT,
+  },
+  {
+    label: 'Num Sèrie',
+    key: 'code',
+    format: ColumnFormat.TEXT,
+  },
+  {
+    label: 'Descripció',
+    key: 'description',
+    format: ColumnFormat.TEXT,
+  },
+  {
+    label: 'Tipus',
+    key: 'workOrderType',
+    format: ColumnFormat.WORKORDERTYPE,
+  },
+  {
+    label: 'Data Inici',
+    key: 'startTime',
+    format: ColumnFormat.DATETIME,
+  },
+  {
+    label: 'Estat',
+    key: 'stateWorkOrder',
+    format: ColumnFormat.STATEWORKORDER,
+  },
+  {
+    label: 'Client',
+    key: 'customerWorkOrder.customerName',
+    format: ColumnFormat.TEXT,
+  },
+  {
+    label: 'Ref. Client',
+    key: 'refCustomerId',
+    format: ColumnFormat.TEXT,
+  },
+];
