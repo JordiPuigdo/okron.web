@@ -37,7 +37,6 @@ export interface ProviderSpareParts {
 export interface WarehousesSparePart {
   warehouseId: string;
   warehouseName: string;
-  stock: number;
 }
 
 export default SparePart;

@@ -74,7 +74,6 @@ export function InstallationRatesManager({
       rhfId: crypto.randomUUID(),
       type: rateType,
     };
-    debugger;
     const rate = await createRate({
       daysOfWeek: data.daysOfWeek,
       startTime: data.startTime,

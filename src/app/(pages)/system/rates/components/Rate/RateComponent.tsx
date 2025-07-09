@@ -112,13 +112,17 @@ export default function RateConfigurationPage() {
     await updateRate(id, toSave);
   };
 
+  const handleCreate = async (data: Omit<Rate, 'id'>) => {
+    await createRate(data);
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-white shadow rounded p-6">
         <h2 className="text-xl font-semibold mb-4">
           Configuració General de Tarifes
         </h2>
-        <RateForm rateTypes={rateTypes} onSubmit={createRate} />
+        <RateForm rateTypes={rateTypes} onSubmit={handleCreate} />
       </div>
 
       {isLoading && (
