@@ -3,6 +3,7 @@ import { ProviderSpareParts } from './SparePart';
 
 export interface Provider extends BaseModel {
   name: string;
+  commercialName: string;
   nie: string;
   address: string;
   city: string;
@@ -17,6 +18,7 @@ export interface Provider extends BaseModel {
 
 export interface ProviderRequest {
   name: string;
+  commercialName: string;
   nie: string;
   address: string;
   city: string;

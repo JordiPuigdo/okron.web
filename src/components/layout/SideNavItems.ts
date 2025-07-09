@@ -69,8 +69,12 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     title: 'Avaries',
     path: '/corrective',
     icon: SvgAvarie,
-    permission: [UserPermission.Administrator, UserPermission.Worker],
-    userType: [UserType.Maintenance],
+    permission: [
+      UserPermission.Administrator,
+      UserPermission.Worker,
+      UserPermission.AdminCRM,
+    ],
+    userType: [UserType.Maintenance, UserType.CRM],
   },
   {
     key: generateKey(),

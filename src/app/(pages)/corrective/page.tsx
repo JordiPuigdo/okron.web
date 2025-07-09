@@ -7,7 +7,7 @@ function CorrectivePage() {
   return (
     <MainLayout>
       <Container>
-        <CorrectiveComponent></CorrectiveComponent>
+        <CorrectiveComponent />
       </Container>
     </MainLayout>
   );

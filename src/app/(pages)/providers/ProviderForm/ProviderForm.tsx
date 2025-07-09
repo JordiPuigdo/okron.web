@@ -61,6 +61,19 @@ export default function ProviderForm({
           <p className="text-red-500 text-sm">{errors.name.message}</p>
         )}
       </div>
+      <div>
+        <label className="block font-medium">Nom Comercial</label>
+        <input
+          {...register('commercialName', {
+            required: 'El nombre es obligatorio',
+          })}
+          className="w-full border rounded p-2"
+          placeholder="Nombre del proveedor"
+        />
+        {errors.name && (
+          <p className="text-red-500 text-sm">{errors.name.message}</p>
+        )}
+      </div>
 
       <div>
         <label className="block font-medium">NIE</label>
@@ -79,9 +92,7 @@ export default function ProviderForm({
       <div>
         <label className="block font-medium">Direcció</label>
         <input
-          {...register('address', {
-            required: 'La direcció és obligatòria',
-          })}
+          {...register('address', {})}
           className="w-full border rounded p-2"
           placeholder="Direcció"
         />
@@ -94,11 +105,9 @@ export default function ProviderForm({
         <div>
           <label className="block font-medium">Ciutat</label>
           <input
-            {...register('city', {
-              required: 'La ciudad es obligatoria',
-            })}
+            {...register('city', {})}
             className="w-full border rounded p-2"
-            placeholder="Ciudad"
+            placeholder="Ciutat"
           />
           {errors.city && (
             <p className="text-red-500 text-sm">{errors.city.message}</p>
@@ -108,9 +117,7 @@ export default function ProviderForm({
         <div>
           <label className="block font-medium">Provincia</label>
           <input
-            {...register('province', {
-              required: 'La provincia es obligatoria',
-            })}
+            {...register('province', {})}
             className="w-full border rounded p-2"
             placeholder="Provincia"
           />
@@ -124,9 +131,7 @@ export default function ProviderForm({
         <div>
           <label className="block font-medium">Codi Postal</label>
           <input
-            {...register('postalCode', {
-              required: 'El codi postal es obligatori',
-            })}
+            {...register('postalCode', {})}
             className="w-full border rounded p-2"
             placeholder="Codi Postal"
           />
