@@ -8,11 +8,9 @@ import { InstallationRatesManager } from './InstallationsRateManager';
 export default function CustomerInstallationItem({
   index,
   remove,
-  customerId,
 }: {
   index: number;
   remove: (index: number) => void;
-  customerId: string;
 }) {
   const {
     control,
@@ -29,14 +27,16 @@ export default function CustomerInstallationItem({
     name: `installations.${index}.contact`,
   });
 
-  const installationId = get(control._formValues, `installations.${index}.id`);
+  const installationId = get(
+    control._formValues,
+    `installations.${index}.rates`
+  );
 
   const [showContacts, setShowContacts] = useState<boolean>(false);
   const [showRates, setShowRates] = useState<boolean>(false);
 
   return (
     <div className="grid grid-cols-1 gap-4 border p-4 rounded">
-      {/* Campos de instalación */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label>Codi</label>
@@ -54,7 +54,6 @@ export default function CustomerInstallationItem({
           )}
         </div>
 
-        {/* Dirección */}
         <div>
           <label>Adreça</label>
           <input
@@ -97,13 +96,13 @@ export default function CustomerInstallationItem({
         </div>
       </div>
 
-      {/* Contactes */}
       <div>
         <div
           className="flex justify-between items-center bg-gray-100 rounded-xl p-2 hover:cursor-pointer"
           onClick={() => setShowContacts(!showContacts)}
         >
           <h3 className="text-md font-semibold text-gray-700">Contactes</h3>
+          <div className="font-semibold">{fields.length}</div>
         </div>
 
         {showContacts && (
@@ -192,17 +191,11 @@ export default function CustomerInstallationItem({
         onClick={() => setShowRates(!showRates)}
       >
         <h3 className="text-md font-semibold text-gray-700">Tarifes</h3>
+        <div className="font-semibold">{installationId.length}</div>
       </div>
 
-      {showRates && (
-        <InstallationRatesManager
-          index={index}
-          customerInstallationId={installationId}
-          customerId={customerId}
-        />
-      )}
+      {showRates && <InstallationRatesManager index={index} />}
 
-      {/* Eliminar instal·lació */}
       <div className="flex justify-end">
         <button
           type="button"

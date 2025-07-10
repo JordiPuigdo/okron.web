@@ -113,6 +113,11 @@ export default function RateConfigurationPage() {
   };
 
   const handleCreate = async (data: Omit<Rate, 'id'>) => {
+    const exists = rates.find(r => r.type?.id === data.rateTypeId);
+    if (exists) {
+      alert('Ja existeix un tipus de tarifa amb aquest tipus');
+      return;
+    }
     await createRate(data);
   };
 

@@ -90,29 +90,31 @@ export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
               </Combobox.Button>
               {filteredRateTypes.length > 0 && (
                 <Combobox.Options className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 overflow-auto rounded-md border border-gray-200">
-                  {filteredRateTypes.map(rt => (
-                    <Combobox.Option
-                      key={rt.id}
-                      value={rt}
-                      className={({ active }) =>
-                        `cursor-pointer select-none p-2 ${
-                          active ? 'bg-blue-100' : ''
-                        }`
-                      }
-                    >
-                      {({ selected }) => (
-                        <span className="flex justify-between items-center">
-                          <span>{rt.code}</span>
-                          <span className="text-sm text-gray-500 ml-2 truncate">
-                            {rt.description}
+                  {filteredRateTypes
+                    .sort((a, b) => a.code.localeCompare(b.code))
+                    .map(rt => (
+                      <Combobox.Option
+                        key={rt.id}
+                        value={rt}
+                        className={({ active }) =>
+                          `cursor-pointer select-none p-2 ${
+                            active ? 'bg-blue-100' : ''
+                          }`
+                        }
+                      >
+                        {({ selected }) => (
+                          <span className="flex justify-between items-center">
+                            <span>{rt.code}</span>
+                            <span className="text-sm text-gray-500 ml-2 truncate">
+                              {rt.description}
+                            </span>
+                            {selected && (
+                              <CheckIcon className="w-4 h-4 text-green-500 ml-2" />
+                            )}
                           </span>
-                          {selected && (
-                            <CheckIcon className="w-4 h-4 text-green-500 ml-2" />
-                          )}
-                        </span>
-                      )}
-                    </Combobox.Option>
-                  ))}
+                        )}
+                      </Combobox.Option>
+                    ))}
                 </Combobox.Options>
               )}
             </div>

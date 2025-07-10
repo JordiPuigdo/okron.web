@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { EditableTable } from 'app/(pages)/system/rates/components/EditableTable';
-import { RateForm } from 'app/(pages)/system/rates/components/Rate/RateForm';
 import { useRates } from 'app/hooks/useRates';
 import { DayOfWeek, Rate } from 'app/interfaces/Rate';
 
@@ -37,20 +36,15 @@ export function CustomerRatesManager({ customerId }: { customerId: string }) {
   } = useFieldArray({
     control,
     name: 'rates',
-    keyName: '_id',
+    keyName: 'id',
   });
 
   const [show, setShow] = useState(false);
 
   const [ratesSelected, setRatesSelected] = useState<RateField[]>([]);
-  const { createRate, updateRate, deleteRate } = useRates();
 
   const addGeneralMethod = (method: any) => {
-    const exists = ratesSelected.find(r => r.type?.id === method.type.id);
-    if (!exists) {
-      append(method);
-      setRatesSelected(prev => [...prev, method]);
-    }
+    onCreateClientRate(method);
   };
   useEffect(() => {
     const loadData = async () => {
@@ -82,22 +76,6 @@ export function CustomerRatesManager({ customerId }: { customerId: string }) {
   const onCreateClientRate = async (data: Omit<Rate, 'id'>) => {
     const newRate: RateField = { ...data, id: '', rhfId: crypto.randomUUID() };
 
-    if (customerId) {
-      const rate = await createRate({
-        daysOfWeek: data.daysOfWeek,
-        startTime: data.startTime,
-        endTime: data.endTime,
-        rateTypeId: data.rateTypeId,
-        type: data.type,
-        active: data.active,
-        creationDate: data.creationDate,
-        customerId: customerId,
-        price: data.price,
-      });
-      newRate.id = rate.id;
-      newRate.customerId = customerId;
-    }
-
     append(newRate);
     setRatesSelected(prev => [...prev, newRate]);
   };
@@ -124,20 +102,20 @@ export function CustomerRatesManager({ customerId }: { customerId: string }) {
           .sort((a, b) => a - b)
           .map(d => dayOfWeekLabels[d])
           .join(', '),
-      editable: true,
+      editable: false,
       inputType: 'daysOfWeek',
     },
     {
       header: "Hora d'inici",
       accessor: 'startTime',
-      editable: true,
+      editable: false,
       inputType: 'time',
       width: 'w-24',
     },
     {
       header: 'Hora de fi',
       accessor: 'endTime',
-      editable: true,
+      editable: false,
       inputType: 'time',
       width: 'w-24',
     },
@@ -146,8 +124,7 @@ export function CustomerRatesManager({ customerId }: { customerId: string }) {
   const availableRates = generalRates;
 
   const onDelete = (id: string) => {
-    const guidId = ratesSelected.find(field => field.id === id)?.rhfId;
-    const index = rateFields.findIndex(field => field._id === guidId);
+    const index = rateFields.findIndex(field => field.id === id);
     if (index === -1) return;
 
     remove(index);
@@ -163,8 +140,7 @@ export function CustomerRatesManager({ customerId }: { customerId: string }) {
       return;
     }
 
-    const guidId = ratesSelected.find(field => field.id === id)?.rhfId;
-    const index = rateFields.findIndex(field => field._id === guidId);
+    const index = rateFields.findIndex(field => field.id === id);
     if (index === -1) return;
 
     update(index, { ...rateFields[index], ...newData });
@@ -181,6 +157,7 @@ export function CustomerRatesManager({ customerId }: { customerId: string }) {
         onClick={() => setShow(!show)}
       >
         <h3 className="text-md font-semibold text-gray-700">Tarifes</h3>
+        <div className="font-semibold">{ratesSelected.length}</div>
       </div>
 
       {show && (
@@ -196,36 +173,37 @@ export function CustomerRatesManager({ customerId }: { customerId: string }) {
             />
           </section>
 
-          <section className="flex border-t-2 border-gray-50 ">
-            {availableRates.map(rate => (
-              <div
-                key={rate.id}
-                className="flex justify-between border p-2 rounded mb-2"
-              >
-                <div>
-                  <p>
-                    <strong>{rate.type?.code}</strong>{' '}
-                    <strong>{rate.type?.description}</strong> - {rate.price} €
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className="text-blue-600 hover:underline"
-                  onClick={() => addGeneralMethod(rate)}
-                >
-                  Afegir a client
-                </button>
-              </div>
-            ))}
-          </section>
+          <ul className="flex flex-col justify-between w-full">
+            {availableRates
+              .filter(
+                rate => !ratesSelected.find(x => x.rateTypeId == rate.type!.id)
+              )
+              .map(rate => (
+                <li key={rate.id} className="p-2 flex justify-between border">
+                  <div>
+                    <p>
+                      <strong>{rate.type?.code}</strong>{' '}
+                      <strong>{rate.type?.description}</strong> - {rate.price} €
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="text-blue-600 hover:underline"
+                    onClick={() => addGeneralMethod(rate)}
+                  >
+                    Afegir a client
+                  </button>
+                </li>
+              ))}
+          </ul>
 
-          <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
+          {/* <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
             <RateForm
               rateTypes={rateTypes}
               isSubmit={false}
               onSubmit={onCreateClientRate}
             />
-          </div>
+          </div>*/}
         </>
       )}
     </div>

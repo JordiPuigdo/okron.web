@@ -24,6 +24,7 @@ export const CustomerContactList = () => {
         onClick={() => setShowContacts(!showContacts)}
       >
         <h3 className="text-md font-semibold text-gray-700">Contactes</h3>
+        <div className="font-semibold">{fields.length}</div>
       </div>
 
       {showContacts && (

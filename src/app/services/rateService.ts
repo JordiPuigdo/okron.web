@@ -75,6 +75,7 @@ export class RateService {
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Error updating rate type');
+
     return res.json();
   }
 

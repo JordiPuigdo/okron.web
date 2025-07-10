@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Checkbox, ListItemText, MenuItem, Select } from '@mui/material';
 import { DayOfWeek, Rate } from 'app/interfaces/Rate';
+import TimeInput from 'components/input/TimeInput';
 
 // Ensure the keys match the actual values of DayOfWeek
 // Use the actual DayOfWeek enum/union values as keys
@@ -117,7 +118,7 @@ export function EditableTable<T extends { id: string }>({
                             }
                             renderValue={selected =>
                               ([...selected] as DayOfWeek[])
-                                .sort((a, b) => a - b) // ordena también para el texto
+                                .sort((a, b) => a - b)
                                 .map(v => dayOfWeekLabels[v])
                                 .join(', ')
                             }
@@ -145,6 +146,27 @@ export function EditableTable<T extends { id: string }>({
                               }
                             )}
                           </Select>
+                        </td>
+                      );
+                    }
+                    if (col.inputType === 'time') {
+                      return (
+                        <td key={idx} className="p-3">
+                          <TimeInput
+                            value={
+                              editForm[col.accessor as keyof T] !== undefined &&
+                              editForm[col.accessor as keyof T] !== null
+                                ? String(editForm[col.accessor as keyof T])
+                                : ''
+                            }
+                            onChange={e => {
+                              const value = e;
+                              setEditForm(prev => ({
+                                ...prev,
+                                [col.accessor as keyof T]: value,
+                              }));
+                            }}
+                          />
                         </td>
                       );
                     }

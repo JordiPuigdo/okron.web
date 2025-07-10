@@ -24,6 +24,7 @@ export const CustomerAddressList = () => {
         onClick={() => setShowAddresses(prev => !prev)}
       >
         <h3 className="text-md font-semibold text-gray-700">Direccions</h3>
+        <div className="font-semibold">{fields.length}</div>
       </div>
 
       {showAddresses && (
@@ -31,38 +32,14 @@ export const CustomerAddressList = () => {
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded border-2 border-blue-200 rounded-lg p-4 bg-blue-50 "
+              className="flex flex-col gap-4  border-2 border-blue-200 rounded-lg p-4 bg-blue-50 "
             >
-              <div>
+              <div className="flex flex-col w-full gap-2">
                 <label>Adreça</label>
                 <input
                   {...register(`address.${index}.address`)}
                   className="w-full border rounded p-2"
                   placeholder="Carrer i número"
-                />
-              </div>
-              <div>
-                <label>Ciutat</label>
-                <input
-                  {...register(`address.${index}.city`)}
-                  className="w-full border rounded p-2"
-                  placeholder="Ciutat"
-                />
-              </div>
-              <div>
-                <label>País</label>
-                <input
-                  {...register(`address.${index}.country`)}
-                  className="w-full border rounded p-2"
-                  placeholder="País"
-                />
-              </div>
-              <div>
-                <label>Codi Postal</label>
-                <input
-                  {...register(`address.${index}.postalCode`)}
-                  className="w-full border rounded p-2"
-                  placeholder="Codi Postal"
                 />
               </div>
               <div className="col-span-2 flex justify-between items-center">

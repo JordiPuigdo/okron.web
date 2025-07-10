@@ -54,7 +54,6 @@ export default function CustomerForm({
   const { watch } = methods;
   const addressCount = watch('address')?.length || 0;
   const contactsCount = watch('contacts')?.length || 0;
-  const paymentMethodsCount = watch('paymentMethods')?.length || 0;
   const ratesCount = watch('rates')?.length || 0;
   const installationsCount = watch('installations')?.length || 0;
 
@@ -93,7 +92,6 @@ export default function CustomerForm({
     } else {
       await createCustomer(data);
     }
-
     if (onSuccess) onSuccess();
   };
 
@@ -140,144 +138,127 @@ export default function CustomerForm({
             </nav>
 
             {activeTab === CustomerFormTabs.GENERAL && (
-              <>
-                <div>
-                  <label className="block font-medium">Codi</label>
-                  <input
-                    {...register('code', { required: 'El codi és obligatori' })}
-                    className="w-full border rounded p-2"
-                    placeholder="Codi client"
-                    disabled
-                  />
-                  {errors.code && (
-                    <p className="text-red-500 text-sm">
-                      {errors.code.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block font-medium">Nom</label>
-                  <input
-                    {...register('name', { required: 'El nom és obligatori' })}
-                    className="w-full border rounded p-2"
-                    placeholder="Nom client"
-                  />
-                  {errors.name && (
-                    <p className="text-red-500 text-sm">
-                      {errors.name.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block font-medium">Nom Fiscal</label>
-                  <input
-                    {...register('fiscalName')}
-                    className="w-full border rounded p-2"
-                    placeholder="Número de compte"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-medium">NIF/CIF</label>
-                  <input
-                    {...register('taxId')}
-                    className="w-full border rounded p-2"
-                    placeholder="NIF o CIF"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-medium">Email</label>
-                  <input
-                    {...register('email')}
-                    className="w-full border rounded p-2"
-                    placeholder="Email"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-medium">Número de compte</label>
-                  <input
-                    {...register('accountNumber')}
-                    className="w-full border rounded p-2"
-                    placeholder="Número de compte"
-                  />
-                </div>
-                <div>
-                  <label className="block font-medium">Telèfon</label>
-                  <input
-                    {...register('phoneNumber')}
-                    className="w-full border rounded p-2"
-                    placeholder="Número de compte"
-                  />
-                </div>
-                <div>
-                  <label className="block font-medium">Whatsapp</label>
-                  <input
-                    {...register('whatsappNumber')}
-                    className="w-full border rounded p-2"
-                    placeholder="Número de compte"
-                  />
-                </div>
-                {initialData && initialData?.id.length > 0 && (
-                  <div className="flex flex-col">
-                    <label className="block font-medium">Actiu</label>
+              <div className="flex gap-6">
+                <div className="flex flex-col w-full gap-4">
+                  <div>
+                    <label className="block font-medium">Codi</label>
                     <input
-                      type="checkbox"
-                      {...register('active')}
-                      className="border rounded p-2 w-[25px]"
-                      defaultChecked={initialData?.active}
+                      {...register('code', {
+                        required: 'El codi és obligatori',
+                      })}
+                      className="w-full border rounded p-2"
+                      placeholder="Codi client"
+                      disabled
+                    />
+                    {errors.code && (
+                      <p className="text-red-500 text-sm">
+                        {errors.code.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block font-medium">Nom</label>
+                    <input
+                      {...register('name', {
+                        required: 'El nom és obligatori',
+                      })}
+                      className="w-full border rounded p-2"
+                      placeholder="Nom client"
+                    />
+                    {errors.name && (
+                      <p className="text-red-500 text-sm">
+                        {errors.name.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block font-medium">Nom Fiscal</label>
+                    <input
+                      {...register('fiscalName')}
+                      className="w-full border rounded p-2"
+                      placeholder="Número de compte"
                     />
                   </div>
-                )}
+
+                  <div>
+                    <label className="block font-medium">NIF/CIF</label>
+                    <input
+                      {...register('taxId')}
+                      className="w-full border rounded p-2"
+                      placeholder="NIF o CIF"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-medium">Email</label>
+                    <input
+                      {...register('email')}
+                      className="w-full border rounded p-2"
+                      placeholder="Email"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-medium">
+                      Número de compte
+                    </label>
+                    <input
+                      {...register('accountNumber')}
+                      className="w-full border rounded p-2"
+                      placeholder="Número de compte"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-medium">Telèfon</label>
+                    <input
+                      {...register('phoneNumber')}
+                      className="w-full border rounded p-2"
+                      placeholder="Número de compte"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-medium">Whatsapp</label>
+                    <input
+                      {...register('whatsappNumber')}
+                      className="w-full border rounded p-2"
+                      placeholder="Número de compte"
+                    />
+                  </div>
+                  {initialData && initialData?.id.length > 0 && (
+                    <div className="flex flex-col">
+                      <label className="block font-medium">Actiu</label>
+                      <input
+                        type="checkbox"
+                        {...register('active')}
+                        className="border rounded p-2 w-[25px]"
+                        defaultChecked={initialData?.active}
+                      />
+                    </div>
+                  )}
+                </div>
 
                 {initialData && initialData?.address?.length > 0 && (
-                  <div className="pt-4 border-t">
-                    <h3 className="text-md font-semibold text-gray-700 mb-2">
-                      Direcció principal
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label>Adreça</label>
-                        <input
-                          value={initialData.address[0].address}
-                          disabled
-                          className="w-full border rounded p-2"
-                        />
-                      </div>
-                      <div>
-                        <label>Ciutat</label>
-                        <input
-                          value={initialData.address[0].city}
-                          disabled
-                          className="w-full border rounded p-2"
-                        />
-                      </div>
-                      <div>
-                        <label>País</label>
-                        <input
-                          value={initialData.address[0].country}
-                          disabled
-                          className="w-full border rounded p-2"
-                        />
-                      </div>
-                      <div>
-                        <label>Codi Postal</label>
-                        <input
-                          value={initialData.address[0].postalCode}
-                          disabled
-                          className="w-full border rounded p-2"
-                        />
-                      </div>
+                  <div className="flex flex-col w-full">
+                    <div>
+                      <label className="block font-medium">
+                        Adreça Principal
+                      </label>
+                      <input
+                        value={initialData.address[0].address}
+                        disabled
+                        className="w-full border rounded p-2"
+                      />
                     </div>
+                    {activeTab === CustomerFormTabs.GENERAL && (
+                      <CustomerAddressList />
+                    )}
                   </div>
                 )}
-              </>
+              </div>
             )}
 
-            {activeTab === CustomerFormTabs.GENERAL && <CustomerAddressList />}
             {activeTab === CustomerFormTabs.GENERAL && <CustomerContactList />}
             {activeTab === CustomerFormTabs.PAYMENTMETHODS && (
               <CustomerPaymentMethods />
@@ -286,7 +267,10 @@ export default function CustomerForm({
               <CustomerRatesManager customerId={initialData?.id || ''} />
             )}
             {activeTab === CustomerFormTabs.INSTALLATIONS && (
-              <CustomerInstallationList customerId={initialData?.id || ''} />
+              <CustomerInstallationList
+                customerId={initialData?.id || ''}
+                customer={initialData || undefined}
+              />
             )}
           </form>
         </FormProvider>
@@ -301,10 +285,6 @@ export default function CustomerForm({
               <li className="flex justify-between gap-6">
                 <span>Contactes:</span>
                 <span className="font-semibold">{contactsCount}</span>
-              </li>
-              <li className="flex justify-between gap-6">
-                <span>Pagaments:</span>
-                <span className="font-semibold">{paymentMethodsCount}</span>
               </li>
               <li className="flex justify-between gap-6">
                 <span>Tarifes:</span>

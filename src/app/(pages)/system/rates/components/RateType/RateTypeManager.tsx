@@ -32,6 +32,8 @@ export default function RateTypeManager() {
   ];
 
   const handleCreate = async (data: { code: string; description: string }) => {
+    if (rateTypes.find(rt => rt.code === data.code)) return;
+
     await createRateType({
       code: data.code,
       description: data.description,
@@ -44,7 +46,6 @@ export default function RateTypeManager() {
     id: string,
     data: Partial<(typeof rateTypes)[number]>
   ) => {
-    // Find the existing rateType to fill missing required fields
     const existing = rateTypes.find(rt => rt.id === id);
     if (!existing) return;
 
@@ -79,7 +80,7 @@ export default function RateTypeManager() {
         ) : (
           <EditableTable
             columns={columns}
-            data={rateTypes}
+            data={rateTypes.sort((a, b) => a.code.localeCompare(b.code))}
             onUpdate={handleUpdate}
             onDelete={handleDelete}
             loading={loading}

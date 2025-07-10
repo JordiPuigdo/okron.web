@@ -16,13 +16,6 @@ function PaymentMethodComponent() {
 
   const columns = [
     {
-      header: 'Codi',
-      accessor: 'code',
-      editable: true,
-      inputType: 'text',
-      width: 'w-24',
-    },
-    {
       header: 'Descripció',
       accessor: 'description',
       editable: true,

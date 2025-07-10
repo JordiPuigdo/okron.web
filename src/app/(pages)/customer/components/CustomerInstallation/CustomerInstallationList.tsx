@@ -2,13 +2,16 @@
 
 import { useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
+import { Customer } from 'app/interfaces/Customer';
 
 import CustomerInstallationItem from './CustomerInstallationItem';
 
 export default function CustomerInstallationList({
   customerId,
+  customer,
 }: {
   customerId: string;
+  customer: Customer | undefined;
 }) {
   const { control } = useFormContext();
 
@@ -35,6 +38,7 @@ export default function CustomerInstallationList({
               index={index}
               remove={remove}
               customerId={customerId}
+              customer={customer ?? undefined}
             />
           ))}
 
@@ -51,6 +55,7 @@ export default function CustomerInstallationList({
                   isPrimary: false,
                 },
                 contact: [],
+                rates: [],
               })
             }
             className="text-blue-600 hover:underline text-sm"

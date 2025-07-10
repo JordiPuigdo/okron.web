@@ -19,9 +19,7 @@ export function PaymentMethodForm({
   const [form, setForm] = useState<PaymentMethod>(
     initialData ?? {
       id: '',
-      code: '',
       description: '',
-      customerId: undefined,
       creationDate: new Date(),
       active: true,
     }
@@ -34,15 +32,16 @@ export function PaymentMethodForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.code.trim()) return;
 
     const trimmedForm = {
       ...form,
-      code: form.code.trim(),
+
       description: form.description.trim(),
     };
 
     await onSubmit(trimmedForm);
+
+    setForm(prev => ({ ...prev, description: '' }));
   };
 
   return (
@@ -51,21 +50,6 @@ export function PaymentMethodForm({
       className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end"
       noValidate
     >
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Codi *
-        </label>
-        <input
-          type="text"
-          name="code"
-          value={form.code}
-          onChange={handleChange}
-          placeholder="Ex: TP01"
-          required
-          className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-        />
-      </div>
-
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Descripció

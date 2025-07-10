@@ -15,7 +15,7 @@ export function useRates() {
     setError(null);
     try {
       const data = await rateService.getAll();
-      setRates(data);
+      setRates(data.sort((a, b) => a.type!.code.localeCompare(b.type!.code)));
     } catch (err: any) {
       setError(err.message);
     } finally {
