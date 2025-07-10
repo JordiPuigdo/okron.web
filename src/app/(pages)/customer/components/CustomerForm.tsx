@@ -187,17 +187,17 @@ export default function CustomerForm({
                     placeholder="NIF o CIF"
                   />
                 </div>
-                <div>
-                  <div>
-                    <label className="block font-medium">Email</label>
-                    <input
-                      {...register('email')}
-                      className="w-full border rounded p-2"
-                      placeholder="Email"
-                    />
-                  </div>
 
-                  <div></div>
+                <div>
+                  <label className="block font-medium">Email</label>
+                  <input
+                    {...register('email')}
+                    className="w-full border rounded p-2"
+                    placeholder="Email"
+                  />
+                </div>
+
+                <div>
                   <label className="block font-medium">Número de compte</label>
                   <input
                     {...register('accountNumber')}
