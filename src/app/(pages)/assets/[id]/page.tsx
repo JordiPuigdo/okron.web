@@ -184,7 +184,7 @@ export default function AssetDetailsPage({
             />
             <div className="flex flex-row gap-5">
               <div className="w-full flex flex-col gap-5">
-                <div className="flex justify-start gap-12 bg-white shadow-md rounded-md w-full p-2">
+                <div className="flex flex-col justify-start gap-12 bg-white shadow-md rounded-md w-full p-2">
                   <AssetForm
                     id={id}
                     loading={loading}
@@ -195,6 +195,18 @@ export default function AssetDetailsPage({
                     onChange={handleOnChange}
                     onReload={fetch}
                   />
+                  <div>
+                    {message && (
+                      <div className="bg-green-200 text-green-800 p-4 rounded my-4">
+                        {message}
+                      </div>
+                    )}
+                    {errorMessage && (
+                      <div className="bg-red-200 text-red-800 p-4 rounded my-4">
+                        {errorMessage}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="w-full flex flex-col gap-5 bg-white shadow-md rounded-md p-4">
                   <CostsObjectComponent assetId={id} loginUser={loginUser!} />
@@ -203,17 +215,6 @@ export default function AssetDetailsPage({
               {!config?.isCRM && (
                 <div>
                   <Downtimes assetId={id} />
-                </div>
-              )}
-
-              {message && (
-                <div className="bg-green-200 text-green-800 p-4 rounded my-4">
-                  {message}
-                </div>
-              )}
-              {errorMessage && (
-                <div className="bg-red-200 text-red-800 p-4 rounded my-4">
-                  {errorMessage}
                 </div>
               )}
             </div>
