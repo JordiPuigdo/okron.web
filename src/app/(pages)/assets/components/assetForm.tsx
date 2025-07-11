@@ -126,20 +126,24 @@ const AssetForm: React.FC<AssetFormProps> = ({
                   {loading ? <SvgSpinner /> : 'Cancelar'}
                 </button>
               ))}
-            <Link
-              href={ROUTES.preventive.preventiveForm + '?assetId=' + id}
-              className="flex items-center justify-center bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-900 transition duration-300 ease-in-out"
-            >
-              Crear Reivisó
-            </Link>
+            {id != '0' && (
+              <Link
+                href={ROUTES.preventive.preventiveForm + '?assetId=' + id}
+                className="flex items-center justify-center bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-900 transition duration-300 ease-in-out"
+              >
+                Crear Reivisó
+              </Link>
+            )}
           </div>
         </div>
-        <div className="w-full p-2">
-          Equip Pare
-          <div>
-            <ParentAsset currentId={id} onReload={fetch} />
+        {id != '0' && (
+          <div className="w-full p-2">
+            Equip Pare
+            <div>
+              <ParentAsset currentId={id} onReload={fetch} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </form>
   );

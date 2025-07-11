@@ -194,8 +194,8 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         title: 'Actius i Equips',
         path: '/assets',
         icon: SvgActiu,
-        permission: [UserPermission.Administrator],
-        userType: [UserType.Maintenance, UserType.Production],
+        permission: [UserPermission.Administrator, UserPermission.AdminCRM],
+        userType: [UserType.Maintenance, UserType.Production, UserType.CRM],
       },
       {
         key: generateKey(),

@@ -2,17 +2,10 @@
 
 import { useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
-import { Customer } from 'app/interfaces/Customer';
 
 import CustomerInstallationItem from './CustomerInstallationItem';
 
-export default function CustomerInstallationList({
-  customerId,
-  customer,
-}: {
-  customerId: string;
-  customer: Customer | undefined;
-}) {
+export default function CustomerInstallationList() {
   const { control } = useFormContext();
 
   const { fields, append, remove } = useFieldArray({
@@ -37,8 +30,6 @@ export default function CustomerInstallationList({
               key={field.id}
               index={index}
               remove={remove}
-              customerId={customerId}
-              customer={customer ?? undefined}
             />
           ))}
 

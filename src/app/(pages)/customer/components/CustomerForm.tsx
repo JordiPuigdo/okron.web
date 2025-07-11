@@ -267,10 +267,7 @@ export default function CustomerForm({
               <CustomerRatesManager customerId={initialData?.id || ''} />
             )}
             {activeTab === CustomerFormTabs.INSTALLATIONS && (
-              <CustomerInstallationList
-                customerId={initialData?.id || ''}
-                customer={initialData || undefined}
-              />
+              <CustomerInstallationList />
             )}
           </form>
         </FormProvider>

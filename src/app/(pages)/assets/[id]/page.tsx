@@ -40,7 +40,7 @@ export default function AssetDetailsPage({
   const [code, setCode] = useState<string>('');
   const [description, setDescription] = useState<string>('');
 
-  const { loginUser } = useSessionStore();
+  const { config, loginUser } = useSessionStore();
 
   useEffect(() => {
     fetch();
@@ -175,8 +175,8 @@ export default function AssetDetailsPage({
                 currentAsset?.path ??
                 (parentAsset?.path
                   ? parentAsset.path + '/' + description
-                  : '') ??
-                ''
+                  : 'Nou equip') ??
+                'Nou equip'
               }
               isCreate={id === '0'}
               subtitle={`Equip: ${code} - ${description}`}
@@ -200,9 +200,11 @@ export default function AssetDetailsPage({
                   <CostsObjectComponent assetId={id} loginUser={loginUser!} />
                 </div>
               </div>
-              <div>
-                <Downtimes assetId={id} />
-              </div>
+              {!config?.isCRM && (
+                <div>
+                  <Downtimes assetId={id} />
+                </div>
+              )}
 
               {message && (
                 <div className="bg-green-200 text-green-800 p-4 rounded my-4">
