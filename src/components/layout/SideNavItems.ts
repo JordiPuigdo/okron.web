@@ -1,3 +1,5 @@
+import { SvgDatabase } from 'app/icons/designSystem/SvgDatabase';
+import { SvgPackage } from 'app/icons/designSystem/SvgPackage';
 import {
   SvgActiu,
   SvgAvarie,
@@ -19,7 +21,7 @@ import { generateKey, SideNavItem } from 'app/types/SideNavItem';
 export const SIDENAV_ITEMS: SideNavItem[] = [
   {
     key: generateKey(),
-    title: 'Dashboard',
+    title: 'Panell de control',
     icon: SvgPanel,
     path: '/menu',
     permission: [
@@ -201,7 +203,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         key: generateKey(),
         title: 'Proveïdors',
         path: '/providers',
-        icon: SvgMenu,
+        icon: SvgPackage,
         permission: [UserPermission.Administrator, UserPermission.AdminCRM],
         userType: [UserType.Maintenance, UserType.Warehouse, UserType.CRM],
       },
@@ -231,14 +233,6 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },*/
       {
         key: generateKey(),
-        title: 'Sistema',
-        path: '/system',
-        icon: SvgOperari,
-        userType: [UserType.CRM],
-        permission: [UserPermission.AdminCRM],
-      },
-      {
-        key: generateKey(),
         title: 'Comptes Comptables',
         path: '/account',
         icon: SvgOperari,
@@ -260,6 +254,14 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         icon: SvgUsers,
         userType: [UserType.Production, UserType.Maintenance, UserType.CRM],
         permission: [UserPermission.Administrator, UserPermission.AdminCRM],
+      },
+      {
+        key: generateKey(),
+        title: 'Sistema',
+        path: '/system',
+        icon: SvgDatabase,
+        userType: [UserType.CRM],
+        permission: [UserPermission.AdminCRM],
       },
     ],
   },
