@@ -336,14 +336,17 @@ class WorkOrderService {
   async addCommentToWorkOrder(
     addCommentToWorkOrder: AddCommentToWorkOrderRequest
   ): Promise<WorkOrderComment> {
+    const formData = new FormData();
+    formData.append('comment', addCommentToWorkOrder.comment);
+    formData.append('operatorId', addCommentToWorkOrder.operatorId);
+    formData.append('workOrderId', addCommentToWorkOrder.workOrderId);
+
     try {
       const url = `${this.baseUrl}AddCommentToWorkOrder`;
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(addCommentToWorkOrder),
+
+        body: formData,
       });
       if (!response.ok) {
         throw new Error('Failed to fetch addCommentToWorkOrder');
