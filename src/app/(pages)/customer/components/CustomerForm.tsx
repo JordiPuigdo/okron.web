@@ -248,9 +248,8 @@ export default function CustomerForm({
                     </div>
                   )}
                 </div>
-
-                {initialData && initialData?.address?.length > 0 && (
-                  <div className="flex flex-col w-full">
+                <div className="flex flex-col w-full">
+                  {initialData && initialData?.address?.length > 0 && (
                     <div>
                       <label className="block font-medium">
                         Adreça Principal
@@ -261,11 +260,11 @@ export default function CustomerForm({
                         className="w-full border rounded p-2"
                       />
                     </div>
-                    {activeTab === CustomerFormTabs.GENERAL && (
-                      <CustomerAddressList />
-                    )}
-                  </div>
-                )}
+                  )}
+                  {activeTab === CustomerFormTabs.GENERAL && (
+                    <CustomerAddressList />
+                  )}
+                </div>
               </div>
             )}
 
