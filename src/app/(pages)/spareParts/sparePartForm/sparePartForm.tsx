@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ProviderToSparePartRequest from 'app/(pages)/providers/[id]/Components/ProviderToSparePartRequest';
+import { usePermissions } from 'app/hooks/usePermissions';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import SparePart from 'app/interfaces/SparePart';
 import SparePartService from 'app/services/sparePartService';
@@ -20,6 +21,7 @@ interface SparePartForm {
 }
 
 const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
+  const { isCRM } = usePermissions();
   const router = useRouter();
   const sparePartService = new SparePartService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
@@ -88,6 +90,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
         setValue('minium', sparePartLoaded!.minium);
         setValue('maximum', sparePartLoaded!.maximum);
         setValue('active', sparePartLoaded!.active);
+        setValue('isVirtual', sparePartLoaded!.isVirtual);
 
         setSparePart(sparePartLoaded!);
       } catch (error) {
@@ -125,6 +128,8 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
       lastRestockDate: new Date(),
       warehouses: [],
       providers: [],
+      rrp: 0,
+      isVirtual: false,
     };
     setSparePart(newSparePart);
   }
@@ -371,8 +376,34 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                 <input
                   type="checkbox"
                   {...register('active')}
-                  checked={true}
+                  checked={sparePart?.active}
                   className="mt-1 p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                />
+              </div>
+            </div>
+            <div className="flex gap-6">
+              {isCRM && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-600">
+                    P.V.P
+                  </label>
+                  <input
+                    {...register('rrp')}
+                    className="mt-1 p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                  />
+                </div>
+              )}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-600">
+                  Virtual
+                </label>
+                <input
+                  type="checkbox"
+                  {...register('isVirtual')}
+                  className="mt-1 p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                  onChange={e =>
+                    setSparePart({ ...sparePart!, isVirtual: e.target.checked })
+                  }
                 />
               </div>
             </div>

@@ -26,6 +26,7 @@ export default function ProvidersPageDetail({
 
   async function fetch() {
     const providerData = await getById(params.id);
+
     setProvider(providerData);
   }
 

@@ -29,7 +29,8 @@ export default function ProviderForm({
   useEffect(() => {
     if (providerData) {
       Object.keys(providerData).forEach(key => {
-        if (key === 'active') return;
+        if (key === 'active' || key === 'isVirtual') return;
+
         const value = providerData[key as keyof Provider];
         const formattedValue =
           typeof value === 'boolean'
@@ -40,6 +41,7 @@ export default function ProviderForm({
         setValue(key as keyof UpdateProviderRequest, formattedValue as string);
       });
       setValue('active', providerData.active);
+      setValue('isVirtual', providerData.isVirtual);
     }
   }, [providerData, setValue]);
 
@@ -199,6 +201,14 @@ export default function ProviderForm({
           ))}
         </select>
       </div>
+      <div>
+        <label className="block font-medium">Virtual</label>
+        <input
+          {...register('isVirtual')}
+          type="checkbox"
+          onChange={e => setValue('isVirtual', e.target.checked ? true : false)}
+        />
+      </div>
       {providerData && (
         <div>
           <label className="block font-medium">Estat del proveïdor</label>
@@ -206,6 +216,7 @@ export default function ProviderForm({
             {...register('active')}
             type="checkbox"
             checked={providerData?.active}
+            onChange={e => setValue('active', e.target.checked ? true : false)}
           />
         </div>
       )}
