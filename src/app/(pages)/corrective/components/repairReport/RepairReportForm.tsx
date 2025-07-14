@@ -73,8 +73,6 @@ export function RepairReportForm() {
   const [selectedCustomerId, setSelectedCustomerId] = useState<
     string | undefined
   >(undefined);
-  const [selectedCustomerInstallationId, setSelectedCustomerInstallationId] =
-    useState<string | undefined>(undefined);
   const [selectedCustomer, setSelectedCustomer] = useState<
     Customer | undefined
   >(undefined);
@@ -136,10 +134,12 @@ export function RepairReportForm() {
 
   const handleAssetSelected = (assetId: string) => {
     if (assetId == '') return;
+    setFormData(prev => ({ ...prev, assetId }));
     setSelectedAsset(prevSelected => [...prevSelected, assetId]);
   };
 
   const handleDeleteSelectedAsset = (assetId: string) => {
+    setFormData(prev => ({ ...prev, assetId: '' }));
     setSelectedAsset(prevSelected => prevSelected.filter(id => id !== assetId));
   };
 
@@ -314,15 +314,16 @@ export function RepairReportForm() {
                 <ChooseElement
                   elements={selectedCustomer.installations}
                   selectedElements={
-                    selectedCustomerInstallationId
-                      ? [selectedCustomerInstallationId]
-                      : []
+                    formData.installationId ? [formData.installationId] : []
                   }
                   onElementSelected={id =>
-                    setSelectedCustomerInstallationId(id)
+                    setFormData(prev => ({
+                      ...prev,
+                      installationId: id,
+                    }))
                   }
                   onDeleteElementSelected={() =>
-                    setSelectedCustomerInstallationId(undefined)
+                    setFormData(prev => ({ ...prev, installationId: '' }))
                   }
                   placeholder="Buscar Botiga"
                   mapElement={installation => ({
