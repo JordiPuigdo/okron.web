@@ -56,6 +56,9 @@ export default function CustomerForm({
   const contactsCount = watch('contacts')?.length || 0;
   const ratesCount = watch('rates')?.length || 0;
   const installationsCount = watch('installations')?.length || 0;
+  const [successMessage, setSuccessMessage] = useState<string | undefined>(
+    undefined
+  );
 
   const { createCustomer, updateCustomer, getNewCustomerCode, error } =
     useCustomers();
@@ -85,13 +88,20 @@ export default function CustomerForm({
 
   const onSubmit = async (data: CreateCustomerRequest) => {
     if (isEdit) {
-      await updateCustomer({
+      const response = await updateCustomer({
         ...(data as UpdateCustomerRequest),
         id: initialData!.id,
       });
+      if (response) {
+        setSuccessMessage('Client actualitzat correctament');
+      }
     } else {
       await createCustomer(data);
     }
+
+    setTimeout(() => {
+      setSuccessMessage(undefined);
+    }, 3000);
     if (onSuccess) onSuccess();
   };
 
@@ -313,6 +323,9 @@ export default function CustomerForm({
                   </Button>
                 </div>
                 {error && <p className="text-red-500 text-sm">{error}</p>}
+                {successMessage && (
+                  <p className="text-green-500 text-sm">{successMessage}</p>
+                )}
               </li>
             </ul>
           </Card>

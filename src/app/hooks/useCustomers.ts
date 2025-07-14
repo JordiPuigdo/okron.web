@@ -79,18 +79,24 @@ export function useCustomers() {
     }
   };
 
-  const updateCustomer = async (data: UpdateCustomerRequest) => {
+  const updateCustomer = async (
+    data: UpdateCustomerRequest
+  ): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
       const updated = await customerService.update(data);
+      if (updated) {
+        return true;
+      }
       //setCustomers(prev => prev.map(c => (c.id === updated.id ? updated : c)));
-      return true;
     } catch (err: any) {
       setError(err.message);
+      return false;
     } finally {
       setLoading(false);
     }
+    return false;
   };
 
   const deleteCustomer = async (id: string) => {
