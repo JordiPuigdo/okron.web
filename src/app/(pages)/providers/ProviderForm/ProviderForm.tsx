@@ -64,9 +64,7 @@ export default function ProviderForm({
       <div>
         <label className="block font-medium">Nom Comercial</label>
         <input
-          {...register('commercialName', {
-            required: 'El nombre es obligatorio',
-          })}
+          {...register('commercialName')}
           className="w-full border rounded p-2"
           placeholder="Nombre del proveedor"
         />
@@ -78,9 +76,7 @@ export default function ProviderForm({
       <div>
         <label className="block font-medium">NIE</label>
         <input
-          {...register('nie', {
-            required: 'El NIE es obligatori',
-          })}
+          {...register('nie')}
           className="w-full border rounded p-2"
           placeholder="NIE del proveeïdor"
         />
@@ -143,9 +139,7 @@ export default function ProviderForm({
         <div>
           <label className="block font-medium">Telèfon</label>
           <input
-            {...register('phoneNumber', {
-              required: 'El telèfon es obligatori',
-            })}
+            {...register('phoneNumber')}
             className="w-full border rounded p-2"
             placeholder="Telèfon"
           />
@@ -161,7 +155,6 @@ export default function ProviderForm({
           <input
             type="email"
             {...register('email', {
-              required: 'El email es obligatorio',
               pattern: {
                 value: /\S+@\S+\.\S+/,
                 message: 'Formato de email inválido',
