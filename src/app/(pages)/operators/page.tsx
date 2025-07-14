@@ -106,7 +106,9 @@ function OperatorsPage() {
         <div className="flex flex-col h-full">
           {renderHeader(operators)}
           <DataTable
-            data={operators.sort((a, b) => a.code.localeCompare(b.code))}
+            data={operators.sort((a, b) =>
+              a.code.localeCompare(b.code, undefined, { numeric: true })
+            )}
             filters={filters}
             columns={columns}
             tableButtons={tableButtons}
