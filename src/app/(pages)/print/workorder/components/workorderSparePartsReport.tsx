@@ -7,13 +7,7 @@ export const WorkOrderSparePartsReport = ({
   workorder: WorkOrder;
 }) => {
   return (
-    <div className="flex flex-col p-6 no-break ">
-      <div className="w-[120px]">
-        <h2 className="text-l font-semibold text-gray-800 border p-2 rounded-xl">
-          Recanvis
-        </h2>
-      </div>
-
+    <div className="flex flex-col p-4 no-break ">
       <div className="w-full rounded-lg border border-gray-200 shadow-sm">
         {/* Table Header - now uses exact fractional widths */}
         <div className="bg-gray-50 grid grid-cols-[3fr_2fr_2fr_2fr_1fr] p-3 text-l font-semibold  text-gray-700">

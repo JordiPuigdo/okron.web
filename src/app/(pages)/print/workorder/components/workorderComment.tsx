@@ -3,13 +3,7 @@ import { formatDate } from 'app/utils/utils';
 
 export const WorkOrderComment = ({ workorder }: { workorder: WorkOrder }) => {
   return (
-    <div className="flex flex-col p-6 no-break">
-      <div className="w-[120px]">
-        <h2 className="text-l font-semibold text-gray-800 border p-2 rounded-xl">
-          Comentaris
-        </h2>
-      </div>
-
+    <div className="flex flex-col p-4 no-break">
       <div className="w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm">
         <div className="bg-gray-50 grid grid-cols-[1fr_2fr_1fr] p-3 text-l font-semibold text-gray-700">
           <p>Comentari</p>

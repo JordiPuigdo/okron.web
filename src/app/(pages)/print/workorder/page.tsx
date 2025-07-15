@@ -43,9 +43,9 @@ export default async function WorkOrderPage({
   const orders = await getWorkOrders(searchParams.id);
 
   return (
-    <div className="min-h-screen flex flex-col items-center">
+    <div className="flex flex-col items-center">
       {orders == undefined && <Loader />}
-      <div className="flex flex-col  bg-white gap-4 p-4 w-full ">
+      <div className="flex flex-col bg-white p-4 w-full ">
         <WorkOrderHeader workOrder={orders} />
         <HoursOperator workOrder={orders} />
         {orders.workOrderType == WorkOrderType.Preventive && (

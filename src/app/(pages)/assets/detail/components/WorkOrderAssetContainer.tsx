@@ -60,19 +60,10 @@ const WorkOrderContainer = ({
       return;
     }
     setIsLoading(false);
-    //fetchWorkOrders(assetId, operatorId, startDate, endDate, userType);
   };
 
   return (
     <div className="space-y-4">
-      <button
-        onClick={handleSearch}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        disabled={isLoading}
-      >
-        {isLoading ? 'Buscando...' : 'Buscar Órdenes'}
-      </button>
-
       {isLoading && <SvgSpinner />}
 
       {!isLoading && <WorkOrderList workOrders={workOrders} />}

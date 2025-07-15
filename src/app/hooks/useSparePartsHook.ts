@@ -38,10 +38,15 @@ const fetchSparePartByRequest = async (
 
 const fetchSparePartsConsumeds = async (
   from: string,
-  to: string
+  to: string,
+  assetId: string = ''
 ): Promise<SparePartsConsumedsReport[]> => {
   try {
-    const response = await sparePartService.getSparePartsConsumeds(from, to);
+    const response = await sparePartService.getSparePartsConsumeds(
+      from,
+      to,
+      assetId
+    );
     return response;
   } catch (error) {
     console.error('Error fetching spareParts Consumeds data:', error);
@@ -72,9 +77,13 @@ export const useSparePartsHook = (shouldFetchSpareParts = false) => {
     };
   };
 
-  const fetchSparePartsConsumedsHook = (from: string, to: string) => {
+  const fetchSparePartsConsumedsHook = (
+    from: string,
+    to: string,
+    assetId = ''
+  ) => {
     const { data, error, mutate } = useSWR<SparePartsConsumedsReport[]>(
-      ['sparePartsConsumeds', from, to],
+      ['sparePartsConsumeds', from, to, assetId],
       () => fetchSparePartsConsumeds(from, to)
     );
     return {

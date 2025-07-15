@@ -184,10 +184,12 @@ class SparePartService {
 
   async getSparePartsConsumeds(
     from: string,
-    to: string
+    to: string,
+    assetId: string = ''
   ): Promise<SparePartsConsumedsReport[]> {
     try {
       const url = `${this.baseUrl}sparepart/consumed?from=${from}&to=${to}`;
+      assetId ? url.concat(`&assetId=${assetId}`) : url;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Failed to fetch data: ${response.statusText}`);

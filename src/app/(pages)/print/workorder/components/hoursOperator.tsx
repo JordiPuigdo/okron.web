@@ -22,16 +22,10 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
   ].join(':');
 
   return (
-    <div className="flex flex-col p-6">
-      <div className="w-[120px]">
-        <h2 className="text-l font-semibold text-gray-800 border p-2 rounded-xl">
-          Hores
-        </h2>
-      </div>
-
+    <div className="flex flex-col p-4">
       <div className="w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm">
         {/* Header row */}
-        <div className="bg-gray-50 flex p-3  text-l font-semibold text-gray-700">
+        <div className="bg-gray-50 flex p-3  text-s font-semibold text-gray-700">
           <div className="w-[30%] min-w-[200px]">Operari</div>
           <div className="w-[25%] min-w-[100px]">Inici</div>
           <div className="w-[25%] min-w-[100px]">Final</div>

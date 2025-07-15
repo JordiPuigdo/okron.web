@@ -1,13 +1,24 @@
+'use client';
+
+import { useState } from 'react';
 import { UserType } from 'app/interfaces/User';
 
 import AssetHeader from './components/AssetHeaderComponent';
+import SparePartsConsumedsComponent from './components/SparePartsConsumedComponent';
 import WorkOrderContainer from './components/WorkOrderAssetContainer';
+
+enum Tab {
+  WORK_ORDERS = 'Ordres de treball',
+  SPARE_PARTS = 'Recanvis',
+}
 
 export default function AssetDetailsQRPage({
   searchParams,
 }: {
   searchParams: { id: string };
 }) {
+  const [activeTab, setActiveTab] = useState<Tab>(Tab.WORK_ORDERS);
+
   const id = searchParams.id;
   const today = new Date();
   const lastMonth = new Date();
@@ -17,12 +28,29 @@ export default function AssetDetailsQRPage({
     <div className="min-h-screen flex flex-col">
       {/* Cabecera - fondo azul claro */}
       <AssetHeader assetId={id} />
+      <div className="bg-white shadow sticky top-0 z-10">
+        <div className="max-w-md mx-auto flex border-b">
+          {Object.values(Tab).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-1 text-center py-2 text-sm font-medium transition-colors duration-200 ${
+                activeTab === tab
+                  ? 'border-b-2 border-b-okron-main text-okron-main'
+                  : 'text-gray-500 hover:text-blue-500'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Contenido principal - fondo gris claro */}
       <main className="flex-grow bg-gray-50 p-4">
         <div className="max-w-md mx-auto gap-8 flex flex-col">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="space-y-2">
+          <div className="bg-white rounded-lg shadow p-4">
+            {activeTab === Tab.WORK_ORDERS && (
               <WorkOrderContainer
                 assetId={id}
                 operatorId={''}
@@ -31,12 +59,15 @@ export default function AssetDetailsQRPage({
                 userType={userType}
                 searchPreventive
               />
-            </div>
+            )}
+
+            {activeTab === Tab.SPARE_PARTS && (
+              <SparePartsConsumedsComponent assetId={id} />
+            )}
           </div>
         </div>
       </main>
 
-      {/* Pie de página opcional */}
       <footer className="bg-blue-50 p-3 border-t">
         <div className="max-w-md mx-auto text-center text-xs text-gray-500">
           Escaneado el {new Date().toLocaleDateString()}
