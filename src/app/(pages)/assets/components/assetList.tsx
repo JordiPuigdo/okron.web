@@ -238,7 +238,7 @@ const AssetList: React.FC = () => {
           <Link href="/assets/0" passHref>
             <Button className="py-4" customStyles="flex gap-2">
               <SvgCreate className="text-white" />
-              Crear Equip
+              Crear Equip Pare
             </Button>
           </Link>
         </div>
