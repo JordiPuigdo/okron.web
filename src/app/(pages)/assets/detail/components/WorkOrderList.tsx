@@ -1,6 +1,7 @@
 import WorkOrder from 'app/interfaces/workOrder';
 import { translateStateWorkOrder } from 'app/utils/utils';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
 
 interface WorkOrderListProps {
   workOrders: WorkOrder[];
@@ -8,6 +9,7 @@ interface WorkOrderListProps {
 
 const WorkOrderList = ({ workOrders }: WorkOrderListProps) => {
   const now = new Date();
+  const router = useRouter();
 
   if (workOrders.length === 0) {
     return (
@@ -25,6 +27,10 @@ const WorkOrderList = ({ workOrders }: WorkOrderListProps) => {
             className={`py-3 ${
               dayjs(order.creationDate).isAfter(now) ? 'bg-yellow-200' : ''
             }`}
+            onClick={() =>
+              !dayjs(order.creationDate).isAfter(now) &&
+              router.push(`/print/workorder?id=${order.id}`)
+            }
           >
             <p className="font-medium">
               {order.code} - {order.description}
