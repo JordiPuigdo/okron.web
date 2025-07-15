@@ -43,7 +43,7 @@ const WorkOrderList = ({ workOrders }: WorkOrderListProps) => {
             <p className="font-medium flex items-center gap-2">
               {order.code} - {order.description}{' '}
               {isLoading == order.id && (
-                <SvgSpinner className="w-4 h-4 text-okron-main" />
+                <SvgSpinner className="text-okron-main" />
               )}
             </p>
             <div className="flex gap-4">

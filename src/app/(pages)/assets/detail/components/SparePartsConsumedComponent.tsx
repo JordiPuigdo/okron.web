@@ -68,7 +68,7 @@ const SparePartsConsumedsComponent = ({
             <div className="text-sm font-semibold text-gray-800 flex items-center gap-2">
               {item.sparePartCode} - {item.sparePartDescription}{' '}
               {isLoadingWO == item.workOrderId && (
-                <SvgSpinner className="w-4 h-4 text-okron-main" />
+                <SvgSpinner className="text-okron-main" />
               )}
             </div>
 
