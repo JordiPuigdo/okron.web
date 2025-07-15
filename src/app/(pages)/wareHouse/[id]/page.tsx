@@ -20,7 +20,7 @@ export default function wareHouseDetailPage({
   params: { id: string };
 }) {
   const [wareHouse, setWareHouse] = useState<WareHouseDetail>();
-  const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [totalPrice, setTotalPrice] = useState<string>('0');
   const router = useRouter();
 
   const {
@@ -40,7 +40,13 @@ export default function wareHouseDetailPage({
         acc + Number(item.sparePart.price ?? 0) * Number(item.quantity ?? 0),
       0
     );
-    setTotalPrice(warehouseStockPrice);
+
+    const formattedNumber = new Intl.NumberFormat('es-ES', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(warehouseStockPrice);
+
+    setTotalPrice(formattedNumber);
   }
   useEffect(() => {
     fetch();
@@ -117,7 +123,9 @@ export default function wareHouseDetailPage({
                       <div className="text-2xl font-semibold">
                         {wareHouse.totalStock}
                       </div>
-                      <div className="text-xs text-muted-foreground">Total</div>
+                      <div className="text-xs text-muted-foreground">
+                        Total Referències
+                      </div>
                     </div>
 
                     <div className="rounded-lg bg-gray-100 p-2">
@@ -150,10 +158,10 @@ export default function wareHouseDetailPage({
                         <Box size={18} className="text-red-600" />
                       </div>
                       <div className="text-2xl font-semibold">
-                        {totalPrice.toFixed(2) + '€'}
+                        {totalPrice + '€'}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Preu Total
+                        Valor Stock
                       </div>
                     </div>
                   </div>

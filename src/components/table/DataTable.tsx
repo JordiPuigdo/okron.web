@@ -31,7 +31,7 @@ interface DataTableProps {
   isReport?: boolean;
   hideShadow?: boolean;
   hideExport?: boolean;
-  totalCalculated?: number;
+  totalCalculated?: number | string;
 }
 
 export enum ButtonTypesTable {
@@ -75,7 +75,7 @@ const DataTable: React.FC<DataTableProps> = ({
   const [totalRecords, setTotalRecords] = useState(data.length);
 
   const [totalAmountRecords, setTotalAmountRecords] = useState<
-    number | undefined
+    string | undefined
   >(undefined);
 
   const [pathDetail, setPathDetail] = useState<string>('');
@@ -263,6 +263,12 @@ const DataTable: React.FC<DataTableProps> = ({
     }, 0);
   }, [filteredData]);
 
+  const formattedPrice = new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+  }).format(totalPrice);
+
   const totalStock = useMemo(() => {
     return filteredData.reduce((acc, item) => {
       return acc + (Number(item.stock) || 0);
@@ -373,7 +379,7 @@ const DataTable: React.FC<DataTableProps> = ({
                                   key={col.key}
                                   className="px-4 py-2 text-right"
                                 >
-                                  {totalPrice.toFixed(2)}€
+                                  {formattedPrice}
                                 </td>
                               );
                             }

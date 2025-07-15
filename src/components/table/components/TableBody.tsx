@@ -19,7 +19,7 @@ interface TableBodyProps {
   pathDetail: string;
   onDelete?: (id: string) => void;
   totalCounts: boolean;
-  totalQuantity: number;
+  totalQuantity: number | string;
   filtersApplied: FilterValue;
 }
 
