@@ -27,6 +27,12 @@ const SparePartsConsumedsComponent = ({
       assetId
     );
 
+  const [isLoadingWO, setIsLoadingWO] = useState<string | undefined>(undefined);
+  const handleClickWorkOrder = (id: string) => {
+    setIsLoadingWO(id);
+    router.push(`/print/workorder?id=${id}`);
+  };
+
   if (isLoading)
     return (
       <div className="text-center text-gray-500">
@@ -51,18 +57,19 @@ const SparePartsConsumedsComponent = ({
       {sparePartsConsumeds.map(
         (item: SparePartsConsumedsReport, index: number) => (
           <div
-            key={index}
+            key={index + item.workOrderId}
             className="bg-white rounded-xl shadow-sm p-4 border border-gray-100"
-            onClick={() =>
-              router.push(`/print/workorder?id=${item.workOrderId}`)
-            }
+            onClick={() => handleClickWorkOrder(item.workOrderId)}
           >
             <div className="text-xs text-gray-400 mb-1">
               {dayjs(item.date).format('DD/MM/YYYY HH:mm')}
             </div>
 
-            <div className="text-sm font-semibold text-gray-800">
-              {item.sparePartCode} - {item.sparePartDescription}
+            <div className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+              {item.sparePartCode} - {item.sparePartDescription}{' '}
+              {isLoadingWO == item.workOrderId && (
+                <SvgSpinner className="w-4 h-4 text-okron-main" />
+              )}
             </div>
 
             <div className="text-sm text-gray-600 mt-1">

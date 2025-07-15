@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { SvgSpinner } from 'app/icons/icons';
 import WorkOrder from 'app/interfaces/workOrder';
 import { translateStateWorkOrder } from 'app/utils/utils';
 import dayjs from 'dayjs';
@@ -10,12 +12,18 @@ interface WorkOrderListProps {
 const WorkOrderList = ({ workOrders }: WorkOrderListProps) => {
   const now = new Date();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState<string | undefined>(undefined);
 
   if (workOrders.length === 0) {
     return (
       <p className="text-gray-500">No se encontraron órdenes de trabajo</p>
     );
   }
+
+  const handleClickWorkOrder = (id: string) => {
+    setIsLoading(id);
+    router.push(`/print/workorder?id=${id}`);
+  };
 
   return (
     <div className="space-y-3">
@@ -29,11 +37,14 @@ const WorkOrderList = ({ workOrders }: WorkOrderListProps) => {
             }`}
             onClick={() =>
               !dayjs(order.creationDate).isAfter(now) &&
-              router.push(`/print/workorder?id=${order.id}`)
+              handleClickWorkOrder(order.id)
             }
           >
-            <p className="font-medium">
-              {order.code} - {order.description}
+            <p className="font-medium flex items-center gap-2">
+              {order.code} - {order.description}{' '}
+              {isLoading == order.id && (
+                <SvgSpinner className="w-4 h-4 text-okron-main" />
+              )}
             </p>
             <div className="flex gap-4">
               <p className="text-sm text-gray-500">
