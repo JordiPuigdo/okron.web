@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Tooltip } from 'react-tooltip';
 import { SvgSpinner } from 'app/icons/icons';
 import { Asset } from 'app/interfaces/Asset';
 import AssetService from 'app/services/assetService';
 import useRoutes from 'app/utils/useRoutes';
 import { ElementList } from 'components/selector/ElementList';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+
+import QRButton from './QRButton';
 
 interface AssetFormProps {
   id: string;
@@ -34,10 +37,6 @@ const AssetForm: React.FC<AssetFormProps> = ({
   const { register, handleSubmit, setValue } = useForm();
   const router = useRouter();
   const ROUTES = useRoutes();
-
-  const searchParams = useSearchParams();
-
-  const searchTermFromQuery = searchParams.get('search');
 
   useEffect(() => {
     if (assetData) {
@@ -131,9 +130,17 @@ const AssetForm: React.FC<AssetFormProps> = ({
                 href={ROUTES.preventive.preventiveForm + '?assetId=' + id}
                 className="flex items-center justify-center bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-900 transition duration-300 ease-in-out"
               >
-                Crear Reivisó
+                Crear Revisió
               </Link>
             )}
+            {id != '0' && (
+              <QRButton
+                data-tooltip-id="QR"
+                data-tooltip-content="Generar QR"
+                assetId={id || ''}
+              />
+            )}
+            <Tooltip id="QR" />
           </div>
         </div>
         {id != '0' && (
