@@ -55,13 +55,37 @@ export default function CustomerInstallationItem({
         </div>
 
         <div>
-          <label>Adreça</label>
+          <label>Direcció</label>
           <input
             {...register(`installations.${index}.address.address`, {
               required: "L'adreça és obligatòria",
             })}
             className="w-full border rounded p-2"
-            placeholder="Adreça"
+            placeholder="Direcció"
+          />
+        </div>
+        <div>
+          <label>CP:</label>
+          <input
+            {...register(`installations.${index}.address.postalCode`)}
+            className="w-full border rounded p-2"
+            placeholder="Codi Postal"
+          />
+        </div>
+        <div>
+          <label>Població:</label>
+          <input
+            {...register(`installations.${index}.address.city`)}
+            className="w-full border rounded p-2"
+            placeholder="Població"
+          />
+        </div>
+        <div>
+          <label>Provincia:</label>
+          <input
+            {...register(`installations.${index}.address.province`)}
+            className="w-full border rounded p-2"
+            placeholder="Provincia"
           />
         </div>
       </div>

@@ -6,6 +6,7 @@ export interface CustomerAddress extends BaseModel {
   address: string;
   city: string;
   country: string;
+  province: string;
   isPrimary: boolean;
 }
 
@@ -56,6 +57,7 @@ export interface CreateCustomerRequest {
 export interface CustomerAddressRequest {
   postalCode: string;
   address: string;
+  province: string;
   city: string;
   country: string;
   isPrimary: boolean;

@@ -250,15 +250,32 @@ export default function CustomerForm({
                 </div>
                 <div className="flex flex-col w-full">
                   {initialData && initialData?.address?.length > 0 && (
-                    <div>
+                    <div className="mb-4 pt-1">
                       <label className="block font-medium">
-                        Adreça Principal
+                        Direcció Principal
                       </label>
-                      <input
-                        value={initialData.address[0].address}
-                        disabled
-                        className="w-full border rounded p-2"
-                      />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input
+                          value={initialData.address[0].address}
+                          disabled
+                          className="w-full border rounded p-2"
+                        />
+                        <input
+                          value={initialData.address[0].postalCode}
+                          disabled
+                          className="w-full border rounded p-2"
+                        />
+                        <input
+                          value={initialData.address[0].city}
+                          disabled
+                          className="w-full border rounded p-2"
+                        />
+                        <input
+                          value={initialData.address[0].province}
+                          disabled
+                          className="w-full border rounded p-2"
+                        />
+                      </div>
                     </div>
                   )}
                   {activeTab === CustomerFormTabs.GENERAL && (

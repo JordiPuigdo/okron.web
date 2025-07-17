@@ -90,6 +90,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
         setValue('minium', sparePartLoaded!.minium);
         setValue('maximum', sparePartLoaded!.maximum);
         setValue('active', sparePartLoaded!.active);
+        setValue('rrp', sparePartLoaded!.rrp);
         setValue('isVirtual', sparePartLoaded!.isVirtual);
 
         setSparePart(sparePartLoaded!);
@@ -389,7 +390,14 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                   </label>
                   <input
                     {...register('rrp')}
+                    type="number"
                     className="mt-1 p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                    onChange={e =>
+                      setSparePart({
+                        ...sparePart!,
+                        rrp: Number(e.target.value),
+                      })
+                    }
                   />
                 </div>
               )}
