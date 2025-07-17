@@ -24,6 +24,12 @@ const useRoutes = () => {
       orderPurchase: '/orders/orderForm?isPurchase=true',
       purchase: '/orders/purchases',
     },
+    invoices: {
+      list: '/invoices',
+      create: '/invoices/create',
+      detail: (id: string) => `/invoices/${id}`,
+      edit: (id: string) => `/invoices/${id}/edit`,
+    },
     print: {
       workOrder: '/print/workorder',
       order: '/print/order',

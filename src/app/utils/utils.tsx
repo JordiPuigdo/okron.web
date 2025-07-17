@@ -1,3 +1,4 @@
+import { InvoiceItemType, InvoiceStatus } from 'app/interfaces/InvoiceInterfaces';
 import { OperatorType } from 'app/interfaces/Operator';
 import {
   DowntimesReasonsType,
@@ -64,6 +65,53 @@ export const translateWorkOrderEventType = (
       return 'Creada';
     default:
       return '';
+  }
+};
+
+export const translateInvoiceStatus = (status: InvoiceStatus): string => {
+  switch (status) {
+    case InvoiceStatus.Draft:
+      return 'Esborrany';
+    case InvoiceStatus.Sent:
+      return 'Enviada';
+    case InvoiceStatus.Paid:
+      return 'Pagada';
+    case InvoiceStatus.Overdue:
+      return 'Vençuda';
+    case InvoiceStatus.Cancelled:
+      return 'Cancel·lada';
+    default:
+      return 'Desconegut';
+  }
+};
+
+export const translateInvoiceItemType = (type: InvoiceItemType): string => {
+  switch (type) {
+    case InvoiceItemType.Labor:
+      return 'Mà d\'Obra';
+    case InvoiceItemType.SparePart:
+      return 'Recanvi';
+    case InvoiceItemType.Other:
+      return 'Altres';
+    default:
+      return 'Desconegut';
+  }
+};
+
+export const getInvoiceStatusColor = (status: InvoiceStatus): string => {
+  switch (status) {
+    case InvoiceStatus.Draft:
+      return 'bg-gray-100 text-gray-800';
+    case InvoiceStatus.Sent:
+      return 'bg-blue-100 text-blue-800';
+    case InvoiceStatus.Paid:
+      return 'bg-green-100 text-green-800';
+    case InvoiceStatus.Overdue:
+      return 'bg-red-100 text-red-800';
+    case InvoiceStatus.Cancelled:
+      return 'bg-yellow-100 text-yellow-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
   }
 };
 
