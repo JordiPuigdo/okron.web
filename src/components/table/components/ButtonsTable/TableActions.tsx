@@ -56,7 +56,7 @@ export const TableButtonsComponent = ({
   }
 
   return (
-    <td className={`p-2 ${colorRow}`}>
+    <td className={` ${colorRow} p-4`}>
       <div className="flex flex-row gap-2 justify-center">
         {entity != EntityTable.WORKORDER && (
           <TableButtonsComponentStandard

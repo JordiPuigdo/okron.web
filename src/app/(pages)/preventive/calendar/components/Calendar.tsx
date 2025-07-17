@@ -110,10 +110,6 @@ export default function PreventiveCalendar() {
 
   return (
     <Box p={3}>
-      <Typography variant="h5" mb={2}>
-        Calendar Preventius
-      </Typography>
-
       <div className="p-2 bg-white rounded-md shadow-md mb-4">
         <div className="flex gap-6 p-2">
           <div className="flex w-full">
@@ -133,16 +129,11 @@ export default function PreventiveCalendar() {
           </div>
         </div>
         <div>
-          <Box
-            mb={2}
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-          >
+          <Box className="flex justify-between items-center mb-4">
             <IconButton onClick={goToPreviousMonth}>
               <KeyboardArrowLeftIcon />
             </IconButton>
-            <Typography variant="h6">
+            <Typography variant="h6" className="text-center">
               {currentMonth.format('MMMM YYYY')}
             </Typography>
             <IconButton onClick={goToNextMonth}>
@@ -165,13 +156,7 @@ export default function PreventiveCalendar() {
             <Box
               key={weekIndex}
               display="flex"
-              gap={2}
-              mb={2}
-              sx={{
-                backgroundColor: weekIndex % 2 === 1 ? '#f7f7f7' : '#ffffff',
-                borderRadius: 2,
-                p: 1,
-              }}
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-4"
             >
               {week.map((day, dayIndex) => {
                 const key = dayjs(day).format('YYYY-MM-DD');
@@ -197,19 +182,12 @@ export default function PreventiveCalendar() {
                 return (
                   <Paper
                     key={dayIndex}
+                    className="p-3 flex flex-col bg-white rounded-md shadow-md"
                     sx={{
-                      p: 1,
-                      minWidth: 170,
-                      maxWidth: '100%',
-                      height: isExpanded ? 'auto' : 260,
-                      overflow: 'hidden',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      backgroundColor: '#ffffff',
-                      position: 'relative',
-                      flex: '1 1 200px',
+                      minHeight: 220,
+                      height: 'auto',
+                      flex: '1 1 auto',
                     }}
-                    elevation={2}
                   >
                     <Typography variant="subtitle2" fontWeight="bold">
                       {label}

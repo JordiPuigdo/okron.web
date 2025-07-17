@@ -40,7 +40,7 @@ export default function page({ params }: { params: { id: string } }) {
         <SparePartForm sparePartLoaded={sparePart?.sparePart} />
 
         {sparePart?.sparePart.id && (
-          <div className="p-4 flex-grow rounded-md shadow-md bg-gray-50">
+          <div className="p-4 flex-grow rounded-md shadow-md bg-white">
             <div className="flex items-center mb-4 space-x-2">
               <FaHistory className="text-xl text-gray-700" />
 
@@ -69,7 +69,7 @@ export default function page({ params }: { params: { id: string } }) {
                 Consums
               </button>
             </div>
-            <div className="transition-all duration-300 ease-in-out">
+            <div className="transition-all duration-300 ease-in-out bg-white">
               {activeTab === 'consums' && (
                 <div className="animate-fadeIn">
                   <SparePartTable

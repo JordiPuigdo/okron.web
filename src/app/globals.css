@@ -37,6 +37,17 @@ h1, td, label, span, input, textarea {
 /* Extra Large (xl) */
 @media (min-width: 1280px) { /* ... */ }
 
+@media print {
+  .no-break {
+    page-break-inside: avoid;
+  }
+
+  .no-scroll {
+    overflow: visible !important;
+  }
+}
+
+
 
 /* Hide URL and timestamp in print */
 @page {

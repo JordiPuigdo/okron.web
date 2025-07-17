@@ -139,6 +139,13 @@ export const TableDataOrders = ({
   const totalAmount = filteredOrders.reduce((acc, order) => {
     return acc + (order.totalAmount ?? 0);
   }, 0);
+
+  const formattedPrice = new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+  }).format(totalAmount);
+
   return (
     <div className="flex flex-col h-full gap-4 w-full">
       {title && (
@@ -193,7 +200,7 @@ export const TableDataOrders = ({
         filters={filtersOrders}
         hideShadow={hideShadow}
         totalCounts
-        totalCalculated={totalAmount}
+        totalCalculated={Number(formattedPrice)}
       />
     </div>
   );

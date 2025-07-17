@@ -197,7 +197,13 @@ export const calculateTotalAmountRecords = (data: any[]) => {
     const x = data.reduce((acc, order) => {
       return acc + (order.totalAmount ?? 0);
     }, 0);
-    return x;
+
+    const formattedNumber = new Intl.NumberFormat('es-ES', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(x);
+
+    return formattedNumber;
   } else {
     return undefined;
   }

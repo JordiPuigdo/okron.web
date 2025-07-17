@@ -31,7 +31,7 @@ interface DataTableProps {
   isReport?: boolean;
   hideShadow?: boolean;
   hideExport?: boolean;
-  totalCalculated?: number;
+  totalCalculated?: number | string;
 }
 
 export enum ButtonTypesTable {
@@ -75,7 +75,7 @@ const DataTable: React.FC<DataTableProps> = ({
   const [totalRecords, setTotalRecords] = useState(data.length);
 
   const [totalAmountRecords, setTotalAmountRecords] = useState<
-    number | undefined
+    string | undefined
   >(undefined);
 
   const [pathDetail, setPathDetail] = useState<string>('');
@@ -261,6 +261,12 @@ const DataTable: React.FC<DataTableProps> = ({
     }, 0);
   }, [filteredData]);
 
+  const formattedPrice = new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+  }).format(totalPrice);
+
   const totalStock = useMemo(() => {
     return filteredData.reduce((acc, item) => {
       return acc + (Number(item.stock) || 0);
@@ -314,75 +320,73 @@ const DataTable: React.FC<DataTableProps> = ({
             </div>
           )}
         </div>
-        <div className="p-2 flex-1 overflow-auto">
+        <div className="flex flex-1">
           {isLoading ? (
             <SvgSpinner className="w-full justify-center" />
           ) : (
-            <div className="flex-grow overflow-auto">
-              <table className="w-full text-left text-sm" id={`table${entity}`}>
-                <TableHeader
-                  columns={columns}
-                  enableCheckbox={enableCheckbox}
-                  handleSelectedAllRows={handleSelectedAllRows}
-                  isAllSelected={isAllSelected}
-                  handleSort={handleSort}
-                  sortColumn={sortColumn}
-                  sortOrder={sortOrder}
-                  tableButtons={tableButtons}
-                  entity={entity}
-                />
-                <TableBodyComponent
-                  filteredData={filteredData}
-                  itemsPerPage={itemsPerPage}
-                  handleSelectedRow={handleSelectedRow}
-                  enableCheckbox={enableCheckbox}
-                  selectedRows={selectedRows}
-                  columns={columns}
-                  entity={entity}
-                  isReport={isReport}
-                  tableButtons={tableButtons}
-                  loginUser={loginUser}
-                  pathDetail={pathDetail}
-                  onDelete={onDelete ? onDelete : undefined}
-                  totalCounts={totalCounts}
-                  totalQuantity={totalAmountRecords ?? 0}
-                  filtersApplied={filtersApplied}
-                />
-                {entity === EntityTable.SPAREPART &&
-                  columns?.find(x => x.key === 'price') && (
-                    <tfoot>
-                      <tr className="bg-gray-200 font-semibold text-2xl text-right">
-                        {columns
-                          .filter(x => x.key !== 'id')
-                          .map(col => {
-                            if (col.key === 'stock') {
-                              return (
-                                <td
-                                  key={col.key}
-                                  className="px-4 py-2 text-right"
-                                >
-                                  {totalStock}
-                                </td>
-                              );
-                            }
-                            if (col.key === 'price') {
-                              return (
-                                <td
-                                  key={col.key}
-                                  className="px-4 py-2 text-right"
-                                >
-                                  {totalPrice.toFixed(2)}€
-                                </td>
-                              );
-                            }
-                            return <td key={col.key}></td>;
-                          })}
-                        <td className="px-4 py-2 text-right"></td>
-                      </tr>
-                    </tfoot>
-                  )}
-              </table>
-            </div>
+            <table className="w-full text-sm" id={`table${entity}`}>
+              <TableHeader
+                columns={columns}
+                enableCheckbox={enableCheckbox}
+                handleSelectedAllRows={handleSelectedAllRows}
+                isAllSelected={isAllSelected}
+                handleSort={handleSort}
+                sortColumn={sortColumn}
+                sortOrder={sortOrder}
+                tableButtons={tableButtons}
+                entity={entity}
+              />
+              <TableBodyComponent
+                filteredData={filteredData}
+                itemsPerPage={itemsPerPage}
+                handleSelectedRow={handleSelectedRow}
+                enableCheckbox={enableCheckbox}
+                selectedRows={selectedRows}
+                columns={columns}
+                entity={entity}
+                isReport={isReport}
+                tableButtons={tableButtons}
+                loginUser={loginUser}
+                pathDetail={pathDetail}
+                onDelete={onDelete ? onDelete : undefined}
+                totalCounts={totalCounts}
+                totalQuantity={totalAmountRecords ?? 0}
+                filtersApplied={filtersApplied}
+              />
+              {entity === EntityTable.SPAREPART &&
+                columns?.find(x => x.key === 'price') && (
+                  <tfoot>
+                    <tr className="bg-gray-200 font-semibold text-2xl text-right">
+                      {columns
+                        .filter(x => x.key !== 'id')
+                        .map(col => {
+                          if (col.key === 'stock') {
+                            return (
+                              <td
+                                key={col.key}
+                                className="px-4 py-2 text-right"
+                              >
+                                {totalStock}
+                              </td>
+                            );
+                          }
+                          if (col.key === 'price') {
+                            return (
+                              <td
+                                key={col.key}
+                                className="px-4 py-2 text-right"
+                              >
+                                {formattedPrice}
+                              </td>
+                            );
+                          }
+                          return <td key={col.key}></td>;
+                        })}
+                      <td className="px-4 py-2 text-right"></td>
+                    </tr>
+                  </tfoot>
+                )}
+            </table>
           )}
         </div>
         <div className="p-4 flex flex-row justify-between items-center border-t border-gray-200">

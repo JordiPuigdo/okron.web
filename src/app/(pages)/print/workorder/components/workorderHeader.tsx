@@ -4,26 +4,22 @@ import { formatDate } from 'app/utils/utils';
 export const WorkOrderHeader = ({ workOrder }: { workOrder: WorkOrder }) => {
   const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <div className="flex justify-between">
-        <img
-          src={logoUrl}
-          alt="Components Mecànics Logo"
-          className="h-[150px] w-[150px]"
-        />
-        <div className="flex flex-col justify-center items-end">
-          <h1 className="text-xl font-bold">{workOrder.code}</h1>
-          <p className="text-xl font-bold">{workOrder.description}</p>
-          <p className="text-xl font-semibold">
-            {workOrder.asset?.description}
-          </p>
-          <p className="text-xl font-semibold">
-            {formatDate(workOrder.startTime, false)}
-          </p>
-          {workOrder.workOrderType == WorkOrderType.Preventive && (
-            <p>{workOrder.preventive?.description}</p>
-          )}
-        </div>
+    <div className="flex justify-between items-center md:items-start gap-4 p-2">
+      <img
+        src={logoUrl}
+        alt="Logo"
+        className="h-[100px] w-auto object-contain"
+      />
+      <div className="flex flex-col items-end text-right">
+        <h1 className="text-base font-bold">{workOrder.code}</h1>
+        <p className="text-sm font-bold">{workOrder.description}</p>
+        <p className="text-sm font-semibold">{workOrder.asset?.description}</p>
+        <p className="text-sm font-semibold">
+          {formatDate(workOrder.startTime, false)}
+        </p>
+        {workOrder.workOrderType === WorkOrderType.Preventive && (
+          <p className="text-sm">{workOrder.preventive?.description}</p>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ModalOrderWareHouse from 'app/(pages)/orders/orderForm/components/ModalOrderWareHouse';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import { SvgConsumeSparePart, SvgRestoreSparePart } from 'app/icons/icons';
@@ -39,8 +39,10 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
   );
   const [filteredSpareParts, setFilteredSpareParts] =
     useState<WareHouseStockAvailability[]>();
+
   const { isModalOpen } = useGlobalStore(state => state);
   const { getStockAvailability, warehouses } = useWareHouses(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetch = async () => {
     const responseData = await getStockAvailability();
@@ -50,29 +52,21 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
     fetch();
   }, []);
 
-  const sparePartsLimit = 5;
   const [unitsPerSparePart, setUnitsPerSparePart] = useState<{
     [key: string]: number;
   }>({});
   const { operatorLogged } = useSessionStore(state => state);
 
-  const filterSpareParts = (searchTerm: string) => {
-    /* const filtered = availableSpareParts.filter(sparePart => {
-      const searchText = searchTerm.toLowerCase();
-      if (sparePart.active) {
-        return [
-          sparePart.code,
-          sparePart.description,
-          sparePart.refProvider,
-          sparePart.family,
-          sparePart.ubication,
-        ].some(field => field && field.toLowerCase().includes(searchText));
-      }
-    });
+  const filteredResults = useMemo(() => {
+    if (!filteredSpareParts) return [];
 
-    setFilteredSpareParts(filtered);*/
-  };
-
+    const searchText = searchTerm.toLowerCase();
+    return filteredSpareParts.filter(sparePart =>
+      [sparePart.sparePartCode, sparePart.sparePartName].some(field =>
+        field?.toLowerCase().includes(searchText)
+      )
+    );
+  }, [filteredSpareParts, searchTerm]);
   const [showModalWareHouse, setShowModalWareHouse] = useState<
     WareHouseStockAvailability | undefined
   >(undefined);
@@ -245,7 +239,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
             type="text"
             placeholder="Buscador"
             className="p-2 mb-4 border border-gray-300 rounded-md"
-            onChange={e => filterSpareParts(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
             onKeyPress={e => {
               if (e.key === 'Enter') {
                 e.preventDefault();
@@ -273,68 +267,66 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredSpareParts &&
-                filteredSpareParts
-                  //.slice(0, sparePartsLimit)
-                  .map((sparePart, index) => (
-                    <tr
-                      key={sparePart.sparePartId}
-                      className={`${index % 2 === 0 ? '' : 'bg-gray-100'}`}
-                    >
-                      <td className="p-2 whitespace-nowrap">
-                        {sparePart.sparePartName}
-                      </td>
-                      <td className="p-2 whitespace-nowrap">
-                        {sparePart.warehouseStock.map((stock, index) => (
-                          <div key={index} className="flex justify-start gap-2">
-                            <span className="flex border-r-2 border-black pr-2">{`${stock.warehouse}`}</span>
-                            <span className="flex font-semibold justify-end">
-                              {`${stock.stock} u.`}
-                            </span>
-                          </div>
-                        ))}
-                      </td>
-                      <td className="p-2 whitespace-nowrap">
-                        <input
-                          disabled={isFinished}
-                          type="number"
-                          className="p-2 border border-gray-300 rounded-md w-20"
-                          onKeyPress={e => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                            }
-                          }}
-                          value={unitsPerSparePart[sparePart.sparePartId] || ''}
-                          onChange={e => {
-                            const value = parseInt(e.target.value, 10);
-                            setUnitsPerSparePart(prevUnits => ({
-                              ...prevUnits,
-                              [sparePart.sparePartId]: value,
-                            }));
-                          }}
-                        />
-                      </td>
-                      <td className="p-2 text-center whitespace-nowrap">
-                        <button
-                          disabled={isFinished}
-                          type="button"
-                          className={` ${
-                            isFinished
-                              ? 'bg-gray-400'
-                              : 'bg-orange-400 hover:bg-orange-600'
-                          }  text-white font-semibold p-1 rounded-md ${
-                            selectedSpareParts.find(
-                              part => part.id === sparePart.sparePartId
-                            ) !== undefined
-                              ? 'opacity-50 cursor-not-allowed'
-                              : ''
-                          }`}
-                          onClick={e => checkSparePart(sparePart)}
-                        >
-                          <SvgConsumeSparePart className="w-8 h-8" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                filteredResults.slice(0, 5).map((sparePart, index) => (
+                  <tr
+                    key={sparePart.sparePartId}
+                    className={`${index % 2 === 0 ? '' : 'bg-gray-100'}`}
+                  >
+                    <td className="p-2 whitespace-nowrap">
+                      {sparePart.sparePartName}
+                    </td>
+                    <td className="p-2 whitespace-nowrap">
+                      {sparePart.warehouseStock.map((stock, index) => (
+                        <div key={index} className="flex justify-start gap-2">
+                          <span className="flex border-r-2 border-black pr-2">{`${stock.warehouse}`}</span>
+                          <span className="flex font-semibold justify-end">
+                            {`${stock.stock} u.`}
+                          </span>
+                        </div>
+                      ))}
+                    </td>
+                    <td className="p-2 whitespace-nowrap">
+                      <input
+                        disabled={isFinished}
+                        type="number"
+                        className="p-2 border border-gray-300 rounded-md w-20"
+                        onKeyPress={e => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                          }
+                        }}
+                        value={unitsPerSparePart[sparePart.sparePartId] || ''}
+                        onChange={e => {
+                          const value = parseInt(e.target.value, 10);
+                          setUnitsPerSparePart(prevUnits => ({
+                            ...prevUnits,
+                            [sparePart.sparePartId]: value,
+                          }));
+                        }}
+                      />
+                    </td>
+                    <td className="p-2 text-center whitespace-nowrap">
+                      <button
+                        disabled={isFinished}
+                        type="button"
+                        className={` ${
+                          isFinished
+                            ? 'bg-gray-400'
+                            : 'bg-orange-400 hover:bg-orange-600'
+                        }  text-white font-semibold p-1 rounded-md ${
+                          selectedSpareParts.find(
+                            part => part.id === sparePart.sparePartId
+                          ) !== undefined
+                            ? 'opacity-50 cursor-not-allowed'
+                            : ''
+                        }`}
+                        onClick={e => checkSparePart(sparePart)}
+                      >
+                        <SvgConsumeSparePart className="w-8 h-8" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

@@ -6,13 +6,7 @@ export const WorkOrderPreventiveReport = ({
   workorder: WorkOrder;
 }) => {
   return (
-    <div className="flex flex-col p-6">
-      <div className="w-[150px]">
-        <h2 className="text-xl font-semibold text-gray-800 border p-2 rounded-xl">
-          Preventiu
-        </h2>
-      </div>
-
+    <div className="flex flex-col p-4">
       <div className="w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm">
         {/* Header row */}
         <div className="bg-gray-50 grid grid-cols-[3fr_1fr] p-3 font-medium text-gray-700">
@@ -30,7 +24,7 @@ export const WorkOrderPreventiveReport = ({
           workorder.workOrderInspectionPoint.map((inspectionPoints, index) => (
             <div
               key={index}
-              className={`grid grid-cols-[3fr_1fr] p-3 items-center border-b border-gray-100`}
+              className={`grid grid-cols-[3fr_1fr] p-3 items-center border-b border-gray-100 text-l `}
               aria-label={`Punt d'inspecció: ${inspectionPoints.inspectionPoint.description}`}
             >
               <p

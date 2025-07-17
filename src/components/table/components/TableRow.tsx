@@ -41,7 +41,10 @@ export const TableRowComponent: React.FC<TableRowComponentProps> = ({
   let finalPath = pathDetail;
 
   return (
-    <tr className={`${rowIndex % 2 === 0 ? '' : 'bg-gray-100'}`}>
+    <tr
+      id={rowData.id}
+      className={`${rowIndex % 2 === 0 ? '' : 'bg-gray-100'}`}
+    >
       {enableCheckbox && (
         <td
           className="p-4 hover:cursor-pointer"
