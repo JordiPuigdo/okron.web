@@ -1,87 +1,86 @@
-﻿import { InvoiceCreationRequest, InvoiceDto, InvoiceItemCreationDto, InvoiceListRequest,InvoiceRateDto, UpdateInvoiceRequest } from '../interfaces/InvoiceInterfaces';
+﻿import { Invoice, InvoiceCreateRequest, InvoiceUpdateRequest } from '../interfaces/Invoice';
 
-export default class InvoiceService {
+export class InvoiceService {
   private baseUrl: string;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
 
-  private async fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
-    const response = await fetch(`${this.baseUrl}${url}`, {
-      ...options,
+  async getAll(filters?: any): Promise<Invoice[]> {
+    const queryParams = new URLSearchParams();
+
+    if (filters?.startDate) {
+      queryParams.append('startDate', filters.startDate.toISOString());
+    }
+    if (filters?.endDate) {
+      queryParams.append('endDate', filters.endDate.toISOString());
+    }
+    if (filters?.customerId) {
+      queryParams.append('customerId', filters.customerId);
+    }
+    if (filters?.status !== undefined) {
+      queryParams.append('status', filters.status.toString());
+    }
+
+    const response = await fetch(`${this.baseUrl}/invoices?${queryParams.toString()}`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch invoices');
+    }
+
+    return response.json();
+  }
+
+  async getById(id: string): Promise<Invoice> {
+    const response = await fetch(`${this.baseUrl}/invoices/${id}`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch invoice');
+    }
+
+    return response.json();
+  }
+
+  async create(invoiceData: InvoiceCreateRequest): Promise<Invoice> {
+    const response = await fetch(`${this.baseUrl}/invoices`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...options.headers,
       },
+      body: JSON.stringify(invoiceData),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error('Failed to create invoice');
     }
 
-    return response;
-  }
-
-  async createInvoice(request: InvoiceCreationRequest): Promise<InvoiceDto> {
-    const response = await this.fetchWithAuth('invoices', {
-      method: 'POST',
-      body: JSON.stringify(request),
-    });
     return response.json();
   }
 
-  async updateInvoice(request: UpdateInvoiceRequest): Promise<InvoiceDto> {
-    const response = await this.fetchWithAuth('invoices', {
+  async update(invoiceData: InvoiceUpdateRequest): Promise<Invoice> {
+    const response = await fetch(`${this.baseUrl}/invoices/${invoiceData.id}`, {
       method: 'PUT',
-      body: JSON.stringify(request),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(invoiceData),
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to update invoice');
+    }
+
     return response.json();
   }
 
-  async getInvoiceById(id: string): Promise<InvoiceDto> {
-    const response = await this.fetchWithAuth(`invoices/${id}`);
-    return response.json();
-  }
-
-  async getInvoices(filters?: InvoiceListRequest): Promise<InvoiceDto[]> {
-    const queryParams = new URLSearchParams();
-    if (filters?.startDate) queryParams.append('startDate', filters.startDate);
-    if (filters?.endDate) queryParams.append('endDate', filters.endDate);
-    if (filters?.status) queryParams.append('status', filters.status);
-    if (filters?.companyName) queryParams.append('companyName', filters.companyName);
-
-    const url = `invoices${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-    const response = await this.fetchWithAuth(url);
-    return response.json();
-  }
-
-  async deleteInvoice(id: string): Promise<void> {
-    await this.fetchWithAuth(`invoices/${id}`, {
+  async delete(id: string): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/invoices/${id}`, {
       method: 'DELETE',
     });
-  }
 
-  async generateCode(): Promise<{ code: string }> {
-    const response = await this.fetchWithAuth('invoices/generate-code');
-    return response.json();
-  }
-
-  async getDefaultRates(): Promise<InvoiceRateDto[]> {
-    const response = await this.fetchWithAuth('invoices/default-rates');
-    return response.json();
-  }
-
-  async getSuggestedItems(workOrderIds: string[]): Promise<InvoiceItemCreationDto[]> {
-    const response = await this.fetchWithAuth('invoices/suggested-items', {
-      method: 'POST',
-      body: JSON.stringify(workOrderIds),
-    });
-    return response.json();
-  }
-
-  async exportToPdf(id: string): Promise<Blob> {
-    const response = await this.fetchWithAuth(`invoices/${id}/export`);
-    return response.blob();
+    if (!response.ok) {
+      throw new Error('Failed to delete invoice');
+    }
   }
 }

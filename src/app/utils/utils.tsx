@@ -1,4 +1,3 @@
-import { InvoiceItemType, InvoiceStatus } from 'app/interfaces/InvoiceInterfaces';
 import { OperatorType } from 'app/interfaces/Operator';
 import {
   DowntimesReasonsType,
@@ -16,6 +15,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 
+import { InvoiceItemType, InvoiceStatus } from '../interfaces/Invoice';
 import useRoutes from './useRoutes';
 
 dayjs.extend(customParseFormat);
@@ -72,8 +72,6 @@ export const translateInvoiceStatus = (status: InvoiceStatus): string => {
   switch (status) {
     case InvoiceStatus.Draft:
       return 'Esborrany';
-    case InvoiceStatus.Sent:
-      return 'Enviada';
     case InvoiceStatus.Paid:
       return 'Pagada';
     case InvoiceStatus.Overdue:
@@ -102,8 +100,6 @@ export const getInvoiceStatusColor = (status: InvoiceStatus): string => {
   switch (status) {
     case InvoiceStatus.Draft:
       return 'bg-gray-100 text-gray-800';
-    case InvoiceStatus.Sent:
-      return 'bg-blue-100 text-blue-800';
     case InvoiceStatus.Paid:
       return 'bg-green-100 text-green-800';
     case InvoiceStatus.Overdue:
