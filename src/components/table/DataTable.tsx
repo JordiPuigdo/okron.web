@@ -320,7 +320,7 @@ const DataTable: React.FC<DataTableProps> = ({
             </div>
           )}
         </div>
-        <div className="flex flex-1">
+        <div className="flex">
           {isLoading ? (
             <SvgSpinner className="w-full justify-center" />
           ) : (
