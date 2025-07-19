@@ -58,37 +58,39 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
       [field]: value,
     };
 
-    // Recalculate total for the item
-    if (field === 'quantity' || field === 'unitPrice' || field === 'discount') {
+    // Recalculate totals for the item
+    if (field === 'quantity' || field === 'unitPrice' || field === 'discountPercentage') {
       const item = updatedItems[itemIndex];
-      item.total = item.quantity * item.unitPrice * (1 - item.discount / 100);
+      const subtotalBeforeDiscount = item.quantity * item.unitPrice;
+      item.discountAmount = subtotalBeforeDiscount * (item.discountPercentage / 100);
+      item.lineTotal = subtotalBeforeDiscount - item.discountAmount;
     }
 
-    const subtotal = updatedItems.reduce((sum, item) => sum + item.total, 0);
-    const taxAmount = subtotal * 0.21; // 21% IVA
-    const totalAmount = subtotal + taxAmount;
+    const subtotal = updatedItems.reduce((sum, item) => sum + item.lineTotal, 0);
+    const totalTax = subtotal * 0.21; // 21% IVA
+    const total = subtotal + totalTax;
 
     setFormData(prev => ({
       ...prev,
       items: updatedItems,
       subtotal,
-      taxAmount,
-      totalAmount,
+      totalTax,
+      total,
     }));
   };
 
   const handleRemoveItem = (itemIndex: number) => {
     const updatedItems = formData.items.filter((_, index) => index !== itemIndex);
-    const subtotal = updatedItems.reduce((sum, item) => sum + item.total, 0);
-    const taxAmount = subtotal * 0.21;
-    const totalAmount = subtotal + taxAmount;
+    const subtotal = updatedItems.reduce((sum, item) => sum + item.lineTotal, 0);
+    const totalTax = subtotal * 0.21;
+    const total = subtotal + totalTax;
 
     setFormData(prev => ({
       ...prev,
       items: updatedItems,
       subtotal,
-      taxAmount,
-      totalAmount,
+      totalTax,
+      total,
     }));
   };
 
@@ -103,11 +105,11 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
     try {
       const updateRequest: InvoiceUpdateRequest = {
         id: formData.id,
-        date: formData.date,
+        date: formData.invoiceDate,
         dueDate: formData.dueDate,
         status: formData.status,
         items: formData.items,
-        comment: formData.comment,
+        comment: formData.externalComments || undefined,
       };
 
       await onUpdate(updateRequest);
@@ -126,8 +128,8 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.date?.trim()) {
-      newErrors.date = 'La data es obligatoria';
+    if (!formData.invoiceDate?.trim()) {
+      newErrors.invoiceDate = 'La data es obligatoria';
     }
 
     if (!formData.dueDate?.trim()) {
@@ -165,18 +167,18 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
               <div className="space-y-2">
                 <label className="font-semibold">Data</label>
                 <DatePicker
-                  selected={formData.date ? new Date(formData.date) : new Date()}
+                  selected={formData.invoiceDate ? new Date(formData.invoiceDate) : new Date()}
                   onChange={(date: Date) =>
                     setFormData(prev => ({
                       ...prev,
-                      date: date.toISOString().split('T')[0]
+                      invoiceDate: date.toISOString().split('T')[0]
                     }))
                   }
                   dateFormat="dd/MM/yyyy"
                   locale={ca}
                   className={cn(
                     "flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm",
-                    errors.date && 'border-destructive'
+                    errors.invoiceDate && 'border-destructive'
                   )}
                 />
               </div>
@@ -221,28 +223,38 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
               </div>
             </div>
 
-            {/* Customer Information */}
+            {/* Company Information */}
             <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-semibold mb-2">Client</h3>
+              <h3 className="font-semibold mb-2">Informació de l'Empresa</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <span className="font-medium">Nom:</span> {formData.customer?.name}
+                  <span className="font-medium">Nom:</span> {formData.companyName}
                 </div>
                 <div>
-                  <span className="font-medium">NIF:</span> {formData.customer?.taxId}
+                  <span className="font-medium">Adreça:</span> {formData.companyAddress}
                 </div>
+                <div>
+                  <span className="font-medium">Ciutat:</span> {formData.companyCity}
+                </div>
+                <div>
+                  <span className="font-medium">Codi Postal:</span> {formData.companyPostalCode}
+                </div>
+                {formData.companyProvince && (
+                  <div>
+                    <span className="font-medium">Província:</span> {formData.companyProvince}
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Work Orders */}
-            {formData.workOrders && formData.workOrders.length > 0 && (
+            {formData.workOrderIds && formData.workOrderIds.length > 0 && (
               <div className="p-4 bg-blue-50 rounded-lg">
                 <h3 className="font-semibold mb-2">Ordres de Treball Vinculades</h3>
                 <div className="space-y-2">
-                  {formData.workOrders.map(wo => (
-                    <div key={wo.id} className="flex justify-between">
-                      <span>{wo.code}</span>
-                      <span>{wo.description}</span>
+                  {formData.workOrderIds.map(woId => (
+                    <div key={woId} className="flex justify-between">
+                      <span>{woId}</span>
                     </div>
                   ))}
                 </div>
@@ -261,7 +273,8 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
                     <th className="p-2 border text-center">Quantitat</th>
                     <th className="p-2 border text-center">Preu Unitari</th>
                     <th className="p-2 border text-center">% Dte.</th>
-                    <th className="p-2 border text-center">Total</th>
+                    <th className="p-2 border text-center">Import Dte.</th>
+                    <th className="p-2 border text-center">Total Línia</th>
                     <th className="p-2 border text-center">Accions</th>
                   </tr>
                   </thead>
@@ -291,13 +304,20 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
                       </td>
                       <td className="p-2 border text-center">
                         <EditableCell
-                          value={item.discount.toString()}
-                          onUpdate={(value) => handleItemUpdate(index, 'discount', Number(value))}
+                          value={item.discountPercentage?.toString() ?? '0'}
+                          onUpdate={(value) => handleItemUpdate(index, 'discountPercentage', Number(value))}
                           canEdit={true}
                         />
                       </td>
                       <td className="p-2 border text-center">
-                        {item.total.toFixed(2)}€
+                        {item.discountAmount !== undefined && item.discountAmount !== null && !isNaN(item.discountAmount)
+                          ? `${parseFloat(item.discountAmount.toString()).toFixed(2)}€`
+                          : 'N/A'}
+                      </td>
+                      <td className="p-2 border text-center">
+                        {item.lineTotal !== undefined && item.lineTotal !== null && !isNaN(item.lineTotal)
+                          ? `${parseFloat(item.lineTotal.toString()).toFixed(2)}€`
+                          : 'N/A'}
                       </td>
                       <td className="p-2 border text-center">
                         <button
@@ -330,11 +350,11 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
                 </div>
                 <div className="flex justify-between">
                   <span>IVA (21%):</span>
-                  <span>{formData.taxAmount.toFixed(2)}€</span>
+                  <span>{formData.totalTax !== undefined && formData.totalTax !== null ? formData.totalTax.toFixed(2) : '0.00'}€</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
                   <span>Total:</span>
-                  <span>{formData.totalAmount.toFixed(2)}€</span>
+                  <span>{formData.total.toFixed(2)}€</span>
                 </div>
               </div>
             </div>
@@ -342,14 +362,14 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
             {/* Comment */}
             <div className="space-y-2">
               <label htmlFor="comment" className="font-semibold">
-                Comentari
+                Comentaris Externs
               </label>
               <Textarea
                 id="comment"
                 placeholder="Comentaris addicionals..."
-                value={formData.comment || ''}
+                value={formData.externalComments || ''}
                 onChange={e =>
-                  setFormData(prev => ({ ...prev, comment: e.target.value }))
+                  setFormData(prev => ({ ...prev, externalComments: e.target.value }))
                 }
                 className="min-h-[100px]"
               />

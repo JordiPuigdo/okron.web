@@ -15,33 +15,42 @@ export enum InvoiceItemType {
   Other
 }
 
-export interface InvoiceItem {
-  id?: string;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  discount: number;
-  total: number;
-  workOrderId?: string;
-  workOrder?: WorkOrder;
-}
-
 export interface Invoice {
   id: string;
   code: string;
-  date: string;
+  invoiceDate: string;
   dueDate: string;
-  customerId: string;
-  customer?: Customer;
-  status: InvoiceStatus;
-  items: InvoiceItem[];
+  companyName: string;
+  companyAddress: string;
+  companyCity: string;
+  companyPostalCode: string;
+  companyProvince: string | null;
+  externalComments: string | null;
   subtotal: number;
-  taxAmount: number;
-  totalAmount: number;
+  totalTax: number;
+  total: number;
+  status: InvoiceStatus;
   workOrderIds: string[];
-  workOrders?: WorkOrder[];
+  items: InvoiceItem[];
+  active: boolean;
   creationDate: string;
-  comment?: string;
+}
+
+export interface InvoiceItem {
+  id?: string;
+  type: number;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  discountPercentage: number;
+  discountAmount: number;
+  lineTotal: number;
+  workOrderId?: string;
+  sparePartId?: string;
+  operatorId?: string;
+  operatorType?: string | null;
+  active: boolean;
+  creationDate: string;
 }
 
 export interface InvoiceCreateRequest {

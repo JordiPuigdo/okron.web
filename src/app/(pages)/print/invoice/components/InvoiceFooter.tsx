@@ -13,13 +13,13 @@ export const InvoiceFooter = ({ invoice }: { invoice: Invoice }) => {
         <div className="flex flex-row justify-between">
           <div className="font-bold">IVA (21%):</div>
           <div className="font-bold">
-            {invoice.taxAmount.toFixed(2)}€
+            {invoice.totalTax.toFixed(2)}€
           </div>
         </div>
         <div className="flex flex-row justify-between text-lg border-t pt-2 mt-2">
           <div className="font-bold">Total:</div>
           <div className="font-bold">
-            {invoice.totalAmount.toFixed(2)}€
+            {invoice.total.toFixed(2)}€
           </div>
         </div>
       </div>

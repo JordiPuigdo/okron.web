@@ -126,7 +126,7 @@ export function InvoiceCreateForm() {
 
     try {
       const response = await invoiceService.create(formData as InvoiceCreateRequest);
-      router.push(ROUTES.invoices + '/' + response.id);
+      router.push(`/invoices/${response.id}`);
     } catch (error) {
       console.error('Error creating invoice:', error);
       setIsLoading(false);

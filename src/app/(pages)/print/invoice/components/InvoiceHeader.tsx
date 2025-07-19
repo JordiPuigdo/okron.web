@@ -46,7 +46,7 @@ export const InvoiceHeader = ({ invoice }: { invoice: Invoice }) => {
             <p className="relative">Data</p>
             <div className="p-4">
               <p className="font-semibold">
-                {dayjs(invoice.date).format('DD/MM/YYYY')}
+                {dayjs(invoice.invoiceDate).format('DD/MM/YYYY')}
               </p>
             </div>
           </div>
@@ -70,25 +70,26 @@ export const InvoiceHeader = ({ invoice }: { invoice: Invoice }) => {
           <p>{company.email}</p>
         </div>
         <div className="flex flex-col justify-center items-end">
-          <p className="font-semibold">{invoice.customer?.name}</p>
-          <p>{invoice.customer?.taxId}</p>
-          {invoice.customer?.installations && invoice.customer?.installations[0] && (
-            <>
-              <p className="font-semibold">{invoice.customer.installations[0].address.address}</p>
-              <p>{invoice.customer.installations[0].address.city}</p>
-            </>
+          <p className="font-semibold">{invoice.companyName}</p>
+          <p className="font-semibold">{invoice.companyAddress}</p>
+          <p>{invoice.companyCity}</p>
+          {invoice.companyPostalCode && (
+            <p>{invoice.companyPostalCode}</p>
+          )}
+          {invoice.companyProvince && (
+            <p>{invoice.companyProvince}</p>
           )}
         </div>
       </div>
 
       {/* Work Orders Section */}
-      {invoice.workOrders && invoice.workOrders.length > 0 && (
+      {invoice.workOrderIds && invoice.workOrderIds.length > 0 && (
         <div className="mt-6 p-4 border rounded bg-gray-50">
           <h3 className="font-semibold mb-2">Ordres de Treball:</h3>
           <div className="grid grid-cols-2 gap-2">
-            {invoice.workOrders.map((workOrder, index) => (
+            {invoice.workOrderIds.map((workOrderId, index) => (
               <div key={index} className="text-sm">
-                <span className="font-medium">{workOrder.code}:</span> {workOrder.description}
+                <span className="font-medium">ID:</span> {workOrderId}
               </div>
             ))}
           </div>

@@ -6,6 +6,7 @@ import { Invoice, InvoiceUpdateRequest } from 'app/interfaces/Invoice';
 import Container from 'components/layout/Container';
 import MainLayout from 'components/layout/MainLayout';
 
+import { InvoiceService } from '../../../services/invoiceService';
 import { InvoiceDetailForm } from '../components/InvoiceDetailForm';
 
 interface InvoiceDetailPageProps {
@@ -15,6 +16,9 @@ interface InvoiceDetailPageProps {
 export default function InvoiceDetailPage({ params }: InvoiceDetailPageProps) {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const invoiceService = new InvoiceService(
+    process.env.NEXT_PUBLIC_API_BASE_URL || ''
+  );
 
   useEffect(() => {
     fetchInvoice();
@@ -22,10 +26,8 @@ export default function InvoiceDetailPage({ params }: InvoiceDetailPageProps) {
 
   const fetchInvoice = async () => {
     try {
-      // Replace with actual API call
-      const response = await fetch(`/api/invoices/${params.id}`);
-      const invoiceData = await response.json();
-      setInvoice(invoiceData);
+      const response = await invoiceService.getById(params.id);
+      setInvoice(response);
     } catch (error) {
       console.error('Error fetching invoice:', error);
     } finally {
@@ -35,24 +37,15 @@ export default function InvoiceDetailPage({ params }: InvoiceDetailPageProps) {
 
   const handleUpdate = async (updateRequest: InvoiceUpdateRequest) => {
     try {
-      // Replace with actual API call
-      const response = await fetch(`/api/invoices/${params.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateRequest),
-      });
+      const updatedInvoice = await invoiceService.update(updateRequest);
+      setInvoice(updatedInvoice);
 
-      if (response.ok) {
-        const updatedInvoice = await response.json();
-        setInvoice(updatedInvoice);
-      }
     } catch (error) {
-      console.error('Error updating invoice:', error);
+      console.error('Error actualizando la factura:', error);
       throw error;
     }
   };
+
 
   if (isLoading) {
     return (

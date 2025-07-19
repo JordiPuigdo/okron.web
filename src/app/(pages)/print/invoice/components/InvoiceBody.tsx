@@ -17,9 +17,9 @@ export const InvoiceBody = ({ invoice }: { invoice: Invoice }) => {
         <tr key={index} className="border-t">
           <td className="p-2 border">
             {item.description}
-            {item.workOrder && (
+            {item.workOrderId && (
               <div className="text-xs text-gray-500 mt-1">
-                OT: {item.workOrder.code}
+                OT: {item.workOrderId}
               </div>
             )}
           </td>
@@ -30,10 +30,10 @@ export const InvoiceBody = ({ invoice }: { invoice: Invoice }) => {
             {item.unitPrice.toFixed(2)}€
           </td>
           <td className="p-2 border text-center">
-            {item.discount}%
+            {item.discountPercentage}%
           </td>
           <td className="p-2 border text-center">
-            {item.total.toFixed(2)}€
+            {item.lineTotal.toFixed(2)}€
           </td>
         </tr>
       ))}

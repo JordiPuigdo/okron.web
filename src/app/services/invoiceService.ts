@@ -23,7 +23,7 @@ export class InvoiceService {
       queryParams.append('status', filters.status.toString());
     }
 
-    const response = await fetch(`${this.baseUrl}/invoices?${queryParams.toString()}`);
+    const response = await fetch(`${this.baseUrl}invoices?${queryParams.toString()}`);
 
     if (!response.ok) {
       throw new Error('Failed to fetch invoices');
@@ -33,7 +33,7 @@ export class InvoiceService {
   }
 
   async getById(id: string): Promise<Invoice> {
-    const response = await fetch(`${this.baseUrl}/invoices/${id}`);
+    const response = await fetch(`${this.baseUrl}invoices/${id}`);
 
     if (!response.ok) {
       throw new Error('Failed to fetch invoice');
@@ -43,7 +43,7 @@ export class InvoiceService {
   }
 
   async create(invoiceData: InvoiceCreateRequest): Promise<Invoice> {
-    const response = await fetch(`${this.baseUrl}/invoices`, {
+    const response = await fetch(`${this.baseUrl}invoices`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ export class InvoiceService {
   }
 
   async update(invoiceData: InvoiceUpdateRequest): Promise<Invoice> {
-    const response = await fetch(`${this.baseUrl}/invoices/${invoiceData.id}`, {
+    const response = await fetch(`${this.baseUrl}invoices/${invoiceData.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ export class InvoiceService {
   }
 
   async delete(id: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/invoices/${id}`, {
+    const response = await fetch(`${this.baseUrl}invoices/${id}`, {
       method: 'DELETE',
     });
 
