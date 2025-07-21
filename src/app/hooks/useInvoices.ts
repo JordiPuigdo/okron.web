@@ -91,7 +91,7 @@ export const useInvoices = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/invoices/${invoiceData.id}`, {
+      const response = await fetch(`/api/invoices`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -1,7 +1,4 @@
-﻿import { Customer } from './Customer';
-import WorkOrder from './workOrder';
-
-export enum InvoiceStatus {
+﻿export enum InvoiceStatus {
   Draft = 0,
   Pending = 1,
   Paid = 2,
@@ -63,9 +60,7 @@ export interface InvoiceCreateRequest {
 
 export interface InvoiceUpdateRequest {
   id: string;
-  date: string;
-  dueDate: string;
+  externalComments?: string;
   status: InvoiceStatus;
   items: InvoiceItem[];
-  comment?: string;
 }

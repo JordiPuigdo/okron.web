@@ -105,11 +105,9 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
     try {
       const updateRequest: InvoiceUpdateRequest = {
         id: formData.id,
-        date: formData.invoiceDate,
-        dueDate: formData.dueDate,
+        externalComments: formData.externalComments ?? "",
         status: formData.status,
         items: formData.items,
-        comment: formData.externalComments || undefined,
       };
 
       await onUpdate(updateRequest);

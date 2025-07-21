@@ -150,6 +150,11 @@ const tableButtons: TableButtons = {
 
 const columnsInvoices: Column[] = [
   {
+    label: 'ID',
+    key: 'id',
+    format: ColumnFormat.TEXT,
+  },
+  {
     label: 'Codi',
     key: 'code',
     format: ColumnFormat.TEXT,

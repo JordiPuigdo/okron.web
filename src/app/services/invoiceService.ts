@@ -59,7 +59,7 @@ export class InvoiceService {
   }
 
   async update(invoiceData: InvoiceUpdateRequest): Promise<Invoice> {
-    const response = await fetch(`${this.baseUrl}invoices/${invoiceData.id}`, {
+    const response = await fetch(`${this.baseUrl}invoices/`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

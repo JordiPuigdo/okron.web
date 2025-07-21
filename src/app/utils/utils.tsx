@@ -416,6 +416,9 @@ export const getRoute = (entity: EntityTable) => {
     case EntityTable.WORKORDER:
       return ROUTES.workOrders;
       break;
+    case EntityTable.INVOICE:
+      return ROUTES.invoices.list;
+      break;
     case EntityTable.PREVENTIVE:
       return ROUTES.preventive.configuration;
       break;
