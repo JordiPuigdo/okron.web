@@ -1,17 +1,8 @@
-import {
-  formatDate,
-  translateOperatorType,
-  translateStateWorkOrder,
-  translateWorkOrderType,
-} from 'app/utils/utils';
+import { formatDate, translateOperatorType, translateStateWorkOrder, translateWorkOrderType } from 'app/utils/utils';
 import * as XLSX from 'xlsx';
 
 import { entityStatusConfig } from '../interface/EntityStatusConfig';
-import {
-  Column,
-  ColumnFormat,
-  ColumnnAlign,
-} from '../interface/interfaceTable';
+import { Column, ColumnFormat, ColumnnAlign } from '../interface/interfaceTable';
 import { EntityTable } from '../interface/tableEntitys';
 
 export function onDelete(id: string, entity: EntityTable) {
@@ -131,7 +122,13 @@ export const formatCellContent = (
 
   if (column.format === ColumnFormat.PRICE) {
     className = ' justify-end text-end';
-    value = value.toFixed(2) + '€';
+    const numericValue = value ?? 0;
+    value = typeof numericValue === 'number' ? numericValue.toFixed(2) + '€' : '0.00€';
+  }
+
+  if (column.format == ColumnFormat.INVOICESTATUS){
+    className = getStatusClassName(value, 'INVOICE')
+    value = getStatusText(value, 'INVOICE')
   }
 
   if (column.format === ColumnFormat.STOCKMOVEMENTTYPE) {

@@ -15,6 +15,8 @@ import {
 } from 'components/table/interface/interfaceTable';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 
+import { InvoiceService } from '../../../services/invoiceService';
+
 interface TableDataInvoicesProps {
   className?: string;
   title?: string;
@@ -33,6 +35,9 @@ export const TableDataInvoices = ({
   const [firstLoad, setFirstLoad] = useState(true);
   const defaultDateStartDate = new Date(new Date().getFullYear(), 0, 1);
   const defaultDate = new Date();
+  const invoiceService = new InvoiceService(
+    process.env.NEXT_PUBLIC_API_BASE_URL || ''
+  );
 
   const [dateFilters, setDateFilters] = useState<DateFilters>({
     startDate: defaultDateStartDate,
@@ -60,10 +65,15 @@ export const TableDataInvoices = ({
 
   const fetchInvoices = async () => {
     try {
-      // Replace with actual API call
-      const response = await fetch('/invoices');
-      const data = await response.json();
-      setInvoices(data);
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - 1);
+      const search = {
+        startDateTime: startDate!,
+        endDateTime: endDate!,
+      };
+      const invoices = await invoiceService.getAll(search);
+      setInvoices(invoices);
     } catch (error) {
       console.error('Error fetching invoices:', error);
     }
@@ -94,7 +104,7 @@ export const TableDataInvoices = ({
 
   const filteredInvoices = getFilteredInvoices();
   const totalAmount = filteredInvoices.reduce((acc, invoice) => {
-    return acc + (invoice.totalAmount ?? 0);
+    return acc + (invoice.total ?? 0);
   }, 0);
 
   const formattedPrice = new Intl.NumberFormat('es-ES', {
@@ -102,23 +112,6 @@ export const TableDataInvoices = ({
     currency: 'EUR',
     minimumFractionDigits: 2,
   }).format(totalAmount);
-
-  const translateInvoiceStatus = (status: InvoiceStatus): string => {
-    switch (status) {
-      case InvoiceStatus.Draft:
-        return 'Borrador';
-      case InvoiceStatus.Pending:
-        return 'Pendent';
-      case InvoiceStatus.Paid:
-        return 'Pagada';
-      case InvoiceStatus.Cancelled:
-        return 'Cancel·lada';
-      case InvoiceStatus.Overdue:
-        return 'Vençuda';
-      default:
-        return 'Desconegut';
-    }
-  };
 
   return (
     <div className="flex flex-col h-full gap-4 w-full">
@@ -133,21 +126,6 @@ export const TableDataInvoices = ({
             setDateFilters={setDateFilters}
             dateFilters={dateFilters}
           />
-
-          <div className="flex-1">
-            <FilterType<InvoiceStatus>
-              filters={filters}
-              setFilters={setFilters}
-              validTypes={
-                Object.values(InvoiceStatus).filter(
-                  value => typeof value === 'number'
-                ) as InvoiceStatus[]
-              }
-              filterKey="status"
-              placeholder="Estat"
-              translateFn={translateInvoiceStatus}
-            />
-          </div>
         </div>
         {message && <span className="text-red-500">{message}</span>}
       </div>
@@ -178,12 +156,12 @@ const columnsInvoices: Column[] = [
   },
   {
     label: 'Client',
-    key: 'customer.name',
+    key: 'companyName',
     format: ColumnFormat.TEXT,
   },
   {
     label: 'Data',
-    key: 'date',
+    key: 'invoiceDate',
     format: ColumnFormat.DATE,
   },
   {
@@ -198,7 +176,7 @@ const columnsInvoices: Column[] = [
   },
   {
     label: 'Total',
-    key: 'totalAmount',
+    key: 'total',
     format: ColumnFormat.PRICE,
     align: ColumnnAlign.RIGHT,
   },
