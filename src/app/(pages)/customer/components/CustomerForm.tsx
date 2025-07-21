@@ -10,6 +10,7 @@ import {
   Customer,
   UpdateCustomerRequest,
 } from 'app/interfaces/Customer';
+import { Textarea } from 'components/textarea';
 import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
 
@@ -238,7 +239,7 @@ export default function CustomerForm({
                   </div>
                   <div>
                     <label className="block font-medium">Comentaris</label>
-                    <input
+                    <Textarea
                       {...register('comments')}
                       className="w-full border rounded p-2"
                       placeholder="Comentaris"
