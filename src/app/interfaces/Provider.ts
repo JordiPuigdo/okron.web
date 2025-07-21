@@ -15,6 +15,7 @@ export interface Provider extends BaseModel {
   accountNumber: string;
   paymentMethod: string;
   isVirtual: boolean;
+  comments?: string;
 }
 
 export interface ProviderRequest {
@@ -31,6 +32,7 @@ export interface ProviderRequest {
   accountNumber: string;
   paymentMethod: string;
   isVirtual: boolean;
+  comments?: string;
 }
 
 export interface UpdateProviderRequest extends ProviderRequest {
