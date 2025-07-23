@@ -98,6 +98,10 @@ export function RepairReportForm() {
     setSelectedOperator(prevSelected =>
       prevSelected.filter(id => id !== operatorId)
     );
+    setFormData(prev => ({
+      ...prev,
+      operatorId: (prev.operatorId ?? []).filter(id => id !== operatorId),
+    }));
   };
 
   const handleSelectedCustomer = (id: string) => {
