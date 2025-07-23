@@ -10,6 +10,7 @@ import {
   Customer,
   UpdateCustomerRequest,
 } from 'app/interfaces/Customer';
+import { Textarea } from 'components/textarea';
 import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
 
@@ -225,7 +226,7 @@ export default function CustomerForm({
                     <input
                       {...register('phoneNumber')}
                       className="w-full border rounded p-2"
-                      placeholder="Número de compte"
+                      placeholder="Telèfon"
                     />
                   </div>
                   <div>
@@ -233,7 +234,15 @@ export default function CustomerForm({
                     <input
                       {...register('whatsappNumber')}
                       className="w-full border rounded p-2"
-                      placeholder="Número de compte"
+                      placeholder="Whatsapp"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-medium">Comentaris</label>
+                    <Textarea
+                      {...register('comments')}
+                      className="w-full border rounded p-2"
+                      placeholder="Comentaris"
                     />
                   </div>
                   {initialData && initialData?.id.length > 0 && (

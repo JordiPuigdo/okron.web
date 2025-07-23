@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { SvgSpinner } from 'app/icons/icons';
 import { Provider, UpdateProviderRequest } from 'app/interfaces/Provider';
+import { Textarea } from 'components/textarea';
 import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
 
@@ -201,6 +202,15 @@ export default function ProviderForm({
           ))}
         </select>
       </div>
+      <div>
+        <label className="block font-medium">Comentaris</label>
+        <Textarea
+          {...register('comments')}
+          className="w-full border rounded p-2"
+          placeholder="Comentaris"
+        />
+      </div>
+
       <div>
         <label className="block font-medium">Virtual</label>
         <input

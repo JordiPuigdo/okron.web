@@ -27,6 +27,11 @@ const columnsCustomers: Column[] = [
     format: ColumnFormat.TEXT,
   },
   {
+    label: 'Nom Fiscal',
+    key: 'fiscalName',
+    format: ColumnFormat.TEXT,
+  },
+  {
     label: 'NIF/CIF',
     key: 'taxId',
     format: ColumnFormat.TEXT,
@@ -56,6 +61,11 @@ const filterCustomer: Filters[] = [
   {
     label: 'Nom',
     key: 'name',
+    format: FiltersFormat.TEXT,
+  },
+  {
+    label: 'Nom Fiscal',
+    key: 'fiscalName',
     format: FiltersFormat.TEXT,
   },
   {
