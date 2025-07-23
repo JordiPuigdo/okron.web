@@ -1,14 +1,11 @@
-import { useApiClient } from 'app/hooks/useApiClient';
 import {
   Account,
   CreateAccountRequest,
   UpdateAccountRequest,
 } from 'app/interfaces/Account';
 
-const { getBaseUrl } = useApiClient();
-
 export class AccountService {
-  baseUrl = getBaseUrl()!;
+  baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
   async getAll(): Promise<Account[]> {
     const url = `${this.baseUrl}Account`;
