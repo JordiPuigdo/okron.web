@@ -55,7 +55,6 @@ export const CustomerContactList = () => {
                 <input
                   type="email"
                   {...register(`contacts.${index}.email`, {
-                    required: "L'email és obligatori",
                     pattern: {
                       value: /^\S+@\S+$/i,
                       message: "Format d'email incorrecte",
