@@ -40,7 +40,7 @@ export const TableBodyComponent: React.FC<TableBodyProps> = ({
   totalQuantity,
   filtersApplied,
 }) => (
-  <tbody className="border-b">
+  <tbody className="w-full border-b">
     {filteredData.slice(0, itemsPerPage).map((rowData, rowIndex) => (
       <TableRowComponent
         rowIndex={rowIndex}

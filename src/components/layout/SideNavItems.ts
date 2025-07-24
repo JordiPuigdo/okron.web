@@ -149,8 +149,9 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       UserPermission.Administrator,
       UserPermission.Worker,
       UserPermission.SpareParts,
+      UserPermission.AdminCRM,
     ],
-    userType: [UserType.Maintenance, UserType.Warehouse],
+    userType: [UserType.Maintenance, UserType.Warehouse, UserType.CRM],
   },
   {
     key: generateKey(),

@@ -6,6 +6,7 @@ export interface CustomerAddress extends BaseModel {
   address: string;
   city: string;
   country: string;
+  province: string;
   isPrimary: boolean;
 }
 
@@ -34,6 +35,7 @@ export interface Customer extends BaseModel {
   paymentMethod: PaymentMethod;
   rates: Rate[];
   installations: CustomerInstallations[];
+  comments: string;
 }
 
 export interface CreateCustomerRequest {
@@ -51,11 +53,13 @@ export interface CreateCustomerRequest {
   rates?: Rate[];
   installations?: CustomerInstallations[];
   active?: boolean;
+  comments: string;
 }
 
 export interface CustomerAddressRequest {
   postalCode: string;
   address: string;
+  province: string;
   city: string;
   country: string;
   isPrimary: boolean;

@@ -75,14 +75,23 @@ export const sortData = (
       return 0;
     }
 
-    const aValue = a[sortColumn];
-    const bValue = b[sortColumn];
+    let aValue = a[sortColumn];
+    let bValue = b[sortColumn];
 
-    if (sortOrder === 'ASC') {
-      return aValue > bValue ? 1 : -1;
-    } else {
-      return aValue < bValue ? 1 : -1;
+    // Try converting to numbers if they look like numbers
+    const aNum = parseFloat(aValue);
+    const bNum = parseFloat(bValue);
+    const aIsNumeric = !isNaN(aNum);
+    const bIsNumeric = !isNaN(bNum);
+
+    if (aIsNumeric && bIsNumeric) {
+      aValue = aNum;
+      bValue = bNum;
     }
+
+    if (aValue < bValue) return sortOrder === 'ASC' ? -1 : 1;
+    if (aValue > bValue) return sortOrder === 'ASC' ? 1 : -1;
+    return 0;
   });
 };
 

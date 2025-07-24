@@ -71,6 +71,20 @@ export default function WareHouseForm() {
               )}
             </div>
 
+            <div>
+              <label className="block font-medium">Virtual</label>
+              <input
+                {...register('isVirtual', {})}
+                className="w-full border rounded p-2"
+                type="checkbox"
+              />
+              {errors.description && (
+                <p className="text-red-500 text-sm">
+                  {errors.description.message}
+                </p>
+              )}
+            </div>
+
             <div className="flex flex-row gap-4">
               <Button
                 onClick={handleSubmit(onSubmit)}

@@ -3,6 +3,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { useEffect, useState } from 'react';
 import { Card } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
+import { useAssetHook } from 'app/hooks/useAssetHook';
 import { useCustomers } from 'app/hooks/useCustomers';
 import { useOperatorHook } from 'app/hooks/useOperatorsHook';
 import { useWorkOrders } from 'app/hooks/useWorkOrders';
@@ -43,10 +44,13 @@ export interface RepairReport {
 export function RepairReportForm() {
   const { loginUser } = useSessionStore(state => state);
   const { operators } = useOperatorHook();
-  const { customers } = useCustomers();
+  const { customers, getById } = useCustomers();
+  const { assets } = useAssetHook();
   const router = useRouter();
   const ROUTES = useRoutes();
   const { createRepairWorkOrder, generateWorkOrderCode } = useWorkOrders();
+
+  const [selectedAssets, setSelectedAsset] = useState<string[]>([]);
   const [formData, setFormData] = useState<Partial<RepairReport>>({
     code: '',
     description: '',
@@ -69,8 +73,6 @@ export function RepairReportForm() {
   const [selectedCustomerId, setSelectedCustomerId] = useState<
     string | undefined
   >(undefined);
-  const [selectedCustomerInstallationId, setSelectedCustomerInstallationId] =
-    useState<string | undefined>(undefined);
   const [selectedCustomer, setSelectedCustomer] = useState<
     Customer | undefined
   >(undefined);
@@ -96,15 +98,24 @@ export function RepairReportForm() {
     setSelectedOperator(prevSelected =>
       prevSelected.filter(id => id !== operatorId)
     );
+    setFormData(prev => ({
+      ...prev,
+      operatorId: (prev.operatorId ?? []).filter(id => id !== operatorId),
+    }));
   };
 
   const handleSelectedCustomer = (id: string) => {
     setSelectedCustomerId(id);
-    setSelectedCustomer(customers.find(x => x.id === id));
+    fetchCustomer(id);
     setFormData(prev => ({
       ...prev,
       customerId: id,
     }));
+  };
+
+  const fetchCustomer = async (id: string) => {
+    const customer = await getById(id);
+    setSelectedCustomer(customer);
   };
 
   const handleDeleteSelectedCustomer = () => {
@@ -123,6 +134,17 @@ export function RepairReportForm() {
 
     const response = await createRepairWorkOrder(formData);
     router.push(ROUTES.workOrders + '/' + response.id);
+  };
+
+  const handleAssetSelected = (assetId: string) => {
+    if (assetId == '') return;
+    setFormData(prev => ({ ...prev, assetId }));
+    setSelectedAsset(prevSelected => [...prevSelected, assetId]);
+  };
+
+  const handleDeleteSelectedAsset = (assetId: string) => {
+    setFormData(prev => ({ ...prev, assetId: '' }));
+    setSelectedAsset(prevSelected => prevSelected.filter(id => id !== assetId));
   };
 
   const validateForm = (): boolean => {
@@ -226,6 +248,23 @@ export function RepairReportForm() {
             </p>
           )}
         </div>
+        <div className="space-y-2">
+          <div className="space-y-2">
+            <label className="font-semibold">Objecte</label>
+            <ChooseElement
+              elements={assets ?? []}
+              selectedElements={selectedAssets}
+              onElementSelected={handleAssetSelected}
+              onDeleteElementSelected={handleDeleteSelectedAsset}
+              placeholder="Buscar Equip"
+              mapElement={asset => ({
+                id: asset.id,
+                code: asset.code,
+                description: asset.code + ' - ' + asset.description,
+              })}
+            />
+          </div>
+        </div>
         <div className="space-y-6">
           <div className="space-y-2">
             <label className="font-semibold">Operaris</label>
@@ -279,20 +318,21 @@ export function RepairReportForm() {
                 <ChooseElement
                   elements={selectedCustomer.installations}
                   selectedElements={
-                    selectedCustomerInstallationId
-                      ? [selectedCustomerInstallationId]
-                      : []
+                    formData.installationId ? [formData.installationId] : []
                   }
                   onElementSelected={id =>
-                    setSelectedCustomerInstallationId(id)
+                    setFormData(prev => ({
+                      ...prev,
+                      installationId: id,
+                    }))
                   }
                   onDeleteElementSelected={() =>
-                    setSelectedCustomerInstallationId(undefined)
+                    setFormData(prev => ({ ...prev, installationId: '' }))
                   }
                   placeholder="Buscar Botiga"
                   mapElement={installation => ({
                     id: installation.id,
-                    description: `${installation.code} - ${installation.address}`,
+                    description: `${installation.code} - ${installation.address.address}`,
                   })}
                 />
               </div>

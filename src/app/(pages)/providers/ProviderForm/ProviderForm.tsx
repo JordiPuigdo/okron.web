@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { SvgSpinner } from 'app/icons/icons';
 import { Provider, UpdateProviderRequest } from 'app/interfaces/Provider';
+import { Textarea } from 'components/textarea';
 import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
 
@@ -29,7 +30,8 @@ export default function ProviderForm({
   useEffect(() => {
     if (providerData) {
       Object.keys(providerData).forEach(key => {
-        if (key === 'active') return;
+        if (key === 'active' || key === 'isVirtual') return;
+
         const value = providerData[key as keyof Provider];
         const formattedValue =
           typeof value === 'boolean'
@@ -40,6 +42,7 @@ export default function ProviderForm({
         setValue(key as keyof UpdateProviderRequest, formattedValue as string);
       });
       setValue('active', providerData.active);
+      setValue('isVirtual', providerData.isVirtual);
     }
   }, [providerData, setValue]);
 
@@ -64,9 +67,7 @@ export default function ProviderForm({
       <div>
         <label className="block font-medium">Nom Comercial</label>
         <input
-          {...register('commercialName', {
-            required: 'El nombre es obligatorio',
-          })}
+          {...register('commercialName')}
           className="w-full border rounded p-2"
           placeholder="Nombre del proveedor"
         />
@@ -78,9 +79,7 @@ export default function ProviderForm({
       <div>
         <label className="block font-medium">NIE</label>
         <input
-          {...register('nie', {
-            required: 'El NIE es obligatori',
-          })}
+          {...register('nie')}
           className="w-full border rounded p-2"
           placeholder="NIE del proveeïdor"
         />
@@ -143,9 +142,7 @@ export default function ProviderForm({
         <div>
           <label className="block font-medium">Telèfon</label>
           <input
-            {...register('phoneNumber', {
-              required: 'El telèfon es obligatori',
-            })}
+            {...register('phoneNumber')}
             className="w-full border rounded p-2"
             placeholder="Telèfon"
           />
@@ -161,7 +158,6 @@ export default function ProviderForm({
           <input
             type="email"
             {...register('email', {
-              required: 'El email es obligatorio',
               pattern: {
                 value: /\S+@\S+\.\S+/,
                 message: 'Formato de email inválido',
@@ -206,6 +202,23 @@ export default function ProviderForm({
           ))}
         </select>
       </div>
+      <div>
+        <label className="block font-medium">Comentaris</label>
+        <Textarea
+          {...register('comments')}
+          className="w-full border rounded p-2"
+          placeholder="Comentaris"
+        />
+      </div>
+
+      <div>
+        <label className="block font-medium">Virtual</label>
+        <input
+          {...register('isVirtual')}
+          type="checkbox"
+          onChange={e => setValue('isVirtual', e.target.checked ? true : false)}
+        />
+      </div>
       {providerData && (
         <div>
           <label className="block font-medium">Estat del proveïdor</label>
@@ -213,6 +226,7 @@ export default function ProviderForm({
             {...register('active')}
             type="checkbox"
             checked={providerData?.active}
+            onChange={e => setValue('active', e.target.checked ? true : false)}
           />
         </div>
       )}

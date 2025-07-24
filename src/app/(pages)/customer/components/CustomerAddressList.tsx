@@ -35,11 +35,35 @@ export const CustomerAddressList = () => {
               className="flex flex-col gap-4  border-2 border-blue-200 rounded-lg p-4 bg-blue-50 "
             >
               <div className="flex flex-col w-full gap-2">
-                <label>Adreça</label>
+                <label>Direcció</label>
                 <input
                   {...register(`address.${index}.address`)}
                   className="w-full border rounded p-2"
                   placeholder="Carrer i número"
+                />
+              </div>
+              <div className="flex flex-col w-full gap-2">
+                <label>CP:</label>
+                <input
+                  {...register(`address.${index}.postalCode`)}
+                  className="w-full border rounded p-2"
+                  placeholder="Codi Postal"
+                />
+              </div>
+              <div className="flex flex-col w-full gap-2">
+                <label>Població:</label>
+                <input
+                  {...register(`address.${index}.city`)}
+                  className="w-full border rounded p-2"
+                  placeholder="Població"
+                />
+              </div>
+              <div className="flex flex-col w-full gap-2">
+                <label>Provincia:</label>
+                <input
+                  {...register(`address.${index}.province`)}
+                  className="w-full border rounded p-2"
+                  placeholder="provincia"
                 />
               </div>
               <div className="col-span-2 flex justify-between items-center">

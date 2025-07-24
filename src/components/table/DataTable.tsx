@@ -125,8 +125,6 @@ const DataTable: React.FC<DataTableProps> = ({
   };
 
   useEffect(() => {
-    console.log('useEffect DataTable');
-
     const indexOfLastRecord = currentPage * itemsPerPage;
     const indexOfFirstRecord = indexOfLastRecord - itemsPerPage;
 
@@ -322,7 +320,7 @@ const DataTable: React.FC<DataTableProps> = ({
             </div>
           )}
         </div>
-        <div className="flex flex-1">
+        <div className="flex">
           {isLoading ? (
             <SvgSpinner className="w-full justify-center" />
           ) : (

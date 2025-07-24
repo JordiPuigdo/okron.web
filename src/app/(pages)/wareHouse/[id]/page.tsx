@@ -68,6 +68,7 @@ export default function wareHouseDetailPage({
       code: wareHouse!.code,
       description: wareHouse!.description,
       active: wareHouse!.active,
+      isVirtual: wareHouse!.isVirtual,
     });
   }
 
@@ -104,6 +105,20 @@ export default function wareHouseDetailPage({
                       })
                     }
                   />
+                  <div className="flex flex-row gap-2 items-center mt-2">
+                    <label className="font-semibold">Virtual</label>
+                    <input
+                      type="checkbox"
+                      checked={wareHouse?.isVirtual}
+                      onChange={e =>
+                        setWareHouse({
+                          ...wareHouse,
+                          isVirtual: e.target.checked,
+                        })
+                      }
+                      className="border rounded p-2"
+                    />
+                  </div>
                   <div className="flex flex-row gap-2 items-center mt-2">
                     <label className="font-semibold">Actiu</label>
                     <input

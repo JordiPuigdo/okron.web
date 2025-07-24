@@ -22,6 +22,8 @@ interface SparePart {
   lastRestockDate: Date;
   providers: ProviderSpareParts[];
   warehouses: WarehousesSparePart[];
+  isVirtual: boolean;
+  rrp: number;
 }
 
 export interface ProviderSpareParts {

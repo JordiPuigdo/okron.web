@@ -11,6 +11,7 @@ export interface WareHouse extends BaseModel {
   code: string;
   description: string;
   stock?: WareHouseStock[];
+  isVirtual: boolean;
 }
 
 export interface WareHouseStock {
@@ -26,6 +27,7 @@ export interface WareHouseStock {
 export interface WareHouseRequest {
   code: string;
   description: string;
+  isVirtual: boolean;
 }
 
 export interface UpdateWareHouseRequest extends WareHouseRequest {

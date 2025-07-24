@@ -14,6 +14,8 @@ export interface Provider extends BaseModel {
   whatsappNumber: string;
   accountNumber: string;
   paymentMethod: string;
+  isVirtual: boolean;
+  comments?: string;
 }
 
 export interface ProviderRequest {
@@ -29,6 +31,8 @@ export interface ProviderRequest {
   whatsappNumber: string;
   accountNumber: string;
   paymentMethod: string;
+  isVirtual: boolean;
+  comments?: string;
 }
 
 export interface UpdateProviderRequest extends ProviderRequest {

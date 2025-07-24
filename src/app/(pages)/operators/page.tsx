@@ -106,7 +106,9 @@ function OperatorsPage() {
         <div className="flex flex-col h-full">
           {renderHeader(operators)}
           <DataTable
-            data={operators.sort((a, b) => a.code.localeCompare(b.code))}
+            data={operators.sort((a, b) =>
+              a.code.localeCompare(b.code, undefined, { numeric: true })
+            )}
             filters={filters}
             columns={columns}
             tableButtons={tableButtons}
@@ -136,6 +138,10 @@ const renderHeader = (operators: Operator[]) => {
   };
 
   async function createOperator(operator: Operator) {
+    if (operator.code.length == 0) {
+      alert('El codi no pot estar buit');
+      return;
+    }
     const existingOperator = operators.find(op => op.code === operator.code);
 
     if (existingOperator) {
@@ -144,6 +150,7 @@ const renderHeader = (operators: Operator[]) => {
       if (operator.operatorType == null)
         operator.operatorType = OperatorType.Maintenance;
       const data = await operatorService.createOperator(operator);
+      window.location.reload();
       setIsOperatorCreated(true);
       setIsFormVisible(false);
     }

@@ -10,6 +10,7 @@ import {
   Customer,
   UpdateCustomerRequest,
 } from 'app/interfaces/Customer';
+import { Textarea } from 'components/textarea';
 import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
 
@@ -56,6 +57,9 @@ export default function CustomerForm({
   const contactsCount = watch('contacts')?.length || 0;
   const ratesCount = watch('rates')?.length || 0;
   const installationsCount = watch('installations')?.length || 0;
+  const [successMessage, setSuccessMessage] = useState<string | undefined>(
+    undefined
+  );
 
   const { createCustomer, updateCustomer, getNewCustomerCode, error } =
     useCustomers();
@@ -85,13 +89,20 @@ export default function CustomerForm({
 
   const onSubmit = async (data: CreateCustomerRequest) => {
     if (isEdit) {
-      await updateCustomer({
+      const response = await updateCustomer({
         ...(data as UpdateCustomerRequest),
         id: initialData!.id,
       });
+      if (response) {
+        setSuccessMessage('Client actualitzat correctament');
+      }
     } else {
       await createCustomer(data);
     }
+
+    setTimeout(() => {
+      setSuccessMessage(undefined);
+    }, 3000);
     if (onSuccess) onSuccess();
   };
 
@@ -215,7 +226,7 @@ export default function CustomerForm({
                     <input
                       {...register('phoneNumber')}
                       className="w-full border rounded p-2"
-                      placeholder="Número de compte"
+                      placeholder="Telèfon"
                     />
                   </div>
                   <div>
@@ -223,7 +234,15 @@ export default function CustomerForm({
                     <input
                       {...register('whatsappNumber')}
                       className="w-full border rounded p-2"
-                      placeholder="Número de compte"
+                      placeholder="Whatsapp"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-medium">Comentaris</label>
+                    <Textarea
+                      {...register('comments')}
+                      className="w-full border rounded p-2"
+                      placeholder="Comentaris"
                     />
                   </div>
                   {initialData && initialData?.id.length > 0 && (
@@ -238,24 +257,40 @@ export default function CustomerForm({
                     </div>
                   )}
                 </div>
-
-                {initialData && initialData?.address?.length > 0 && (
-                  <div className="flex flex-col w-full">
-                    <div>
+                <div className="flex flex-col w-full">
+                  {initialData && initialData?.address?.length > 0 && (
+                    <div className="mb-4 pt-1">
                       <label className="block font-medium">
-                        Adreça Principal
+                        Direcció Principal
                       </label>
-                      <input
-                        value={initialData.address[0].address}
-                        disabled
-                        className="w-full border rounded p-2"
-                      />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input
+                          value={initialData.address[0].address}
+                          disabled
+                          className="w-full border rounded p-2"
+                        />
+                        <input
+                          value={initialData.address[0].postalCode}
+                          disabled
+                          className="w-full border rounded p-2"
+                        />
+                        <input
+                          value={initialData.address[0].city}
+                          disabled
+                          className="w-full border rounded p-2"
+                        />
+                        <input
+                          value={initialData.address[0].province}
+                          disabled
+                          className="w-full border rounded p-2"
+                        />
+                      </div>
                     </div>
-                    {activeTab === CustomerFormTabs.GENERAL && (
-                      <CustomerAddressList />
-                    )}
-                  </div>
-                )}
+                  )}
+                  {activeTab === CustomerFormTabs.GENERAL && (
+                    <CustomerAddressList />
+                  )}
+                </div>
               </div>
             )}
 
@@ -313,6 +348,9 @@ export default function CustomerForm({
                   </Button>
                 </div>
                 {error && <p className="text-red-500 text-sm">{error}</p>}
+                {successMessage && (
+                  <p className="text-green-500 text-sm">{successMessage}</p>
+                )}
               </li>
             </ul>
           </Card>
