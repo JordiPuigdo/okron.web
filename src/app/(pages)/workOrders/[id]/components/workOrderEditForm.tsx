@@ -226,10 +226,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
       const operatorsToAdd = aviableOperators?.filter((operator: any) =>
         responseWorkOrder.operatorId!.includes(operator.id)
       );
-      setSelectedOperators(prevSelected => [
-        ...prevSelected,
-        ...operatorsToAdd!,
-      ]);
+      setSelectedOperators(operatorsToAdd!);
 
       setWorkOrderEvents(prevSelected => [
         ...prevSelected,
@@ -445,8 +442,9 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
 
   function handleSelectOperator(operatorId: string) {
     const operator = aviableOperators?.find(x => x.id === operatorId);
-    setSelectedOperators([...selectedOperators, operator!]);
-    setValue('operatorId', selectedOperators.map(x => x.id).concat(','));
+    const updatedOperators = [...selectedOperators, operator!];
+    setSelectedOperators(updatedOperators);
+    setValue('operatorId', updatedOperators.map(x => x.id).concat(','));
   }
 
   function handleDeleteSelectedOperator(operatorId: string) {
