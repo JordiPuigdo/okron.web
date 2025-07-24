@@ -448,9 +448,9 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
   }
 
   function handleDeleteSelectedOperator(operatorId: string) {
-    setSelectedOperators(prevSelected =>
-      prevSelected.filter(x => x.id !== operatorId)
-    );
+    const updatedOperators = selectedOperators.filter(x => x.id !== operatorId);
+    setSelectedOperators(updatedOperators);
+    setValue('operatorId', updatedOperators.map(x => x.id).concat(','));
   }
 
   const hasDefaultReason =
