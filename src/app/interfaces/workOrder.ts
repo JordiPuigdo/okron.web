@@ -83,6 +83,12 @@ export interface WorkOrderOperatorTimes {
   endTime?: Date;
   totalTime?: string;
   operator: Operator;
+  type?: WorkOrderOperatorTimeType;
+}
+
+export enum WorkOrderOperatorTimeType {
+  Time,
+  Travel,
 }
 
 export interface UpdateWorkOrderRequest extends CreateWorkOrderRequest {

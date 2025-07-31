@@ -6,13 +6,13 @@ import {
   SvgSpinner,
 } from 'app/icons/icons';
 import Operator from 'app/interfaces/Operator';
-import { UserPermission } from 'app/interfaces/User';
 import {
   AddWorkOrderOperatorTimes,
   DeleteWorkOrderOperatorTimes,
   FinishWorkOrderOperatorTimes,
   UpdateWorkOrderOperatorTimes,
   WorkOrderOperatorTimes,
+  WorkOrderOperatorTimeType,
 } from 'app/interfaces/workOrder';
 import WorkOrderService from 'app/services/workOrderService';
 import { useSessionStore } from 'app/stores/globalStore';
@@ -55,7 +55,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
   const [editingIndex, setEditingIndex] = useState(-1);
   const [editedStartTime, setEditedStartTime] = useState('');
   const [editedEndTime, setEditedEndTime] = useState('');
-  const { isAdmin } = usePermissions();
+  const { isAdmin, isCRM } = usePermissions();
   const addWorkOrderTime = async () => {
     setIsLoading(true);
 
@@ -439,6 +439,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
               >
                 Operari
               </th>
+              {isCRM && <th>Temps</th>}
               {isAdmin() && (
                 <th
                   scope="col"
@@ -498,6 +499,12 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                     {time.operator.name}
                   </div>
                 </td>
+                {isCRM && (
+                  <td>
+                    {time.type === WorkOrderOperatorTimeType.Time && 'Hora'}
+                    {time.type === WorkOrderOperatorTimeType.Travel && 'Viatge'}
+                  </td>
+                )}
                 {isAdmin() && (
                   <td className="px-6 py-4 whitespace-nowrap align-center flex flex-row gap-4">
                     <button
