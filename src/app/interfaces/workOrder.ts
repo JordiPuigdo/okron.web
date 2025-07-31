@@ -62,6 +62,8 @@ export enum StateWorkOrder {
   PendingToValidate,
   Open,
   Closed,
+  NotFinished,
+  Invoiced,
 }
 
 export enum OriginWorkOrder {

@@ -44,6 +44,7 @@ export const entityStatusConfig: Record<string, StatusConfig> = {
       '5': 'bg-okron-pendingValidate',
       '6': 'bg-okron-btCreate',
       '7': 'bg-okron-finished',
+      '8': 'bg-okron-paused',
     },
   },
   OPERATOR: {
