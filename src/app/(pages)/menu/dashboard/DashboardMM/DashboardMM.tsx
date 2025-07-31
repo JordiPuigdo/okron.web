@@ -119,6 +119,8 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     [StateWorkOrder.Finished]: 'bg-okron-finished',
     [StateWorkOrder.Open]: 'bg-green-500',
     [StateWorkOrder.Closed]: 'bg-okron-finished',
+    [StateWorkOrder.NotFinished]: 'bg-okron-paused',
+    [StateWorkOrder.Invoiced]: 'bg-okron-error',
   };
 
   const handleFilterClick = (e: React.ChangeEvent<HTMLSelectElement>) => {

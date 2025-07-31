@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { usePermissions } from 'app/hooks/usePermissions';
 import {
   SvgLoginOperator,
   SvgLogoutOperator,
@@ -54,7 +55,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
   const [editingIndex, setEditingIndex] = useState(-1);
   const [editedStartTime, setEditedStartTime] = useState('');
   const [editedEndTime, setEditedEndTime] = useState('');
-
+  const { isAdmin } = usePermissions();
   const addWorkOrderTime = async () => {
     setIsLoading(true);
 
@@ -438,7 +439,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
               >
                 Operari
               </th>
-              {loginUser?.permission == UserPermission.Administrator && (
+              {isAdmin() && (
                 <th
                   scope="col"
                   className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider"
@@ -497,7 +498,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                     {time.operator.name}
                   </div>
                 </td>
-                {loginUser?.permission == UserPermission.Administrator && (
+                {isAdmin() && (
                   <td className="px-6 py-4 whitespace-nowrap align-center flex flex-row gap-4">
                     <button
                       type="button"
@@ -566,9 +567,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                 Temps Total
               </td>
               <td
-                colSpan={
-                  loginUser?.permission == UserPermission.Administrator ? 3 : 2
-                }
+                colSpan={isAdmin() ? 3 : 2}
                 className="p-2 whitespace-nowrap text-sm text-gray-900 font-bold"
               >
                 {totalFormatted}
@@ -576,13 +575,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
             </tr>
             {Object.keys(totalTimes).map(operatorId => (
               <tr key={operatorId}>
-                <td
-                  colSpan={
-                    loginUser?.permission == UserPermission.Administrator
-                      ? 4
-                      : 3
-                  }
-                ></td>
+                <td colSpan={isAdmin() ? 4 : 3}></td>
                 <td className="p-2 whitespace-nowrap text-sm text-gray-900 font-bold">
                   {operators.find(op => op.id === operatorId)?.name}:{' '}
                   {totalTimes[operatorId]}
