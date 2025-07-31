@@ -180,6 +180,14 @@ export interface WorkOrderComment {
   creationDate: string;
   comment: string;
   operator: Operator;
+  type: WorkOrderCommentType;
+  urls: string[];
+}
+
+export enum WorkOrderCommentType {
+  Internal,
+  External,
+  NoFinished,
 }
 
 export interface AddCommentToWorkOrderRequest {

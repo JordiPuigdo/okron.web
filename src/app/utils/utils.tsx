@@ -5,6 +5,7 @@ import {
 } from 'app/interfaces/Production/Downtimes';
 import {
   StateWorkOrder,
+  WorkOrderCommentType,
   WorkOrderEventType,
   WorkOrderType,
 } from 'app/interfaces/workOrder';
@@ -41,6 +42,21 @@ export const translateStateWorkOrder = (state: any): string => {
       return 'Tancat';
     case StateWorkOrder.NotFinished:
       return 'No Finalitzada';
+    default:
+      return '';
+  }
+};
+
+export const translateWorkOrderCommentType = (
+  commentType: WorkOrderCommentType
+): string => {
+  switch (commentType) {
+    case WorkOrderCommentType.Internal:
+      return 'Observacions';
+    case WorkOrderCommentType.External:
+      return 'Resolució';
+    case WorkOrderCommentType.NoFinished:
+      return 'No Finalitzat';
     default:
       return '';
   }
