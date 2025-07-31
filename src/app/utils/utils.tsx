@@ -54,7 +54,7 @@ export const translateWorkOrderCommentType = (
     case WorkOrderCommentType.Internal:
       return 'Observacions';
     case WorkOrderCommentType.External:
-      return 'Resolució';
+      return 'Descripció reparació';
     case WorkOrderCommentType.NoFinished:
       return 'No Finalitzat';
     default:
