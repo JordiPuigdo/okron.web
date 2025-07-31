@@ -439,7 +439,14 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
               >
                 Operari
               </th>
-              {isCRM && <th>Temps</th>}
+              {isCRM && (
+                <th
+                  scope="col"
+                  className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Temps
+                </th>
+              )}
               {isAdmin() && (
                 <th
                   scope="col"
@@ -500,9 +507,12 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                   </div>
                 </td>
                 {isCRM && (
-                  <td>
-                    {time.type === WorkOrderOperatorTimeType.Time && 'Hora'}
-                    {time.type === WorkOrderOperatorTimeType.Travel && 'Viatge'}
+                  <td className="p-2 whitespace-nowrap">
+                    <div className="text-sm text-gray-900 ">
+                      {time.type === WorkOrderOperatorTimeType.Time && 'Hora'}
+                      {time.type === WorkOrderOperatorTimeType.Travel &&
+                        'Viatge'}
+                    </div>
                   </td>
                 )}
                 {isAdmin() && (

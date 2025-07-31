@@ -271,6 +271,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
               totalTime: t.endTime
                 ? formatTotaltime(t.startTime, t.endTime)
                 : '',
+              type: t.type,
             }));
           return [...prevworkOrderOperatorTimes, ...newworkOrderOperatorTimes];
         });
