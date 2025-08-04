@@ -187,6 +187,14 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
+    title: 'Albarans',
+    icon: SvgReport,
+    path: '/deliveryNotes',
+    permission: [UserPermission.AdminCRM, UserPermission.AdminCRM],
+    userType: [UserType.CRM],
+  },
+  {
+    key: generateKey(),
     title: 'Configuració',
     path: '',
     permission: [UserPermission.Administrator, UserPermission.AdminCRM],

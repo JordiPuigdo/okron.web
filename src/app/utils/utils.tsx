@@ -1,13 +1,6 @@
 import { OperatorType } from 'app/interfaces/Operator';
-import {
-  DowntimesReasonsType,
-  OriginDowntime,
-} from 'app/interfaces/Production/Downtimes';
-import {
-  StateWorkOrder,
-  WorkOrderEventType,
-  WorkOrderType,
-} from 'app/interfaces/workOrder';
+import { DowntimesReasonsType, OriginDowntime } from 'app/interfaces/Production/Downtimes';
+import { StateWorkOrder, WorkOrderEventType, WorkOrderType } from 'app/interfaces/workOrder';
 import { useSessionStore } from 'app/stores/globalStore';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 import dayjs from 'dayjs';
@@ -448,6 +441,8 @@ export const getRoute = (entity: EntityTable) => {
       break;
     case EntityTable.CUSTOMER:
       return ROUTES.customer;
+    case EntityTable.DELIVERYNOTE:
+      return ROUTES.deliveryNote.list
     default:
       return 'error';
   }

@@ -102,4 +102,20 @@ export const entityStatusConfig: Record<string, StatusConfig> = {
       '4': 'bg-okron-pendingValidate'
     },
   },
+  DELIVERYNOTE: {
+    names: {
+      '0': 'Borrador',
+      '1': 'Enviat',
+      '2': 'Pagat',
+      '3': 'Vençut',
+      '4': 'Cancel·lat'
+    },
+    colors: {
+      '0': 'bg-okron-waiting',
+      '1': 'bg-okron-onGoing',
+      '2': 'bg-okron-finished',
+      '3': 'bg-okron-pendingValidate',
+      '4': 'bg-okron-error'
+    },
+  },
 };

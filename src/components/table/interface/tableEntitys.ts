@@ -16,4 +16,5 @@ export enum EntityTable {
   Account = 'Account',
   CUSTOMER = 'CUSTOMER',
   INVOICE = 'INVOICE',
+  DELIVERYNOTE = 'DELIVERYNOTE',
 }

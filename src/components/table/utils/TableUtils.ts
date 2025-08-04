@@ -140,6 +140,11 @@ export const formatCellContent = (
     value = getStatusText(value, 'INVOICE')
   }
 
+  if (column.format === ColumnFormat.DELIVERYNOTESTATUS) {
+    className = getStatusClassName(value, 'DELIVERYNOTE');
+    value = getStatusText(value, 'DELIVERYNOTE');
+  }
+
   if (column.format === ColumnFormat.STOCKMOVEMENTTYPE) {
     className = getStatusClassName(value, 'STOCKMOVEMENT');
     console.log(value);
