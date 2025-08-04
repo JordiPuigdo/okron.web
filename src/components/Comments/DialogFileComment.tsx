@@ -20,14 +20,14 @@ export const DialogFileComment = ({
             className="flex w-full justify-end"
             onClick={handleCloseZoomedImage}
           >
-            <SvgCross className="cursor-pointer h-6 w-6 appearance-none p-1" />
+            <SvgCross className="cursor-pointer h-6 w-6 appearance-none p-1 z-0" />
           </Button>
           {zoomedImage && (
             <Image
               src={zoomedImage.replace(/ /g, '%20')}
               alt="Imatge ampliada"
-              width={1200}
-              height={1200}
+              width={800}
+              height={800}
               className="rounded-3xl p-4 object-contain"
             />
           )}
