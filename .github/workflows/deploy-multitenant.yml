@@ -32,6 +32,16 @@ jobs:
         source .env
         set +o allexport
 
+    - name: Set client-specific env variable inline
+      run: |
+        if [ "${{ github.event.inputs.client }}" = "jpont" ]; then
+          echo "ENV_VARS=--env NEXT_PUBLIC_API_BASE_URL=https://jpontokronapi.azurewebsites.net/api/" >> $GITHUB_ENV
+        elif [ "${{ github.event.inputs.client }}" = "kolder" ]; then
+          echo "ENV_VARS=--env NEXT_PUBLIC_API_BASE_URL=https://kolderapi.azurewebsites.net/api/" >> $GITHUB_ENV
+        else
+          echo "ENV_VARS=" >> $GITHUB_ENV
+        fi
+        
     - name: Deploy to Vercel
       run: |
         # Vincula el proyecto (si no está vinculado)
