@@ -28,10 +28,12 @@ jobs:
 
     - name: Deploy to Vercel
       run: |
+        # Primero cargar las variables de entorno
+        vercel env pull .env --token ${{ secrets.VERCEL_TOKEN }} --environment production
+        # Luego hacer deploy
         vercel deploy --prod \
           --token ${{ secrets.VERCEL_TOKEN }} \
           --yes \
-          --env-file .env \
           --name ${{ github.event.inputs.client }}
 
     - name: Alias domain
