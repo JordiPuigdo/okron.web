@@ -215,7 +215,7 @@ export function DeliveryNoteAdvancedSearchForm({
         {/* Action Buttons */}
         <div className="flex gap-3 pt-4 border-t">
           <Button
-            type="search"
+            type="create"
             isSubmit
             disabled={isLoading}
             className="flex items-center"
