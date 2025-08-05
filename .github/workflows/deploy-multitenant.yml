@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       client:
-        description: 'JPONT'
+        description: 'Client:'
         required: true
 
 jobs:
@@ -28,6 +28,8 @@ jobs:
 
     - name: Deploy to Vercel
       run: |
+        # Vincula el proyecto (si no está vinculado)
+        vercel link --yes --token ${{ secrets.VERCEL_TOKEN }} --project okron-web
         # Primero cargar las variables de entorno
         vercel env pull .env --token ${{ secrets.VERCEL_TOKEN }} --environment production
         # Luego hacer deploy
