@@ -315,13 +315,14 @@ export function BodyOrderForm({
   }
   return (
     <div className="flex flex-col h-full">
-      {order.type == OrderType.Purchase && !isEditing && (
-        <SearchSparePartOrderPurchase
-          handleAddOrderItem={handleAddOrderItem}
-          onSelectedSparePart={setSelectedSparePart}
-          selectedProvider={selectedProvider}
-        />
-      )}
+      {order.type == OrderType.Purchase &&
+        (!isEditing || order.status == OrderStatus.Pending) && (
+          <SearchSparePartOrderPurchase
+            handleAddOrderItem={handleAddOrderItem}
+            onSelectedSparePart={setSelectedSparePart}
+            selectedProvider={selectedProvider}
+          />
+        )}
       {order.type == OrderType.Purchase ? (
         <OrderDetailItems
           handleRemoveItem={handleRemoveItem}
