@@ -40,8 +40,7 @@ jobs:
 
     - name: Alias domain
       run: |
-        vercel alias set \
-          https://appname-${{ github.event.inputs.client }}.vercel.app \
-          ${{ github.event.inputs.client }}.okron.io \
-          --token ${{ secrets.VERCEL_TOKEN }}
+        # Obtiene la última URL de deployment
+        DEPLOYMENT_URL=$(vercel ls --token ${{ secrets.VERCEL_TOKEN }} --limit 1 --json | jq -r '.[0].url')
+        vercel alias set $DEPLOYMENT_URL ${{ github.event.inputs.client }}.okron.io --token ${{ secrets.VERCEL_TOKEN }}
 
