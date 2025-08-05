@@ -161,6 +161,8 @@ export const formatCellContent = (
       : ' bg-red-500 p-2 rounded-xl text-white';
   }
 
+  if (column.className) className += ` ${column.className}`;
+
   if (column.align === ColumnnAlign.RIGHT) classNametd += ' text-right pr-8';
   if (rowData.colorRow) classNametd += ` ${rowData.colorRow}`;
 

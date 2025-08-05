@@ -4,6 +4,7 @@ export interface Column {
   format: ColumnFormat;
   width?: string;
   align?: string;
+  className?: string;
 }
 
 export interface Filters {

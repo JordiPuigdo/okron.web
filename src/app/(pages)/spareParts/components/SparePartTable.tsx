@@ -88,6 +88,14 @@ const columns: Column[] = [
     align: ColumnnAlign.RIGHT,
   },
   {
+    label: 'Pdt.',
+    key: 'pendingQuantity',
+    format: ColumnFormat.NUMBER,
+    align: ColumnnAlign.RIGHT,
+    className:
+      'font-semibold bg-yellow-200 p-2 rounded-xl text-xl  text-center',
+  },
+  {
     label: 'Preu',
     key: 'price',
     format: ColumnFormat.PRICE,
