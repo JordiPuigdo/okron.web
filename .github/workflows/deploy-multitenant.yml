@@ -33,14 +33,15 @@ jobs:
         # Primero cargar las variables de entorno
         vercel env pull .env --token ${{ secrets.VERCEL_TOKEN }} --environment production
         # Luego hacer deploy
-        vercel deploy --prod \
+        DEPLOYMENT_URL=$(vercel deploy --prod \
           --token ${{ secrets.VERCEL_TOKEN }} \
           --yes \
-          --name ${{ github.event.inputs.client }}
+          --name ${{ github.event.inputs.client }} \
+          --confirm)
+        echo "DEPLOYMENT_URL=$DEPLOYMENT_URL" >> $GITHUB_ENV
 
     - name: Alias domain
       run: |
-        # Obtiene la última URL de deployment
-        DEPLOYMENT_URL=$(vercel ls --token ${{ secrets.VERCEL_TOKEN }} --limit 1 --json | jq -r '.[0].url')
-        vercel alias set $DEPLOYMENT_URL ${{ github.event.inputs.client }}.okron.io --token ${{ secrets.VERCEL_TOKEN }}
+        vercel alias set https://${{ env.DEPLOYMENT_URL }} ${{ github.event.inputs.client }}.okron.io --token ${{ secrets.VERCEL_TOKEN }}
+
 
