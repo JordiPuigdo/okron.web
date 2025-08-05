@@ -26,12 +26,16 @@ jobs:
     - name: Load client-specific env
       run: cp vercel-configs/${{ github.event.inputs.client }}.env .env
 
+    - name: Export env variables
+      run: |
+        set -o allexport
+        source .env
+        set +o allexport
+
     - name: Deploy to Vercel
       run: |
         # Vincula el proyecto (si no está vinculado)
         vercel link --yes --token ${{ secrets.VERCEL_TOKEN }} --project okron-web
-        # Primero cargar las variables de entorno
-        vercel env pull .env --token ${{ secrets.VERCEL_TOKEN }} --environment production
         # Luego hacer deploy
         DEPLOYMENT_URL=$(vercel deploy --prod \
           --token ${{ secrets.VERCEL_TOKEN }} \
