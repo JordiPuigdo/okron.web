@@ -1,0 +1,42 @@
+name: Multitenant Deploy to Vercel
+
+on:
+  workflow_dispatch:
+    inputs:
+      client:
+        description: 'Nombre del cliente (ej: client1)'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install Vercel CLI
+      run: npm install -g vercel
+
+    - name: Load client-specific env
+      run: cp vercel-configs/${{ github.event.inputs.client }}.env .env
+
+    - name: Deploy to Vercel
+      run: |
+        vercel deploy --prod \
+          --token ${{ secrets.VERCEL_TOKEN }} \
+          --yes \
+          --env-file .env \
+          --name appname-${{ github.event.inputs.client }}
+
+    - name: Alias domain
+      run: |
+        vercel alias set \
+          https://appname-${{ github.event.inputs.client }}.vercel.app \
+          ${{ github.event.inputs.client }}.appname.com \
+          --token ${{ secrets.VERCEL_TOKEN }}
