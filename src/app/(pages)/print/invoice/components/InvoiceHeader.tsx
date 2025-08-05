@@ -16,17 +16,6 @@ export const InvoiceHeader = ({ invoice }: { invoice: Invoice }) => {
   const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
   const company: CompanyInfo = companyData;
 
-  const translateInvoiceStatus = (status: number): string => {
-    switch (status) {
-      case 0: return 'Borrador';
-      case 1: return 'Pendent';
-      case 2: return 'Pagada';
-      case 3: return 'Cancel·lada';
-      case 4: return 'Vençuda';
-      default: return 'Desconegut';
-    }
-  };
-
   return (
     <div>
       <div className="flex justify-between">
@@ -82,16 +71,12 @@ export const InvoiceHeader = ({ invoice }: { invoice: Invoice }) => {
         </div>
       </div>
 
-      {/* Work Orders Section */}
-      {invoice.workOrderIds && invoice.workOrderIds.length > 0 && (
+      {/* Delivery Note Section */}
+      {invoice.deliveryNoteId && (
         <div className="mt-6 p-4 border rounded bg-gray-50">
-          <h3 className="font-semibold mb-2">Ordres de Treball:</h3>
-          <div className="grid grid-cols-2 gap-2">
-            {invoice.workOrderIds.map((workOrderId, index) => (
-              <div key={index} className="text-sm">
-                <span className="font-medium">ID:</span> {workOrderId}
-              </div>
-            ))}
+          <h3 className="font-semibold mb-2">Albarà:</h3>
+          <div className="text-sm">
+            <span className="font-medium">ID:</span> {invoice.deliveryNoteId}
           </div>
         </div>
       )}

@@ -1,10 +1,16 @@
 ﻿import { useState } from 'react';
-import { Invoice, InvoiceCreateRequest, InvoiceUpdateRequest } from 'app/interfaces/Invoice';
+import { DeliveryNote } from 'app/interfaces/DeliveryNote';
+import { DeliveryNoteSearchFilters,Invoice, InvoiceCreateRequest, InvoiceSearchFilters, InvoiceUpdateRequest } from 'app/interfaces/Invoice';
+import { InvoiceService } from 'app/services/invoiceService';
 
 export const useInvoices = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const invoiceService = new InvoiceService(
+    process.env.NEXT_PUBLIC_API_BASE_URL || ''
+  );
 
   const fetchInvoices = async (filters?: any) => {
     setIsLoading(true);
@@ -139,6 +145,49 @@ export const useInvoices = () => {
     }
   };
 
+  const searchInvoices = async (filters: InvoiceSearchFilters): Promise<Invoice[]> => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const results = await invoiceService.searchInvoices(filters);
+      setInvoices(results);
+      return results;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const searchDeliveryNotes = async (filters: DeliveryNoteSearchFilters): Promise<DeliveryNote[]> => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const results = await invoiceService.searchDeliveryNotes(filters);
+      return results;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const validateInvoiceCreation = async (deliveryNoteId: string): Promise<{isValid: boolean, message: string}> => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await invoiceService.validateInvoiceCreation(deliveryNoteId);
+      return result;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      return { isValid: false, message: 'Error validating delivery note' };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     invoices,
     isLoading,
@@ -148,5 +197,8 @@ export const useInvoices = () => {
     createInvoice,
     updateInvoice,
     deleteInvoice,
+    searchInvoices,
+    searchDeliveryNotes,
+    validateInvoiceCreation,
   };
 };

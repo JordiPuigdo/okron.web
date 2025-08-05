@@ -245,16 +245,18 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
               </div>
             </div>
 
-            {/* Work Orders */}
-            {formData.workOrderIds && formData.workOrderIds.length > 0 && (
+            {/* Delivery Note */}
+            {formData.deliveryNoteId && (
               <div className="p-4 bg-blue-50 rounded-lg">
-                <h3 className="font-semibold mb-2">Ordres de Treball Vinculades</h3>
-                <div className="space-y-2">
-                  {formData.workOrderIds.map(woId => (
-                    <div key={woId} className="flex justify-between">
-                      <span>{woId}</span>
-                    </div>
-                  ))}
+                <h3 className="font-semibold mb-2">Albarà Vinculat</h3>
+                <div className="flex justify-between items-center">
+                  <span>ID: {formData.deliveryNoteId}</span>
+                  <button
+                    onClick={() => router.push(`/deliveryNotes/${formData.deliveryNoteId}`)}
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    Veure Detalls
+                  </button>
                 </div>
               </div>
             )}

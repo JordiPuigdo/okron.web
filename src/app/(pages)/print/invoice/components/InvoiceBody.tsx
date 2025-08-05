@@ -17,9 +17,9 @@ export const InvoiceBody = ({ invoice }: { invoice: Invoice }) => {
         <tr key={index} className="border-t">
           <td className="p-2 border">
             {item.description}
-            {item.workOrderId && (
+            {item.deliveryNoteId && (
               <div className="text-xs text-gray-500 mt-1">
-                OT: {item.workOrderId}
+                Albarà: {item.deliveryNoteId}
               </div>
             )}
           </td>

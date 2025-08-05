@@ -3,8 +3,11 @@ import { SvgPackage } from 'app/icons/designSystem/SvgPackage';
 import {
   SvgActiu,
   SvgAvarie,
+  SvgCustomer,
+  SvgDeliveryNote,
   SvgGear,
   SvgInspect,
+  SvgInvoice,
   SvgMenu,
   SvgOperari,
   SvgOrder,
@@ -172,7 +175,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   {
     key: generateKey(),
     title: 'Clients',
-    icon: SvgReport,
+    icon: SvgCustomer,
     path: '/customer',
     permission: [UserPermission.AdminCRM, UserPermission.AdminCRM],
     userType: [UserType.CRM],
@@ -180,7 +183,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   {
     key: generateKey(),
     title: 'Facturas',
-    icon: SvgReport,
+    icon: SvgInvoice,
     path: '/invoices',
     permission: [UserPermission.AdminCRM, UserPermission.AdminCRM],
     userType: [UserType.CRM],
@@ -188,7 +191,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   {
     key: generateKey(),
     title: 'Albarans',
-    icon: SvgReport,
+    icon: SvgDeliveryNote,
     path: '/deliveryNotes',
     permission: [UserPermission.AdminCRM, UserPermission.AdminCRM],
     userType: [UserType.CRM],

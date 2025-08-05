@@ -27,7 +27,7 @@ export interface Invoice {
   totalTax: number;
   total: number;
   status: InvoiceStatus;
-  workOrderIds: string[];
+  deliveryNoteId: string;
   items: InvoiceItem[];
   active: boolean;
   creationDate: string;
@@ -42,7 +42,7 @@ export interface InvoiceItem {
   discountPercentage: number;
   discountAmount: number;
   lineTotal: number;
-  workOrderId?: string;
+  deliveryNoteId?: string;
   sparePartId?: string;
   operatorId?: string;
   operatorType?: string | null;
@@ -51,11 +51,9 @@ export interface InvoiceItem {
 }
 
 export interface InvoiceCreateRequest {
-  date: string;
+  deliveryNoteId: string;
+  invoiceDate: string;
   dueDate: string;
-  customerId: string;
-  workOrderIds: string[];
-  comment?: string;
 }
 
 export interface InvoiceUpdateRequest {
@@ -63,4 +61,35 @@ export interface InvoiceUpdateRequest {
   externalComments?: string;
   status: InvoiceStatus;
   items: InvoiceItem[];
+  companyName?: string;
+  companyAddress?: string;
+  companyCity?: string;
+  companyPostalCode?: string;
+  companyProvince?: string;
+}
+
+export interface InvoiceSearchFilters {
+  companyName?: string;
+  customerId?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: InvoiceStatus;
+  deliveryNoteId?: string;
+  invoiceCode?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  hasDeliveryNote?: boolean;
+}
+
+export interface DeliveryNoteSearchFilters {
+  companyName?: string;
+  customerId?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+  deliveryNoteCode?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  hasInvoice?: boolean;
+  workOrderIds?: string[];
 }

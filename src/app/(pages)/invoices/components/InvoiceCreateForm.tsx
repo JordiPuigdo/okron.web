@@ -2,47 +2,42 @@
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { useCustomers } from 'app/hooks/useCustomers';
 import { SvgSpinner } from 'app/icons/icons';
 import { Customer } from 'app/interfaces/Customer';
-import { InvoiceCreateRequest, InvoiceStatus } from 'app/interfaces/Invoice';
-import { UserType } from 'app/interfaces/User';
-import WorkOrder, { OriginWorkOrder } from 'app/interfaces/workOrder';
+import { DeliveryNote } from 'app/interfaces/DeliveryNote';
+import { InvoiceCreateRequest } from 'app/interfaces/Invoice';
 import { cn } from 'app/lib/utils';
-import useRoutes from 'app/utils/useRoutes';
 import ChooseElement from 'components/ChooseElement';
 import { HeaderForm } from 'components/layout/HeaderForm';
-import { Textarea } from 'components/textarea';
 import { ca } from 'date-fns/locale';
 import { Button } from 'designSystem/Button/Buttons';
 import { Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+import { DeliveryNoteService } from '../../../services/deliveryNoteService';
 import { InvoiceService } from '../../../services/invoiceService';
-import WorkOrderService from '../../../services/workOrderService';
 
 export function InvoiceCreateForm() {
   const { customers, getById } = useCustomers();
   const router = useRouter();
-  const ROUTES = useRoutes();
 
   const [formData, setFormData] = useState<Partial<InvoiceCreateRequest>>({
-    date: new Date().toISOString().split('T')[0],
+    deliveryNoteId: '',
+    invoiceDate: new Date().toISOString().split('T')[0],
     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
-    customerId: '',
-    workOrderIds: [],
-    comment: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | undefined>(undefined);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | undefined>(undefined);
-  const [availableWorkOrders, setAvailableWorkOrders] = useState<WorkOrder[]>([]);
-  const [selectedWorkOrderIds, setSelectedWorkOrderIds] = useState<string[]>([]);
-  const workOrderService = new WorkOrderService(
+  const [availableDeliveryNotes, setAvailableDeliveryNotes] = useState<DeliveryNote[]>([]);
+  const [selectedDeliveryNoteId, setSelectedDeliveryNoteId] = useState<string | undefined>(undefined);
+  const [selectedDeliveryNote, setSelectedDeliveryNote] = useState<DeliveryNote | undefined>(undefined);
+  const deliveryNoteService = new DeliveryNoteService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
   const invoiceService = new InvoiceService(
@@ -52,10 +47,13 @@ export function InvoiceCreateForm() {
   const handleSelectedCustomer = (id: string) => {
     setSelectedCustomerId(id);
     fetchCustomer(id);
-    fetchWorkOrders(id);
+    fetchCustomerDeliveryNotes(id);
+    // Reset delivery note selection when customer changes
+    setSelectedDeliveryNoteId(undefined);
+    setSelectedDeliveryNote(undefined);
     setFormData(prev => ({
       ...prev,
-      customerId: id,
+      deliveryNoteId: '',
     }));
   };
 
@@ -64,55 +62,57 @@ export function InvoiceCreateForm() {
     setSelectedCustomer(customer);
   };
 
-  const fetchWorkOrders = async (customerId: string) => {
+  const fetchCustomerDeliveryNotes = async (customerId: string) => {
     try {
-      // Get work orders from last month for this customer
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setMonth(startDate.getMonth() - 1);
-      const search = {
-        startDateTime: startDate!,
-        endDateTime: endDate!,
-        originWorkOrder: OriginWorkOrder.Maintenance,
-        userType: UserType.Maintenance,
-        customerId: selectedCustomer?.id,
-      };
-      const workOrders = await workOrderService.getWorkOrdersWithFilters(search);
-      setAvailableWorkOrders(workOrders);
+      // Fetch delivery notes for this customer that don't have an invoice yet
+      // Try both customerId and companyName to ensure compatibility
+      const customer = await getById(customerId);
+      const deliveryNotes = await deliveryNoteService.searchDeliveryNotes({
+        customerId: customerId,
+        companyName: customer?.name,
+        hasInvoice: false
+      });
+      setAvailableDeliveryNotes(deliveryNotes);
     } catch (error) {
-      console.error('Error fetching work orders:', error);
+      console.error('Error fetching delivery notes:', error);
+      setAvailableDeliveryNotes([]);
     }
   };
 
   const handleDeleteSelectedCustomer = () => {
     setSelectedCustomer(undefined);
     setSelectedCustomerId(undefined);
-    setAvailableWorkOrders([]);
-    setSelectedWorkOrderIds([]);
+    setAvailableDeliveryNotes([]);
+    setSelectedDeliveryNoteId(undefined);
+    setSelectedDeliveryNote(undefined);
     setFormData(prev => ({
       ...prev,
-      customerId: '',
-      workOrderIds: [],
+      deliveryNoteId: '',
     }));
   };
 
-  const handleWorkOrderSelected = (workOrderId: string) => {
-    if (!selectedWorkOrderIds.includes(workOrderId)) {
-      const newSelected = [...selectedWorkOrderIds, workOrderId];
-      setSelectedWorkOrderIds(newSelected);
-      setFormData(prev => ({
-        ...prev,
-        workOrderIds: newSelected,
-      }));
+  const handleDeliveryNoteSelected = async (deliveryNoteId: string) => {
+    setSelectedDeliveryNoteId(deliveryNoteId);
+    setFormData(prev => ({
+      ...prev,
+      deliveryNoteId: deliveryNoteId,
+    }));
+    
+    // Fetch and set the selected delivery note details
+    try {
+      const deliveryNote = await deliveryNoteService.getById(deliveryNoteId);
+      setSelectedDeliveryNote(deliveryNote);
+    } catch (error) {
+      console.error('Error fetching delivery note:', error);
     }
   };
 
-  const handleDeleteWorkOrder = (workOrderId: string) => {
-    const newSelected = selectedWorkOrderIds.filter(id => id !== workOrderId);
-    setSelectedWorkOrderIds(newSelected);
+  const handleDeleteSelectedDeliveryNote = () => {
+    setSelectedDeliveryNote(undefined);
+    setSelectedDeliveryNoteId(undefined);
     setFormData(prev => ({
       ...prev,
-      workOrderIds: newSelected,
+      deliveryNoteId: '',
     }));
   };
 
@@ -136,41 +136,24 @@ export function InvoiceCreateForm() {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.date?.trim()) {
-      newErrors.date = 'La data es obligatoria';
+    if (!formData.invoiceDate?.trim()) {
+      newErrors.invoiceDate = 'La data es obligatoria';
     }
 
     if (!formData.dueDate?.trim()) {
       newErrors.dueDate = 'La data de venciment es obligatoria';
     }
 
-    if (!formData.customerId) {
+    if (!selectedCustomerId) {
       newErrors.customerId = 'Cal seleccionar un client';
     }
 
-    if (!formData.workOrderIds || formData.workOrderIds.length === 0) {
-      newErrors.workOrderIds = 'Cal seleccionar almenys una ordre de treball';
+    if (!formData.deliveryNoteId) {
+      newErrors.deliveryNoteId = 'Cal seleccionar un albarà';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-
-  const translateInvoiceStatus = (status: InvoiceStatus): string => {
-    switch (status) {
-      case InvoiceStatus.Draft:
-        return 'Borrador';
-      case InvoiceStatus.Pending:
-        return 'Pendent';
-      case InvoiceStatus.Paid:
-        return 'Pagada';
-      case InvoiceStatus.Cancelled:
-        return 'Cancel·lada';
-      case InvoiceStatus.Overdue:
-        return 'Vençuda';
-      default:
-        return 'Desconegut';
-    }
   };
 
   return (
@@ -194,23 +177,23 @@ export function InvoiceCreateForm() {
               <div className="space-y-2">
                 <label className="font-semibold">Data</label>
                 <DatePicker
-                  selected={formData.date ? new Date(formData.date) : new Date()}
+                  selected={formData.invoiceDate ? new Date(formData.invoiceDate) : new Date()}
                   onChange={(date: Date) =>
                     setFormData(prev => ({
                       ...prev,
-                      date: date.toISOString().split('T')[0],
+                      invoiceDate: date.toISOString().split('T')[0],
                     }))
                   }
                   dateFormat="dd/MM/yyyy"
                   locale={ca}
                   className={cn(
                     'flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm',
-                    errors.date && 'border-destructive',
+                    errors.invoiceDate && 'border-destructive',
                   )}
                 />
-                {errors.date && (
+                {errors.invoiceDate && (
                   <p className="text-destructive text-sm text-red-500">
-                    {errors.date}
+                    {errors.invoiceDate}
                   </p>
                 )}
               </div>
@@ -244,7 +227,7 @@ export function InvoiceCreateForm() {
             <div className="space-y-2">
               <label className="font-semibold">Client</label>
               <ChooseElement
-                elements={customers ? customers.filter(x => x.active == true) : []}
+                elements={customers ? customers.filter(x => x.active) : []}
                 selectedElements={selectedCustomerId ? [selectedCustomerId] : []}
                 onElementSelected={handleSelectedCustomer}
                 onDeleteElementSelected={handleDeleteSelectedCustomer}
@@ -261,44 +244,51 @@ export function InvoiceCreateForm() {
               )}
             </div>
 
-            {/* Work Orders Selection */}
-            {selectedCustomer && availableWorkOrders.length > 0 && (
+            {/* Delivery Note Selection - Only show when customer is selected */}
+            {selectedCustomer && (
               <div className="space-y-2">
-                <label className="font-semibold">Ordres de Treball</label>
-                <ChooseElement
-                  elements={availableWorkOrders}
-                  selectedElements={selectedWorkOrderIds}
-                  onElementSelected={handleWorkOrderSelected}
-                  onDeleteElementSelected={handleDeleteWorkOrder}
-                  placeholder="Buscar Ordres de Treball"
-                  mapElement={workOrder => ({
-                    id: workOrder.id,
-                    description: `${workOrder.code} - ${workOrder.description}`,
-                  })}
-                />
-                {errors.workOrderIds && (
-                  <p className="text-destructive text-sm text-red-500">
-                    {errors.workOrderIds}
+                <label className="font-semibold">Albarans del Client</label>
+                {availableDeliveryNotes.length > 0 ? (
+                  <>
+                    <ChooseElement
+                      elements={availableDeliveryNotes}
+                      selectedElements={selectedDeliveryNoteId ? [selectedDeliveryNoteId] : []}
+                      onElementSelected={handleDeliveryNoteSelected}
+                      onDeleteElementSelected={handleDeleteSelectedDeliveryNote}
+                      placeholder="Buscar Albarà"
+                      mapElement={deliveryNote => ({
+                        id: deliveryNote.id,
+                        description: `${deliveryNote.code} - ${new Date(deliveryNote.deliveryNoteDate).toLocaleDateString()} - ${deliveryNote.total.toFixed(2)}€`,
+                      })}
+                    />
+                    {errors.deliveryNoteId && (
+                      <p className="text-destructive text-sm text-red-500">
+                        {errors.deliveryNoteId}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-gray-500 text-sm">
+                    Aquest client no té albarans disponibles per facturar.
                   </p>
                 )}
               </div>
             )}
 
-            {/* Comment */}
-            <div className="space-y-2">
-              <label htmlFor="comment" className="font-semibold">
-                Comentari (Opcional)
-              </label>
-              <Textarea
-                id="comment"
-                placeholder="Comentaris addicionals..."
-                value={formData.comment || ''}
-                onChange={e =>
-                  setFormData(prev => ({ ...prev, comment: e.target.value }))
-                }
-                className="min-h-[100px]"
-              />
-            </div>
+            {/* Selected Delivery Note Preview */}
+            {selectedDeliveryNote && (
+              <div className="space-y-2 p-4 border rounded-lg bg-gray-50">
+                <h3 className="font-semibold">Detalls de l'Albarà Seleccionat</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div><strong>Client:</strong> {selectedCustomer?.name}</div>
+                  <div><strong>Codi Albarà:</strong> {selectedDeliveryNote.code}</div>
+                  <div><strong>Data:</strong> {new Date(selectedDeliveryNote.deliveryNoteDate).toLocaleDateString()}</div>
+                  <div><strong>Total:</strong> {selectedDeliveryNote.total.toFixed(2)}€</div>
+                  <div><strong>Articles:</strong> {selectedDeliveryNote.items.length}</div>
+                </div>
+              </div>
+            )}
+
 
             {/* Action Buttons */}
             <div className="flex gap-3 pt-6 border-t">

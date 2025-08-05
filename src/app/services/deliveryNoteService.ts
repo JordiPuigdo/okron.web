@@ -1,4 +1,5 @@
 import { DeliveryNote, DeliveryNoteCreateRequest, DeliveryNoteUpdateRequest } from '../interfaces';
+import { DeliveryNoteSearchFilters } from '../interfaces/Invoice';
 
 export class DeliveryNoteService {
   private baseUrl: string;
@@ -89,6 +90,22 @@ export class DeliveryNoteService {
 
     if (!response.ok) {
       throw new Error('Failed to generate delivery note code');
+    }
+
+    return response.json();
+  }
+
+  async searchDeliveryNotes(filters: DeliveryNoteSearchFilters): Promise<DeliveryNote[]> {
+    const response = await fetch(`${this.baseUrl}GetDeliveryNotesWithFilters`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(filters),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to search delivery notes');
     }
 
     return response.json();
