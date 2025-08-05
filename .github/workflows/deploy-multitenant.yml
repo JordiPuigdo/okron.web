@@ -41,7 +41,7 @@ jobs:
         else
           echo "ENV_VARS=" >> $GITHUB_ENV
         fi
-        
+
     - name: Deploy to Vercel
       run: |
         # Vincula el proyecto (si no está vinculado)
@@ -50,6 +50,7 @@ jobs:
         DEPLOYMENT_URL=$(vercel deploy --prod \
           --token ${{ secrets.VERCEL_TOKEN }} \
           --yes \
+          $ENV_VARS \
           --name ${{ github.event.inputs.client }} \
           --confirm)
         echo "DEPLOYMENT_URL=$DEPLOYMENT_URL" >> $GITHUB_ENV
