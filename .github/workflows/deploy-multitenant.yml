@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       client:
-        description: 'Nombre del cliente (ej: client1)'
+        description: 'JPONT'
         required: true
 
 jobs:
@@ -32,11 +32,12 @@ jobs:
           --token ${{ secrets.VERCEL_TOKEN }} \
           --yes \
           --env-file .env \
-          --name appname-${{ github.event.inputs.client }}
+          --name ${{ github.event.inputs.client }}
 
     - name: Alias domain
       run: |
         vercel alias set \
           https://appname-${{ github.event.inputs.client }}.vercel.app \
-          ${{ github.event.inputs.client }}.appname.com \
+          ${{ github.event.inputs.client }}.okron.io \
           --token ${{ secrets.VERCEL_TOKEN }}
+
