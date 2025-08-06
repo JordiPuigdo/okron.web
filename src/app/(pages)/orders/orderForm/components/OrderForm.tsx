@@ -141,9 +141,6 @@ export default function OrderForm({
         `${orderRequest == null ? 'Creada' : 'Actualitzada'} Correctament`
       );
       setIsSuccess(true);
-      setTimeout(() => {
-        history.back();
-      }, 1000);
     } catch (error) {
       console.error(error);
       setIsSuccess(false);
