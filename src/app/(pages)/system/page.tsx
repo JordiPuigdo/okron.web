@@ -1,16 +1,33 @@
 'use client';
 
 import { useState } from 'react';
+import { useSessionStore } from 'app/stores/globalStore';
 import Container from 'components/layout/Container';
 import MainLayout from 'components/layout/MainLayout';
 import { SettingsIcon } from 'lucide-react';
 
+import CompanyComponent from './company/CompanyComponent';
 import PaymentMethodComponent from './paymentMethods/PaymentMethodComponent';
 import RateConfigurationPage from './rates/components/Rate/RateComponent';
 import RateTypeManager from './rates/components/RateType/RateTypeManager';
 
 function SystemPage() {
-  const [activeTab, setActiveTab] = useState('rateType');
+  const isCRM = useSessionStore(state => state.config?.isCRM);
+  const [activeTab, setActiveTab] = useState(isCRM ? 'rateType' : 'company');
+
+  const labels: Record<string, string> = {
+    company: 'Empresa',
+  };
+
+  if (isCRM) {
+    Object.assign(labels, {
+      rateType: 'Tipus de Tarifes',
+      rates: 'Tarifes',
+      payment: 'Pagament',
+    });
+  }
+
+  const tabs = Object.keys(labels);
 
   return (
     <MainLayout>
@@ -18,16 +35,11 @@ function SystemPage() {
         <div className="p-8">
           <h1 className="text-3xl font-bold flex items-center gap-2 mb-8">
             <SettingsIcon className="w-6 h-6" />
-            Configuración del sistema Okron
+            Configuració del sistema Okron
           </h1>
 
           <div className="flex border-2 border-[#6E41B6] rounded-full overflow-hidden bg-white shadow-sm w-[35%]">
-            {(['rateType', 'rates', 'payment'] as const).map((tab, idx) => {
-              const labels: Record<'rateType' | 'rates' | 'payment', string> = {
-                rateType: 'Tipus de Tarifes',
-                rates: 'Tarifes',
-                payment: 'Pagament',
-              };
+            {tabs.map((tab, idx) => {
               const active = activeTab === tab;
 
               return (
@@ -63,6 +75,7 @@ function SystemPage() {
             {activeTab === 'rateType' && <RateTypeManager />}
             {activeTab === 'rates' && <RateConfigurationPage />}
             {activeTab === 'payment' && <PaymentMethodComponent />}
+            {activeTab === 'company' && <CompanyComponent />}
           </div>
         </div>
       </Container>
