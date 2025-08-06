@@ -19,6 +19,7 @@ import { HeaderForm } from 'components/layout/HeaderForm';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { BodyOrderForm } from './BodyOrderForm';
 import HeaderOrderForm from './HeaderOrderForm';
@@ -49,6 +50,7 @@ export default function OrderForm({
     orders,
   } = useOrder();
   const { warehouses } = useWareHouses(true);
+  const router = useRouter();
   const [order, setOrder] = useState<OrderCreationRequest>({
     code: '',
     providerId: '',
@@ -129,12 +131,14 @@ export default function OrderForm({
   const handleCreateOrder = async () => {
     try {
       if (orderRequest == null) {
-        await createOrder(order);
+        const orderResponse = await createOrder(order);
+        router.push(`/orders/${orderResponse.id}`);
       } else {
         await updateOrder({
           ...order,
           id: orderRequest.id,
         });
+        window.location.reload();
       }
 
       setMessage(
