@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import SparePartTable from 'app/(pages)/spareParts/components/SparePartTable';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { useWorkOrders } from 'app/hooks/useWorkOrders';
 import { SvgSpinner } from 'app/icons/icons';
 import { LoginUser, UserPermission } from 'app/interfaces/User';
@@ -109,6 +110,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
   const firstDayOfWeek = dayjs.utc().startOf('isoWeek').toDate();
 
   const { fetchWithFilters } = useWorkOrders();
+  const { t } = useTranslations();
 
   const stateColors: { [key in StateWorkOrder]: string } = {
     [StateWorkOrder.Waiting]: 'bg-okron-pending',

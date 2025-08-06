@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Tooltip } from 'react-tooltip';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgArrowDown, SvgArrowRight, SvgSpinner } from 'app/icons/icons';
 import { UserPermission, UserType } from 'app/interfaces/User';
 import { useSessionStore } from 'app/stores/globalStore';
@@ -20,9 +21,11 @@ const SideNav: React.FC<SideNavProps> = ({ isOpenNavBar }) => {
   const loginPermission = loginUser?.permission!;
   const loginUserType = loginUser?.userType!;
 
-  const configItem = SIDENAV_ITEMS.find(item => item.title === 'Configuració');
+  const configItem = SIDENAV_ITEMS.find(
+    item => item.titleKey === 'sidebar.config'
+  );
   const otherItems = SIDENAV_ITEMS.filter(
-    item => item.title !== 'Configuració'
+    item => item.titleKey !== 'sidebar.config'
   );
 
   return (
@@ -79,6 +82,7 @@ const MenuItem = ({
   userPermission: UserPermission;
 }) => {
   const pathname = usePathname();
+  const { t } = useTranslations();
 
   const isActive = pathname === item.path;
 
@@ -104,7 +108,7 @@ const MenuItem = ({
             <div className="flex flex-row items-center hover:text-okron-main ">
               <span
                 data-tooltip-id={`tooltip-${item.key}`}
-                data-tooltip-content={item.title}
+                data-tooltip-content={t(item.titleKey)}
                 data-tooltip-place="right"
                 data-tooltip-delay-show={500}
                 className={`font-sm 
@@ -123,7 +127,7 @@ const MenuItem = ({
                     } hover:text-okron-main`}
                   />
                 )}
-                <div className="text-start">{menuOpen && item.title}</div>
+                <div className="text-start">{menuOpen && t(item.titleKey)}</div>
               </span>
               <Tooltip id={`tooltip-${item.key}`} />
               {subMenuOpen && menuOpen ? (
@@ -140,7 +144,7 @@ const MenuItem = ({
             </div>
           </button>
 
-          {subMenuOpen && item.title != 'Configuració' && (
+          {subMenuOpen && item.titleKey != 'sidebar.config' && (
             <div className={`${sideNavOpen ? 'ml-8' : 'ml-4'} flex flex-col `}>
               {item.submenuItems?.map((subItem, idx) => {
                 const isSubItemActive = pathname === subItem.path;
@@ -155,7 +159,7 @@ const MenuItem = ({
                   <Link key={idx} href={subItem.path}>
                     <span
                       data-tooltip-id={`tooltip-${subItem.key}`}
-                      data-tooltip-content={subItem.title}
+                      data-tooltip-content={t(subItem.titleKey)}
                       data-tooltip-place="right"
                       data-tooltip-delay-show={500}
                       className={`text-sm font-small text-gray-700 flex hover:text-okron-main rounded-md mb-2 items-center ${
@@ -180,7 +184,7 @@ const MenuItem = ({
                         />
                       )}
 
-                      {menuOpen && subItem.title}
+                      {menuOpen && t(subItem.titleKey)}
                       {isLoading[subItem.key] && (
                         <SvgSpinner
                           style={{ marginLeft: '0.5rem' }}
@@ -194,7 +198,7 @@ const MenuItem = ({
               })}
             </div>
           )}
-          {item.title == 'Configuració' && (
+          {item.titleKey == 'sidebar.config' && (
             <div className="ml-2 flex flex-col">
               {item.submenuItems?.map((subItem, idx) => {
                 const isSubItemActive = pathname === subItem.path;
@@ -209,7 +213,7 @@ const MenuItem = ({
                   <Link key={idx} href={subItem.path}>
                     <span
                       data-tooltip-id={`tooltip-${subItem.key}`}
-                      data-tooltip-content={subItem.title}
+                      data-tooltip-content={t(subItem.titleKey)}
                       data-tooltip-place="right"
                       data-tooltip-delay-show={500}
                       className={` text-sm font-small text-gray-700 flex hover:text-okron-main rounded-md mb-2 items-center ${
@@ -234,7 +238,7 @@ const MenuItem = ({
                         />
                       )}
 
-                      {menuOpen && subItem.title}
+                      {menuOpen && t(subItem.titleKey)}
                       {isLoading[subItem.key] && (
                         <SvgSpinner
                           style={{ marginLeft: '0.5rem' }}
@@ -253,7 +257,7 @@ const MenuItem = ({
         <Link href={item.path}>
           <span
             data-tooltip-id={`tooltip-${item.key}`}
-            data-tooltip-content={item.title}
+            data-tooltip-content={t(item.titleKey)}
             data-tooltip-place="right"
             data-tooltip-delay-show={500}
             className={`font-sm text-l flex text-gray-700 gap-2 p-1 w-full hover:text-okron-main rounded-md items-center ${
@@ -279,7 +283,7 @@ const MenuItem = ({
                 } ${isActive ? 'text-okron-main' : ''} hover:text-okron-main`}
               />
             )}
-            {menuOpen && item.title}
+            {menuOpen && t(item.titleKey)}
             {isLoading[item.key] && (
               <SvgSpinner
                 style={{ marginLeft: '0.2rem' }}

@@ -3,7 +3,7 @@ import { UserPermission, UserType } from 'app/interfaces/User';
 
 export type SideNavItem = {
   key: number;
-  title: string;
+  titleKey: string;
   path: string;
   submenu?: boolean;
   submenuItems?: SideNavItem[];

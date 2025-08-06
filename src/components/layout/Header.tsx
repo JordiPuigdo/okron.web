@@ -4,6 +4,7 @@ import { SvgAccount, SvgLogOut, SvgMenu } from 'app/icons/icons';
 import { UserPermission, UserType } from 'app/interfaces/User';
 import { useSessionStore } from 'app/stores/globalStore';
 import useRoutes from 'app/utils/useRoutes';
+import LanguageSelector from 'components/LanguageSelector';
 import SignOperator from 'components/operator/SignOperator';
 import QuickActions from 'components/QuickActions';
 import Link from 'next/link';
@@ -84,15 +85,18 @@ const Header: React.FC = () => {
         <div className="flex">
           <QuickActions />
         </div>
+
         <div className="flex items-center justify-end pr-2 text-gray-700 gap-1">
           <SvgAccount />
           {loginUser?.username &&
             loginUser?.username.charAt(0)?.toUpperCase() +
               loginUser?.username?.slice(1)}
-
+          <div className="flex">
+            <LanguageSelector />
+          </div>
           <button
             type="button"
-            className="hover:text-purple-900 ml-6"
+            className="hover:text-purple-900"
             onClick={logOut}
           >
             <SvgLogOut />
