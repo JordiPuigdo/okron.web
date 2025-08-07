@@ -1,11 +1,17 @@
 import { Order, OrderStatus } from 'app/interfaces/Order';
 import { WareHouse } from 'app/interfaces/WareHouse';
 
-export function generateNameHeader(isPurchase: boolean, orderRequest?: Order) {
+export function generateNameHeader(
+  isPurchase: boolean,
+  orderRequest?: Order,
+  code = ''
+) {
   if (orderRequest != null) {
     return orderRequest.code;
   }
-  return isPurchase ? 'Crear Comanda' : 'Crear Recepció';
+  return isPurchase
+    ? `Crear Comanda ${code && ' > ' + code} `
+    : 'Crear Recepció';
 }
 
 export function mapItems(orderSelected: Order, warehouses: WareHouse[]) {

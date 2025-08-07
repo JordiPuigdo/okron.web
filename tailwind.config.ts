@@ -13,6 +13,11 @@ const config: Config = {
     current: 'currentColor',
     extend: {
       colors: {
+        progress: {
+          pending: 'hsl(var(--progress-pending))',
+          partial: 'hsl(var(--progress-partial))',
+          complete: 'hsl(var(--progress-complete))',
+        },
         // light mode
         tremor: {
           brand: {

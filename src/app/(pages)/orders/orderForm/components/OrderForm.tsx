@@ -14,7 +14,6 @@ import {
 import { Provider } from 'app/interfaces/Provider';
 import SparePart from 'app/interfaces/SparePart';
 import useRoutes from 'app/utils/useRoutes';
-import { translateOrderType } from 'app/utils/utilsOrder';
 import { HeaderForm } from 'components/layout/HeaderForm';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -22,9 +21,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { BodyOrderForm } from './BodyOrderForm';
+import DeliveryOrders from './DeliveryOrders';
 import HeaderOrderForm from './HeaderOrderForm';
 import OrderPurchase from './OrderPurchase';
-import OrderPurchaseDetailItems from './OrderPurchaseDetailItems';
 import ProviderInfo from './ProviderInfo';
 import { generateNameHeader, mapItems } from './utilsOrder';
 
@@ -67,7 +66,7 @@ export default function OrderForm({
   });
 
   const [isLoading, setIsLoading] = useState(true);
-
+  const [valueProgressBar, setValueProgressBar] = useState<number>(0);
   const [orderPurchase, setOrderPurchase] = useState<OrderSimple | undefined>(
     undefined
   );
@@ -189,6 +188,7 @@ export default function OrderForm({
         relationOrders: orderSelected.relationOrders,
         accountId: orderSelected.accountId,
         account: orderSelected.account,
+        providerName: orderSelected.provider?.name,
       }));
       setSelectedProvider(orderSelected.provider);
       if (
@@ -199,6 +199,7 @@ export default function OrderForm({
         handleLoadDeliveryOrders(
           orderSelected.relationOrders?.map(x => x.relationOrderId)
         );
+      setValueProgressBar(calculateProgress(orderSelected));
     } else {
       if (
         orderSelected &&
@@ -247,6 +248,7 @@ export default function OrderForm({
           //relationOrderCode: orderSelected.relationOrderCode,
           items: mapItems(orderSelected, warehouses),
           status: orderSelected.status,
+          providerName: orderSelected.provider?.name,
         }));
       }
     }
@@ -259,7 +261,11 @@ export default function OrderForm({
     });
   }
 
-  const headerName = generateNameHeader(isPurchase!, orderRequest);
+  const headerName = generateNameHeader(
+    isPurchase!,
+    orderRequest,
+    order && order.code
+  );
 
   function handleLoadOrderFromScratch(orderRequest: Order) {
     setOrderPurchase({
@@ -284,6 +290,16 @@ export default function OrderForm({
     }));
   }
 
+  function calculateProgress(order: Order) {
+    if (order.status == OrderStatus.Pending) return 0;
+    const total = order.items.reduce((acc, item) => acc + item.quantity, 0);
+    const received = order.items.reduce(
+      (acc, item) => acc + item.quantityReceived,
+      0
+    );
+    return Math.round((received / total) * 100);
+  }
+
   return (
     <div className="flex flex-col h-full pb-4">
       <HeaderForm
@@ -305,39 +321,16 @@ export default function OrderForm({
             isEditing={orderRequest != null}
             disabledSearchPurchaseOrder={purchaseOrderId != null}
             setSelectedAccount={handleSelectedAccount}
+            valueProgressBar={valueProgressBar}
           />
         )}
 
-        {orders && orders.length > 0 && (
-          <div className="flex flex-col border p-2 rounded-md bg-gray-100 text-gray-700 font-semibold">
-            {orders.map(x => (
-              <>
-                <Link
-                  href={ROUTES.orders.order + '/' + x.id}
-                  className="text-blue-500 hover:underline"
-                >
-                  {translateOrderType(
-                    order.type == OrderType.Purchase
-                      ? OrderType.Delivery
-                      : OrderType.Purchase
-                  )}
-                  {' - '} {x.code}
-                </Link>
-                <OrderPurchaseDetailItems
-                  handleRecieveItem={() => {}}
-                  items={x.items}
-                  isOrderPurchase={false}
-                  showActionButtons={false}
-                />
-              </>
-            ))}
-          </div>
-        )}
+        <DeliveryOrders deliveryOrders={orders} />
 
         {orderPurchase && <OrderPurchase order={orderPurchase} />}
-        {order.type == OrderType.Purchase && selectedProvider && (
-          <ProviderInfo provider={selectedProvider} />
-        )}
+        {!orderRequest?.id &&
+          order.type == OrderType.Purchase &&
+          selectedProvider && <ProviderInfo provider={selectedProvider} />}
 
         <BodyOrderForm
           order={order}

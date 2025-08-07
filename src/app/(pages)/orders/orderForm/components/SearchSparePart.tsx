@@ -149,7 +149,7 @@ export default function SearchSparePartOrderPurchase({
 
           <input
             type="number"
-            className="w-full p-2 border rounded-md"
+            className="w-full p-2 border rounded-md mb-2"
             min="1"
             value={quantity}
             onKeyDown={e => {
@@ -163,7 +163,7 @@ export default function SearchSparePartOrderPurchase({
 
           <button
             onClick={addItem}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 w-full"
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 w-full mb-2"
             disabled={!selectedProvider}
           >
             Afegir

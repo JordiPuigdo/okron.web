@@ -107,6 +107,7 @@ export default function OrderDetailItems({
               <th className="p-2 border w-1/10">Magatzem</th>
               <th className="p-2 border w-1/10">Referencia Proveidor</th>
               <th className="p-2 border w-1/10">Quantitat</th>
+              {!canEdit && <th className="p-2 border w-1/10">Qtt Rebuda</th>}
               <th className="p-2 border w-1/10">Data Estimada</th>
               <th className="p-2 border w-1/10">Preu Unitari</th>
               <th className="p-2 border w-1/12">% Dte.</th>
@@ -129,7 +130,7 @@ export default function OrderDetailItems({
                       : item.wareHouseName}
                   </td>
                   <td className="p-2 border text-center">{item.refProvider}</td>
-                  <td className="p-2 border text-center">
+                  <td className="p-2 border text-center font-semibold">
                     <EditableCell
                       value={item.quantity.toString()}
                       onUpdate={newValue =>
@@ -138,6 +139,11 @@ export default function OrderDetailItems({
                       canEdit={canEdit}
                     />
                   </td>
+                  {!canEdit && (
+                    <td className="p-2 border text-center font-semibold text-okron-finished">
+                      {item.quantityReceived}
+                    </td>
+                  )}
                   <td className="p-2 border text-center">
                     <EditableCell
                       value={item.estimatedDeliveryDate ?? ''}
