@@ -1,7 +1,13 @@
 import { OperatorType } from 'app/interfaces/Operator';
-import { DowntimesReasonsType, OriginDowntime } from 'app/interfaces/Production/Downtimes';
-import { StateWorkOrder, WorkOrderEventType, WorkOrderCommentType, WorkOrderType } from 'app/interfaces/workOrder';
-
+import {
+  DowntimesReasonsType,
+  OriginDowntime,
+} from 'app/interfaces/Production/Downtimes';
+import {
+  StateWorkOrder,
+  WorkOrderEventType,
+  WorkOrderType,
+} from 'app/interfaces/workOrder';
 import { useSessionStore } from 'app/stores/globalStore';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 import dayjs from 'dayjs';
@@ -35,7 +41,7 @@ export const translateStateWorkOrder = (state: any): string => {
     case StateWorkOrder.Closed:
       return 'Tancat';
     case StateWorkOrder.NotFinished:
-      return 'No Finalitzada';  
+      return 'No Finalitzada';
     default:
       return '';
   }
@@ -62,6 +68,8 @@ export const translateWorkOrderEventType = (
     default:
       return '';
   }
+};
+
 export const translateInvoiceStatus = (status: InvoiceStatus): string => {
   switch (status) {
     case InvoiceStatus.Draft:
@@ -80,7 +88,7 @@ export const translateInvoiceStatus = (status: InvoiceStatus): string => {
 export const translateInvoiceItemType = (type: InvoiceItemType): string => {
   switch (type) {
     case InvoiceItemType.Labor:
-      return 'Mà d\'Obra';
+      return "Mà d'Obra";
     case InvoiceItemType.SparePart:
       return 'Recanvi';
     case InvoiceItemType.Other:
@@ -396,6 +404,7 @@ export function translateOriginDowntime(originDowntime: OriginDowntime) {
       return originDowntime;
   }
 }
+
 export const fetcher = async (url: string) => {
   const response = await fetch(url);
   if (!response.ok) {
@@ -443,7 +452,7 @@ export const getRoute = (entity: EntityTable) => {
     case EntityTable.CUSTOMER:
       return ROUTES.customer;
     case EntityTable.DELIVERYNOTE:
-      return ROUTES.deliveryNote.list
+      return ROUTES.deliveryNote.list;
     default:
       return 'error';
   }

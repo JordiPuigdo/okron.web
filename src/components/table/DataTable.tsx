@@ -257,7 +257,11 @@ const DataTable: React.FC<DataTableProps> = ({
     return filteredData.reduce((acc, item) => {
       const price = Number(item.price) || 0;
       const stock = Number(item.stock) || 0;
-      return acc + price * stock;
+      const total = Number(item.total) || 0;
+      if (price > 0 && stock > 0) {
+        return acc + price * stock;
+      }
+      return acc + total;
     }, 0);
   }, [filteredData]);
 
@@ -350,7 +354,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 pathDetail={pathDetail}
                 onDelete={onDelete ? onDelete : undefined}
                 totalCounts={totalCounts}
-                totalQuantity={totalAmountRecords ?? 0}
+                totalQuantity={formattedPrice ?? 0}
                 filtersApplied={filtersApplied}
               />
               {entity === EntityTable.SPAREPART &&
@@ -370,7 +374,7 @@ const DataTable: React.FC<DataTableProps> = ({
                               </td>
                             );
                           }
-                          if (col.key === 'price') {
+                          if (col.key === 'price' || col.key === 'total') {
                             return (
                               <td
                                 key={col.key}
