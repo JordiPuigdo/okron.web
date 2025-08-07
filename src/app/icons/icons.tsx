@@ -995,3 +995,81 @@ export const SvgCreate = (props: SVGProps<SVGSVGElement>) => (
     </g>
   </svg>
 );
+
+export const SvgDocument = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    width={26}
+    height={28}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+    />
+  </svg>
+);
+
+export const SvgPlus = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+    />
+  </svg>
+);
+
+export const SvgInvoice = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={18}
+    height={18}
+    fill="currentColor"
+    viewBox="0 0 16 16"
+    {...props}
+  >
+    <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+    <path d="M4.603 14.087a.8.8 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.7 7.7 0 0 1 1.482-.645 20 20 0 0 0 1.062-.382 2.3 2.3 0 0 0 .71-.515c.178-.2.308-.419.398-.662.09-.243.138-.503.138-.773a2.2 2.2 0 0 0-.077-.607 1.4 1.4 0 0 0-.277-.475 1.4 1.4 0 0 0-.478-.32 1.8 1.8 0 0 0-.707-.118c-.369 0-.665.13-.874.392-.21.261-.315.619-.315 1.074v.06c0 .55-.448.998-.998.998a.998.998 0 0 1-.998-.998v-.058c0-.828.194-1.54.581-2.134.388-.595.934-1.055 1.638-1.38a5.5 5.5 0 0 1 2.186-.488c.654 0 1.226.097 1.717.291a3.4 3.4 0 0 1 1.26.817c.344.356.607.778.79 1.267.184.488.276 1.022.276 1.602 0 .448-.61.832-1.344 1.15-.734.319-1.659.548-2.775.687-.316.04-.62.09-.904.149-.284.058-.533.128-.745.21-.212.081-.381.176-.507.285-.126.108-.189.23-.189.366 0 .273.16.516.481.73.32.213.771.32 1.352.32.448 0 .819-.065 1.113-.195.294-.13.527-.308.698-.534.17-.227.302-.484.396-.773a.997.997 0 0 1 1.93.516c-.193.72-.505 1.319-.937 1.796-.432.477-.986.849-1.663 1.116S6.65 14 5.8 14c-.517 0-.99-.053-1.419-.158z"/>
+  </svg>
+);
+
+export const SvgDeliveryNote = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={18}
+    height={18}
+    fill="currentColor"
+    viewBox="0 0 16 16"
+    {...props}
+  >
+    <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+    <path d="M4.5 6.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M4.5 8.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5"/>
+    <path d="M12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+  </svg>
+);
+
+export const SvgCustomer = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={18}
+    height={18}
+    fill="currentColor"
+    viewBox="0 0 16 16"
+    {...props}
+  >
+    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+  </svg>
+);

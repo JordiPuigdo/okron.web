@@ -15,4 +15,6 @@ export enum EntityTable {
   STOCKMOVEMENT = 'STOCKMOVEMENT',
   Account = 'Account',
   CUSTOMER = 'CUSTOMER',
+  INVOICE = 'INVOICE',
+  DELIVERYNOTE = 'DELIVERYNOTE',
 }
