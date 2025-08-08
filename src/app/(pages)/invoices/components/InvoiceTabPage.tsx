@@ -56,31 +56,30 @@ export default function InvoiceTabPage() {
   const { t } = useTranslations();
 
   return (
-    <div className="flex flex-col h-full mt-4">
+    <div className="p-2 mt-4">
       {/* Botones de Tabs */}
-      <div className="flex border-2 border-[#6E41B6] rounded-full overflow-hidden bg-white shadow-sm w-[35%]">
+      <div className="flex border-2 border-[#6E41B6] rounded-full overflow-hidden bg-white shadow-sm w-[30%]">
         {tabs.map((tab, idx) => {
           const active = activeTab === tab;
-
           return (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`
-                flex-1 text-center text-base font-semibold transition
-                px-4 py-2
-                cursor-pointer
-                ${
-                  active
-                    ? 'bg-[#6E41B6] text-white shadow-md'
-                    : 'text-[#6E41B6] bg-white'
-                }
-                hover:bg-[#6E41B6] hover:text-white
-                focus:outline-none focus:ring-2 focus:ring-[#6E41B6] focus:ring-offset-1
-                select-none
-                ${idx === 0 ? 'rounded-l-full' : ''}
-                ${idx === tabs.length - 1 ? 'rounded-r-full' : ''}
-              `}
+                    flex-1 text-center text-base font-semibold transition
+                    px-4 py-2 cursor-pointer
+                    ${
+                      active
+                        ? 'bg-[#6E41B6] text-white shadow-md'
+                        : 'text-[#6E41B6] bg-white'
+                    }
+                    hover:bg-[#6E41B6] hover:text-white
+                    focus:outline-none focus:ring-2 focus:ring-[#6E41B6] focus:ring-offset-1
+                    select-none
+                    ${idx === 0 ? 'rounded-l-full' : ''}
+                    ${idx === tabs.length - 1 ? 'rounded-r-full' : ''}
+                    
+                  `}
               aria-pressed={active}
               type="button"
             >
@@ -90,7 +89,6 @@ export default function InvoiceTabPage() {
         })}
       </div>
 
-      {/* Contenido de la pestaña activa */}
       {components[activeTab]}
     </div>
   );

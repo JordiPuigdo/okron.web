@@ -61,6 +61,21 @@ export default function CompanyComponent() {
 
         <div>
           <input
+            placeholder={t('company.phone.placeholder')}
+            {...register('phone')}
+            className="w-full border border-gray-300 p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <input
+            placeholder={t('company.nif.placeholder')}
+            {...register('nif')}
+            className="w-full border border-gray-300 p-2 rounded"
+          />
+        </div>
+        <div>
+          <input
             placeholder={t('company.urlLogo.placeholder')}
             {...register('urlLogo')}
             className="w-full border border-gray-300 p-2 rounded"
@@ -102,8 +117,8 @@ export default function CompanyComponent() {
           </div>
           <div>
             <input
-              placeholder={t('company.address.country.placeholder')}
-              {...register('address.country')}
+              placeholder={t('company.address.province.placeholder')}
+              {...register('address.province')}
               className="w-full border border-gray-300 p-2 rounded"
             />
           </div>

@@ -3,13 +3,13 @@ export enum DeliveryNoteStatus {
   Sent = 1,
   Paid = 2,
   Overdue = 3,
-  Cancelled = 4
+  Cancelled = 4,
 }
 
 export enum DeliveryNoteItemType {
   Labor,
   SparePart,
-  Other
+  Other,
 }
 
 export interface DeliveryNote {
@@ -28,6 +28,7 @@ export interface DeliveryNote {
   total: number;
   status: DeliveryNoteStatus;
   workOrderIds: string[];
+  concepts: string[];
   items: DeliveryNoteItem[];
   active: boolean;
   creationDate: string;

@@ -1,9 +1,8 @@
 ﻿'use client';
 
 import { useEffect, useState } from 'react';
-import { Invoice, InvoiceStatus } from 'app/interfaces/Invoice';
+import { Invoice } from 'app/interfaces/Invoice';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
-import { FilterType } from 'components/table/components/Filters/FilterType';
 import DataTable from 'components/table/DataTable';
 import {
   Column,
@@ -25,11 +24,11 @@ interface TableDataInvoicesProps {
 }
 
 export const TableDataInvoices = ({
-                                    className = '',
-                                    title = '',
-                                    hideShadow = false,
-                                    enableFilters = true,
-                                  }: TableDataInvoicesProps) => {
+  className = '',
+  title = '',
+  hideShadow = false,
+  enableFilters = true,
+}: TableDataInvoicesProps) => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
@@ -103,15 +102,6 @@ export const TableDataInvoices = ({
   };
 
   const filteredInvoices = getFilteredInvoices();
-  const totalAmount = filteredInvoices.reduce((acc, invoice) => {
-    return acc + (invoice.total ?? 0);
-  }, 0);
-
-  const formattedPrice = new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-  }).format(totalAmount);
 
   return (
     <div className="flex flex-col h-full gap-4 w-full">
@@ -137,7 +127,6 @@ export const TableDataInvoices = ({
         filters={filtersInvoices}
         hideShadow={hideShadow}
         totalCounts
-        totalCalculated={Number(formattedPrice)}
       />
     </div>
   );

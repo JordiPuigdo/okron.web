@@ -7,7 +7,9 @@ export default function InvoicesPage() {
   return (
     <MainLayout>
       <Container>
-        <InvoiceTabPage />
+        <div className="flex flex-col h-full">
+          <InvoiceTabPage />
+        </div>
       </Container>
     </MainLayout>
   );

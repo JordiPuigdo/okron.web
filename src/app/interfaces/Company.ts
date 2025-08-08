@@ -6,5 +6,7 @@ export default interface Company extends BaseModel {
   urlLogo: string;
   cssLogo: string;
   email: string;
+  nif: string;
+  phone: string;
   address: CustomerAddress;
 }

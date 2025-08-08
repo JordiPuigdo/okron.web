@@ -13,7 +13,7 @@ import RateTypeManager from './rates/components/RateType/RateTypeManager';
 
 function SystemPage() {
   const isCRM = useSessionStore(state => state.config?.isCRM);
-  const [activeTab, setActiveTab] = useState(isCRM ? 'rateType' : 'company');
+  const [activeTab, setActiveTab] = useState('company');
 
   const labels: Record<string, string> = {
     company: 'Empresa',
@@ -38,7 +38,7 @@ function SystemPage() {
             Configuració del sistema Okron
           </h1>
 
-          <div className="flex border-2 border-[#6E41B6] rounded-full overflow-hidden bg-white shadow-sm w-[35%]">
+          <div className="flex border-2 border-[#6E41B6] rounded-full overflow-hidden bg-white shadow-sm w-[45%]">
             {tabs.map((tab, idx) => {
               const active = activeTab === tab;
 
@@ -59,7 +59,7 @@ function SystemPage() {
                     focus:outline-none focus:ring-2 focus:ring-[#6E41B6] focus:ring-offset-1
                     select-none
                     ${idx === 0 ? 'rounded-l-full' : ''}
-                    ${idx === 2 ? 'rounded-r-full' : ''}
+                    ${idx === tabs.length - 1 ? 'rounded-r-full' : ''}
                     
                   `}
                   aria-pressed={active}

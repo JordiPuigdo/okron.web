@@ -27,23 +27,17 @@ const LanguageSelector = () => {
       </button>
       {open && (
         <div className="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded shadow-lg z-50">
-          {languages
-            .sort(
-              currentLang === 'ca'
-                ? (a, b) => a.label.localeCompare(b.label)
-                : (a, b) => b.label.localeCompare(a.label)
-            )
-            .map(lang => (
-              <button
-                key={lang.code}
-                onClick={() => handleChangeLang(lang.code)}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  currentLang === lang.code ? 'font-bold text-purple-700' : ''
-                }`}
-              >
-                {lang.label}
-              </button>
-            ))}
+          {languages.map(lang => (
+            <button
+              key={lang.code}
+              onClick={() => handleChangeLang(lang.code)}
+              className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                currentLang === lang.code ? 'font-bold text-purple-700' : ''
+              }`}
+            >
+              {lang.label}
+            </button>
+          ))}
         </div>
       )}
     </div>

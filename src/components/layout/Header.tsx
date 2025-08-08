@@ -10,16 +10,11 @@ import QuickActions from 'components/QuickActions';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
-const logoCSS = process.env.NEXT_PUBLIC_LOGO_CSS!;
+import FaviconUpdater from './FavIcontUpdater';
 
 export const metadata = {
   title: 'Okron',
   description: 'Gestió',
-
-  icons: {
-    icon: { logoUrl },
-  },
 };
 
 const Header: React.FC = () => {
@@ -30,7 +25,9 @@ const Header: React.FC = () => {
     setOperatorLogged,
     setIsMenuOpen,
     isMenuOpen,
+    config,
   } = useSessionStore(state => state);
+
   const router = useRouter();
   const ROUTES = useRoutes();
   const pathname = usePathname();
@@ -47,6 +44,8 @@ const Header: React.FC = () => {
 
   return (
     <header className="flex items-center justify-between bg-white text-lg font-semibold text-white p-4 w-full sticky transition-all shadow-md">
+      <FaviconUpdater />
+
       <div className="flex items-center gap-3 pl-1">
         <button onClick={handleMenuClick}>
           <SvgMenu width={30} height={30} className="text-okron-main" />
@@ -54,9 +53,9 @@ const Header: React.FC = () => {
         <div className="ml-2 flex">
           <Link href="/menu">
             <img
-              src={logoUrl}
+              src={config?.company.urlLogo}
               alt="Components Mecànics Logo"
-              className={logoCSS}
+              className={config?.company.cssLogo}
             />
           </Link>
         </div>

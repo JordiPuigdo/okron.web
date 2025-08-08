@@ -12,7 +12,12 @@ import { HeaderForm } from '../../../../components/layout/HeaderForm';
 import { Textarea } from '../../../../components/textarea';
 import { Button } from '../../../../designSystem/Button/Buttons';
 import { SvgSpinner } from '../../../icons/icons';
-import { DeliveryNote, DeliveryNoteItem, DeliveryNoteStatus, DeliveryNoteUpdateRequest } from '../../../interfaces';
+import {
+  DeliveryNote,
+  DeliveryNoteItem,
+  DeliveryNoteStatus,
+  DeliveryNoteUpdateRequest,
+} from '../../../interfaces';
 import { cn } from '../../../lib/utils';
 import useRoutes from '../../../utils/useRoutes';
 import { EditableCell } from '../../machines/downtimes/components/EditingCell';
@@ -22,7 +27,10 @@ interface DeliveryNoteDetailFormProps {
   onUpdate: (deliveryNote: DeliveryNoteUpdateRequest) => Promise<void>;
 }
 
-export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteDetailFormProps) {
+export function DeliveryNoteDetailForm({
+  deliveryNote,
+  onUpdate,
+}: DeliveryNoteDetailFormProps) {
   const router = useRouter();
   const ROUTES = useRoutes();
 
@@ -51,7 +59,11 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
     }
   };
 
-  const handleItemUpdate = (itemIndex: number, field: keyof DeliveryNoteItem, value: any) => {
+  const handleItemUpdate = (
+    itemIndex: number,
+    field: keyof DeliveryNoteItem,
+    value: any
+  ) => {
     const updatedItems = [...formData.items];
     updatedItems[itemIndex] = {
       ...updatedItems[itemIndex],
@@ -59,14 +71,22 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
     };
 
     // Recalculate totals for the item
-    if (field === 'quantity' || field === 'unitPrice' || field === 'discountPercentage') {
+    if (
+      field === 'quantity' ||
+      field === 'unitPrice' ||
+      field === 'discountPercentage'
+    ) {
       const item = updatedItems[itemIndex];
       const subtotalBeforeDiscount = item.quantity * item.unitPrice;
-      item.discountAmount = subtotalBeforeDiscount * (item.discountPercentage / 100);
+      item.discountAmount =
+        subtotalBeforeDiscount * (item.discountPercentage / 100);
       item.lineTotal = subtotalBeforeDiscount - item.discountAmount;
     }
 
-    const subtotal = updatedItems.reduce((sum, item) => sum + item.lineTotal, 0);
+    const subtotal = updatedItems.reduce(
+      (sum, item) => sum + item.lineTotal,
+      0
+    );
     const totalTax = subtotal * 0.21; // 21% IVA
     const total = subtotal + totalTax;
 
@@ -80,8 +100,13 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
   };
 
   const handleRemoveItem = (itemIndex: number) => {
-    const updatedItems = formData.items.filter((_, index) => index !== itemIndex);
-    const subtotal = updatedItems.reduce((sum, item) => sum + item.lineTotal, 0);
+    const updatedItems = formData.items.filter(
+      (_, index) => index !== itemIndex
+    );
+    const subtotal = updatedItems.reduce(
+      (sum, item) => sum + item.lineTotal,
+      0
+    );
     const totalTax = subtotal * 0.21;
     const total = subtotal + totalTax;
 
@@ -105,7 +130,7 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
     try {
       const updateRequest: DeliveryNoteUpdateRequest = {
         id: formData.id,
-        externalComments: formData.externalComments ?? "",
+        externalComments: formData.externalComments ?? '',
         status: formData.status,
         items: formData.items,
         companyName: formData.companyName,
@@ -136,7 +161,7 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
     }
 
     if (!formData.items || formData.items.length === 0) {
-      newErrors.items = 'L\'albarà ha de tenir almenys un element';
+      newErrors.items = "L'albarà ha de tenir almenys un element";
     }
 
     setErrors(newErrors);
@@ -157,7 +182,7 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
             {/* Header Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
-                <label className="font-semibold">Codi</label>
+                <label className="font-semibold">Albarà</label>
                 <div className="p-2 bg-gray-50 rounded border text-gray-700">
                   {formData.code}
                 </div>
@@ -166,17 +191,23 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
               <div className="space-y-2">
                 <label className="font-semibold">Data</label>
                 <DatePicker
-                  selected={formData.deliveryNoteDate ? new Date(formData.deliveryNoteDate) : new Date()}
+                  selected={
+                    formData.deliveryNoteDate
+                      ? new Date(formData.deliveryNoteDate)
+                      : new Date()
+                  }
                   onChange={(date: Date | null) =>
                     setFormData(prev => ({
                       ...prev,
-                      deliveryNoteDate: date?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0]
+                      deliveryNoteDate:
+                        date?.toISOString().split('T')[0] ||
+                        new Date().toISOString().split('T')[0],
                     }))
                   }
                   dateFormat="dd/MM/yyyy"
                   locale={ca}
                   className={cn(
-                    "flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm",
+                    'flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm',
                     errors.deliveryNoteDate && 'border-destructive'
                   )}
                 />
@@ -185,17 +216,21 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
               <div className="space-y-2">
                 <label className="font-semibold">Data de Venciment</label>
                 <DatePicker
-                  selected={formData.dueDate ? new Date(formData.dueDate) : null}
+                  selected={
+                    formData.dueDate ? new Date(formData.dueDate) : null
+                  }
                   onChange={(date: Date | null) =>
                     setFormData(prev => ({
                       ...prev,
-                      dueDate: date?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0]
+                      dueDate:
+                        date?.toISOString().split('T')[0] ||
+                        new Date().toISOString().split('T')[0],
                     }))
                   }
                   dateFormat="dd/MM/yyyy"
                   locale={ca}
                   className={cn(
-                    "flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm",
+                    'flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm',
                     errors.dueDate && 'border-destructive'
                   )}
                 />
@@ -205,17 +240,21 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
                 <label className="font-semibold">Estat</label>
                 <select
                   value={formData.status}
-                  onChange={e => setFormData(prev => ({
-                    ...prev,
-                    status: Number(e.target.value) as DeliveryNoteStatus
-                  }))}
+                  onChange={e =>
+                    setFormData(prev => ({
+                      ...prev,
+                      status: Number(e.target.value) as DeliveryNoteStatus,
+                    }))
+                  }
                   className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm"
                 >
                   {Object.values(DeliveryNoteStatus)
                     .filter(value => typeof value === 'number')
                     .map(status => (
                       <option key={status} value={status}>
-                        {translateDeliveryNoteStatus(status as DeliveryNoteStatus)}
+                        {translateDeliveryNoteStatus(
+                          status as DeliveryNoteStatus
+                        )}
                       </option>
                     ))}
                 </select>
@@ -227,31 +266,36 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
               <h3 className="font-semibold mb-2">Informació de l'Empresa</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <span className="font-medium">Nom:</span> {formData.companyName}
+                  <span className="font-medium">Nom:</span>{' '}
+                  {formData.companyName}
                 </div>
                 <div>
-                  <span className="font-medium">Adreça:</span> {formData.companyAddress}
+                  <span className="font-medium">Adreça:</span>{' '}
+                  {formData.companyAddress}
                 </div>
                 <div>
-                  <span className="font-medium">Ciutat:</span> {formData.companyCity}
+                  <span className="font-medium">Ciutat:</span>{' '}
+                  {formData.companyCity}
                 </div>
                 <div>
-                  <span className="font-medium">Codi Postal:</span> {formData.companyPostalCode}
+                  <span className="font-medium">Codi Postal:</span>{' '}
+                  {formData.companyPostalCode}
                 </div>
                 {formData.companyProvince && (
                   <div>
-                    <span className="font-medium">Província:</span> {formData.companyProvince}
+                    <span className="font-medium">Província:</span>{' '}
+                    {formData.companyProvince}
                   </div>
                 )}
               </div>
             </div>
 
             {/* Work Orders */}
-            {formData.workOrderIds && formData.workOrderIds.length > 0 && (
+            {formData.concepts && formData.concepts.length > 0 && (
               <div className="p-4 bg-blue-50 rounded-lg">
-                <h3 className="font-semibold mb-2">Ordres de Treball Vinculades</h3>
+                <h3 className="font-semibold mb-2">Conceptes: </h3>
                 <div className="space-y-2">
-                  {formData.workOrderIds.map(woId => (
+                  {formData.concepts.map(woId => (
                     <div key={woId} className="flex justify-between">
                       <span>{woId}</span>
                     </div>
@@ -267,68 +311,92 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
               <div className="overflow-x-auto">
                 <table className="w-full border border-gray-300">
                   <thead>
-                  <tr className="bg-gray-100">
-                    <th className="p-2 border text-left">Descripció</th>
-                    <th className="p-2 border text-center">Quantitat</th>
-                    <th className="p-2 border text-center">Preu Unitari</th>
-                    <th className="p-2 border text-center">% Dte.</th>
-                    <th className="p-2 border text-center">Import Dte.</th>
-                    <th className="p-2 border text-center">Total Línia</th>
-                    <th className="p-2 border text-center">Accions</th>
-                  </tr>
+                    <tr className="bg-gray-100">
+                      <th className="p-2 border text-left">Descripció</th>
+                      <th className="p-2 border text-center">Quantitat</th>
+                      <th className="p-2 border text-center">Preu Unitari</th>
+                      <th className="p-2 border text-center">% Dte.</th>
+                      <th className="p-2 border text-center">Import Dte.</th>
+                      <th className="p-2 border text-center">Total Línia</th>
+                      <th className="p-2 border text-center">Accions</th>
+                    </tr>
                   </thead>
                   <tbody>
-                  {formData.items.map((item, index) => (
-                    <tr key={index} className="border-t">
-                      <td className="p-2 border">
-                        <EditableCell
-                          value={item.description}
-                          onUpdate={(value) => handleItemUpdate(index, 'description', value)}
-                          canEdit={true}
-                        />
-                      </td>
-                      <td className="p-2 border text-center">
-                        <EditableCell
-                          value={item.quantity.toString()}
-                          onUpdate={(value) => handleItemUpdate(index, 'quantity', Number(value))}
-                          canEdit={true}
-                        />
-                      </td>
-                      <td className="p-2 border text-center">
-                        <EditableCell
-                          value={item.unitPrice.toString()}
-                          onUpdate={(value) => handleItemUpdate(index, 'unitPrice', Number(value))}
-                          canEdit={true}
-                        />
-                      </td>
-                      <td className="p-2 border text-center">
-                        <EditableCell
-                          value={item.discountPercentage?.toString() ?? '0'}
-                          onUpdate={(value) => handleItemUpdate(index, 'discountPercentage', Number(value))}
-                          canEdit={true}
-                        />
-                      </td>
-                      <td className="p-2 border text-center">
-                        {item.discountAmount !== undefined && item.discountAmount !== null && !isNaN(item.discountAmount)
-                          ? `${parseFloat(item.discountAmount.toString()).toFixed(2)}€`
-                          : 'N/A'}
-                      </td>
-                      <td className="p-2 border text-center">
-                        {item.lineTotal !== undefined && item.lineTotal !== null && !isNaN(item.lineTotal)
-                          ? `${parseFloat(item.lineTotal.toString()).toFixed(2)}€`
-                          : 'N/A'}
-                      </td>
-                      <td className="p-2 border text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveItem(index)}
-                          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                        >
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                    {formData.items.map((item, index) => (
+                      <tr key={index} className="border-t">
+                        <td className="p-2 border">
+                          <EditableCell
+                            value={item.description}
+                            onUpdate={value =>
+                              handleItemUpdate(index, 'description', value)
+                            }
+                            canEdit={true}
+                          />
+                        </td>
+                        <td className="p-2 border text-center">
+                          <EditableCell
+                            value={item.quantity.toString()}
+                            onUpdate={value =>
+                              handleItemUpdate(index, 'quantity', Number(value))
+                            }
+                            canEdit={true}
+                          />
+                        </td>
+                        <td className="p-2 border text-center">
+                          <EditableCell
+                            value={item.unitPrice.toString()}
+                            onUpdate={value =>
+                              handleItemUpdate(
+                                index,
+                                'unitPrice',
+                                Number(value)
+                              )
+                            }
+                            canEdit={true}
+                          />
+                        </td>
+                        <td className="p-2 border text-center">
+                          <EditableCell
+                            value={item.discountPercentage?.toString() ?? '0'}
+                            onUpdate={value =>
+                              handleItemUpdate(
+                                index,
+                                'discountPercentage',
+                                Number(value)
+                              )
+                            }
+                            canEdit={true}
+                          />
+                        </td>
+                        <td className="p-2 border text-center">
+                          {item.discountAmount !== undefined &&
+                          item.discountAmount !== null &&
+                          !isNaN(item.discountAmount)
+                            ? `${parseFloat(
+                                item.discountAmount.toString()
+                              ).toFixed(2)}€`
+                            : 'N/A'}
+                        </td>
+                        <td className="p-2 border text-center">
+                          {item.lineTotal !== undefined &&
+                          item.lineTotal !== null &&
+                          !isNaN(item.lineTotal)
+                            ? `${parseFloat(item.lineTotal.toString()).toFixed(
+                                2
+                              )}€`
+                            : 'N/A'}
+                        </td>
+                        <td className="p-2 border text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveItem(index)}
+                            className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -349,7 +417,13 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
                 </div>
                 <div className="flex justify-between">
                   <span>IVA (21%):</span>
-                  <span>{formData.totalTax !== undefined && formData.totalTax !== null ? formData.totalTax.toFixed(2) : '0.00'}€</span>
+                  <span>
+                    {formData.totalTax !== undefined &&
+                    formData.totalTax !== null
+                      ? formData.totalTax.toFixed(2)
+                      : '0.00'}
+                    €
+                  </span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
                   <span>Total:</span>
@@ -368,7 +442,10 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
                 placeholder="Comentaris addicionals..."
                 value={formData.externalComments || ''}
                 onChange={e =>
-                  setFormData(prev => ({ ...prev, externalComments: e.target.value }))
+                  setFormData(prev => ({
+                    ...prev,
+                    externalComments: e.target.value,
+                  }))
                 }
                 className="min-h-[100px]"
               />
@@ -393,7 +470,9 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
               <Button
                 type="cancel"
                 variant="outline"
-                onClick={() => router.push(ROUTES.deliveryNote?.list || '/deliveryNotes')}
+                onClick={() =>
+                  router.push(ROUTES.deliveryNote?.list || '/deliveryNotes')
+                }
                 className="flex-1"
                 customStyles="flex justify-center"
                 disabled={isLoading}

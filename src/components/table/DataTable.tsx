@@ -3,7 +3,6 @@ import { SvgExportExcel, SvgSpinner } from 'app/icons/icons';
 import { useSessionStore } from 'app/stores/globalStore';
 import { FilterValue } from 'app/types/filters';
 import { getRoute } from 'app/utils/utils';
-import { useSearchParams } from 'next/navigation';
 
 import { RenderFilters } from './components/Filters/RenderFilters';
 import { TableBodyComponent } from './components/TableBody';
@@ -157,7 +156,7 @@ const DataTable: React.FC<DataTableProps> = ({
       filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord)
     );
 
-    setTotalAmountRecords(calculateTotalAmountRecords(filteredRecords));
+    setTotalAmountRecords(calculateTotalAmountRecords(filteredRecords, entity));
     setTotalCount(Math.ceil(filteredRecords.length / itemsPerPage));
 
     setIsLoading(false);
@@ -175,7 +174,7 @@ const DataTable: React.FC<DataTableProps> = ({
 
   const handleFilterChange = (key: string, value: string | boolean | Date) => {
     if (!isLoaded || data.length === 0) return;
-    console.log('handleFilterChange', key, value);
+
     const newFilters = {
       ...filtersApplied,
       [key]: value,
@@ -217,9 +216,9 @@ const DataTable: React.FC<DataTableProps> = ({
         filteredData.slice(indexOfFirstRecord, indexOfLastRecord)
       );
     }
-    calculateTotalAmountRecords(filteredData);
     setTotalRecords(filteredData.length);
     setTotalCount(Math.ceil(filteredData.length / itemsPerPage));
+    setTotalAmountRecords(calculateTotalAmountRecords(filteredData, entity));
   };
 
   useEffect(() => {
@@ -266,9 +265,8 @@ const DataTable: React.FC<DataTableProps> = ({
   }, [filteredData]);
 
   const formattedPrice = new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
     minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(totalPrice);
 
   const totalStock = useMemo(() => {
@@ -354,7 +352,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 pathDetail={pathDetail}
                 onDelete={onDelete ? onDelete : undefined}
                 totalCounts={totalCounts}
-                totalQuantity={formattedPrice ?? 0}
+                totalQuantity={totalAmountRecords ?? 0}
                 filtersApplied={filtersApplied}
               />
               {entity === EntityTable.SPAREPART &&
