@@ -7,7 +7,7 @@ export default function FaviconUpdater() {
   const { config } = useSessionStore(state => state);
 
   useEffect(() => {
-    if (config?.company?.urlLogo) {
+    if (typeof document !== 'undefined' && config?.company?.urlLogo) {
       const link =
         document.querySelector<HTMLLinkElement>("link[rel*='icon']") ||
         document.createElement('link');

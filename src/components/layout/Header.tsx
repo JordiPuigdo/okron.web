@@ -12,11 +12,6 @@ import { usePathname, useRouter } from 'next/navigation';
 
 import FaviconUpdater from './FavIcontUpdater';
 
-export const metadata = {
-  title: 'Okron',
-  description: 'Gestió',
-};
-
 const Header: React.FC = () => {
   const {
     loginUser,
@@ -44,8 +39,6 @@ const Header: React.FC = () => {
 
   return (
     <header className="flex items-center justify-between bg-white text-lg font-semibold text-white p-4 w-full sticky transition-all shadow-md">
-      <FaviconUpdater />
-
       <div className="flex items-center gap-3 pl-1">
         <button onClick={handleMenuClick}>
           <SvgMenu width={30} height={30} className="text-okron-main" />
