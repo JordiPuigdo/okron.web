@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useConfig } from 'app/hooks/useConfig';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { User } from 'app/interfaces/User';
 import AuthenticationService from 'app/services/authentication';
 import { useSessionStore } from 'app/stores/globalStore';
@@ -20,7 +21,7 @@ export default function AuthenticationPage() {
   const [errorEmail, setErrorEmail] = useState<string | undefined>('');
   const { setLoginUser } = useSessionStore(state => state);
   const { config } = useConfig();
-
+  const { fetchTranslations, setLang } = useTranslations();
   const authService = new AuthenticationService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
@@ -40,7 +41,8 @@ export default function AuthenticationPage() {
       username: username,
       password: password,
     };
-
+    setLang('ca');
+    await fetchTranslations('ca');
     await authService
       .Login(userLogin.username, userLogin.password)
       .then(async (data: any) => {
@@ -48,11 +50,11 @@ export default function AuthenticationPage() {
           setLoginUser(data);
           router.push(ROUTES.menu);
         } else {
-          handleErrorMessage('Login Incorrecte');
+          handleErrorMessage('Error Login');
         }
       })
       .catch((err: any) => {
-        handleErrorMessage('Login Incorrecte');
+        handleErrorMessage('Error Login ' + err.message);
       });
   };
 

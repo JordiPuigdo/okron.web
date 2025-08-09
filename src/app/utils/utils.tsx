@@ -5,7 +5,6 @@ import {
 } from 'app/interfaces/Production/Downtimes';
 import {
   StateWorkOrder,
-  WorkOrderCommentType,
   WorkOrderEventType,
   WorkOrderType,
 } from 'app/interfaces/workOrder';
@@ -16,6 +15,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 
+import { InvoiceItemType, InvoiceStatus } from '../interfaces/Invoice';
 import useRoutes from './useRoutes';
 
 dayjs.extend(customParseFormat);
@@ -47,21 +47,6 @@ export const translateStateWorkOrder = (state: any): string => {
   }
 };
 
-export const translateWorkOrderCommentType = (
-  commentType: WorkOrderCommentType
-): string => {
-  switch (commentType) {
-    case WorkOrderCommentType.Internal:
-      return 'Observacions';
-    case WorkOrderCommentType.External:
-      return 'Descripció reparació';
-    case WorkOrderCommentType.NoFinished:
-      return 'No Finalitzat';
-    default:
-      return '';
-  }
-};
-
 export const translateWorkOrderEventType = (
   eventType: WorkOrderEventType
 ): string => {
@@ -82,6 +67,49 @@ export const translateWorkOrderEventType = (
       return 'Creada';
     default:
       return '';
+  }
+};
+
+export const translateInvoiceStatus = (status: InvoiceStatus): string => {
+  switch (status) {
+    case InvoiceStatus.Draft:
+      return 'Esborrany';
+    case InvoiceStatus.Paid:
+      return 'Pagada';
+    case InvoiceStatus.Overdue:
+      return 'Vençuda';
+    case InvoiceStatus.Cancelled:
+      return 'Cancel·lada';
+    default:
+      return 'Desconegut';
+  }
+};
+
+export const translateInvoiceItemType = (type: InvoiceItemType): string => {
+  switch (type) {
+    case InvoiceItemType.Labor:
+      return "Mà d'Obra";
+    case InvoiceItemType.SparePart:
+      return 'Recanvi';
+    case InvoiceItemType.Other:
+      return 'Altres';
+    default:
+      return 'Desconegut';
+  }
+};
+
+export const getInvoiceStatusColor = (status: InvoiceStatus): string => {
+  switch (status) {
+    case InvoiceStatus.Draft:
+      return 'bg-gray-100 text-gray-800';
+    case InvoiceStatus.Paid:
+      return 'bg-green-100 text-green-800';
+    case InvoiceStatus.Overdue:
+      return 'bg-red-100 text-red-800';
+    case InvoiceStatus.Cancelled:
+      return 'bg-yellow-100 text-yellow-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
   }
 };
 
@@ -376,6 +404,7 @@ export function translateOriginDowntime(originDowntime: OriginDowntime) {
       return originDowntime;
   }
 }
+
 export const fetcher = async (url: string) => {
   const response = await fetch(url);
   if (!response.ok) {
@@ -389,6 +418,9 @@ export const getRoute = (entity: EntityTable) => {
   switch (entity) {
     case EntityTable.WORKORDER:
       return ROUTES.workOrders;
+      break;
+    case EntityTable.INVOICE:
+      return ROUTES.invoices.list;
       break;
     case EntityTable.PREVENTIVE:
       return ROUTES.preventive.configuration;
@@ -419,6 +451,8 @@ export const getRoute = (entity: EntityTable) => {
       break;
     case EntityTable.CUSTOMER:
       return ROUTES.customer;
+    case EntityTable.DELIVERYNOTE:
+      return ROUTES.deliveryNote.list;
     default:
       return 'error';
   }

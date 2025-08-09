@@ -1,11 +1,12 @@
 import { SvgDatabase } from 'app/icons/designSystem/SvgDatabase';
+import { SvgInvoice } from 'app/icons/designSystem/SvgInvoice';
 import { SvgPackage } from 'app/icons/designSystem/SvgPackage';
 import {
   SvgActiu,
   SvgAvarie,
+  SvgCustomer,
   SvgGear,
   SvgInspect,
-  SvgMachine,
   SvgMenu,
   SvgOperari,
   SvgOrder,
@@ -21,7 +22,7 @@ import { generateKey, SideNavItem } from 'app/types/SideNavItem';
 export const SIDENAV_ITEMS: SideNavItem[] = [
   {
     key: generateKey(),
-    title: 'Panell de control',
+    titleKey: 'sidebar.dashboard',
     icon: SvgPanel,
     path: '/menu',
     permission: [
@@ -33,7 +34,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
-    title: 'Revisions',
+    titleKey: 'sidebar.preventives',
     path: '',
     permission: [UserPermission.Administrator],
     userType: [UserType.Maintenance],
@@ -42,7 +43,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     submenuItems: [
       {
         key: generateKey(),
-        title: 'Configuració',
+        titleKey: 'sidebar.preventive.config',
         path: '/preventive',
         icon: SvgGear,
         permission: [UserPermission.Administrator],
@@ -50,7 +51,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },
       {
         key: generateKey(),
-        title: 'Punts Inspecció',
+        titleKey: 'sidebar.inspectionPoints',
         path: '/inspectionPoints',
         icon: SvgInspect,
         permission: [UserPermission.Administrator],
@@ -58,7 +59,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },
       {
         key: generateKey(),
-        title: 'Calendari',
+        titleKey: 'sidebar.preventive.calendar',
         path: '/preventive/calendar',
         icon: SvgInspect,
         permission: [UserPermission.Administrator],
@@ -68,7 +69,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
-    title: 'Avaries',
+    titleKey: 'sidebar.correctives',
     path: '/corrective',
     icon: SvgAvarie,
     permission: [
@@ -80,7 +81,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
-    title: 'Tiquets',
+    titleKey: 'sidebar.tickets',
     path: '/corrective',
     icon: SvgAvarie,
     permission: [UserPermission.Administrator, UserPermission.Worker],
@@ -88,7 +89,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
-    title: 'Ordres de treball',
+    titleKey: 'sidebar.workOrders',
     path: '/workOrders',
     icon: SvgOrder,
     permission: [
@@ -100,7 +101,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
-    title: 'Històric de Tiquets',
+    titleKey: 'sidebar.workOrders.historyTickets',
     path: '/workOrders',
     icon: SvgOrder,
     permission: [UserPermission.Administrator, UserPermission.Worker],
@@ -108,7 +109,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
-    title: 'Comandes i Recepcions',
+    titleKey: 'sidebar.orders',
     path: '',
     permission: [UserPermission.Administrator],
     userType: [UserType.Maintenance, UserType.Warehouse],
@@ -117,7 +118,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     submenuItems: [
       {
         key: generateKey(),
-        title: 'Comandes',
+        titleKey: 'sidebar.orders.purchases',
         path: '/orders/purchases',
         icon: SvgGear,
         permission: [UserPermission.Administrator],
@@ -125,7 +126,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },
       {
         key: generateKey(),
-        title: 'Proposta Automàtica Compra',
+        titleKey: 'sidebar.orders.purchases.lowStock',
         path: '/orders/purchases/lowStock',
         icon: SvgGear,
         permission: [UserPermission.Administrator],
@@ -133,7 +134,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },
       {
         key: generateKey(),
-        title: 'Recepcions',
+        titleKey: 'sidebar.orders.deliveries',
         path: '/orders/deliverys',
         icon: SvgInspect,
         permission: [UserPermission.Administrator],
@@ -143,7 +144,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
-    title: 'Recanvis',
+    titleKey: 'sidebar.spareParts',
     path: '/spareParts',
     icon: SvgRecanvi,
     permission: [
@@ -156,7 +157,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
-    title: 'Reports',
+    titleKey: 'sidebar.reports.consumedSpareParts',
     icon: SvgReport,
     path: '/reports/spareParts/consumedSpareParts',
     permission: [UserPermission.Administrator, UserPermission.SpareParts],
@@ -164,7 +165,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
-    title: 'Reports',
+    titleKey: 'sidebar.reports.downtimesReport',
     icon: SvgReport,
     path: '/reports/downtimesReport',
     permission: [UserPermission.Administrator, UserPermission.SpareParts],
@@ -172,15 +173,23 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
-    title: 'Clients',
-    icon: SvgReport,
+    titleKey: 'sidebar.customers',
+    icon: SvgCustomer,
     path: '/customer',
     permission: [UserPermission.AdminCRM, UserPermission.AdminCRM],
     userType: [UserType.CRM],
   },
   {
     key: generateKey(),
-    title: 'Configuració',
+    titleKey: 'sidebar.invoices',
+    icon: SvgInvoice,
+    path: '/invoices',
+    permission: [UserPermission.AdminCRM, UserPermission.AdminCRM],
+    userType: [UserType.CRM],
+  },
+  {
+    key: generateKey(),
+    titleKey: 'sidebar.config',
     path: '',
     permission: [UserPermission.Administrator, UserPermission.AdminCRM],
     userType: [
@@ -194,7 +203,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     submenuItems: [
       {
         key: generateKey(),
-        title: 'Actius i Equips',
+        titleKey: 'sidebar.assets',
         path: '/assets',
         icon: SvgActiu,
         permission: [UserPermission.Administrator, UserPermission.AdminCRM],
@@ -202,7 +211,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },
       {
         key: generateKey(),
-        title: 'Proveïdors',
+        titleKey: 'sidebar.providers',
         path: '/providers',
         icon: SvgPackage,
         permission: [UserPermission.Administrator, UserPermission.AdminCRM],
@@ -210,7 +219,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },
       {
         key: generateKey(),
-        title: 'Magatzems',
+        titleKey: 'sidebar.warehouse',
         path: '/wareHouse',
         icon: SvgMenu,
         permission: [UserPermission.Administrator, UserPermission.AdminCRM],
@@ -234,7 +243,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },*/
       {
         key: generateKey(),
-        title: 'Comptes Comptables',
+        titleKey: 'sidebar.accounts',
         path: '/account',
         icon: SvgOperari,
         userType: [UserType.Production, UserType.Maintenance],
@@ -242,7 +251,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },
       {
         key: generateKey(),
-        title: 'Operaris',
+        titleKey: 'sidebar.operators',
         path: '/operators',
         icon: SvgOperari,
         userType: [UserType.Production, UserType.Maintenance, UserType.CRM],
@@ -250,7 +259,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },
       {
         key: generateKey(),
-        title: 'Usuaris',
+        titleKey: 'sidebar.users',
         path: '/users',
         icon: SvgUsers,
         userType: [UserType.Production, UserType.Maintenance, UserType.CRM],
@@ -258,7 +267,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },
       {
         key: generateKey(),
-        title: 'Sistema',
+        titleKey: 'sidebar.system',
         path: '/system',
         icon: SvgDatabase,
         userType: [UserType.CRM],

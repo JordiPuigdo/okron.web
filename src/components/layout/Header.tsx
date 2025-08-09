@@ -4,21 +4,17 @@ import { SvgAccount, SvgLogOut, SvgMenu } from 'app/icons/icons';
 import { UserPermission, UserType } from 'app/interfaces/User';
 import { useSessionStore } from 'app/stores/globalStore';
 import useRoutes from 'app/utils/useRoutes';
+import LanguageSelector from 'components/LanguageSelector';
 import SignOperator from 'components/operator/SignOperator';
 import QuickActions from 'components/QuickActions';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
-const logoCSS = process.env.NEXT_PUBLIC_LOGO_CSS!;
+import FaviconUpdater from './FavIcontUpdater';
 
 export const metadata = {
   title: 'Okron',
   description: 'Gestió',
-
-  icons: {
-    icon: { logoUrl },
-  },
 };
 
 const Header: React.FC = () => {
@@ -29,7 +25,9 @@ const Header: React.FC = () => {
     setOperatorLogged,
     setIsMenuOpen,
     isMenuOpen,
+    config,
   } = useSessionStore(state => state);
+
   const router = useRouter();
   const ROUTES = useRoutes();
   const pathname = usePathname();
@@ -46,6 +44,8 @@ const Header: React.FC = () => {
 
   return (
     <header className="flex items-center justify-between bg-white text-lg font-semibold text-white p-4 w-full sticky transition-all shadow-md">
+      <FaviconUpdater />
+
       <div className="flex items-center gap-3 pl-1">
         <button onClick={handleMenuClick}>
           <SvgMenu width={30} height={30} className="text-okron-main" />
@@ -53,9 +53,9 @@ const Header: React.FC = () => {
         <div className="ml-2 flex">
           <Link href="/menu">
             <img
-              src={logoUrl}
+              src={config?.company.urlLogo}
               alt="Components Mecànics Logo"
-              className={logoCSS}
+              className={config?.company.cssLogo}
             />
           </Link>
         </div>
@@ -84,15 +84,18 @@ const Header: React.FC = () => {
         <div className="flex">
           <QuickActions />
         </div>
+
         <div className="flex items-center justify-end pr-2 text-gray-700 gap-1">
           <SvgAccount />
           {loginUser?.username &&
             loginUser?.username.charAt(0)?.toUpperCase() +
               loginUser?.username?.slice(1)}
-
+          <div className="flex">
+            <LanguageSelector />
+          </div>
           <button
             type="button"
-            className="hover:text-purple-900 ml-6"
+            className="hover:text-purple-900"
             onClick={logOut}
           >
             <SvgLogOut />

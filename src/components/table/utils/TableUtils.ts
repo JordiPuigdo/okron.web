@@ -140,12 +140,25 @@ export const formatCellContent = (
 
   if (column.format === ColumnFormat.PRICE) {
     className = ' justify-end text-end';
-    value = value.toFixed(2) + '€';
+    const numericValue = value ?? 0;
+    value =
+      typeof numericValue === 'number'
+        ? numericValue.toFixed(2) + '€'
+        : '0.00€';
+  }
+
+  if (column.format == ColumnFormat.INVOICESTATUS) {
+    className = getStatusClassName(value, 'INVOICE');
+    value = getStatusText(value, 'INVOICE');
+  }
+
+  if (column.format === ColumnFormat.DELIVERYNOTESTATUS) {
+    className = getStatusClassName(value, 'DELIVERYNOTE');
+    value = getStatusText(value, 'DELIVERYNOTE');
   }
 
   if (column.format === ColumnFormat.STOCKMOVEMENTTYPE) {
     className = getStatusClassName(value, 'STOCKMOVEMENT');
-    console.log(value);
     value = getStatusText(value, 'STOCKMOVEMENT');
   }
 
@@ -194,21 +207,32 @@ export const getStatusClassName = (status: string, entity: string): string => {
 
 const validColumns = [ColumnFormat.DATE, ColumnFormat.DATETIME];
 
-export const calculateTotalAmountRecords = (data: any[]) => {
-  if (EntityTable.ORDER && data.length > 0) {
+export const calculateTotalAmountRecords = (
+  data: any[],
+  entity: EntityTable
+) => {
+  if (entity == EntityTable.ORDER && data.length > 0) {
     const x = data.reduce((acc, order) => {
       return acc + (order.totalAmount ?? 0);
     }, 0);
 
-    const formattedNumber = new Intl.NumberFormat('es-ES', {
+    /*const formattedNumber = new Intl.NumberFormat('es-ES', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(x);
+    }).format(x);*/
 
-    return formattedNumber;
-  } else {
-    return undefined;
+    return x.toFixed(2);
   }
+
+  if (entity == EntityTable.DELIVERYNOTE && data.length > 0) {
+    const x = data.reduce((acc, item) => {
+      const total = Number(item.total) || 0;
+      return acc + total;
+    }, 0);
+
+    return x.toFixed(2);
+  }
+  return undefined;
 };
 
 export const exportTableToExcel = (

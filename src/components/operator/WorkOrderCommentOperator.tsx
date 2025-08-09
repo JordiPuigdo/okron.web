@@ -4,10 +4,11 @@ import { SvgDelete, SvgSpinner } from 'app/icons/icons';
 import {
   AddCommentToWorkOrderRequest,
   WorkOrderComment,
+  WorkOrderCommentType,
 } from 'app/interfaces/workOrder';
 import WorkOrderService from 'app/services/workOrderService';
 import { useSessionStore } from 'app/stores/globalStore';
-import { formatDate, translateWorkOrderCommentType } from 'app/utils/utils';
+import { formatDate } from 'app/utils/utils';
 import { RenderFileComment } from 'components/Comments/RenderFileComment';
 
 interface IWorkOrderCommentOperator {
@@ -88,6 +89,12 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
       setIsLoading(false);
     }
   };
+
+  function translateWorkOrderCommentType(
+    type: WorkOrderCommentType
+  ): React.ReactNode {
+    throw new Error('Function not implemented.');
+  }
 
   return (
     <div>

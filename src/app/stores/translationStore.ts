@@ -1,0 +1,30 @@
+import { create } from 'zustand';
+
+interface TranslationState {
+  translations: Record<string, string>;
+  loading: boolean;
+  error: string | null;
+  currentLang: string;
+  fetchTranslations: (lang: string, prefix?: string) => Promise<void>;
+  setLang: (lang: string) => void;
+}
+
+export const useTranslationStore = create<TranslationState>(set => ({
+  translations: {},
+  loading: false,
+  error: null,
+  currentLang: 'ca',
+  fetchTranslations: async (lang, prefix = '') => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch(
+        `http://localhost:5254/api/Config/Translations?lang=${lang}&key=${prefix}`
+      );
+      const data = await response.json();
+      set({ translations: data.translations, loading: false });
+    } catch (err) {
+      set({ error: 'Failed to load translations', loading: false });
+    }
+  },
+  setLang: lang => set({ currentLang: lang }),
+}));
