@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface TranslationState {
   translations: Record<string, string>;
@@ -9,22 +10,33 @@ interface TranslationState {
   setLang: (lang: string) => void;
 }
 
-export const useTranslationStore = create<TranslationState>(set => ({
-  translations: {},
-  loading: false,
-  error: null,
-  currentLang: 'ca',
-  fetchTranslations: async (lang, prefix = '') => {
-    set({ loading: true, error: null });
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/Config/Translations?lang=${lang}&key=${prefix}`
-      );
-      const data = await response.json();
-      set({ translations: data.translations, loading: false });
-    } catch (err) {
-      set({ error: 'Failed to load translations', loading: false });
+export const useTranslationStore = create<TranslationState>()(
+  persist(
+    set => ({
+      translations: {},
+      loading: false,
+      error: null,
+      currentLang: 'ca',
+      fetchTranslations: async (lang, prefix = '') => {
+        set({ loading: true, error: null });
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/Config/Translations?lang=${lang}&key=${prefix}`
+          );
+          const data = await response.json();
+          set({ translations: data.translations, loading: false });
+        } catch (err) {
+          set({ error: 'Failed to load translations', loading: false });
+        }
+      },
+      setLang: lang => set({ currentLang: lang }),
+    }),
+    {
+      name: 'translation-store', // clave en localStorage
+      partialize: state => ({
+        translations: state.translations,
+        currentLang: state.currentLang,
+      }),
     }
-  },
-  setLang: lang => set({ currentLang: lang }),
-}));
+  )
+);
