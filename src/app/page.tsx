@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 
 import AuthenticationPage from './(pages)/authentication/page';
 
-const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
+/*const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://okron.io'),
@@ -12,7 +12,8 @@ export const metadata: Metadata = {
   icons: {
     icon: [logoUrl],
   },
-};
+};*/
+
 export default function Page() {
   return (
     <MainLayout hideHeader>

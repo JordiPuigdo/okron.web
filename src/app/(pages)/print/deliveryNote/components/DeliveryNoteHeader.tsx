@@ -12,18 +12,16 @@ interface CompanyInfo {
   email: string;
 }
 
-export const DeliveryNoteHeader = ({ deliveryNote }: { deliveryNote: DeliveryNote }) => {
-  const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
+export const DeliveryNoteHeader = ({
+  deliveryNote,
+}: {
+  deliveryNote: DeliveryNote;
+}) => {
   const company: CompanyInfo = companyData;
 
   return (
     <div>
       <div className="flex justify-between">
-        <img
-          src={logoUrl}
-          alt="Components Mecànics Logo"
-          className="h-[150px] w-[150px] p-2"
-        />
         <div className="flex">
           <div className="border p-2 my-6">
             <p className="relative">Albarà</p>

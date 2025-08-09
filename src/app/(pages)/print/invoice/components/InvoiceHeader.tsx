@@ -13,17 +13,12 @@ interface CompanyInfo {
 }
 
 export const InvoiceHeader = ({ invoice }: { invoice: Invoice }) => {
-  const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
+  //const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
   const company: CompanyInfo = companyData;
 
   return (
     <div>
       <div className="flex justify-between">
-        <img
-          src={logoUrl}
-          alt="Components Mecànics Logo"
-          className="h-[150px] w-[150px] p-2"
-        />
         <div className="flex">
           <div className="border p-2 my-6">
             <p className="relative">Factura</p>
@@ -62,12 +57,8 @@ export const InvoiceHeader = ({ invoice }: { invoice: Invoice }) => {
           <p className="font-semibold">{invoice.companyName}</p>
           <p className="font-semibold">{invoice.companyAddress}</p>
           <p>{invoice.companyCity}</p>
-          {invoice.companyPostalCode && (
-            <p>{invoice.companyPostalCode}</p>
-          )}
-          {invoice.companyProvince && (
-            <p>{invoice.companyProvince}</p>
-          )}
+          {invoice.companyPostalCode && <p>{invoice.companyPostalCode}</p>}
+          {invoice.companyProvince && <p>{invoice.companyProvince}</p>}
         </div>
       </div>
 

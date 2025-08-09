@@ -13,16 +13,11 @@ interface CompanyInfo {
 }
 
 export const OrderHeader = ({ order }: { order: Order }) => {
-  const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
+  //const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
   const company: CompanyInfo = companyData;
   return (
     <div>
       <div className="flex justify-between">
-        <img
-          src={logoUrl}
-          alt="Components Mecànics Logo"
-          className="h-[150px] w-[150px] p-2 "
-        />
         <div className="flex">
           <div className="border p-2 my-6">
             <p className="relative">Comanda</p>

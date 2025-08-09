@@ -10,8 +10,6 @@ import QuickActions from 'components/QuickActions';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import FaviconUpdater from './FavIcontUpdater';
-
 const Header: React.FC = () => {
   const {
     loginUser,
