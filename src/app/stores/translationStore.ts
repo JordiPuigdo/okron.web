@@ -18,7 +18,7 @@ export const useTranslationStore = create<TranslationState>(set => ({
     set({ loading: true, error: null });
     try {
       const response = await fetch(
-        `http://localhost:5254/api/Config/Translations?lang=${lang}&key=${prefix}`
+        `${process.env.NEXT_PUBLIC_LOGO_URL}/Config/Translations?lang=${lang}&key=${prefix}`
       );
       const data = await response.json();
       set({ translations: data.translations, loading: false });
