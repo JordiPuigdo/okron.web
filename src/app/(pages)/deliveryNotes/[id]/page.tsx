@@ -46,6 +46,15 @@ export default function DeliveryNoteDetailPage({ params }: DeliveryNoteDetailPag
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      await deliveryNoteService.delete(id);
+    } catch (error) {
+      console.error('Error eliminando el albarà:', error);
+      throw error;
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -74,7 +83,7 @@ export default function DeliveryNoteDetailPage({ params }: DeliveryNoteDetailPag
   return (
     <MainLayout>
       <Container>
-        <DeliveryNoteDetailForm deliveryNote={deliveryNote} onUpdate={handleUpdate} />
+        <DeliveryNoteDetailForm deliveryNote={deliveryNote} onUpdate={handleUpdate} onDelete={handleDelete} />
       </Container>
     </MainLayout>
   );

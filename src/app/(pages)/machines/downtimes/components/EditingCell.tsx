@@ -1,6 +1,6 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { useState } from 'react';
+import { useEffect,useState } from 'react';
 import DatePicker from 'react-datepicker';
 import ca from 'date-fns/locale/ca';
 import dayjs from 'dayjs';
@@ -13,6 +13,14 @@ export const EditableCell: React.FC<{
 }> = ({ value, onUpdate, canEdit = true, type = 'text' }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [newDescription, setNewDescription] = useState<string>(value);
+
+  useEffect(() => {
+    setNewDescription(value);
+    // Auto-start editing if value is empty and this is the first render
+    if (!value && !isEditing) {
+      setIsEditing(true);
+    }
+  }, [value]);
 
   const handleBlur = () => {
     setIsEditing(false);
@@ -47,7 +55,9 @@ export const EditableCell: React.FC<{
           onChange={e => setNewDescription(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
+          placeholder="Escribe la descripción..."
           className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+          autoFocus
         />
       )}
       {type === 'date' && (
@@ -67,9 +77,12 @@ export const EditableCell: React.FC<{
   ) : (
     <span
       onClick={() => setIsEditing(true)}
-      className="cursor-pointer text-blue-500 hover:underline"
+      className="cursor-pointer text-blue-500 hover:underline min-h-[20px] block"
     >
-      {type === 'date' ? dayjs(value).format('DD/MM/YYYY') : value}
+      {type === 'date' 
+        ? (value ? dayjs(value).format('DD/MM/YYYY') : 'Selecciona una fecha')
+        : (value || 'Haz clic para editar')
+      }
     </span>
   );
 };

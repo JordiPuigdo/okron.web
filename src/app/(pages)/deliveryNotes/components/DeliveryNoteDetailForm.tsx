@@ -5,7 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { ca } from 'date-fns/locale';
-import { Save, X } from 'lucide-react';
+import { Save, Trash2,X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { HeaderForm } from '../../../../components/layout/HeaderForm';
@@ -20,9 +20,10 @@ import { EditableCell } from '../../machines/downtimes/components/EditingCell';
 interface DeliveryNoteDetailFormProps {
   deliveryNote: DeliveryNote;
   onUpdate: (deliveryNote: DeliveryNoteUpdateRequest) => Promise<void>;
+  onDelete?: (id: string) => Promise<void>;
 }
 
-export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteDetailFormProps) {
+export function DeliveryNoteDetailForm({ deliveryNote, onUpdate, onDelete }: DeliveryNoteDetailFormProps) {
   const router = useRouter();
   const ROUTES = useRoutes();
 
@@ -94,6 +95,26 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
     }));
   };
 
+  const handleAddItem = () => {
+    const newItem: DeliveryNoteItem = {
+      type: 2, // Other type
+      description: '',
+      quantity: 1,
+      unitPrice: 0,
+      discountPercentage: 0,
+      discountAmount: 0,
+      lineTotal: 0,
+      workOrderId: '0', // Set workOrderId to '0' as requested
+      active: true,
+      creationDate: new Date().toISOString(),
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      items: [...prev.items, newItem],
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLoading) return;
@@ -141,6 +162,22 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm(
+      `Estàs segur que vols eliminar l'albarà ${formData.code}? Aquesta acció no es pot desfer.`
+    );
+    
+    if (confirmDelete && onDelete) {
+      try {
+        await onDelete(formData.id);
+        router.push(ROUTES.deliveryNote?.list || '/deliveryNotes');
+      } catch (error) {
+        console.error('Error deleting delivery note:', error);
+        alert('Error al eliminar l\'albarà');
+      }
+    }
   };
 
   return (
@@ -333,6 +370,16 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
                 </table>
               </div>
 
+              <div className="flex justify-end">
+                <Button
+                  type="create"
+                  variant="outline"
+                  onClick={handleAddItem}
+                >
+                  Afegir Element
+                </Button>
+              </div>
+
               {errors.items && (
                 <p className="text-destructive text-sm text-red-500">
                   {errors.items}
@@ -390,6 +437,19 @@ export function DeliveryNoteDetailForm({ deliveryNote, onUpdate }: DeliveryNoteD
                 )}
                 <p>Actualitzar</p>
               </Button>
+              {onDelete && (
+                <Button
+                  type="delete"
+                  variant="destructive"
+                  onClick={handleDelete}
+                  className="flex-1"
+                  customStyles="flex justify-center"
+                  disabled={isLoading}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  <p>Eliminar</p>
+                </Button>
+              )}
               <Button
                 type="cancel"
                 variant="outline"

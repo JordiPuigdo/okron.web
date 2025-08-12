@@ -56,6 +56,27 @@ export const TableDataDeliveryNotes = ({
     setFirstLoad(false);
   }, []);
 
+  const handleDelete = async (id: string) => {
+    const confirmDelete = window.confirm('Estàs segur que vols eliminar aquest albarà? Aquesta acció no es pot desfer.');
+    
+    if (confirmDelete) {
+      try {
+        await deliveryNoteService.delete(id);
+        setMessage('Albarà eliminat correctament');
+        await fetchDeliveryNotes(); // Refresh the list
+        setTimeout(() => {
+          setMessage('');
+        }, 3000);
+      } catch (error) {
+        console.error('Error deleting delivery note:', error);
+        setMessage('Error al eliminar l\'albarà');
+        setTimeout(() => {
+          setMessage('');
+        }, 5000);
+      }
+    }
+  };
+
   useEffect(() => {
     if (dateFilters.startDate && dateFilters.endDate) {
       fetchDeliveryNotes();
@@ -134,6 +155,7 @@ export const TableDataDeliveryNotes = ({
         hideShadow={hideShadow}
         totalCounts
         totalCalculated={Number(formattedPrice)}
+        onDelete={handleDelete}
       />
     </div>
   );
@@ -142,6 +164,7 @@ export const TableDataDeliveryNotes = ({
 const tableButtons: TableButtons = {
   edit: true,
   detail: true,
+  delete: true,
 };
 
 const columnsDeliveryNotes: Column[] = [
