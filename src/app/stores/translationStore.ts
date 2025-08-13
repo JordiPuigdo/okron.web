@@ -32,7 +32,8 @@ export const useTranslationStore = create<TranslationState>()(
       setLang: lang => set({ currentLang: lang }),
     }),
     {
-      name: 'translation-store', // clave en localStorage
+      name: 'translation-store',
+      version: 1,
       partialize: state => ({
         translations: state.translations,
         currentLang: state.currentLang,
