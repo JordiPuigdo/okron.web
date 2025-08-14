@@ -129,10 +129,11 @@ const DataTable: React.FC<DataTableProps> = ({
 
     data = sortData(data, sortColumn, sortOrder);
 
-    const filterByActiveStatus = (record: any) =>
+    const filterByActiveStatus = (record: unknown) =>
       typeof record === 'object' &&
-      record.hasOwnProperty('active') &&
-      (!filterActive || record.active);
+      record !== null &&
+      'active' in record &&
+      record.active == filterActive;
 
     const filterByUnderStock = (record: any) =>
       typeof record === 'object' &&
@@ -143,6 +144,7 @@ const DataTable: React.FC<DataTableProps> = ({
     let filteredRecords = data;
 
     if (enableFilterActive) {
+      console.log(filterActive);
       filteredRecords = filteredRecords.filter(filterByActiveStatus);
     }
 

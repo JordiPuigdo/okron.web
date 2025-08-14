@@ -71,6 +71,7 @@ export interface UpdateCustomerRequest extends CreateCustomerRequest {
 
 export interface CustomerInstallations extends BaseModel {
   code: string;
+  kms: number;
   address: CustomerAddress;
   contact: CustomerContact[];
   rates?: Rate[];

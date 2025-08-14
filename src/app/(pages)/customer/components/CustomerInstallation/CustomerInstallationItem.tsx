@@ -53,6 +53,14 @@ export default function CustomerInstallationItem({
             </p>
           )}
         </div>
+        <div>
+          <label>Kms</label>
+          <input
+            {...register(`installations.${index}.kms`)}
+            className="w-full border rounded p-2"
+            placeholder="Kms"
+          />
+        </div>
 
         <div>
           <label>Direcció</label>
@@ -110,10 +118,7 @@ export default function CustomerInstallationItem({
                   <label>Nom</label>
                   <input
                     {...register(
-                      `installations.${index}.contact.${cIndex}.name`,
-                      {
-                        required: 'Nom obligatori',
-                      }
+                      `installations.${index}.contact.${cIndex}.name`
                     )}
                     className="w-full border rounded p-2"
                     placeholder="Nom"
@@ -123,10 +128,7 @@ export default function CustomerInstallationItem({
                   <label>Email</label>
                   <input
                     {...register(
-                      `installations.${index}.contact.${cIndex}.email`,
-                      {
-                        required: 'Email obligatori',
-                      }
+                      `installations.${index}.contact.${cIndex}.email`
                     )}
                     className="w-full border rounded p-2"
                     placeholder="Email"
@@ -136,10 +138,7 @@ export default function CustomerInstallationItem({
                   <label>Telèfon</label>
                   <input
                     {...register(
-                      `installations.${index}.contact.${cIndex}.phone`,
-                      {
-                        required: 'Telèfon obligatori',
-                      }
+                      `installations.${index}.contact.${cIndex}.phone`
                     )}
                     className="w-full border rounded p-2"
                     placeholder="Telèfon"

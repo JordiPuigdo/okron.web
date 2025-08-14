@@ -46,6 +46,11 @@ const columnsCustomers: Column[] = [
     key: 'whatsappNumber',
     format: ColumnFormat.TEXT,
   },
+  {
+    label: 'Actiu',
+    key: 'active',
+    format: ColumnFormat.BOOLEAN,
+  },
 ];
 export const tableButtons = {
   edit: true,
