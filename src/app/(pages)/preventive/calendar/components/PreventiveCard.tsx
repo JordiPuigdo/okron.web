@@ -33,15 +33,18 @@ const PreventiveCard = ({
   item,
   routes,
   onClick,
+  size,
 }: {
   item: any;
   routes: any;
   onClick?: () => void;
   onMouseLeave?: () => void;
+  size?: 'small' | 'medium' | 'large';
 }) => {
   const hasWorkOrder = !!item.workOrder;
 
   const AssetBox = () => {
+    const slice = size === 'small' ? 10 : size === 'medium' ? 15 : 20;
     return (
       <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 0.5 }}>
         <Typography
@@ -67,11 +70,13 @@ const PreventiveCard = ({
             color: '#202124',
           }}
         >
-          {item.preventive.asset.description.slice(0, 20) + '...'}
+          {item.preventive.asset.description.slice(0, slice) + '...'}
         </Typography>
       </Box>
     );
   };
+
+  const slice = size === 'small' ? 10 : size === 'medium' ? 10 : 15;
 
   return (
     <Box sx={styles.preventiveCard(hasWorkOrder)}>
@@ -116,7 +121,7 @@ const PreventiveCard = ({
               maxHeight: '2.6em',
             }}
           >
-            {item.preventive.description.slice(0, 20) + '...'}
+            {item.preventive.description.slice(0, slice) + '...'}
           </Typography>
         </Box>
       </div>

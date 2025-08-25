@@ -1,7 +1,7 @@
 'use client';
 import 'dayjs/locale/ca';
 
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {
@@ -89,6 +89,8 @@ export default function PreventiveCalendar() {
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMediumScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   const routes = useRoutes();
   const { assets } = useAssetHook();
@@ -107,6 +109,11 @@ export default function PreventiveCalendar() {
     formattedStart,
     formattedEnd
   );
+
+  const getDayPaperHeight = () => {
+    if (isSmallScreen) return '100%';
+    return '100%';
+  };
 
   // Memorizar cálculo de semanas
   const weeks = useMemo(() => {
@@ -320,7 +327,7 @@ export default function PreventiveCalendar() {
                       key={dayIndex}
                       sx={{
                         ...cardStyles.dayPaper,
-                        height: '100%', // 🔥 se adapta a la altura del row
+                        height: getDayPaperHeight(), // 🔥 Altura responsiva
                         opacity: isCurrentMonth ? 1 : 0.5,
                         bgcolor: isCurrentMonth
                           ? 'background.paper'
@@ -348,6 +355,13 @@ export default function PreventiveCalendar() {
                               item={item}
                               routes={routes}
                               onClick={() => setSelectedPreventive(item)}
+                              size={
+                                isSmallScreen
+                                  ? 'small'
+                                  : isMediumScreen
+                                  ? 'medium'
+                                  : 'large'
+                              }
                             />
                           ))
                         ) : (
