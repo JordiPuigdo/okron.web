@@ -20,5 +20,9 @@ export interface FilterSpareParts {
 }
 
 export interface FilterValue {
-  [key: string]: string | boolean | Date;
+  [key: string]: string | number | boolean | any[] | null | undefined;
+}
+
+export interface FilterValues {
+  [key: string]: FilterValue;
 }

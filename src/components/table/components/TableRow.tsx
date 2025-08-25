@@ -1,3 +1,4 @@
+import { QueryParams, useQueryParams } from 'app/hooks/useFilters';
 import { FilterValue } from 'app/types/filters';
 
 import { Column, ColumnFormat } from '../interface/interfaceTable';
@@ -37,8 +38,35 @@ export const TableRowComponent: React.FC<TableRowComponentProps> = ({
   filtersApplied,
 }) => {
   if (rowData.length == 0) return null;
+  const { queryParams } = useQueryParams();
 
-  let finalPath = pathDetail;
+  let entityKey = pathDetail;
+  const entityId = rowData[columns[0].key];
+
+  const combinedParams: QueryParams = {
+    ...filtersApplied,
+    ...queryParams,
+  };
+
+  // Convertir a string de query params
+  const paramsString = Object.keys(combinedParams)
+    .filter(
+      key => combinedParams[key] !== null && combinedParams[key] !== undefined
+    )
+    .map(key => {
+      const value = combinedParams[key];
+      if (Array.isArray(value)) {
+        return value
+          .map(
+            v => `${encodeURIComponent(key)}=${encodeURIComponent(String(v))}`
+          )
+          .join('&');
+      }
+      return `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`;
+    })
+    .join('&');
+
+  const finalPath = `${entityId}${paramsString ? `?${paramsString}` : ''}`;
 
   return (
     <tr
@@ -73,7 +101,7 @@ export const TableRowComponent: React.FC<TableRowComponentProps> = ({
           );
 
           if (value === 'Consum') {
-            finalPath = `/workOrders/`;
+            entityKey = `/workOrders/`;
           }
           return (
             <td key={column.key} className={classNametd}>
@@ -93,13 +121,7 @@ export const TableRowComponent: React.FC<TableRowComponentProps> = ({
         tableButtons={tableButtons}
         entity={entity}
         loginUser={loginUser}
-        pathDetail={`${finalPath}/${rowData[columns[0].key]}${
-          filtersApplied !== undefined
-            ? `?${Object.keys(filtersApplied)
-                .map(key => `${key}=${filtersApplied[key]}`)
-                .join('&')}`
-            : ''
-        }`}
+        pathDetail={`${entityKey}/${finalPath}`}
         onDelete={onDelete}
       />
     </tr>

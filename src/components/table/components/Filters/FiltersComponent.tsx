@@ -50,14 +50,19 @@ const FiltersComponent: React.FC<FiltersComponentProps> = ({
     const initialFilters: { [key: string]: string | boolean | Date } = {};
 
     searchParams.forEach((value, key) => {
+      let parsedValue: string | boolean | Date = value;
+
+      // Booleanos
       if (value === 'true' || value === 'false') {
-        initialFilters[key] = value === 'true';
-      } else if (!isNaN(Date.parse(value))) {
-        initialFilters[key] = new Date(value);
-      } else {
-        initialFilters[key] = value;
+        parsedValue = value === 'true';
       }
-      handleInputChange(key, value);
+      // Fechas válidas en formato ISO (YYYY-MM-DD o similar)
+      else if (/^\d{4}-\d{2}-\d{2}/.test(value) && !isNaN(Date.parse(value))) {
+        parsedValue = new Date(value);
+      }
+
+      initialFilters[key] = parsedValue;
+      handleInputChange(key, parsedValue);
     });
 
     setFilterValues(initialFilters);
@@ -77,7 +82,7 @@ const FiltersComponent: React.FC<FiltersComponentProps> = ({
         <div className="flex flex-row gap-2 p-1 justify-between">
           <div className="flex flex-row sm:flex-col md:flex-row items-center gap-2">
             {filters.map((filter, index) => (
-              <div key={filter.key} className="flex items-center">
+              <div key={index} className="flex items-center">
                 {filter.format === FiltersFormat.TEXT && (
                   <input
                     id={`filter-${filter.key}`}

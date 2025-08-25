@@ -23,10 +23,7 @@ export const FilterType = <T extends number | string>({
   >([]);
 
   const mapTypesToOptions = (types: T[]) =>
-    types.map(type => ({
-      label: translateFn(type),
-      value: String(type),
-    }));
+    types.map(type => ({ label: translateFn(type), value: String(type) }));
 
   const mapOptionsToTypes = (
     options: MultiValue<{ label: string; value: string }>
@@ -37,19 +34,25 @@ export const FilterType = <T extends number | string>({
         : (option.value as unknown as T)
     );
 
+  // Maneja los cambios del select
   const handleChange = (
     selected: MultiValue<{ label: string; value: string }>
   ) => {
     setSelectedOptions(selected);
-    setFilters({
-      ...filters,
-      [filterKey]: mapOptionsToTypes(selected),
-    });
+    setFilters({ ...filters, [filterKey]: mapOptionsToTypes(selected) });
   };
 
+  // Sincroniza selectedOptions cuando filters cambian externamente
   useEffect(() => {
-    // if (filters[filterKey]?.length > 0) return;
-    setSelectedOptions(mapTypesToOptions(filters[filterKey] || []));
+    const currentFilter = filters[filterKey] || [];
+
+    if (currentFilter.length === 0 && selectedOptions.length === 0) return;
+
+    const newSelectedOptions = mapTypesToOptions(currentFilter);
+    const isEqual =
+      JSON.stringify(selectedOptions.map(o => o.value)) ===
+      JSON.stringify(newSelectedOptions.map(o => o.value));
+    if (!isEqual) setSelectedOptions(newSelectedOptions);
   }, [filters[filterKey]]);
 
   return (

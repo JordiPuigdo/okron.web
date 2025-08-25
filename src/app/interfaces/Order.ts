@@ -18,7 +18,8 @@ export interface OrderSimple extends BaseModel {
   deliveryProviderCode?: string;
   account?: string;
   accountId?: string;
-  totalAmount?: number;
+  totalAmount?: string;
+  totalAmountFormatted?: string;
 }
 
 export interface RelationOrder {

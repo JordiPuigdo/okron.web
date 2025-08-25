@@ -2,7 +2,6 @@ import { Asset } from './Asset';
 import InspectionPoint from './inspectionPoint';
 import Machine from './machine';
 import Operator from './Operator';
-import SparePart from './SparePart';
 import WorkOrder from './workOrder';
 
 export interface Preventive {
@@ -12,6 +11,7 @@ export interface Preventive {
   machine: Machine;
   startExecution: Date;
   lastExecution: Date;
+  nextExecutionDate: Date;
   hours?: number;
   days: number;
   counter: number;

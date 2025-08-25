@@ -19,7 +19,7 @@ export const TableTotalRowComponent: React.FC<TableTotalRowComponentProps> = ({
       </td>
       <td
         colSpan={columnsLength - 2}
-        className="text-lg text-gray-900 pr-2 font-semibold text-right"
+        className="text-lg text-gray-900 font-semibold text-right pr-6"
       >
         {totalQuantity}
       </td>

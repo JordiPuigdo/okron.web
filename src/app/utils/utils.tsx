@@ -429,7 +429,7 @@ export const fetcher = async (url: string) => {
   return response.json();
 };
 
-export const getRoute = (entity: EntityTable) => {
+export const getRoute = (entity: EntityTable, isForHeader = false) => {
   const ROUTES = useRoutes();
   switch (entity) {
     case EntityTable.WORKORDER:
@@ -440,6 +440,9 @@ export const getRoute = (entity: EntityTable) => {
       break;
     case EntityTable.PREVENTIVE:
       return ROUTES.preventive.configuration;
+      break;
+    case EntityTable.INSPECTIONPOINTS:
+      return ROUTES.preventive.inspectionPoints;
       break;
     case EntityTable.SPAREPART:
       return ROUTES.spareParts;
@@ -457,7 +460,7 @@ export const getRoute = (entity: EntityTable) => {
       return ROUTES.configuration.provider;
       break;
     case EntityTable.ORDER:
-      return ROUTES.orders.order;
+      return isForHeader ? ROUTES.orders.purchase : ROUTES.orders.order;
       break;
     case EntityTable.Account:
       return ROUTES.accounts;

@@ -28,7 +28,7 @@ export const HeaderForm = ({
 
   function handleOnClick() {
     if (entity) {
-      let finalRoute = getRoute(entity);
+      let finalRoute = getRoute(entity, true);
 
       searchParams.forEach((value, key) => {
         if (key !== 'id' && value) {

@@ -176,7 +176,9 @@ export const formatCellContent = (
 
   if (column.className) className += ` ${column.className}`;
 
-  if (column.align === ColumnnAlign.RIGHT) classNametd += ' text-right pr-8';
+  if (column.align === ColumnnAlign.RIGHT) {
+    classNametd += ' text-right pr-8';
+  }
   if (rowData.colorRow) classNametd += ` ${rowData.colorRow}`;
 
   if (value && value.length > 100) value = value.substring(0, 50) + '...';
@@ -207,32 +209,44 @@ export const getStatusClassName = (status: string, entity: string): string => {
 
 const validColumns = [ColumnFormat.DATE, ColumnFormat.DATETIME];
 
-export const calculateTotalAmountRecords = (
+export const calculateTotalAmountByEntity = (
   data: any[],
   entity: EntityTable
-) => {
-  if (entity == EntityTable.ORDER && data.length > 0) {
-    const x = data.reduce((acc, order) => {
-      return acc + (order.totalAmount ?? 0);
-    }, 0);
+): string | undefined => {
+  if (!data || data.length === 0) return undefined;
 
-    /*const formattedNumber = new Intl.NumberFormat('es-ES', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(x);*/
+  const total = data.reduce((acc, item) => {
+    if (entity === EntityTable.SPAREPART) {
+      const price = Number(item.price) || 0;
+      const stock = Number(item.stock) || 0;
+      const totalItem = Number(item.total) || 0;
+      return acc + (price > 0 && stock > 0 ? price * stock : totalItem);
+    } else if (entity === EntityTable.ORDER) {
+      const totalItem =
+        typeof item.totalAmount === 'string'
+          ? Number(item.totalAmount.replace('.', '').replace(',', '.'))
+          : Number(item.totalAmount) || 0;
+      return acc + totalItem;
+    } else {
+      return acc + (Number(item.total) || 0);
+    }
+  }, 0);
 
-    return x.toFixed(2);
+  if (entity === EntityTable.ORDER) {
+    // Convertimos a string con 2 decimales
+    const [integerPart, decimalPart] = total.toFixed(2).split('.');
+
+    // Insertamos puntos cada 3 cifras
+    const integerPart2 = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    return `${integerPart2},${decimalPart}€`;
   }
 
-  if (entity == EntityTable.DELIVERYNOTE && data.length > 0) {
-    const x = data.reduce((acc, item) => {
-      const total = Number(item.total) || 0;
-      return acc + total;
-    }, 0);
-
-    return x.toFixed(2);
-  }
-  return undefined;
+  // Para SPAREPART u otras entidades, puedes usar Intl.NumberFormat
+  return new Intl.NumberFormat('es-ES', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(total);
 };
 
 export const exportTableToExcel = (

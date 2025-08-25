@@ -11,7 +11,7 @@ import { Column, Filters, TableButtons } from './interface/interfaceTable';
 import { EntityTable } from './interface/tableEntitys';
 import Pagination from './Pagination';
 import {
-  calculateTotalAmountRecords,
+  calculateTotalAmountByEntity,
   exportTableToExcel,
   sortData,
 } from './utils/TableUtils';
@@ -31,6 +31,7 @@ interface DataTableProps {
   hideShadow?: boolean;
   hideExport?: boolean;
   totalCalculated?: number | string;
+  filtersToApply?: FilterValue;
 }
 
 export enum ButtonTypesTable {
@@ -144,7 +145,6 @@ const DataTable: React.FC<DataTableProps> = ({
     let filteredRecords = data;
 
     if (enableFilterActive) {
-      console.log(filterActive);
       filteredRecords = filteredRecords.filter(filterByActiveStatus);
     }
 
@@ -158,7 +158,9 @@ const DataTable: React.FC<DataTableProps> = ({
       filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord)
     );
 
-    setTotalAmountRecords(calculateTotalAmountRecords(filteredRecords, entity));
+    //const total = calculateTotalAmountRecords(filteredRecords, entity);
+    //console.log(total);
+    //setTotalAmountRecords(calculateTotalAmountRecords(filteredRecords, entity));
     setTotalCount(Math.ceil(filteredRecords.length / itemsPerPage));
 
     setIsLoading(false);
@@ -182,7 +184,14 @@ const DataTable: React.FC<DataTableProps> = ({
       [key]: value,
     };
 
-    setFiltersApplied(newFilters);
+    const newFiltersv2 = Object.fromEntries(
+      Object.entries({
+        ...filtersApplied,
+        [key]: value,
+      }).map(([k, v]) => [k, v instanceof Date ? v.toISOString() : v])
+    );
+    setFiltersApplied(newFiltersv2);
+
     if (currentPage !== 1) setCurrentPage(1);
 
     const filteredData = data.filter(item => {
@@ -220,7 +229,10 @@ const DataTable: React.FC<DataTableProps> = ({
     }
     setTotalRecords(filteredData.length);
     setTotalCount(Math.ceil(filteredData.length / itemsPerPage));
-    setTotalAmountRecords(calculateTotalAmountRecords(filteredData, entity));
+
+    //const total = calculateTotalAmountRecords(filteredData, entity);
+    //console.log(total);
+    //setTotalAmountRecords(calculateTotalAmountRecords(filteredData, entity));
   };
 
   useEffect(() => {
@@ -254,22 +266,9 @@ const DataTable: React.FC<DataTableProps> = ({
   const isAllSelected =
     data.length > 0 && selectedRows.size === data.length ? true : false;
 
-  const totalPrice = useMemo(() => {
-    return filteredData.reduce((acc, item) => {
-      const price = Number(item.price) || 0;
-      const stock = Number(item.stock) || 0;
-      const total = Number(item.total) || 0;
-      if (price > 0 && stock > 0) {
-        return acc + price * stock;
-      }
-      return acc + total;
-    }, 0);
-  }, [filteredData]);
-
-  const formattedPrice = new Intl.NumberFormat('es-ES', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(totalPrice);
+  const formattedPrice = useMemo(() => {
+    return calculateTotalAmountByEntity(filteredData, entity);
+  }, [filteredData, entity]);
 
   const totalStock = useMemo(() => {
     return filteredData.reduce((acc, item) => {
@@ -281,7 +280,7 @@ const DataTable: React.FC<DataTableProps> = ({
     if (col.key === 'stock') {
       acc[col.key] = totalStock;
     } else if (col.key === 'price') {
-      acc[col.key] = `${totalPrice.toFixed(2)} €`;
+      acc[col.key] = formattedPrice;
     } else {
       acc[col.key] = ''; // o algún otro valor si lo necesitas
     }
@@ -354,7 +353,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 pathDetail={pathDetail}
                 onDelete={onDelete ? onDelete : undefined}
                 totalCounts={totalCounts}
-                totalQuantity={totalAmountRecords ?? 0}
+                totalQuantity={formattedPrice ?? 0}
                 filtersApplied={filtersApplied}
               />
               {entity === EntityTable.SPAREPART &&
@@ -380,7 +379,7 @@ const DataTable: React.FC<DataTableProps> = ({
                                 key={col.key}
                                 className="px-4 py-2 text-right"
                               >
-                                {formattedPrice}
+                                {formattedPrice}€
                               </td>
                             );
                           }

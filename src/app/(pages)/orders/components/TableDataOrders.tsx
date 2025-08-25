@@ -2,10 +2,13 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
+import { useQueryParams } from 'app/hooks/useFilters';
 import { useOrder } from 'app/hooks/useOrder';
 import { Account } from 'app/interfaces/Account';
 import { Order, OrderStatus, OrderType } from 'app/interfaces/Order';
 import { AccountService } from 'app/services/accountService';
+import { FilterValue } from 'app/types/filters';
+import { isArray, isStringArray } from 'app/utils/typeGuards';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
 import { FilterType } from 'components/table/components/Filters/FilterType';
 import DataTable from 'components/table/DataTable';
@@ -18,6 +21,7 @@ import {
   TableButtons,
 } from 'components/table/interface/interfaceTable';
 import { EntityTable } from 'components/table/interface/tableEntitys';
+import dayjs from 'dayjs';
 
 import { translateOrderState } from '../orderForm/components/utilsOrder';
 
@@ -45,30 +49,34 @@ export const TableDataOrders = ({
   const [firstLoad, setFirstLoad] = useState(true);
   const defaultDateStartDate = new Date(new Date().getFullYear(), 0, 1);
   const defaultDate = new Date();
-
+  const { updateQueryParams, queryParams } = useQueryParams();
   const [dateFilters, setDateFilters] = useState<DateFilters>({
-    startDate: defaultDateStartDate,
-    endDate: defaultDate,
+    startDate: null,
+    endDate: null,
   });
 
-  const [filters, setFilters] = useState<{ [key: string]: any[] }>({
-    status: enableFilters ? [0, 1] : [],
+  const [filters, setFilters] = useState<FilterValue>({
+    status: enableFilters ? [OrderStatus.Pending, OrderStatus.InProgress] : [],
   });
-  const [Accounts, setAccounts] = useState<Account[]>([]);
+
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const accountService = new AccountService();
   const [message, setMessage] = useState<string>('');
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
-    getOrderWithFilters({
-      orderType: orderType,
-      from: defaultDateStartDate,
-      to: defaultDate,
-      providerId: selectedProviderId,
-      sparePartId: sparePartId,
-    });
-    accountService.getAll().then(Accounts => {
-      setAccounts(Accounts.filter(x => x.active == true));
+    if (dateFilters.startDate && dateFilters.endDate && isInitialized) {
+      getOrderWithFilters({
+        orderType: orderType,
+        from: dateFilters.startDate,
+        to: dateFilters.endDate,
+        providerId: selectedProviderId,
+        sparePartId: sparePartId,
+      });
+    }
+    accountService.getAll().then(responseAccounts => {
+      setAccounts(responseAccounts.filter(x => x.active == true));
     });
     if (orderType) {
       filtersOrders.push({
@@ -82,18 +90,65 @@ export const TableDataOrders = ({
   }, []);
 
   useEffect(() => {
-    /*if (dateFilters.startDate != null && dateFilters.endDate == null) {
-      setDateFilters({
-        startDate: dateFilters.startDate,
-        endDate: defaultDate,
+    if (queryParams && !isInitialized) {
+      const newFilters: FilterValue = { ...filters };
+
+      // Verificar si queryParams tiene las propiedades startDate y endDate
+      if (queryParams) {
+        const startDateStr = queryParams.startDate?.toString();
+        const endDateStr = queryParams.endDate?.toString();
+
+        if (startDateStr && endDateStr) {
+          const startDate = dayjs(startDateStr).toDate();
+          const endDate = dayjs(endDateStr).toDate();
+
+          // Validar que las fechas son válidas
+          if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+            setDateFilters(prev => ({
+              ...prev,
+              startDate,
+              endDate,
+            }));
+          }
+        } else {
+          setDateFilters(prev => ({
+            ...prev,
+            startDate: defaultDateStartDate,
+            endDate: defaultDate,
+          }));
+
+          setFilters(prev => ({
+            ...prev,
+            status: enableFilters
+              ? [OrderStatus.Pending, OrderStatus.InProgress]
+              : [],
+          }));
+        }
+      }
+
+      Object.entries(queryParams).forEach(([key, value]) => {
+        if (key === 'status') {
+          if (value!.toLocaleString().split(',').length > 1) {
+            const values = value!.toLocaleString().split(',');
+            newFilters[key] = values.map(v => Number(v));
+          } else {
+            newFilters[key] = [Number(value)];
+          }
+        } else if (key === 'account') {
+          if (isStringArray(value)) {
+            newFilters[key] = value;
+          } else {
+            newFilters[key] = [value];
+          }
+        }
       });
+
+      setFilters(newFilters);
+      setIsInitialized(true);
     }
-    if (dateFilters.startDate == null && dateFilters.endDate != null) {
-      setDateFilters({
-        startDate: defaultDateStartDate,
-        endDate: dateFilters.endDate,
-      });
-    }*/
+  }, [queryParams, isInitialized]);
+
+  useEffect(() => {
     if (dateFilters.startDate && dateFilters.endDate) {
       getOrderWithFilters({
         orderType: orderType,
@@ -119,32 +174,65 @@ export const TableDataOrders = ({
     }
   }, [orders]);
 
+  useEffect(() => {
+    if (dateFilters.startDate && dateFilters.endDate && isInitialized) {
+      const timeoutId = setTimeout(() => {
+        const filtersApplied: Record<string, string> = {
+          startDate: dayjs(dateFilters.startDate).format('YYYY-MM-DD'),
+          endDate: dayjs(dateFilters.endDate).format('YYYY-MM-DD'),
+        };
+
+        // Procesar todos los filtros dinámicamente
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value === null || value === undefined) return;
+
+          if (Array.isArray(value)) {
+            if (value.length > 0) {
+              filtersApplied[key] = value.join(',');
+            }
+            if (value.length === 0) {
+              filtersApplied[key] = '';
+            }
+          } else if (typeof value === 'boolean') {
+            filtersApplied[key] = value ? 'true' : 'false';
+          } else if (value !== '') {
+            filtersApplied[key] = value.toString();
+          }
+        });
+
+        updateQueryParams(filtersApplied);
+      }, 300); // Debounce de 300ms
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [filters, dateFilters, updateQueryParams, isInitialized]);
+
   const getFilteredOrders = (): Order[] => {
     return orders.filter(order => {
+      // Verificar que filters.status es un array antes de usar .length e .includes
       const statusMatches =
-        filters.status.length === 0 || filters.status.includes(order.status);
+        !isArray(filters.status) ||
+        filters.status.length === 0 ||
+        (isArray(filters.status) && filters.status.includes(order.status));
 
-      const AccountMatches =
-        !filters.Account ||
-        filters.Account.length === 0 ||
-        filters.Account.includes(
-          order.accountId && order.accountId?.length > 0 ? order.accountId : ''
-        );
+      // Verificar que filters.Account es un array antes de usarlo
 
-      return statusMatches && AccountMatches;
+      const accountMatches =
+        !filters.account ||
+        (isStringArray(filters.account) && filters.account.length === 0) ||
+        (isStringArray(filters.account) &&
+          filters.account.includes(
+            order.accountId && order.accountId.length > 0 ? order.accountId : ''
+          ));
+
+      return statusMatches && accountMatches;
     });
   };
-
   const filteredOrders = getFilteredOrders();
-  const totalAmount = filteredOrders.reduce((acc, order) => {
-    return acc + (order.totalAmount ?? 0);
-  }, 0);
 
-  const formattedPrice = new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-  }).format(totalAmount);
+  if (isLoading) {
+    return <div>Carregant...</div>;
+  }
 
   return (
     <div className="flex flex-col h-full gap-4 w-full">
@@ -174,21 +262,23 @@ export const TableDataOrders = ({
               translateFn={translateOrderState}
             />
           </div>
-          <div className="flex-1">
-            <FilterType<string>
-              filters={filters}
-              setFilters={setFilters}
-              validTypes={Accounts.map(x => x.id)}
-              filterKey="Account"
-              placeholder="Compta Comptable"
-              translateFn={(id: string) => {
-                const Account = Accounts.find(c => c.id === id);
-                return Account
-                  ? `${Account.code} - ${Account.description}`
-                  : id;
-              }}
-            />
-          </div>
+          {accounts.length > 0 && (
+            <div className="flex-1">
+              <FilterType<string>
+                filters={filters}
+                setFilters={setFilters}
+                validTypes={accounts.map(x => x.id)}
+                filterKey="account"
+                placeholder="Compta Comptable"
+                translateFn={(id: string) => {
+                  const account = accounts.find(c => c.id === id);
+                  return account
+                    ? `${account.code} - ${account.description}`
+                    : id;
+                }}
+              />
+            </div>
+          )}
         </div>
         {message && <span className="text-red-500">{message}</span>}
       </div>
@@ -200,7 +290,6 @@ export const TableDataOrders = ({
         filters={filtersOrders}
         hideShadow={hideShadow}
         totalCounts
-        totalCalculated={Number(formattedPrice)}
       />
     </div>
   );
@@ -242,8 +331,8 @@ const columnsOrders: Column[] = [
   },
   {
     label: 'Total',
-    key: 'totalAmount',
-    format: ColumnFormat.PRICE,
+    key: 'totalAmountFormatted',
+    format: ColumnFormat.TEXT,
     align: ColumnnAlign.RIGHT,
   },
 ];

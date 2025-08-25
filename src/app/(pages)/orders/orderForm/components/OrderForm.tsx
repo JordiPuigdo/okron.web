@@ -15,6 +15,7 @@ import { Provider } from 'app/interfaces/Provider';
 import SparePart from 'app/interfaces/SparePart';
 import useRoutes from 'app/utils/useRoutes';
 import { HeaderForm } from 'components/layout/HeaderForm';
+import { EntityTable } from 'components/table/interface/tableEntitys';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import Link from 'next/link';
@@ -310,6 +311,7 @@ export default function OrderForm({
             ? 'order?id=' + orderRequest?.id
             : undefined
         }
+        entity={EntityTable.ORDER}
       />
       <div className="bg-white p-4 rounded-lg shadow-md flex-grow flex flex-col space-y-4 h-full">
         {!isLoading && (

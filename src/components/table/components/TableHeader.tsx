@@ -1,6 +1,10 @@
 import React from 'react';
 
-import { Column, ColumnFormat } from '../interface/interfaceTable';
+import {
+  Column,
+  ColumnFormat,
+  ColumnnAlign,
+} from '../interface/interfaceTable';
 import { EntityTable } from '../interface/tableEntitys';
 import { HeadTableActions } from './ButtonsTable/TableActions';
 
@@ -58,6 +62,10 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
               column.format == ColumnFormat.PRICE
             ) {
               classname += 'justify-end text-end pr-4';
+            }
+
+            if (column.align === ColumnnAlign.RIGHT) {
+              classname += ' justify-end pr-4 ';
             }
 
             return (

@@ -68,9 +68,6 @@ export const TableButtonsComponent = ({
             onDelete={onDelete}
           />
         )}
-        {entity == EntityTable.PREVENTIVE && (
-          <PreventiveButtons preventive={item} userId={loginUser?.agentId} />
-        )}
         {EntityTable.WORKORDER == entity && (
           <>
             <WorkOrderOperationsInTable

@@ -46,8 +46,13 @@ const columns: Column[] = [
   },
   {
     label: 'Pròxima execució',
-    key: 'nextExecution',
+    key: 'nextExecutionDate',
     format: ColumnFormat.DATE,
+  },
+  {
+    label: 'Dies',
+    key: 'days',
+    format: ColumnFormat.NUMBER,
   },
   {
     label: 'Actiu',
@@ -95,25 +100,7 @@ const PreventiveTable: React.FC<PreventiveTableProps> = ({
           setPreventives(fetchedPreventives);
         } else {
           await preventiveService.getPreventives().then(fetchedPreventives => {
-            setPreventives(
-              fetchedPreventives.map(x => {
-                const days = x.days === 0 ? x.hours! / 24 : x.days;
-                let nextExecutionDate = x.lastExecution
-                  ? new Date(x.lastExecution)
-                  : undefined;
-                nextExecutionDate?.setDate(nextExecutionDate.getDate() + days);
-
-                if (!nextExecutionDate) {
-                  nextExecutionDate = new Date(x.startExecution);
-                }
-
-                return {
-                  ...x,
-                  nextExecution:
-                    nextExecutionDate != undefined ? nextExecutionDate : null,
-                };
-              })
-            );
+            setPreventives(fetchedPreventives);
           });
 
           if (filters.filter(x => x.key === 'asset.description').length == 0)
