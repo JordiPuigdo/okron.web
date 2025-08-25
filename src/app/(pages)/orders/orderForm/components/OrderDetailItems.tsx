@@ -120,10 +120,7 @@ export default function OrderDetailItems({
               return (
                 <tr key={index} className="border-t">
                   <td className="p-2">{index + 1}</td>
-                  <td className="p-2 border">
-                    {item.sparePart.code || 'Unknown'} -{' '}
-                    {item.sparePart.description}
-                  </td>
+                  <td className="p-2 border">{item.sparePartName}</td>
                   <td className="p-2 border text-center">
                     {item.wareHouse?.description
                       ? item.wareHouse?.description
