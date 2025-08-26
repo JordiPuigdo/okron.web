@@ -1,4 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  useFilteredData,
+  useTableFilters,
+  useTableState,
+} from 'app/hooks/useTable';
 import { SvgExportExcel, SvgSpinner } from 'app/icons/icons';
 import { useSessionStore } from 'app/stores/globalStore';
 import { FilterValue } from 'app/types/filters';
@@ -13,7 +18,6 @@ import Pagination from './Pagination';
 import {
   calculateTotalAmountByEntity,
   exportTableToExcel,
-  sortData,
 } from './utils/TableUtils';
 
 interface DataTableProps {
@@ -42,6 +46,9 @@ export enum ButtonTypesTable {
   Sign,
   PassInspectionPoints,
 }
+
+const itemsPerPageOptions = [250, 500, 1000, 2000, 3000, 5000, 10000];
+
 const DataTable: React.FC<DataTableProps> = ({
   data,
   columns,
@@ -58,234 +65,91 @@ const DataTable: React.FC<DataTableProps> = ({
   hideExport = false,
   totalCalculated,
 }: DataTableProps) => {
-  const itemsPerPageOptions = [250, 500, 1000, 2000, 3000, 5000, 10000];
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortColumn, setSortColumn] = useState('');
-  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('ASC');
-  const [itemsPerPage, setItemsPerPage] = useState(itemsPerPageOptions[1]);
-
-  const [filteredData, setFilteredData] = useState<any[]>([...data]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [filterActive, setFilterActive] = useState(true);
-  const [filterSparePartsUnderStock, setFilterSparePartsUnderStock] =
-    useState(false);
-  const [totalCount, setTotalCount] = useState(
-    Math.ceil(data.length / itemsPerPage)
-  );
-  const [totalRecords, setTotalRecords] = useState(data.length);
-
-  const [totalAmountRecords, setTotalAmountRecords] = useState<
-    string | undefined
-  >(undefined);
-
   const [pathDetail, setPathDetail] = useState<string>('');
-  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+  const tableState = useTableState(data, itemsPerPageOptions[1]);
+  const tableFilters = useTableFilters(enableFilterActive);
   const { loginUser } = useSessionStore(state => state);
-  const [filtersApplied, setFiltersApplied] = useState<FilterValue>({});
-  const [isLoaded, setIsLoaded] = useState(false);
 
-  const handlePageChange = (page: number) => {
-    if (page < 1) return;
-    setIsLoading(true);
-    if (page > currentPage) {
-      handleNextPage();
-    } else handlePreviousPage();
-
-    setCurrentPage(page);
-  };
-
-  const handleNextPage = async () => {
-    setCurrentPage(currentPage + 1);
-    setIsLoading(false);
-  };
-
-  const handlePreviousPage = async () => {
-    setCurrentPage(currentPage - 1);
-    setIsLoading(false);
-  };
-
-  const handleSortChange = async (sortedBy: string) => {
-    if (sortedBy == '') return;
-  };
-
-  const handleSort = (columnKey: string) => {
-    const order =
-      sortColumn === columnKey && sortOrder === 'ASC' ? 'DESC' : 'ASC';
-    setSortColumn(columnKey);
-    setSortOrder(order);
-
-    const sortText = columnKey + ' : ' + order;
-    handleSortChange(sortText);
-  };
-
-  const handleItemsPerPageChange = (value: number) => {
-    setIsLoading(true);
-    setItemsPerPage(value);
-    setCurrentPage(1);
-  };
-
-  useEffect(() => {
-    const indexOfLastRecord = currentPage * itemsPerPage;
-    const indexOfFirstRecord = indexOfLastRecord - itemsPerPage;
-
-    data = sortData(data, sortColumn, sortOrder);
-
-    const filterByActiveStatus = (record: unknown) =>
-      typeof record === 'object' &&
-      record !== null &&
-      'active' in record &&
-      record.active == filterActive;
-
-    const filterByUnderStock = (record: any) =>
-      typeof record === 'object' &&
-      record.hasOwnProperty('minium') &&
-      record.minium > 0 &&
-      record.stock < record.minium;
-
-    let filteredRecords = data;
-
-    if (enableFilterActive) {
-      filteredRecords = filteredRecords.filter(filterByActiveStatus);
-    }
-
-    if (filterSparePartsUnderStock) {
-      filteredRecords = filteredRecords.filter(filterByUnderStock);
-    }
-
-    setTotalRecords(filteredRecords.length);
-
-    setFilteredData(
-      filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord)
-    );
-
-    //const total = calculateTotalAmountRecords(filteredRecords, entity);
-    //console.log(total);
-    //setTotalAmountRecords(calculateTotalAmountRecords(filteredRecords, entity));
-    setTotalCount(Math.ceil(filteredRecords.length / itemsPerPage));
-
-    setIsLoading(false);
-
-    if (filteredRecords.length > 0) setIsLoaded(true);
-  }, [
+  const { filteredData, totalRecords, totalPages } = useFilteredData(
     data,
-    currentPage,
-    itemsPerPage,
-    filterActive,
-    sortOrder,
-    sortColumn,
-    filterSparePartsUnderStock,
-  ]);
+    tableFilters.filtersApplied,
+    tableFilters.filterActive,
+    tableFilters.filterSparePartsUnderStock,
+    tableState.sortColumn,
+    tableState.sortOrder,
+    tableState.currentPage,
+    tableState.itemsPerPage
+  );
 
-  const handleFilterChange = (key: string, value: string | boolean | Date) => {
-    if (!isLoaded || data.length === 0) return;
+  const formattedPrice = useMemo(
+    () => calculateTotalAmountByEntity(filteredData, entity),
+    [filteredData, entity]
+  );
 
-    const newFilters = {
-      ...filtersApplied,
-      [key]: value,
-    };
+  const totalStock = useMemo(
+    () =>
+      filteredData.reduce((acc, item) => acc + (Number(item.stock) || 0), 0),
+    [filteredData]
+  );
 
-    const newFiltersv2 = Object.fromEntries(
-      Object.entries({
-        ...filtersApplied,
-        [key]: value,
-      }).map(([k, v]) => [k, v instanceof Date ? v.toISOString() : v])
-    );
-    setFiltersApplied(newFiltersv2);
+  const footerData = useMemo(
+    () =>
+      columns.reduce((acc, col) => {
+        if (col.key === 'stock') acc[col.key] = totalStock;
+        else if (col.key === 'price') acc[col.key] = formattedPrice;
+        else acc[col.key] = '';
+        return acc;
+      }, {} as Record<string, any>),
+    [columns, totalStock, formattedPrice]
+  );
 
-    if (currentPage !== 1) setCurrentPage(1);
-
-    const filteredData = data.filter(item => {
-      return Object.entries(newFilters).every(([filterKey, filterValue]) => {
-        if (filterValue === '') return true;
-
-        const keys = filterKey.split('.');
-        const nestedPropertyValue = keys.reduce(
-          (obj, prop) => obj && obj[prop],
-          item
-        );
-
-        if (!nestedPropertyValue) return false;
-
-        const itemValue = String(nestedPropertyValue);
-        const searchValue = String(filterValue);
-
-        return itemValue.toLowerCase().includes(searchValue.toLowerCase());
-      });
-    });
-
-    const indexOfLastRecord = currentPage * itemsPerPage;
-    const indexOfFirstRecord = indexOfLastRecord - itemsPerPage;
-
-    if (enableFilterActive && filterActive) {
-      setFilteredData(
-        filteredData
-          .filter(x => x['active'] == filterActive)
-          .slice(indexOfFirstRecord, indexOfLastRecord)
-      );
-    } else {
-      setFilteredData(
-        filteredData.slice(indexOfFirstRecord, indexOfLastRecord)
-      );
-    }
-    setTotalRecords(filteredData.length);
-    setTotalCount(Math.ceil(filteredData.length / itemsPerPage));
-
-    //const total = calculateTotalAmountRecords(filteredData, entity);
-    //console.log(total);
-    //setTotalAmountRecords(calculateTotalAmountRecords(filteredData, entity));
-  };
-
+  const isAllSelected =
+    data.length > 0 && tableState.selectedRows.size === data.length;
   useEffect(() => {
     setPathDetail(() => {
       return getRoute(entity);
     });
   }, []);
 
+  // Handlers
+  const handleSort = (columnKey: string) => {
+    const order =
+      tableState.sortColumn === columnKey && tableState.sortOrder === 'ASC'
+        ? 'DESC'
+        : 'ASC';
+    tableState.setSortColumn(columnKey);
+    tableState.setSortOrder(order);
+  };
+
+  const handleItemsPerPageChange = (value: number) => {
+    tableState.setItemsPerPage(value);
+    tableState.setCurrentPage(1);
+  };
+
   const handleSelectedRow = (id: string) => {
-    setSelectedRows(prevSelectedRows => {
-      const newSelectedRows = new Set(prevSelectedRows);
-      if (newSelectedRows.has(id)) {
-        newSelectedRows.delete(id);
-      } else {
-        newSelectedRows.add(id);
-      }
-      return newSelectedRows;
+    tableState.setSelectedRows(prev => {
+      const newSelected = new Set(prev);
+      newSelected.has(id) ? newSelected.delete(id) : newSelected.add(id);
+      return newSelected;
     });
-    onChecked && onChecked(id);
+    onChecked?.(id);
   };
 
   const handleSelectedAllRows = () => {
-    if (selectedRows.size === data.length) {
-      setSelectedRows(new Set());
+    if (tableState.selectedRows.size === data.length) {
+      tableState.setSelectedRows(new Set());
     } else {
-      setSelectedRows(new Set(data.map(row => row.id))); // Select all rows
+      tableState.setSelectedRows(new Set(data.map(row => row.id)));
     }
-    onChecked && onChecked();
+    onChecked?.();
   };
 
-  const isAllSelected =
-    data.length > 0 && selectedRows.size === data.length ? true : false;
+  // Loading state
+  const isLoading = data.length === 0;
 
-  const formattedPrice = useMemo(() => {
-    return calculateTotalAmountByEntity(filteredData, entity);
-  }, [filteredData, entity]);
-
-  const totalStock = useMemo(() => {
-    return filteredData.reduce((acc, item) => {
-      return acc + (Number(item.stock) || 0);
-    }, 0);
-  }, [filteredData]);
-
-  const footerData = columns.reduce((acc, col) => {
-    if (col.key === 'stock') {
-      acc[col.key] = totalStock;
-    } else if (col.key === 'price') {
-      acc[col.key] = formattedPrice;
-    } else {
-      acc[col.key] = ''; // o algún otro valor si lo necesitas
-    }
-    return acc;
-  }, {} as Record<string, any>);
+  if (data.length === 0) {
+    return <div className="bg-white rounded-lg shadow-md p-4">No results</div>;
+  }
 
   if (filteredData)
     return (
@@ -295,15 +159,16 @@ const DataTable: React.FC<DataTableProps> = ({
         } w-full h-full flex flex-col`}
       >
         <div className="flex py-2">
-          {isLoaded &&
-            filteredData &&
+          {filteredData &&
             ((filters !== undefined && filters?.length > 0) ||
               enableFilterActive) && (
               <RenderFilters
                 filters={filters}
-                onFilterChange={handleFilterChange}
-                onFilterActive={setFilterActive}
-                onFilterSparePartsUnderStock={setFilterSparePartsUnderStock}
+                onFilterChange={tableFilters.updateFilter}
+                onFilterActive={tableFilters.setFilterActive}
+                onFilterSparePartsUnderStock={
+                  tableFilters.setFilterSparePartsUnderStock
+                }
                 enableFilterActive={enableFilterActive}
                 entity={entity}
                 isReport={isReport}
@@ -334,17 +199,18 @@ const DataTable: React.FC<DataTableProps> = ({
                 handleSelectedAllRows={handleSelectedAllRows}
                 isAllSelected={isAllSelected}
                 handleSort={handleSort}
-                sortColumn={sortColumn}
-                sortOrder={sortOrder}
+                sortColumn={tableState.sortColumn}
+                sortOrder={tableState.sortOrder}
                 tableButtons={tableButtons}
                 entity={entity}
               />
+
               <TableBodyComponent
                 filteredData={filteredData}
-                itemsPerPage={itemsPerPage}
+                itemsPerPage={tableState.itemsPerPage}
                 handleSelectedRow={handleSelectedRow}
                 enableCheckbox={enableCheckbox}
-                selectedRows={selectedRows}
+                selectedRows={tableState.selectedRows}
                 columns={columns}
                 entity={entity}
                 isReport={isReport}
@@ -354,7 +220,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 onDelete={onDelete ? onDelete : undefined}
                 totalCounts={totalCounts}
                 totalQuantity={formattedPrice ?? 0}
-                filtersApplied={filtersApplied}
+                filtersApplied={tableFilters.filtersApplied}
               />
               {entity === EntityTable.SPAREPART &&
                 columns?.find(x => x.key === 'price') && (
@@ -398,7 +264,7 @@ const DataTable: React.FC<DataTableProps> = ({
           )}
           <div className="flex align-bottom items-center w-full">
             <select
-              value={itemsPerPage}
+              value={tableState.itemsPerPage}
               onChange={e => handleItemsPerPageChange(Number(e.target.value))}
               className="text-sm bg-blue-gray-100 rounded-lg border border-gray-500"
             >
@@ -413,10 +279,10 @@ const DataTable: React.FC<DataTableProps> = ({
 
           <div className="justify-end items-center w-full">
             <Pagination
-              currentPage={currentPage}
-              totalPages={totalCount}
-              onPageChange={handlePageChange}
-              hasNextPage={currentPage < totalCount}
+              currentPage={tableState.currentPage}
+              totalPages={totalPages}
+              onPageChange={tableState.setCurrentPage}
+              hasNextPage={tableState.currentPage < tableState.totalPages}
             />
           </div>
         </div>

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
+import { useQueryParams } from 'app/hooks/useFilters';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 import ca from 'date-fns/locale/ca';
-import { useSearchParams } from 'next/navigation';
 
 import { Filters, FiltersFormat } from '../../interface/interfaceTable';
 
@@ -19,7 +19,7 @@ const FiltersComponent: React.FC<FiltersComponentProps> = ({
   onFilterDateChange,
   entity,
 }) => {
-  const searchParams = useSearchParams();
+  const { updateQueryParams, queryParams } = useQueryParams();
   const currentDate = new Date();
   const [date, setDate] = useState<Date | null>(currentDate);
 
@@ -31,6 +31,9 @@ const FiltersComponent: React.FC<FiltersComponentProps> = ({
     setFilterValues({ ...filterValues, [key]: value });
     if (onFilterChange) {
       onFilterChange(key, value);
+      updateQueryParams({
+        [key]: value instanceof Date ? value.toISOString() : value,
+      });
     }
     /*   if (entity === EntityTable.SPAREPART && typeof value === "string") {
       handleFilterSpareParts(key, value as string);
@@ -45,36 +48,56 @@ const FiltersComponent: React.FC<FiltersComponentProps> = ({
   };
 
   useEffect(() => {
+    if (filters) {
+      const initialFilters: { [key: string]: string | boolean | Date } = {};
+      filters.forEach(filter => {
+        if (queryParams[filter.key]) {
+          let parsedValue: string | boolean | Date = queryParams[filter.key] as
+            | string
+            | boolean
+            | Date;
+
+          if (parsedValue === 'true' || parsedValue === 'false') {
+            parsedValue = parsedValue === 'true';
+          } else if (
+            /^\d{4}-\d{2}-\d{2}/.test(parsedValue as string) &&
+            !isNaN(Date.parse(parsedValue as string))
+          ) {
+            parsedValue = new Date(parsedValue as string);
+          }
+
+          initialFilters[filter.key] = parsedValue;
+          handleInputChange(filter.key, parsedValue);
+        }
+      });
+      setFilterValues(initialFilters);
+    }
+  }, [queryParams, filters]);
+
+  /* useEffect(() => {
     if (Array.from(searchParams.keys()).length === 0) return;
-
     const initialFilters: { [key: string]: string | boolean | Date } = {};
+    filters?.map(filter => {
+      if (searchParams.get(filter.key)) {
+        let parsedValue: string | boolean | Date = searchParams.get(
+          filter.key
+        ) as string | boolean | Date;
 
-    searchParams.forEach((value, key) => {
-      let parsedValue: string | boolean | Date = value;
+        if (filter.value === 'true' || filter.value === 'false') {
+          parsedValue = filter.value === 'true';
+        } else if (
+          /^\d{4}-\d{2}-\d{2}/.test(filter.value) &&
+          !isNaN(Date.parse(filter.value))
+        ) {
+          parsedValue = new Date(filter.value);
+        }
 
-      // Booleanos
-      if (value === 'true' || value === 'false') {
-        parsedValue = value === 'true';
+        initialFilters[filter.key] = parsedValue;
+        handleInputChange(filter.key, filter.value);
       }
-      // Fechas válidas en formato ISO (YYYY-MM-DD o similar)
-      else if (/^\d{4}-\d{2}-\d{2}/.test(value) && !isNaN(Date.parse(value))) {
-        parsedValue = new Date(value);
-      }
-
-      initialFilters[key] = parsedValue;
-      handleInputChange(key, parsedValue);
     });
-
     setFilterValues(initialFilters);
-  }, [searchParams]);
-
-  /* if (filterSpareParts !== undefined) {
-    handleInputChange("code", filterSpareParts.code as string);
-    handleInputChange("description", filterSpareParts.description as string);
-    handleInputChange("family", filterSpareParts.family as string);
-    handleInputChange("refProvider", filterSpareParts.refSupplier as string);
-    handleInputChange("ubication", filterSpareParts.ubication as string);
-  }*/
+  }, [searchParams]);*/
 
   return (
     <>
