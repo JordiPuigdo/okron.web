@@ -74,31 +74,6 @@ const FiltersComponent: React.FC<FiltersComponentProps> = ({
     }
   }, [queryParams, filters]);
 
-  /* useEffect(() => {
-    if (Array.from(searchParams.keys()).length === 0) return;
-    const initialFilters: { [key: string]: string | boolean | Date } = {};
-    filters?.map(filter => {
-      if (searchParams.get(filter.key)) {
-        let parsedValue: string | boolean | Date = searchParams.get(
-          filter.key
-        ) as string | boolean | Date;
-
-        if (filter.value === 'true' || filter.value === 'false') {
-          parsedValue = filter.value === 'true';
-        } else if (
-          /^\d{4}-\d{2}-\d{2}/.test(filter.value) &&
-          !isNaN(Date.parse(filter.value))
-        ) {
-          parsedValue = new Date(filter.value);
-        }
-
-        initialFilters[filter.key] = parsedValue;
-        handleInputChange(filter.key, filter.value);
-      }
-    });
-    setFilterValues(initialFilters);
-  }, [searchParams]);*/
-
   return (
     <>
       {filters && filters.length > 0 && (

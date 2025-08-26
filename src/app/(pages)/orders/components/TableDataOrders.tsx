@@ -35,6 +35,10 @@ interface TableDataOrdersProps {
   enableFilters?: boolean;
 }
 
+const DEFAULT_STATUS_FILTERS = [OrderStatus.Pending, OrderStatus.InProgress];
+const DEFAULT_DATE_START = new Date(new Date().getFullYear(), 0, 1);
+const DEFAULT_DATE_END = new Date();
+
 export const TableDataOrders = ({
   orderType,
   selectedProviderId,
@@ -47,22 +51,18 @@ export const TableDataOrders = ({
   const { orders, getOrderWithFilters } = useOrder();
   const [isLoading, setIsLoading] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
-  const defaultDateStartDate = new Date(new Date().getFullYear(), 0, 1);
-  const defaultDate = new Date();
   const { updateQueryParams, queryParams } = useQueryParams();
   const [dateFilters, setDateFilters] = useState<DateFilters>({
     startDate: null,
     endDate: null,
   });
 
-  const [filters, setFilters] = useState<FilterValue>({
-    status: enableFilters ? [OrderStatus.Pending, OrderStatus.InProgress] : [],
-  });
-
   const [accounts, setAccounts] = useState<Account[]>([]);
   const accountService = new AccountService();
   const [message, setMessage] = useState<string>('');
   const [isInitialized, setIsInitialized] = useState(false);
+
+  const [filters, setFilters] = useState<FilterValue>({});
 
   useEffect(() => {
     setIsLoading(true);
@@ -90,8 +90,13 @@ export const TableDataOrders = ({
   }, []);
 
   useEffect(() => {
-    if (queryParams && !isInitialized) {
+    if (!isInitialized) {
       const newFilters: FilterValue = { ...filters };
+      if (Object.keys(queryParams).length === 0) {
+        newFilters.status = enableFilters
+          ? [OrderStatus.Pending, OrderStatus.InProgress]
+          : [];
+      }
 
       // Verificar si queryParams tiene las propiedades startDate y endDate
       if (queryParams) {
@@ -113,8 +118,8 @@ export const TableDataOrders = ({
         } else {
           setDateFilters(prev => ({
             ...prev,
-            startDate: defaultDateStartDate,
-            endDate: defaultDate,
+            startDate: DEFAULT_DATE_START,
+            endDate: DEFAULT_DATE_END,
           }));
 
           setFilters(prev => ({

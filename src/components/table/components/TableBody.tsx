@@ -43,6 +43,7 @@ export const TableBodyComponent: React.FC<TableBodyProps> = ({
   <tbody className="w-full border-b">
     {filteredData.slice(0, itemsPerPage).map((rowData, rowIndex) => (
       <TableRowComponent
+        key={rowData.id}
         rowIndex={rowIndex}
         rowData={rowData}
         columns={columns}

@@ -37,7 +37,7 @@ const SideNav: React.FC<SideNavProps> = ({ isOpenNavBar }) => {
             item.userType !== undefined &&
             item.userType.includes(loginUserType) && (
               <MenuItem
-                key={idx}
+                key={idx + item.key}
                 item={item}
                 userType={loginUserType}
                 menuOpen={isMenuOpen}
@@ -156,7 +156,7 @@ const MenuItem = ({
                 if (!isValidPermission) return null;
 
                 return (
-                  <Link key={idx} href={subItem.path}>
+                  <Link key={subItem.key} href={subItem.path}>
                     <span
                       data-tooltip-id={`tooltip-${subItem.key}`}
                       data-tooltip-content={t(subItem.titleKey)}
@@ -208,9 +208,10 @@ const MenuItem = ({
 
                 if (!isValidPermission) return null;
 
-                if (!subMenuOpen) return <div className="p-3 m-0.5"></div>;
+                if (!subMenuOpen)
+                  return <div key={subItem.key} className="p-3 m-0.5"></div>;
                 return (
-                  <Link key={idx} href={subItem.path}>
+                  <Link key={subItem.key} href={subItem.path}>
                     <span
                       data-tooltip-id={`tooltip-${subItem.key}`}
                       data-tooltip-content={t(subItem.titleKey)}
