@@ -28,11 +28,16 @@ dayjs.extend(isoWeek);
 dayjs.locale('ca');
 
 const cardStyles = {
+  calendarCointainer: {
+    width: '100%',
+    overflow: 'auto',
+  },
   calendarGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(7, 1fr)', // 7 columnas fijas
+    gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', // 7 columnas fijas
     gap: 1.5,
     p: 1,
+    minWidth: '800px',
   },
   dayPaper: {
     p: 1,
@@ -79,7 +84,7 @@ export default function PreventiveCalendar() {
   const [expandedDays, setExpandedDays] = useState<{ [key: string]: boolean }>(
     {}
   );
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const [filters, setFilters] = useState<{ [key: string]: any[] }>({
     status: [],
   });
@@ -90,7 +95,6 @@ export default function PreventiveCalendar() {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isMediumScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   const routes = useRoutes();
   const { assets } = useAssetHook();
@@ -246,7 +250,7 @@ export default function PreventiveCalendar() {
 
       {/* Calendario */}
       {!loading && !error && filteredSchedule && (
-        <Box>
+        <Box sx={cardStyles.calendarCointainer}>
           {/* Días de la semana */}
           <Box
             sx={{

@@ -76,7 +76,7 @@ const PreventiveCard = ({
     );
   };
 
-  const slice = size === 'small' ? 10 : size === 'medium' ? 10 : 15;
+  const slice = size === 'small' ? 7 : size === 'medium' ? 7 : 10;
 
   return (
     <Box sx={styles.preventiveCard(hasWorkOrder)}>
