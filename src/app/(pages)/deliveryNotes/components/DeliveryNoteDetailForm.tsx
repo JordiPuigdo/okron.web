@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
+import { translateDeliveryNoteStatus } from 'app/utils/deliveryNoteUtils';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import { ca } from 'date-fns/locale';
 import { Plus, Save, X } from 'lucide-react';
@@ -43,23 +44,6 @@ export function DeliveryNoteDetailForm({
   useEffect(() => {
     setFormData(deliveryNote);
   }, [deliveryNote]);
-
-  const translateDeliveryNoteStatus = (status: DeliveryNoteStatus): string => {
-    switch (status) {
-      case DeliveryNoteStatus.Draft:
-        return 'Borrador';
-      case DeliveryNoteStatus.Sent:
-        return 'Enviat';
-      case DeliveryNoteStatus.Paid:
-        return 'Pagat';
-      case DeliveryNoteStatus.Cancelled:
-        return 'Cancel·lat';
-      case DeliveryNoteStatus.Overdue:
-        return 'Vençut';
-      default:
-        return 'Desconegut';
-    }
-  };
 
   const handleAddNewItem = () => {
     const newItem: DeliveryNoteItem = {
@@ -170,13 +154,13 @@ export function DeliveryNoteDetailForm({
         items: formData.items,
         companyName: formData.companyName,
         companyAddress: formData.companyAddress,
+        concepts: formData.concepts,
       };
 
       await onUpdate(updateRequest);
 
       setTimeout(() => {
         setIsLoading(false);
-        router.push(ROUTES.deliveryNote?.list || '/deliveryNotes');
       }, 1000);
     } catch (error) {
       console.error('Error updating delivery note:', error);
@@ -193,6 +177,32 @@ export function DeliveryNoteDetailForm({
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleAddConcept = () => {
+    setFormData(prev => ({
+      ...prev,
+      concepts: [...(prev.concepts || []), 'Nou concepte'],
+    }));
+  };
+
+  const handleUpdateConcept = (index: number, value: string) => {
+    const updatedConcepts = [...(formData.concepts || [])];
+    updatedConcepts[index] = value;
+    setFormData(prev => ({
+      ...prev,
+      concepts: updatedConcepts,
+    }));
+  };
+
+  const handleRemoveConcept = (index: number) => {
+    const updatedConcepts = (formData.concepts || []).filter(
+      (_, i) => i !== index
+    );
+    setFormData(prev => ({
+      ...prev,
+      concepts: updatedConcepts,
+    }));
   };
 
   return (
@@ -294,19 +304,43 @@ export function DeliveryNoteDetailForm({
               </div>
             </div>
 
-            {/* Work Orders */}
-            {formData.concepts && formData.concepts.length > 0 && (
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <h3 className="font-semibold mb-2">Conceptes: </h3>
+            {/* Work Orders / Concepts */}
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <h3 className="font-semibold mb-2">Conceptes</h3>
+
+              {formData.concepts && formData.concepts.length > 0 ? (
                 <div className="space-y-2">
-                  {formData.concepts.map(woId => (
-                    <div key={woId} className="flex justify-between">
-                      <span>{woId}</span>
+                  {formData.concepts.map((concept, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <EditableCell
+                        value={concept}
+                        onUpdate={value => handleUpdateConcept(index, value)}
+                        canEdit={true}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveConcept(index)}
+                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                      >
+                        Eliminar
+                      </button>
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <p className="text-gray-500 text-sm">No hi ha conceptes</p>
+              )}
+
+              {/* Botón para añadir nuevo concepto */}
+              <Button
+                type="create"
+                onClick={handleAddConcept}
+                variant="outline"
+                className="mt-3 flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
 
             {/* Delivery Note Items */}
             <div className="space-y-4">

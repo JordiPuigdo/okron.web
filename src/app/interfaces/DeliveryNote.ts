@@ -2,8 +2,9 @@ export enum DeliveryNoteStatus {
   Draft = 0,
   Sent = 1,
   Paid = 2,
-  Overdue = 3,
-  Cancelled = 4,
+  Valued = 3,
+  NotValued = 4,
+  Cancelled = 5,
 }
 
 export enum DeliveryNoteItemType {
@@ -66,4 +67,5 @@ export interface DeliveryNoteUpdateRequest {
   items: DeliveryNoteItem[];
   companyName?: string;
   companyAddress?: string;
+  concepts?: string[];
 }
