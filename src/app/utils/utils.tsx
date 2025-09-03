@@ -476,3 +476,21 @@ export const getRoute = (entity: EntityTable, isForHeader = false) => {
       return 'error';
   }
 };
+
+// Función utilitaria para formatear números en formato europeo
+export const formatEuropeanCurrency = (
+  value: number | string | undefined | null
+): string => {
+  if (value === undefined || value === null || isNaN(Number(value))) {
+    return 'N/A';
+  }
+
+  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+
+  return new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(numericValue);
+};

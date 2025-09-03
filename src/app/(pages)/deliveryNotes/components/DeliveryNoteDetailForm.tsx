@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
+import { formatEuropeanCurrency } from 'app/utils/utils';
 import { ca } from 'date-fns/locale';
 import { Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -156,10 +157,6 @@ export function DeliveryNoteDetailForm({
       newErrors.deliveryNoteDate = 'La data es obligatoria';
     }
 
-    if (!formData.dueDate?.trim()) {
-      newErrors.dueDate = 'La data de venciment es obligatoria';
-    }
-
     if (!formData.items || formData.items.length === 0) {
       newErrors.items = "L'albarà ha de tenir almenys un element";
     }
@@ -180,7 +177,7 @@ export function DeliveryNoteDetailForm({
         <div className="bg-white rounded-xl p-6 shadow-lg">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Header Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <label className="font-semibold">Albarà</label>
                 <div className="p-2 bg-gray-50 rounded border text-gray-700">
@@ -188,7 +185,7 @@ export function DeliveryNoteDetailForm({
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 flex flex-col">
                 <label className="font-semibold">Data</label>
                 <DatePicker
                   selected={
@@ -209,29 +206,6 @@ export function DeliveryNoteDetailForm({
                   className={cn(
                     'flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm',
                     errors.deliveryNoteDate && 'border-destructive'
-                  )}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="font-semibold">Data de Venciment</label>
-                <DatePicker
-                  selected={
-                    formData.dueDate ? new Date(formData.dueDate) : null
-                  }
-                  onChange={(date: Date | null) =>
-                    setFormData(prev => ({
-                      ...prev,
-                      dueDate:
-                        date?.toISOString().split('T')[0] ||
-                        new Date().toISOString().split('T')[0],
-                    }))
-                  }
-                  dateFormat="dd/MM/yyyy"
-                  locale={ca}
-                  className={cn(
-                    'flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm',
-                    errors.dueDate && 'border-destructive'
                   )}
                 />
               </div>
@@ -369,22 +343,10 @@ export function DeliveryNoteDetailForm({
                           />
                         </td>
                         <td className="p-2 border text-center">
-                          {item.discountAmount !== undefined &&
-                          item.discountAmount !== null &&
-                          !isNaN(item.discountAmount)
-                            ? `${parseFloat(
-                                item.discountAmount.toString()
-                              ).toFixed(2)}€`
-                            : 'N/A'}
+                          {formatEuropeanCurrency(item.discountAmount)}
                         </td>
                         <td className="p-2 border text-center">
-                          {item.lineTotal !== undefined &&
-                          item.lineTotal !== null &&
-                          !isNaN(item.lineTotal)
-                            ? `${parseFloat(item.lineTotal.toString()).toFixed(
-                                2
-                              )}€`
-                            : 'N/A'}
+                          {formatEuropeanCurrency(item.lineTotal)}
                         </td>
                         <td className="p-2 border text-center">
                           <button
@@ -413,21 +375,15 @@ export function DeliveryNoteDetailForm({
               <div className="w-96 space-y-2 p-4 border rounded-lg bg-gray-50">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>{formData.subtotal.toFixed(2)}€</span>
+                  <span>{formatEuropeanCurrency(formData.subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>IVA (21%):</span>
-                  <span>
-                    {formData.totalTax !== undefined &&
-                    formData.totalTax !== null
-                      ? formData.totalTax.toFixed(2)
-                      : '0.00'}
-                    €
-                  </span>
+                  <span>{formatEuropeanCurrency(formData.totalTax)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
                   <span>Total:</span>
-                  <span>{formData.total.toFixed(2)}€</span>
+                  <span>{formatEuropeanCurrency(formData.total)}</span>
                 </div>
               </div>
             </div>
