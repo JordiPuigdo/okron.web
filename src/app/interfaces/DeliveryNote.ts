@@ -32,6 +32,7 @@ export interface DeliveryNote {
   items: DeliveryNoteItem[];
   active: boolean;
   creationDate: string;
+  refCustomerIds: string;
 }
 
 export interface DeliveryNoteItem {

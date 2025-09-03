@@ -1,6 +1,7 @@
 'use client';
 import { SvgPrint } from 'app/icons/designSystem/SvgPrint';
 import { SvgMachines } from 'app/icons/icons';
+import { useSessionStore } from 'app/stores/globalStore';
 import { getRoute } from 'app/utils/utils';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 import Link from 'next/link';
@@ -23,6 +24,7 @@ export const HeaderForm = ({
 }: HeaderFormProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { config } = useSessionStore();
   const query = new URLSearchParams();
   const id = searchParams.get('id') ?? '';
 
@@ -91,7 +93,7 @@ export const HeaderForm = ({
           {canPrint && (
             <div>
               <Link
-                href={`/print/${canPrint}`}
+                href={`/print/${canPrint}?urlLogo=${config?.company.urlLogo}`}
                 passHref
                 target="_blank"
                 className=""

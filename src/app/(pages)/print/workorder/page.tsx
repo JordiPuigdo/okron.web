@@ -1,7 +1,9 @@
+import { SystemConfiguration } from 'app/interfaces/Config';
 import WorkOrder, { WorkOrderType } from 'app/interfaces/workOrder';
 import Loader from 'components/Loader/loader';
 
 import { HoursOperator } from './components/hoursOperator';
+import ReportDataCard from './components/ReportDataCard';
 import { WorkOrderComment } from './components/workorderComment';
 import { WorkOrderHeader } from './components/workorderHeader';
 import { WorkOrderPreventiveReport } from './components/workorderPreventiveReport';
@@ -24,6 +26,26 @@ async function getWorkOrders(id: string): Promise<WorkOrder> {
     return {} as WorkOrder;
   }
 }
+
+async function getConfig() {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}config`;
+
+    const res = await fetch(url, {
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to fetch config');
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching config:', error);
+    return {} as SystemConfiguration;
+  }
+}
+
 export async function generateMetadata({
   searchParams,
 }: {
@@ -41,12 +63,30 @@ export default async function WorkOrderPage({
   searchParams: { id: string; parentId?: string };
 }) {
   const orders = await getWorkOrders(searchParams.id);
+  const config = await getConfig();
+
+  if (orders == undefined && config == undefined) return <Loader />;
+
+  if (config.isCRM) {
+    return (
+      <div className="px-2 sm:px-4 max-w-[100vw] overflow-x-hidden text-sm">
+        <div className="flex flex-col bg-white p-4 w-full gap-6">
+          <WorkOrderHeader workOrder={orders} config={config} />
+          <ReportDataCard workOrder={orders} />
+        </div>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.onload = function() { window.print(); }`,
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="px-2 sm:px-4 max-w-[100vw] overflow-x-hidden text-sm">
-      {orders == undefined && <Loader />}
-      <div className="flex flex-col bg-white p-4 w-full ">
-        <WorkOrderHeader workOrder={orders} />
+      <div>
+        {orders == undefined && <Loader />}
         <HoursOperator workOrder={orders} />
         {orders.workOrderType == WorkOrderType.Preventive && (
           <WorkOrderPreventiveReport workorder={orders} />

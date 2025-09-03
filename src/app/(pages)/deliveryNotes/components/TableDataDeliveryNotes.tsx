@@ -24,11 +24,11 @@ interface TableDataDeliveryNotesProps {
 }
 
 export const TableDataDeliveryNotes = ({
-                                    className = '',
-                                    title = '',
-                                    hideShadow = false,
-                                    enableFilters = true,
-                                  }: TableDataDeliveryNotesProps) => {
+  className = '',
+  title = '',
+  hideShadow = false,
+  enableFilters = true,
+}: TableDataDeliveryNotesProps) => {
   const [deliveryNotes, setDeliveryNotes] = useState<DeliveryNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
@@ -94,7 +94,10 @@ export const TableDataDeliveryNotes = ({
 
   const getFilteredDeliveryNotes = (): DeliveryNote[] => {
     return deliveryNotes.filter(deliveryNote => {
-      return filters.status.length === 0 || filters.status.includes(deliveryNote.status);
+      return (
+        filters.status.length === 0 ||
+        filters.status.includes(deliveryNote.status)
+      );
     });
   };
 
@@ -161,13 +164,18 @@ const columnsDeliveryNotes: Column[] = [
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Data',
-    key: 'deliveryNoteDate',
-    format: ColumnFormat.DATE,
+    label: 'Ref. Client',
+    key: 'refCustomerIds',
+    format: ColumnFormat.TEXT,
   },
   {
-    label: 'Venciment',
-    key: 'dueDate',
+    label: 'Codis Interns',
+    key: 'workOrderCodes',
+    format: ColumnFormat.TEXT,
+  },
+  {
+    label: 'Data',
+    key: 'deliveryNoteDate',
     format: ColumnFormat.DATE,
   },
   {
@@ -192,6 +200,16 @@ const filtersDeliveryNotes: Filters[] = [
   {
     label: 'Client',
     key: 'companyName',
+    format: FiltersFormat.TEXT,
+  },
+  {
+    label: 'Ref. Client',
+    key: 'refCustomerIds',
+    format: FiltersFormat.TEXT,
+  },
+  {
+    label: 'Codis Interns',
+    key: 'workOrderCodes',
     format: FiltersFormat.TEXT,
   },
 ];

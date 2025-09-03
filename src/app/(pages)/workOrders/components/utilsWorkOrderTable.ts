@@ -127,6 +127,16 @@ export const columnsCRM: Column[] = [
     format: ColumnFormat.TEXT,
   },
   {
+    label: 'Botiga',
+    key: 'customerWorkOrder.customerAddress.city',
+    format: ColumnFormat.TEXT,
+  },
+  {
+    label: 'Codi',
+    key: 'customerWorkOrder.customerInstallationCode',
+    format: ColumnFormat.TEXT,
+  },
+  {
     label: 'Ref. Client',
     key: 'refCustomerId',
     format: ColumnFormat.TEXT,

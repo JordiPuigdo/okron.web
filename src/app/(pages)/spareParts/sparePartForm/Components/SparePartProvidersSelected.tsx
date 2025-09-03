@@ -52,7 +52,11 @@ export default function SparePartProvidersSelected({
 
             <div className="flex-[2] text-gray-600 overflow-hidden whitespace-nowrap truncate">
               <EditableCell
-                value={x.refProvider}
+                value={
+                  x.refProvider && x.refProvider.length > 0
+                    ? x.refProvider
+                    : '0'
+                }
                 onUpdate={newValue =>
                   handleUpdateRefProvider(x.providerId, newValue)
                 }

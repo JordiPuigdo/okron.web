@@ -7,10 +7,10 @@ import DatePicker from 'react-datepicker';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import ModalDowntimeReasons from 'app/(pages)/corrective/components/ModalDowntimeReasons';
 import ModalGenerateCorrective from 'app/(pages)/corrective/components/ModalGenerateCorrective';
-import { useAssetHook } from 'app/hooks/useAssetHook';
 import { usePermissions } from 'app/hooks/usePermissions';
 import { SvgPrint } from 'app/icons/designSystem/SvgPrint';
-import { SvgSpinner } from 'app/icons/icons';
+import { SvgSave } from 'app/icons/designSystem/SvgSave';
+import { SvgClose, SvgSpinner } from 'app/icons/icons';
 import Operator, { OperatorType } from 'app/interfaces/Operator';
 import { DowntimesReasons } from 'app/interfaces/Production/Downtimes';
 import SparePart from 'app/interfaces/SparePart';
@@ -78,6 +78,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
   const { isModalOpen, setIsModalOpen } = useGlobalStore(state => state);
+
   const workOrderService = new WorkOrderService(
     process.env.NEXT_PUBLIC_API_BASE_URL!
   );
@@ -127,12 +128,11 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
   const [showDowntimeReasonsModal, setShowDowntimeReasonsModal] =
     useState(false);
   const [showModal, setShowModal] = useState(false);
+  const { config } = useSessionStore();
 
   const [selectedAssetId, setSelectedAssetId] = useState<string | undefined>(
     undefined
   );
-
-  const { assets, assetsError, fetchAllAssets } = useAssetHook();
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -147,9 +147,10 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
       .then(responseWorkOrder => {
         if (responseWorkOrder) {
           setIsFinished(
-            responseWorkOrder.stateWorkOrder == StateWorkOrder.Finished ||
+            (responseWorkOrder.stateWorkOrder == StateWorkOrder.Finished ||
               responseWorkOrder.stateWorkOrder ==
-                StateWorkOrder.PendingToValidate
+                StateWorkOrder.PendingToValidate) &&
+              !isAdmin()
               ? true
               : false
           );
@@ -512,7 +513,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
         )}
         <div>
           <Link
-            href={`/print/workorder?id=${currentWorkOrder?.id}`}
+            href={`/print/workorder?id=${currentWorkOrder?.id}&urlLogo=${config?.company.urlLogo}`}
             passHref
             target="_blank"
           >
@@ -579,27 +580,57 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
               />
             </div>
             {isCRM && (
-              <div className="w-full">
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-medium text-gray-700 py-2"
-                >
-                  Ref. Client
-                </label>
-                <input
-                  {...register('refCustomerId')}
-                  type="text"
-                  id="refCustomerId"
-                  name="refCustomerId"
-                  className="p-3 border text-sm border-gray-300 rounded-md w-full"
-                  disabled={isDisabledField}
-                  onKeyPress={e => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                    }
-                  }}
-                />
-              </div>
+              <>
+                <div className="w-full">
+                  <label
+                    htmlFor="description"
+                    className="block text-sm font-medium text-gray-700 py-2"
+                  >
+                    Ref. Client
+                  </label>
+                  <input
+                    {...register('refCustomerId')}
+                    type="text"
+                    id="refCustomerId"
+                    name="refCustomerId"
+                    className="p-3 border text-sm border-gray-300 rounded-md w-full"
+                    disabled={isDisabledField}
+                    onKeyPress={e => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                      }
+                    }}
+                  />
+                </div>
+                <div className="w-full">
+                  <label
+                    htmlFor="description"
+                    className="block text-sm font-medium text-gray-700 py-2"
+                  >
+                    Botiga
+                  </label>
+                  <div className="flex flex-col gap-2">
+                    <p>
+                      {
+                        currentWorkOrder?.customerWorkOrder
+                          ?.customerInstallationCode
+                      }
+                    </p>
+                    <p>
+                      {
+                        currentWorkOrder?.customerWorkOrder
+                          ?.customerInstallationAddress?.address
+                      }
+                    </p>
+                    <p>
+                      {
+                        currentWorkOrder?.customerWorkOrder
+                          ?.customerInstallationAddress?.city
+                      }
+                    </p>
+                  </div>
+                </div>
+              </>
             )}
             <div>
               <label
@@ -721,7 +752,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                   {isLoading['SAVE'] ? (
                     <SvgSpinner className="text-white" />
                   ) : (
-                    'Actualitzar'
+                    <SvgSave className="text-white w-4 h-4" />
                   )}
                 </Button>
                 <Button
@@ -732,7 +763,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                   {isLoading['DELETE'] ? (
                     <SvgSpinner className="text-white" />
                   ) : (
-                    'Eliminar'
+                    <SvgClose className="text-white w-4 h-4" />
                   )}
                 </Button>
 
@@ -847,7 +878,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
     <div className="pt-4">
       {renderHeader()}
       <div className="flex gap-2 rounded bg-blue-900 my-2 p-2">
-        <div className="flex flex-col w-full gap-2 ">
+        <div className="flex flex-col w-[70%] gap-2 ">
           {showDowntimeReasonsModal && (
             <ModalDowntimeReasons
               selectedId={currentWorkOrder.asset?.id || ''}
@@ -912,12 +943,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
               workOrderOperatortimes={workOrderOperatorTimes}
               setWorkOrderOperatortimes={setworkOrderOperatorTimes}
               workOrderId={currentWorkOrder.id}
-              isFinished={
-                currentWorkOrder.stateWorkOrder == StateWorkOrder.Finished ||
-                currentWorkOrder.stateWorkOrder ==
-                  StateWorkOrder.PendingToValidate ||
-                currentWorkOrder.stateWorkOrder == StateWorkOrder.Waiting
-              }
+              isFinished={isFinished}
             />
           </div>
         )}

@@ -1,24 +1,15 @@
+import { SystemConfiguration } from 'app/interfaces/Config';
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
 import dayjs from 'dayjs';
 
-import companyData from '../../order/company.json';
-
-interface CompanyInfo {
-  name: string;
-  cif: string;
-  address: string;
-  city: string;
-  phone: string;
-  email: string;
-}
-
 export const DeliveryNoteHeader = ({
   deliveryNote,
+  config,
 }: {
   deliveryNote: DeliveryNote;
+  config: SystemConfiguration;
 }) => {
-  const company: CompanyInfo = companyData;
-
+  const company = config.company;
   return (
     <div>
       <div className="flex justify-between">
@@ -50,9 +41,9 @@ export const DeliveryNoteHeader = ({
       <div className="flex flex-row justify-between items-start">
         <div>
           <p className="font-semibold">{company.name}</p>
-          <p>{company.cif}</p>
-          <p className="font-semibold">{company.address}</p>
-          <p>{company.city}</p>
+          <p>{company.nif}</p>
+          <p className="font-semibold">{company.address.address}</p>
+          <p>{company.address.city}</p>
           <p>Tel: {company.phone}</p>
           <p>{company.email}</p>
         </div>

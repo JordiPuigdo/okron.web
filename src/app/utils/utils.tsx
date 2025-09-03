@@ -52,10 +52,10 @@ export const translateWorkOrderCommentType = (
   commentType: WorkOrderCommentType
 ): string => {
   switch (commentType) {
-    case WorkOrderCommentType.External:
-      return 'Descripció Reparació';
     case WorkOrderCommentType.Internal:
       return 'Obervacions';
+    case WorkOrderCommentType.External:
+      return 'Descripció Reparació';
     case WorkOrderCommentType.NoFinished:
       return 'No Finalitzada';
     default:

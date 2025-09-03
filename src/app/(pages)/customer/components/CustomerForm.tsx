@@ -245,6 +245,14 @@ export default function CustomerForm({
                       placeholder="Comentaris"
                     />
                   </div>
+                  <div>
+                    <label className="block font-medium">Kms</label>
+                    <input
+                      {...register('kms')}
+                      className="w-full border rounded p-2"
+                      placeholder="Kms"
+                    />
+                  </div>
                   {initialData && initialData?.id.length > 0 && (
                     <div className="flex flex-col">
                       <label className="block font-medium">Actiu</label>

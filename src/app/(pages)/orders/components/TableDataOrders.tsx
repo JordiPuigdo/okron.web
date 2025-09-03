@@ -325,6 +325,11 @@ const columnsOrders: Column[] = [
     format: ColumnFormat.TEXT,
   },
   {
+    label: 'Comentari',
+    key: 'comment',
+    format: ColumnFormat.TEXT,
+  },
+  {
     label: 'Data',
     key: 'date',
     format: ColumnFormat.DATE,

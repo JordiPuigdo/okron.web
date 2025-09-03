@@ -66,7 +66,11 @@ export const usePermissions = () => {
       }),
     workorderHeader: (workOrder: WorkOrder): string => {
       return isCRM
-        ? `Client - ${workOrder?.customerWorkOrder?.customerName ?? ''}`
+        ? `Client - ${workOrder?.customerWorkOrder?.customerName ?? ''} ${
+            workOrder.customerWorkOrder?.customerInstallationCode ?? ''
+          }
+          ${workOrder.customerWorkOrder?.customerInstallationAddress.city ?? ''}
+          `
         : `Equip - ${workOrder?.asset?.description ?? ''}`;
     },
     workOrderColumns: () => {

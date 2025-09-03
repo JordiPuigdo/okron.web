@@ -340,6 +340,7 @@ class WorkOrderService {
     formData.append('comment', addCommentToWorkOrder.comment);
     formData.append('operatorId', addCommentToWorkOrder.operatorId);
     formData.append('workOrderId', addCommentToWorkOrder.workOrderId);
+    formData.append('type', addCommentToWorkOrder.type.toString());
 
     try {
       const url = `${this.baseUrl}AddCommentToWorkOrder`;

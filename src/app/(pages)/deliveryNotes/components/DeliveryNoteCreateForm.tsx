@@ -34,10 +34,18 @@ export function DeliveryNoteCreateForm() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | undefined>(undefined);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | undefined>(undefined);
-  const [availableWorkOrders, setAvailableWorkOrders] = useState<WorkOrder[]>([]);
-  const [selectedWorkOrderIds, setSelectedWorkOrderIds] = useState<string[]>([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<
+    string | undefined
+  >(undefined);
+  const [selectedCustomer, setSelectedCustomer] = useState<
+    Customer | undefined
+  >(undefined);
+  const [availableWorkOrders, setAvailableWorkOrders] = useState<WorkOrder[]>(
+    []
+  );
+  const [selectedWorkOrderIds, setSelectedWorkOrderIds] = useState<string[]>(
+    []
+  );
   const workOrderService = new WorkOrderService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
@@ -65,7 +73,7 @@ export function DeliveryNoteCreateForm() {
       // Get work orders from last month for this customer
       const endDate = new Date();
       const startDate = new Date();
-      startDate.setMonth(startDate.getMonth() - 1);
+      startDate.setMonth(startDate.getMonth() - 12);
       const search = {
         startDateTime: startDate!,
         endDateTime: endDate!,
@@ -73,7 +81,9 @@ export function DeliveryNoteCreateForm() {
         userType: UserType.Maintenance,
         customerId: selectedCustomer?.id,
       };
-      const workOrders = await workOrderService.getWorkOrdersWithFilters(search);
+      const workOrders = await workOrderService.getWorkOrdersWithFilters(
+        search
+      );
       setAvailableWorkOrders(workOrders);
     } catch (error) {
       console.error('Error fetching work orders:', error);
@@ -121,7 +131,9 @@ export function DeliveryNoteCreateForm() {
     setIsLoading(true);
 
     try {
-      const response = await deliveryNoteService.create(formData as DeliveryNoteCreateRequest);
+      const response = await deliveryNoteService.create(
+        formData as DeliveryNoteCreateRequest
+      );
       router.push(`/deliveryNotes/${response.id}`);
     } catch (error) {
       console.error('Error creating delivery note:', error);
@@ -163,7 +175,10 @@ export function DeliveryNoteCreateForm() {
             className="space-y-6"
             onKeyDown={e => {
               const tag = (e.target as HTMLElement).tagName.toLowerCase();
-              if (e.key === 'Enter' && (tag === 'input' || tag === 'textarea')) {
+              if (
+                e.key === 'Enter' &&
+                (tag === 'input' || tag === 'textarea')
+              ) {
                 e.preventDefault();
               }
             }}
@@ -173,18 +188,23 @@ export function DeliveryNoteCreateForm() {
               <div className="space-y-2">
                 <label className="font-semibold">Data</label>
                 <DatePicker
-                  selected={formData.deliveryNoteDate ? new Date(formData.deliveryNoteDate) : new Date()}
+                  selected={
+                    formData.deliveryNoteDate
+                      ? new Date(formData.deliveryNoteDate)
+                      : new Date()
+                  }
                   onChange={(date: Date | null) =>
                     setFormData(prev => ({
                       ...prev,
-                      deliveryNoteDate: date?.toISOString() || new Date().toISOString(),
+                      deliveryNoteDate:
+                        date?.toISOString() || new Date().toISOString(),
                     }))
                   }
                   dateFormat="dd/MM/yyyy"
                   locale={ca}
                   className={cn(
                     'flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm',
-                    errors.deliveryNoteDate && 'border-destructive',
+                    errors.deliveryNoteDate && 'border-destructive'
                   )}
                 />
                 {errors.deliveryNoteDate && (
@@ -197,7 +217,9 @@ export function DeliveryNoteCreateForm() {
               <div className="space-y-2">
                 <label className="font-semibold">Data de Venciment</label>
                 <DatePicker
-                  selected={formData.dueDate ? new Date(formData.dueDate) : null}
+                  selected={
+                    formData.dueDate ? new Date(formData.dueDate) : null
+                  }
                   onChange={(date: Date | null) =>
                     setFormData(prev => ({
                       ...prev,
@@ -208,7 +230,7 @@ export function DeliveryNoteCreateForm() {
                   locale={ca}
                   className={cn(
                     'flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm',
-                    errors.dueDate && 'border-destructive',
+                    errors.dueDate && 'border-destructive'
                   )}
                 />
                 {errors.dueDate && (
@@ -224,7 +246,9 @@ export function DeliveryNoteCreateForm() {
               <label className="font-semibold">Client</label>
               <ChooseElement
                 elements={customers ? customers.filter(x => x.active) : []}
-                selectedElements={selectedCustomerId ? [selectedCustomerId] : []}
+                selectedElements={
+                  selectedCustomerId ? [selectedCustomerId] : []
+                }
                 onElementSelected={handleSelectedCustomer}
                 onDeleteElementSelected={handleDeleteSelectedCustomer}
                 placeholder="Buscar Client"
@@ -252,7 +276,12 @@ export function DeliveryNoteCreateForm() {
                   placeholder="Buscar Ordres de Treball"
                   mapElement={workOrder => ({
                     id: workOrder.id,
-                    description: `${workOrder.code} - ${workOrder.description}`,
+                    description: `${workOrder.code} - ${
+                      workOrder.description
+                    } - ${workOrder.asset?.description} - ${
+                      workOrder.customerWorkOrder?.customerInstallationAddress
+                        .city ?? ''
+                    }`,
                   })}
                 />
                 {errors.workOrderIds && (

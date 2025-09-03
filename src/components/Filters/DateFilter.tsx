@@ -1,12 +1,16 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import DatePicker from 'react-datepicker';
 import ca from 'date-fns/locale/ca';
+import dayjs from 'dayjs';
 
 export interface DateFilterProps {
   dateFilters: DateFilters;
   setDateFilters: (dateFilters: DateFilters) => void;
+  startTimeClassName?: string;
+  endTimeClassName?: string;
+  className?: string;
 }
 
 export interface DateFilters {
@@ -17,48 +21,78 @@ export interface DateFilters {
 export const DateFilter = ({
   dateFilters,
   setDateFilters,
+  startTimeClassName = '',
+  endTimeClassName = '',
+  className = '',
 }: DateFilterProps) => {
-  const [startDate, setStartDate] = useState<Date | null>(
-    dateFilters.startDate
-  );
-  const [endDate, setEndDate] = useState<Date | null>(dateFilters.endDate);
+  const { startDate, endDate } = dateFilters;
 
-  useEffect(() => {
-    setDateFilters({
-      ...dateFilters,
-      startDate: startDate,
-      endDate: endDate,
-    });
-  }, [startDate, endDate]);
+  const handleStartDateChange = useCallback(
+    (date: Date | null) => {
+      const normalizedDate = date ? dayjs(date).startOf('day').toDate() : null;
+      setDateFilters({
+        ...dateFilters,
+        startDate: normalizedDate,
+      });
+    },
+    [dateFilters, setDateFilters]
+  );
+
+  const handleEndDateChange = useCallback(
+    (date: Date | null) => {
+      const normalizedDate = date ? dayjs(date).startOf('day').toDate() : null;
+      setDateFilters({
+        ...dateFilters,
+        endDate: normalizedDate,
+      });
+    },
+    [dateFilters, setDateFilters]
+  );
+
+  const commonDatePickerProps = useMemo(
+    () => ({
+      dateFormat: 'dd/MM/yyyy',
+      locale: ca,
+      className: 'border border-gray-300 p-2 rounded-md',
+    }),
+    []
+  );
+
+  const defaultSelectedDate = useMemo(() => new Date(), []);
 
   return (
-    <>
-      <div className="flex items-center">
-        <label htmlFor="startDate" className="mr-2">
+    <div className={`flex flex-col sm:flex-row gap-4 ${className}`}>
+      <div className="flex items-center flex-1">
+        <label
+          htmlFor="startDate"
+          className={`mr-2 min-w-[40px] ${startTimeClassName}`}
+        >
           Inici
         </label>
         <DatePicker
+          {...commonDatePickerProps}
           id="startDate"
-          selected={startDate ?? new Date()}
-          onChange={(date: Date) => setStartDate(date)}
-          dateFormat="dd/MM/yyyy"
-          locale={ca}
-          className="border border-gray-300 p-2 rounded-md mr-4"
+          selected={startDate ?? defaultSelectedDate}
+          onChange={handleStartDateChange}
+          startDate={startDate}
         />
       </div>
-      <div className="flex items-center">
-        <label htmlFor="endDate" className="mr-2">
+
+      <div className="flex items-center flex-1">
+        <label
+          htmlFor="endDate"
+          className={`mr-2 min-w-[40px] ${endTimeClassName}`}
+        >
           Final
         </label>
         <DatePicker
+          {...commonDatePickerProps}
           id="endDate"
-          selected={endDate ?? new Date()}
-          onChange={(date: Date) => setEndDate(date)}
-          dateFormat="dd/MM/yyyy"
-          locale={ca}
-          className="border border-gray-300 p-2 rounded-md mr-4"
+          selected={endDate ?? defaultSelectedDate}
+          onChange={handleEndDateChange}
+          startDate={startDate}
         />
       </div>
-    </>
+    </div>
   );
 };

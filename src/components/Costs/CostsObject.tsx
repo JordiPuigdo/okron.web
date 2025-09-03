@@ -17,25 +17,33 @@ export function CostsObject({
   sparePartCosts,
   totalCosts,
 }: CostsProps) {
+  function formatNumber(number: number) {
+    return new Intl.NumberFormat('es-ES', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(number);
+  }
   return (
     <div className="flex-grow w-full">
       <div className="flex justify-between items-center mb-2 border-b-2">
         <div className="text-gray-700 text-xl">Cost Operaris:</div>
         <div className="text-blue-600 font-semibold text-xl">
-          {operatorCosts}€
+          {formatNumber(operatorCosts)}€
         </div>
       </div>
 
       <div className="flex justify-between items-center mb-2  border-b-2">
         <div className="text-gray-700 text-xl">Cost Recanvis:</div>
         <div className="text-blue-600 font-semibold text-xl">
-          {sparePartCosts}€
+          {formatNumber(sparePartCosts)}€
         </div>
       </div>
 
       <div className="flex justify-between items-center font-semibold border-b-2">
         <div className="text-gray-700 text-xl">Cost Total:</div>
-        <div className="text-red-600 font-semibold text-xl">{totalCosts}€</div>
+        <div className="text-red-600 font-semibold text-xl">
+          {formatNumber(totalCosts)}€
+        </div>
       </div>
     </div>
   );

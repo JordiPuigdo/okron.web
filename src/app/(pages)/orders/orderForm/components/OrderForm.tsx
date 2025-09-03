@@ -89,6 +89,7 @@ export default function OrderForm({
       );
       if (purchaseOrderId) {
         const orderResponse = await fetchOrderById(purchaseOrderId!);
+
         setOrder({
           ...order,
           code: code,
@@ -103,6 +104,7 @@ export default function OrderForm({
           ...orderResponse,
           items: orderResponse.items.map(x => ({
             ...x,
+            refProvider: x.sparePart.providers[0].refProvider,
             quantityPendient: x.quantity - (x.quantityReceived ?? 0),
           })),
         });

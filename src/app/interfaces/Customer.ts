@@ -36,6 +36,7 @@ export interface Customer extends BaseModel {
   rates: Rate[];
   installations: CustomerInstallations[];
   comments: string;
+  kms: number;
 }
 
 export interface CreateCustomerRequest {
@@ -54,6 +55,7 @@ export interface CreateCustomerRequest {
   installations?: CustomerInstallations[];
   active?: boolean;
   comments: string;
+  kms: number;
 }
 
 export interface CustomerAddressRequest {

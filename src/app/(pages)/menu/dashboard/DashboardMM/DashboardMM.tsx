@@ -17,8 +17,10 @@ import {
   translateStateWorkOrder,
   translateWorkOrderType,
 } from 'app/utils/utils';
+import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
 import dayjs from 'dayjs';
 import { BarChartComponent } from 'designSystem/BarChart/BarChartComponent';
+import { Button } from 'designSystem/Button/Buttons';
 import { DonutChartComponent } from 'designSystem/DonutChart/DonutChartComponent';
 
 import ButtonsSections from '../components/ButtonsSections';
@@ -70,7 +72,8 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
   const operatorService = new OperatorService(
     process.env.NEXT_PUBLIC_API_BASE_URL!
   );
-  const currentDate = new Date();
+  const currentDate = dayjs().startOf('day').toDate();
+
   const validStates = [
     StateWorkOrder.Waiting,
     StateWorkOrder.OnGoing,
@@ -106,8 +109,8 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
   const [totalMinutes, setTotalMinutes] = useState<number>(0);
   const [totalCosts, setTotalCosts] = useState<number>(0);
 
-  const firstDayOfMonth = dayjs.utc().startOf('month').toDate();
-  const firstDayOfWeek = dayjs.utc().startOf('isoWeek').toDate();
+  const firstDayOfMonth = dayjs().startOf('month').toDate();
+  const firstDayOfWeek = dayjs().startOf('isoWeek').toDate();
 
   const { fetchWithFilters } = useWorkOrders();
   const { t } = useTranslations();
@@ -124,6 +127,11 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     [StateWorkOrder.NotFinished]: 'bg-okron-paused',
     [StateWorkOrder.Invoiced]: 'bg-okron-error',
   };
+
+  const [dateFilters, setDateFilters] = useState<DateFilters>({
+    startDate: firstDayOfMonth,
+    endDate: dayjs().endOf('day').toDate(),
+  });
 
   const handleFilterClick = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const filter = parseInt(e.target.value, 10);
@@ -148,6 +156,10 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
   async function fetchData(date: Date) {
     setIsLoading(true);
 
+    if (!dateFilters.startDate || !dateFilters.endDate) {
+      return;
+    }
+
     const operators = await operatorService.getOperators();
 
     setChartAssets([]);
@@ -157,8 +169,8 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     const filters: SearchWorkOrderFilters = {
       assetId: '',
       operatorId: '',
-      startDateTime: date,
-      endDateTime: currentDate,
+      startDateTime: dateFilters.startDate,
+      endDateTime: dateFilters.endDate,
       userType: loginUser.userType,
       originWorkOrder: OriginWorkOrder.Maintenance,
     };
@@ -379,6 +391,13 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     });
   }
 
+  const totalPreventive = workOrderTypeChartData
+    .filter(x => x.workOrderType == WorkOrderType.Preventive)
+    .reduce((acc, item) => acc + item.value, 0);
+  const totalCorrective = workOrderTypeChartData
+    .filter(x => x.workOrderType == WorkOrderType.Corrective)
+    .reduce((acc, item) => acc + item.value, 0);
+
   if (isLoading) return <SvgSpinner className="w-full text-white" />;
 
   if (loginUser?.permission !== UserPermission.Administrator) return <></>;
@@ -386,7 +405,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     <div className="flex flex-col w-full gap-4">
       <div className="flex flex-col gap-4 w-full items-center p-2">
         <div className="flex justify-start w-full gap-2 py-4">
-          <div className="flex justify-center items-center">
+          {/*} <div className="flex justify-center items-center">
             <select
               className="border-2 border-okron-main text-okron-main bg-transparent rounded-md p-3 w-40 focus:outline-none focus:ring-2 focus:ring-okron-main cursor-pointer"
               value={selectedFilter !== null ? selectedFilter : 0}
@@ -398,18 +417,33 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
                 </option>
               ))}
             </select>
-          </div>
-          <div className="flex flex-col lg:flex-row bg-white shadow-md rounded-lg p-4 w-full ml-0 lg:ml-10 space-y-4 lg:space-y-0 lg:divide-x-2 divide-gray-200">
+          </div>*/}
+
+          <div className="flex flex-col lg:flex-row bg-white shadow-md rounded-lg p-4 w-full ml-0  space-y-4 lg:space-y-0 lg:divide-x-2 divide-gray-200">
             <div className="flex items-center w-full lg:justify-start px-0 lg:pr-6">
-              <span className="text-gray-500 font-semibold">Data:</span>
-              <span className="font-bold ml-2">
+              {/*<span className="font-bold ml-2">
                 {selectedFilter === 0
                   ? formatDate(firstDayOfMonth, false)
                   : selectedFilter === 1
                   ? formatDate(firstDayOfWeek, false)
                   : currentDate.toLocaleDateString('en-GB')}{' '}
                 {' - '} {currentDate.toLocaleDateString('en-GB')}
-              </span>
+              </span>*/}
+              <div className="flex ml-4">
+                <DateFilter
+                  dateFilters={dateFilters}
+                  setDateFilters={setDateFilters}
+                  startTimeClassName="text-gray-500 font-semibold"
+                  endTimeClassName="text-gray-500 font-semibold"
+                />
+                <Button
+                  type="create"
+                  customStyles="flex ml-4"
+                  onClick={fetchData}
+                >
+                  Buscar
+                </Button>
+              </div>
             </div>
             <div className="flex items-center w-full lg:justify-start px-0 lg:px-6">
               <span className="text-gray-500 font-semibold">Minuts:</span>
@@ -499,7 +533,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
           <div className="flex w-full bg-white rounded-xl p-2 border-2">
             <DonutChartComponent
               chartData={workOrderTypeChartData}
-              title="Correctius vs Preventius"
+              title={`Correctius vs Preventius (${totalCorrective} / ${totalPreventive})`}
             />
           </div>
           <div className="flex w-full bg-white rounded-xl p-2 border-2">

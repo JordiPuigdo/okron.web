@@ -22,6 +22,7 @@ import { ElementList } from 'components/selector/ElementList';
 import DataTable from 'components/table/DataTable';
 import { TableButtons } from 'components/table/interface/interfaceTable';
 import { EntityTable } from 'components/table/interface/tableEntitys';
+import dayjs from 'dayjs';
 import { Button } from 'designSystem/Button/Buttons';
 
 import { WorkOrdersFiltersTable } from './WorkOrderFiltersTable/WorkOrdersFiltersTable';
@@ -75,7 +76,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
   const [endDate, setEndDate] = useState<Date | null>(
     filterWorkOrders?.endDateTime
       ? new Date(filterWorkOrders?.endDateTime)
-      : new Date()
+      : dayjs().startOf('day').toDate()
   );
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string>('');
@@ -272,15 +273,34 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
   };
 
   const applyFilters = (order: WorkOrder) => {
+    const searchTerms = searchTerm.trim().split(/\s+/);
+
+    const searchTermFilter = () => {
+      if (searchTerms.length === 0) return true;
+
+      return searchTerms.every(term => {
+        if (term.length === 0) return true;
+
+        const lowerTerm = term.toLowerCase();
+        return (
+          order.description.toLowerCase().includes(lowerTerm) ||
+          order.code.toLowerCase().includes(lowerTerm) ||
+          order.customerWorkOrder?.customerName
+            ?.toLowerCase()
+            .includes(lowerTerm) ||
+          order.refCustomerId?.toLowerCase().includes(lowerTerm) ||
+          order.customerWorkOrder?.customerInstallationAddress?.city
+            ?.toLowerCase()
+            .includes(lowerTerm) ||
+          order.customerWorkOrder?.customerInstallationCode
+            ?.toLowerCase()
+            .includes(lowerTerm)
+        );
+      });
+    };
+
     const filters = [
-      () =>
-        searchTerm.length === 0 ||
-        order.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customerWorkOrder?.customerName
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        order.refCustomerId?.toLowerCase().includes(searchTerm.toLowerCase()),
+      searchTermFilter,
       () =>
         selectedAssetId === undefined ||
         selectedAssetId.length === 0 ||

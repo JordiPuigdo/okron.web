@@ -117,7 +117,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
         if (asset.createWorkOrder) {
           elements.push({
             id: asset.id,
-            description: asset.description,
+            description: asset.description + ' - ' + (asset.brand ?? ''),
           });
         }
 

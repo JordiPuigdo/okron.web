@@ -137,16 +137,21 @@ export const formatCellContent = (
     className = getStatusClassName(value, 'ORDER');
     value = getStatusText(value, 'ORDER');
   }
-
   if (column.format === ColumnFormat.PRICE) {
-    className = ' justify-end text-end';
+    className = 'justify-end text-end';
     const numericValue = value ?? 0;
-    value =
-      typeof numericValue === 'number'
-        ? numericValue.toFixed(2) + '€'
-        : '0.00€';
-  }
 
+    if (typeof numericValue === 'number') {
+      value = new Intl.NumberFormat('es-ES', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(numericValue);
+    } else {
+      value = '0,00€';
+    }
+  }
   if (column.format == ColumnFormat.INVOICESTATUS) {
     className = getStatusClassName(value, 'INVOICE');
     value = getStatusText(value, 'INVOICE');

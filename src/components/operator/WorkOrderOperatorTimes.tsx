@@ -55,6 +55,9 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
   const [editingIndex, setEditingIndex] = useState(-1);
   const [editedStartTime, setEditedStartTime] = useState('');
   const [editedEndTime, setEditedEndTime] = useState('');
+  const [editedType, setEditedType] = useState<
+    WorkOrderOperatorTimeType | undefined
+  >(undefined);
   const { isAdmin, isCRM } = usePermissions();
   const addWorkOrderTime = async () => {
     setIsLoading(true);
@@ -264,6 +267,19 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
     }
   }
 
+  function handleChangeType(
+    e: React.ChangeEvent<HTMLSelectElement>,
+    index: number
+  ) {
+    const newType = e.target.value as unknown as WorkOrderOperatorTimeType;
+    console.log(newType);
+    setWorkOrderOperatortimes(prevSelected => {
+      const updated = [...prevSelected];
+      updated[index] = { ...updated[index], type: newType };
+      return updated;
+    });
+  }
+
   function validateDateTimeFormat(dateTime: string): boolean {
     const pattern =
       /^(0[1-9]|[1-2][0-9]|3[0-1])\/(0[1-9]|1[0-2])\/\d{4} (0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/;
@@ -274,7 +290,8 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
     index: number,
     workOrderOperatorTimesId: string,
     starttime: string,
-    endtime: string
+    endtime: string,
+    typeRecord: WorkOrderOperatorTimeType
   ) {
     if (editingIndex === index) {
       if (!validateDateTimeFormat(editedStartTime)) {
@@ -290,6 +307,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
         workOrderId: workOrderId,
         startTime: newStartTime!,
         workOrderOperatorTimesId: workOrderOperatorTimesId,
+        type: editedType !== undefined ? editedType : typeRecord,
       };
       if (editedEndTime != null) {
         if (editedEndTime != '' && !validateDateTimeFormat(editedEndTime)) {
@@ -513,6 +531,29 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                       {time.type === WorkOrderOperatorTimeType.Travel &&
                         'Viatge'}
                     </div>
+                    {editingIndex === index && (
+                      <div>
+                        <select
+                          className="border border-gray-300 rounded-md p-1"
+                          value={
+                            editedType != undefined ? editedType : time.type
+                          }
+                          onChange={e =>
+                            setEditedType(
+                              e.target
+                                .value as unknown as WorkOrderOperatorTimeType
+                            )
+                          }
+                        >
+                          <option value={WorkOrderOperatorTimeType.Time}>
+                            Hora
+                          </option>
+                          <option value={WorkOrderOperatorTimeType.Travel}>
+                            Viatge
+                          </option>
+                        </select>
+                      </div>
+                    )}
                   </td>
                 )}
                 {isAdmin() && (
@@ -530,7 +571,8 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                           index,
                           time.id!,
                           time.startTime.toString(),
-                          time.endTime != null ? time.endTime?.toString() : ''
+                          time.endTime != null ? time.endTime?.toString() : '',
+                          time.type ?? WorkOrderOperatorTimeType.Time
                         )
                       }
                       disabled={isFinished}
@@ -550,6 +592,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                             setEditingIndex(-1);
                             setEditedEndTime('');
                             setEditedStartTime('');
+                            setEditedType(undefined);
                           }}
                         >
                           {'Cancelar'}
@@ -565,6 +608,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                             setEditingIndex(-1);
                             setEditedEndTime('');
                             setEditedStartTime('');
+                            setEditedType(undefined);
                             deleteWorkOrderOperatorTimes(time.id!);
                           }}
                         >

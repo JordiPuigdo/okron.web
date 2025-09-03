@@ -36,6 +36,7 @@ export default function OrderPurchaseDetailItems({
                 Recanvi
               </th>
               <th className="p-2 border w-[15%]">Magatzem</th>
+              <th className="p-2 border w-[15%]">Ref. Proveeïdor</th>
               <th className="p-2 border w-[15%]">
                 {isOrderPurchase ? 'Quantitat Sol·licitada' : 'Quantitat'}
               </th>
@@ -81,6 +82,9 @@ export default function OrderPurchaseDetailItems({
                   </td>
                   <td className="p-2 border text-center w-[15%]">
                     {item.wareHouseName ?? item.wareHouse?.description}
+                  </td>
+                  <td className="p-2 border text-center w-[15%]">
+                    {item.refProvider}
                   </td>
                   <td className="p-2 border text-center w-[15%]">
                     {item.quantity}

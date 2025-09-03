@@ -90,6 +90,9 @@ export const WorkOrdersFiltersTable = ({
     });
     setSearchTerm(term);
   }
+  const placeholder = isCRM
+    ? 'Buscar Codi / Descripció / Ref Client / Client / Botiga'
+    : 'Buscar Codi / Descripció';
 
   return (
     <div className="bg-white rounded-xl gap-4 p-2 shadow-md">
@@ -119,7 +122,7 @@ export const WorkOrdersFiltersTable = ({
           )}
           <input
             type="text"
-            placeholder="Codi / Descripció"
+            placeholder={placeholder}
             className="p-3 text-sm border border-gray-300 rounded-md w-full"
             value={workOrdersFilters.searchTerm}
             onChange={e => handleSearchTerm(e.target.value)}

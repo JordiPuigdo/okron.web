@@ -137,6 +137,7 @@ export interface UpdateWorkOrderOperatorTimes {
   startTime: Date;
   endTime?: Date;
   workOrderOperatorTimesId: string;
+  type: WorkOrderOperatorTimeType;
 }
 
 export interface DeleteWorkOrderOperatorTimes {
@@ -194,6 +195,7 @@ export interface AddCommentToWorkOrderRequest {
   comment: string;
   operatorId: string;
   workOrderId: string;
+  type: WorkOrderCommentType;
 }
 
 export interface UpdateStateWorkOrder {
@@ -237,6 +239,9 @@ export interface WorkOrdersFilters {
 export interface CustomerWorkOrder {
   customerId: string;
   customerName: string;
+  customerNif: string;
+  customerEmail: string;
+  customerPhone: string;
   customerAddress: CustomerAddress;
   customerInstallaionId: string;
   customerInstallationCode: string;

@@ -1,4 +1,5 @@
 import React from 'react';
+import { SystemConfiguration } from 'app/interfaces/Config';
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
 
 import { DeliveryNoteBody } from './components/DeliveryNoteBody';
@@ -23,9 +24,28 @@ async function getDeliveryNote(id: string): Promise<DeliveryNote> {
   }
 }
 
+async function getConfig() {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}config`;
+
+    const res = await fetch(url, {
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to fetch config');
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching config:', error);
+    return {} as SystemConfiguration;
+  }
+}
+
 export async function generateMetadata({
-                                        searchParams,
-                                      }: {
+  searchParams,
+}: {
   searchParams: { id: string };
 }) {
   const deliveryNote = await getDeliveryNote(searchParams.id);
@@ -35,11 +55,12 @@ export async function generateMetadata({
 }
 
 export default async function DeliveryNotePage({
-                                           searchParams,
-                                         }: {
+  searchParams,
+}: {
   searchParams: { id: string };
 }) {
   const deliveryNote = await getDeliveryNote(searchParams.id);
+  const config = await getConfig();
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -47,7 +68,7 @@ export default async function DeliveryNotePage({
         <title>{deliveryNote.code}</title>
       </head>
       <div className="flex flex-col bg-white gap-4 p-4 w-full">
-        <DeliveryNoteHeader deliveryNote={deliveryNote} />
+        <DeliveryNoteHeader deliveryNote={deliveryNote} config={config} />
         <DeliveryNoteBody deliveryNote={deliveryNote} />
         {deliveryNote.externalComments && (
           <div className="mt-4 p-4 bg-gray-50 rounded">

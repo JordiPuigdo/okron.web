@@ -1,20 +1,12 @@
 import { Order } from 'app/interfaces/Order';
+import { useSessionStore } from 'app/stores/globalStore';
 import dayjs from 'dayjs';
-
-import companyData from '../company.json';
-
-interface CompanyInfo {
-  name: string;
-  cif: string;
-  address: string;
-  city: string;
-  phone: string;
-  email: string;
-}
 
 export const OrderHeader = ({ order }: { order: Order }) => {
   //const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
-  const company: CompanyInfo = companyData;
+  const { config } = useSessionStore(state => state);
+  const company = config?.company;
+  if (!company) return null;
   return (
     <div>
       <div className="flex justify-between">
@@ -38,9 +30,8 @@ export const OrderHeader = ({ order }: { order: Order }) => {
       <div className="flex flex-row justify-between items-start">
         <div>
           <p className="font-semibold">{company.name}</p>
-          <p>{company.cif}</p>
+          <p>{company.nif}</p>
           <p className="font-semibold">{company.address}</p>
-          <p>{company.city}</p>
           <p>Tel: {company.phone}</p>
           <p>{company.email}</p>
         </div>

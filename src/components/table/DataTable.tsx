@@ -147,10 +147,6 @@ const DataTable: React.FC<DataTableProps> = ({
   // Loading state
   const isLoading = data.length === 0;
 
-  if (data.length === 0) {
-    return <div className="bg-white rounded-lg shadow-md p-4">No results</div>;
-  }
-
   if (filteredData)
     return (
       <div
