@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import { ca } from 'date-fns/locale';
-import { Save, X } from 'lucide-react';
+import { Plus, Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { HeaderForm } from '../../../../components/layout/HeaderForm';
@@ -16,6 +16,7 @@ import { SvgSpinner } from '../../../icons/icons';
 import {
   DeliveryNote,
   DeliveryNoteItem,
+  DeliveryNoteItemType,
   DeliveryNoteStatus,
   DeliveryNoteUpdateRequest,
 } from '../../../interfaces';
@@ -58,6 +59,39 @@ export function DeliveryNoteDetailForm({
       default:
         return 'Desconegut';
     }
+  };
+
+  const handleAddNewItem = () => {
+    const newItem: DeliveryNoteItem = {
+      description: 'Nou Concepte',
+      quantity: 1,
+      unitPrice: 0,
+      discountPercentage: 0,
+      discountAmount: 0,
+      lineTotal: 0,
+      active: true,
+      id: '',
+      creationDate: new Date().toString(),
+      type: DeliveryNoteItemType.Labor,
+    };
+
+    const updatedItems = [...formData.items, newItem];
+
+    // Recalcular totales
+    const subtotal = updatedItems.reduce(
+      (sum, item) => sum + item.lineTotal,
+      0
+    );
+    const totalTax = subtotal * 0.21;
+    const total = subtotal + totalTax;
+
+    setFormData(prev => ({
+      ...prev,
+      items: updatedItems,
+      subtotal,
+      totalTax,
+      total,
+    }));
   };
 
   const handleItemUpdate = (
@@ -155,10 +189,6 @@ export function DeliveryNoteDetailForm({
 
     if (!formData.deliveryNoteDate?.trim()) {
       newErrors.deliveryNoteDate = 'La data es obligatoria';
-    }
-
-    if (!formData.items || formData.items.length === 0) {
-      newErrors.items = "L'albarà ha de tenir almenys un element";
     }
 
     setErrors(newErrors);
@@ -362,6 +392,16 @@ export function DeliveryNoteDetailForm({
                   </tbody>
                 </table>
               </div>
+
+              {/* Botón para añadir nueva línea - DEBAJO de la tabla */}
+              <Button
+                type="create"
+                onClick={handleAddNewItem}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
 
               {errors.items && (
                 <p className="text-destructive text-sm text-red-500">

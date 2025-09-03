@@ -148,16 +148,8 @@ export function DeliveryNoteCreateForm() {
       newErrors.deliveryNoteDate = 'La data es obligatoria';
     }
 
-    if (!formData.dueDate?.trim()) {
-      newErrors.dueDate = 'La data de venciment es obligatoria';
-    }
-
     if (!formData.customerId) {
       newErrors.customerId = 'Cal seleccionar un client';
-    }
-
-    if (!formData.workOrderIds || formData.workOrderIds.length === 0) {
-      newErrors.workOrderIds = 'Cal seleccionar almenys una ordre de treball';
     }
 
     setErrors(newErrors);
@@ -184,8 +176,8 @@ export function DeliveryNoteCreateForm() {
             }}
           >
             {/* Date Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-6">
+              <div className="space-y-2 flex flex-col">
                 <label className="font-semibold">Data</label>
                 <DatePicker
                   selected={
@@ -210,32 +202,6 @@ export function DeliveryNoteCreateForm() {
                 {errors.deliveryNoteDate && (
                   <p className="text-destructive text-sm text-red-500">
                     {errors.deliveryNoteDate}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label className="font-semibold">Data de Venciment</label>
-                <DatePicker
-                  selected={
-                    formData.dueDate ? new Date(formData.dueDate) : null
-                  }
-                  onChange={(date: Date | null) =>
-                    setFormData(prev => ({
-                      ...prev,
-                      dueDate: date?.toISOString() || new Date().toISOString(),
-                    }))
-                  }
-                  dateFormat="dd/MM/yyyy"
-                  locale={ca}
-                  className={cn(
-                    'flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm',
-                    errors.dueDate && 'border-destructive'
-                  )}
-                />
-                {errors.dueDate && (
-                  <p className="text-destructive text-sm text-red-500">
-                    {errors.dueDate}
                   </p>
                 )}
               </div>
