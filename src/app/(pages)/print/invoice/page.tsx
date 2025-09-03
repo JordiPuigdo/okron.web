@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import { SystemConfiguration } from 'app/interfaces/Config';
 import { Invoice } from 'app/interfaces/Invoice';
 
 import { InvoiceBody } from './components/InvoiceBody';
@@ -23,9 +24,28 @@ async function getInvoice(id: string): Promise<Invoice> {
   }
 }
 
+async function getConfig() {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}config`;
+
+    const res = await fetch(url, {
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to fetch config');
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching config:', error);
+    return {} as SystemConfiguration;
+  }
+}
+
 export async function generateMetadata({
-                                         searchParams,
-                                       }: {
+  searchParams,
+}: {
   searchParams: { id: string };
 }) {
   const invoice = await getInvoice(searchParams.id);
@@ -35,11 +55,12 @@ export async function generateMetadata({
 }
 
 export default async function InvoicePage({
-                                            searchParams,
-                                          }: {
+  searchParams,
+}: {
   searchParams: { id: string };
 }) {
   const invoice = await getInvoice(searchParams.id);
+  const config = await getConfig();
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -47,7 +68,7 @@ export default async function InvoicePage({
         <title>{invoice.code}</title>
       </head>
       <div className="flex flex-col bg-white gap-4 p-4 w-full">
-        <InvoiceHeader invoice={invoice} />
+        <InvoiceHeader invoice={invoice} config={config} />
         <InvoiceBody invoice={invoice} />
         {invoice.externalComments && (
           <div className="mt-4 p-4 bg-gray-50 rounded">

@@ -1,20 +1,16 @@
-﻿import { Invoice } from 'app/interfaces/Invoice';
+﻿import { SystemConfiguration } from 'app/interfaces/Config';
+import { Invoice } from 'app/interfaces/Invoice';
 import dayjs from 'dayjs';
 
-import companyData from '../../order/company.json';
-
-interface CompanyInfo {
-  name: string;
-  cif: string;
-  address: string;
-  city: string;
-  phone: string;
-  email: string;
-}
-
-export const InvoiceHeader = ({ invoice }: { invoice: Invoice }) => {
+export const InvoiceHeader = ({
+  invoice,
+  config,
+}: {
+  invoice: Invoice;
+  config: SystemConfiguration;
+}) => {
   //const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
-  const company: CompanyInfo = companyData;
+  const company = config.company;
 
   return (
     <div>
@@ -47,9 +43,9 @@ export const InvoiceHeader = ({ invoice }: { invoice: Invoice }) => {
       <div className="flex flex-row justify-between items-start">
         <div>
           <p className="font-semibold">{company.name}</p>
-          <p>{company.cif}</p>
-          <p className="font-semibold">{company.address}</p>
-          <p>{company.city}</p>
+          <p>{company.nif}</p>
+          <p className="font-semibold">{company.address.address}</p>
+          <p>{company.address.city}</p>
           <p>Tel: {company.phone}</p>
           <p>{company.email}</p>
         </div>
