@@ -119,6 +119,10 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
       if (!editComment.id || editComment.comment.trim().length === 0) {
         return;
       }
+      if (operatorLogged?.idOperatorLogged == undefined) {
+        alert('Has de fitxar un operari per fer aquesta acció');
+        return;
+      }
 
       setIsLoading(true);
 
@@ -129,10 +133,6 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
       );
 
       // Luego creamos el nuevo comentario
-      if (operatorLogged?.idOperatorLogged == undefined) {
-        alert('Has de fitxar un operari per fer aquesta acció');
-        return;
-      }
 
       const commentToAdd: AddCommentToWorkOrderRequest = {
         comment: editComment.comment,
