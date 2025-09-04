@@ -307,7 +307,8 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
         workOrderId: workOrderId,
         startTime: newStartTime!,
         workOrderOperatorTimesId: workOrderOperatorTimesId,
-        type: editedType !== undefined ? editedType : typeRecord,
+        type:
+          editedType !== undefined ? Number(editedType) : Number(typeRecord),
       };
       if (editedEndTime != null) {
         if (editedEndTime != '' && !validateDateTimeFormat(editedEndTime)) {

@@ -53,10 +53,10 @@ export function DeliveryNoteCreateForm() {
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
 
-  const handleSelectedCustomer = (id: string) => {
+  const handleSelectedCustomer = async (id: string) => {
     setSelectedCustomerId(id);
-    fetchCustomer(id);
-    fetchWorkOrders();
+    await fetchCustomer(id);
+    fetchWorkOrders(id);
     setFormData(prev => ({
       ...prev,
       customerId: id,
@@ -68,18 +68,19 @@ export function DeliveryNoteCreateForm() {
     setSelectedCustomer(customer);
   };
 
-  const fetchWorkOrders = async () => {
+  const fetchWorkOrders = async (customerId = '') => {
     try {
       // Get work orders from last month for this customer
       const endDate = new Date();
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - 12);
+
       const search = {
         startDateTime: startDate!,
         endDateTime: endDate!,
         originWorkOrder: OriginWorkOrder.Maintenance,
         userType: UserType.Maintenance,
-        customerId: selectedCustomer?.id,
+        customerId: selectedCustomer?.id ?? customerId,
       };
       const workOrders = await workOrderService.getWorkOrdersWithFilters(
         search
@@ -243,11 +244,16 @@ export function DeliveryNoteCreateForm() {
                   mapElement={workOrder => ({
                     id: workOrder.id,
                     description: `${workOrder.code} - ${
-                      workOrder.description
-                    } - ${workOrder.asset?.description} - ${
+                      workOrder.refCustomerId ?? ''
+                    } - ${workOrder.description} - ${
+                      workOrder.asset?.description
+                    } - ${
+                      workOrder.customerWorkOrder?.customerInstallationCode ??
+                      ''
+                    }  - ${
                       workOrder.customerWorkOrder?.customerInstallationAddress
                         .city ?? ''
-                    }`,
+                    }  `,
                   })}
                 />
                 {errors.workOrderIds && (

@@ -128,7 +128,7 @@ export const columnsCRM: Column[] = [
   },
   {
     label: 'Botiga',
-    key: 'customerWorkOrder.customerAddress.city',
+    key: 'customerWorkOrder.customerInstallationAddress.city',
     format: ColumnFormat.TEXT,
   },
   {
