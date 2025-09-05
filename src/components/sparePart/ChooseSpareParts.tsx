@@ -82,11 +82,17 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
       alert('Has de tenir un operari fitxat per fer aquesta acció!');
       return false;
     }
+
     if (sparePart.warehouseStock.length > 1) {
       setShowModalWareHouse(sparePart);
       return true;
     }
     const currentUnits = unitsPerSparePart[sparePart.sparePartId] || 0;
+
+    if (sparePart.warehouseStock[0].stock <= 0) {
+      alert('No tens cap unitat disponible per aquest recanvi');
+      return false;
+    }
 
     consumeSparePart(
       sparePart,
