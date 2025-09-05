@@ -74,6 +74,16 @@ export const getNestedFieldValue = (rowData: any, key: string) => {
   return value;
 };
 
+const getComparableValue = (value: any): any => {
+  if (value instanceof Date) {
+    return value.getTime(); // Convertir Date a timestamp numérico
+  }
+  if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+    return new Date(value).getTime(); // Convertir string de fecha a timestamp
+  }
+  return value;
+};
+
 export const sortData = <T extends Record<string, any>>(
   data: T[],
   sortColumn: keyof T,
@@ -83,7 +93,6 @@ export const sortData = <T extends Record<string, any>>(
     const aValue = a[sortColumn];
     const bValue = b[sortColumn];
 
-    // Convert to comparable values
     const aComparable = getComparableValue(aValue);
     const bComparable = getComparableValue(bValue);
 
@@ -91,16 +100,6 @@ export const sortData = <T extends Record<string, any>>(
       aComparable < bComparable ? -1 : aComparable > bComparable ? 1 : 0;
     return sortOrder === 'ASC' ? comparison : -comparison;
   });
-};
-
-const getComparableValue = (value: any): number | string => {
-  if (value == null) return '';
-  if (value instanceof Date) return value.getTime();
-
-  const num = typeof value === 'number' ? value : parseFloat(value);
-  if (!isNaN(num) && typeof value !== 'boolean') return num;
-
-  return String(value);
 };
 
 export const filterByActiveStatus = (record: any, filterActive: boolean) =>
