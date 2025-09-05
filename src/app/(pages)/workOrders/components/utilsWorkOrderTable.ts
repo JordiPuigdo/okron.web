@@ -112,6 +112,11 @@ export const columnsCRM: Column[] = [
     format: ColumnFormat.WORKORDERTYPE,
   },
   {
+    label: 'Data Creació',
+    key: 'creationTime',
+    format: ColumnFormat.DATETIME,
+  },
+  {
     label: 'Data Inici',
     key: 'startTime',
     format: ColumnFormat.DATETIME,

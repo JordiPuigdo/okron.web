@@ -235,13 +235,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
       }, 3000);
     }
 
-    setWorkOrders(
-      workOrders.sort((a, b) => {
-        const startTimeA = new Date(a.startTime).valueOf();
-        const startTimeB = new Date(b.startTime).valueOf();
-        return startTimeA - startTimeB;
-      })
-    );
+    setWorkOrders(workOrders);
   };
 
   const handleSearch = async () => {

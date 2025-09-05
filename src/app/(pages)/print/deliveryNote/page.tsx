@@ -63,21 +63,12 @@ export default async function DeliveryNotePage({
   const config = await getConfig();
 
   return (
-    <div className="min-h-screen flex flex-col items-center">
-      <head>
-        <title>{deliveryNote.code}</title>
-      </head>
-      <div className="flex flex-col bg-white gap-4 p-4 w-full">
+    <div className="px-4 w-full flex-grow text-sm flex flex-col">
+      <div className="flex flex-col  flex-grow gap-4 p-4 bg-white">
         <DeliveryNoteHeader deliveryNote={deliveryNote} config={config} />
         <DeliveryNoteBody deliveryNote={deliveryNote} />
-        {deliveryNote.externalComments && (
-          <div className="mt-4 p-4 bg-gray-50 rounded">
-            <h4 className="font-semibold mb-2">Comentaris:</h4>
-            <p className="text-sm">{deliveryNote.externalComments}</p>
-          </div>
-        )}
+        <DeliveryNoteFooter deliveryNote={deliveryNote} />
       </div>
-      <DeliveryNoteFooter deliveryNote={deliveryNote} />
       <script
         dangerouslySetInnerHTML={{
           __html: `window.onload = function() { window.print(); }`,

@@ -7,6 +7,7 @@ import DatePicker from 'react-datepicker';
 import { translateDeliveryNoteStatus } from 'app/utils/deliveryNoteUtils';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import { ca } from 'date-fns/locale';
+import dayjs from 'dayjs';
 import { Plus, Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -20,6 +21,7 @@ import {
   DeliveryNoteItemType,
   DeliveryNoteStatus,
   DeliveryNoteUpdateRequest,
+  DeliveryNoteWorkOrder,
 } from '../../../interfaces';
 import { cn } from '../../../lib/utils';
 import useRoutes from '../../../utils/useRoutes';
@@ -45,7 +47,8 @@ export function DeliveryNoteDetailForm({
     setFormData(deliveryNote);
   }, [deliveryNote]);
 
-  const handleAddNewItem = () => {
+  /** ===== WORK ORDER ITEMS ===== */
+  const handleAddNewItem = (workOrderIndex: number) => {
     const newItem: DeliveryNoteItem = {
       description: 'Nou Concepte',
       quantity: 1,
@@ -55,95 +58,82 @@ export function DeliveryNoteDetailForm({
       lineTotal: 0,
       active: true,
       id: '',
-      creationDate: new Date().toString(),
+      creationDate: new Date().toISOString(),
       type: DeliveryNoteItemType.Labor,
     };
 
-    const updatedItems = [...formData.items, newItem];
+    const updatedWorkOrders = [...formData.workOrders];
+    updatedWorkOrders[workOrderIndex].items.push(newItem);
 
-    // Recalcular totales
-    const subtotal = updatedItems.reduce(
-      (sum, item) => sum + item.lineTotal,
-      0
-    );
-    const totalTax = subtotal * 0.21;
-    const total = subtotal + totalTax;
-
-    setFormData(prev => ({
-      ...prev,
-      items: updatedItems,
-      subtotal,
-      totalTax,
-      total,
-    }));
+    recalculateTotals(updatedWorkOrders);
   };
 
   const handleItemUpdate = (
+    workOrderIndex: number,
     itemIndex: number,
     field: keyof DeliveryNoteItem,
     value: any
   ) => {
-    const updatedItems = [...formData.items];
-    updatedItems[itemIndex] = {
-      ...updatedItems[itemIndex],
+    const updatedWorkOrders = [...formData.workOrders];
+    const item = updatedWorkOrders[workOrderIndex].items[itemIndex];
+    updatedWorkOrders[workOrderIndex].items[itemIndex] = {
+      ...item,
       [field]: value,
     };
 
-    // Recalculate totals for the item
     if (
       field === 'quantity' ||
       field === 'unitPrice' ||
       field === 'discountPercentage'
     ) {
-      const item = updatedItems[itemIndex];
       const subtotalBeforeDiscount = item.quantity * item.unitPrice;
       item.discountAmount =
         subtotalBeforeDiscount * (item.discountPercentage / 100);
       item.lineTotal = subtotalBeforeDiscount - item.discountAmount;
     }
 
-    const subtotal = updatedItems.reduce(
-      (sum, item) => sum + item.lineTotal,
-      0
-    );
-    const totalTax = subtotal * 0.21; // 21% IVA
+    recalculateTotals(updatedWorkOrders);
+  };
+
+  const handleRemoveItem = (workOrderIndex: number, itemIndex: number) => {
+    const updatedWorkOrders = [...formData.workOrders];
+    updatedWorkOrders[workOrderIndex].items.splice(itemIndex, 1);
+    recalculateTotals(updatedWorkOrders);
+  };
+
+  const handleUpdateConcept = (workOrderIndex: number, value: string) => {
+    const updatedWorkOrders = [...formData.workOrders];
+    updatedWorkOrders[workOrderIndex].concept = value;
+    setFormData(prev => ({ ...prev, workOrders: updatedWorkOrders }));
+  };
+
+  const recalculateTotals = (updatedWorkOrders: DeliveryNoteWorkOrder[]) => {
+    let subtotal = 0;
+    let totalTax = 0;
+
+    updatedWorkOrders.forEach(wo => {
+      const woSubtotal = wo.items.reduce((sum, i) => sum + i.lineTotal, 0);
+      subtotal += woSubtotal;
+    });
+
+    totalTax = subtotal * 0.21;
     const total = subtotal + totalTax;
 
     setFormData(prev => ({
       ...prev,
-      items: updatedItems,
+      workOrders: updatedWorkOrders,
       subtotal,
       totalTax,
       total,
     }));
   };
 
-  const handleRemoveItem = (itemIndex: number) => {
-    const updatedItems = formData.items.filter(
-      (_, index) => index !== itemIndex
-    );
-    const subtotal = updatedItems.reduce(
-      (sum, item) => sum + item.lineTotal,
-      0
-    );
-    const totalTax = subtotal * 0.21;
-    const total = subtotal + totalTax;
-
-    setFormData(prev => ({
-      ...prev,
-      items: updatedItems,
-      subtotal,
-      totalTax,
-      total,
-    }));
-  };
-
+  /** ===== FORM VALIDATION & SUBMIT ===== */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLoading) return;
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
+
     setIsLoading(true);
 
     try {
@@ -151,17 +141,12 @@ export function DeliveryNoteDetailForm({
         id: formData.id,
         externalComments: formData.externalComments ?? '',
         status: formData.status,
-        items: formData.items,
-        companyName: formData.companyName,
-        companyAddress: formData.companyAddress,
-        concepts: formData.concepts,
+        workOrders: formData.workOrders,
       };
 
       await onUpdate(updateRequest);
 
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000);
+      setTimeout(() => setIsLoading(false), 1000);
     } catch (error) {
       console.error('Error updating delivery note:', error);
       setIsLoading(false);
@@ -170,53 +155,27 @@ export function DeliveryNoteDetailForm({
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-
     if (!formData.deliveryNoteDate?.trim()) {
       newErrors.deliveryNoteDate = 'La data es obligatoria';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-
-  const handleAddConcept = () => {
-    setFormData(prev => ({
-      ...prev,
-      concepts: [...(prev.concepts || []), 'Nou concepte'],
-    }));
-  };
-
-  const handleUpdateConcept = (index: number, value: string) => {
-    const updatedConcepts = [...(formData.concepts || [])];
-    updatedConcepts[index] = value;
-    setFormData(prev => ({
-      ...prev,
-      concepts: updatedConcepts,
-    }));
-  };
-
-  const handleRemoveConcept = (index: number) => {
-    const updatedConcepts = (formData.concepts || []).filter(
-      (_, i) => i !== index
-    );
-    setFormData(prev => ({
-      ...prev,
-      concepts: updatedConcepts,
-    }));
   };
 
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto space-y-8">
+        {/* Header */}
         <HeaderForm
           header={formData.code}
           isCreate={false}
           canPrint={`deliveryNote?id=${formData.id}`}
         />
 
+        {/* Form */}
         <div className="bg-white rounded-xl p-6 shadow-lg">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Header Information */}
+            {/* Delivery Note Top */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <label className="font-semibold">Albarà</label>
@@ -263,7 +222,7 @@ export function DeliveryNoteDetailForm({
                   className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm"
                 >
                   {Object.values(DeliveryNoteStatus)
-                    .filter(value => typeof value === 'number')
+                    .filter(v => typeof v === 'number')
                     .map(status => (
                       <option key={status} value={status}>
                         {translateDeliveryNoteStatus(
@@ -275,174 +234,243 @@ export function DeliveryNoteDetailForm({
               </div>
             </div>
 
+            {/* Customer Installation */}
+            {formData.installation?.code && (
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-semibold mb-2">
+                  Instal·lació Client - {formData.installation.code}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <span className="font-medium">Adreça:</span>{' '}
+                    {formData.installation.address.address}
+                  </div>
+                  <div>
+                    <span className="font-medium">Ciutat:</span>{' '}
+                    {formData.installation.address.city}
+                  </div>
+                  <div>
+                    <span className="font-medium">Codi Postal:</span>{' '}
+                    {formData.installation.address.postalCode}
+                  </div>
+                  <div>
+                    <span className="font-medium">Província:</span>{' '}
+                    {formData.installation.address.province}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Company Information */}
             <div className="p-4 bg-gray-50 rounded-lg">
               <h3 className="font-semibold mb-2">Informació de l'Empresa</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <span className="font-medium">Nom:</span>{' '}
-                  {formData.companyName}
+                  <label className="font-medium">Nom:</label>
+                  <input
+                    value={formData.companyName}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        companyName: e.target.value,
+                      }))
+                    }
+                    className="w-full rounded border px-2 py-1"
+                  />
                 </div>
                 <div>
-                  <span className="font-medium">Adreça:</span>{' '}
-                  {formData.companyAddress}
+                  <label className="font-medium">Adreça:</label>
+                  <input
+                    value={formData.customerAddress.address}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        companyAddress: {
+                          ...prev.customerAddress,
+                          address: e.target.value,
+                        },
+                      }))
+                    }
+                    className="w-full rounded border px-2 py-1"
+                  />
                 </div>
                 <div>
-                  <span className="font-medium">Ciutat:</span>{' '}
-                  {formData.companyCity}
+                  <label className="font-medium">Ciutat:</label>
+                  <input
+                    value={formData.customerAddress.city}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        companyAddress: {
+                          ...prev.customerAddress,
+                          city: e.target.value,
+                        },
+                      }))
+                    }
+                    className="w-full rounded border px-2 py-1"
+                  />
                 </div>
                 <div>
-                  <span className="font-medium">Codi Postal:</span>{' '}
-                  {formData.companyPostalCode}
+                  <label className="font-medium">Codi Postal:</label>
+                  <input
+                    value={formData.customerAddress.postalCode}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        companyAddress: {
+                          ...prev.customerAddress,
+                          postalCode: e.target.value,
+                        },
+                      }))
+                    }
+                    className="w-full rounded border px-2 py-1"
+                  />
                 </div>
-                {formData.companyProvince && (
-                  <div>
-                    <span className="font-medium">Província:</span>{' '}
-                    {formData.companyProvince}
-                  </div>
-                )}
+                <div>
+                  <label className="font-medium">Província:</label>
+                  <input
+                    value={formData.customerAddress.province}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        companyAddress: {
+                          ...prev.customerAddress,
+                          province: e.target.value,
+                        },
+                      }))
+                    }
+                    className="w-full rounded border px-2 py-1"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Work Orders / Concepts */}
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <h3 className="font-semibold mb-2">Conceptes</h3>
-
-              {formData.concepts && formData.concepts.length > 0 ? (
-                <div className="space-y-2">
-                  {formData.concepts.map((concept, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <EditableCell
-                        value={concept}
-                        onUpdate={value => handleUpdateConcept(index, value)}
-                        canEdit={true}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveConcept(index)}
-                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500 text-sm">No hi ha conceptes</p>
-              )}
-
-              {/* Botón para añadir nuevo concepto */}
-              <Button
-                type="create"
-                onClick={handleAddConcept}
-                variant="outline"
-                className="mt-3 flex items-center gap-2"
+            {/* Work Orders */}
+            {formData.workOrders.map((wo, woIndex) => (
+              <div
+                key={wo.workOrderId}
+                className="p-4 bg-blue-50 rounded-lg space-y-2"
               >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
+                <h3 className="font-semibold mb-2">
+                  {wo.workOrderCode} - {wo.workOrderRefId}{' '}
+                  {dayjs(wo.workOrderStartTime).format('DD/MM/YYYY')}
+                </h3>
 
-            {/* Delivery Note Items */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Elements de l'Albarà</h3>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-medium">Concepte:</span>
+                  <EditableCell
+                    value={wo.concept}
+                    onUpdate={value => handleUpdateConcept(woIndex, value)}
+                    canEdit={true}
+                  />
+                </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full border border-gray-300">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="p-2 border text-left">Descripció</th>
-                      <th className="p-2 border text-center">Quantitat</th>
-                      <th className="p-2 border text-center">Preu Unitari</th>
-                      <th className="p-2 border text-center">% Dte.</th>
-                      <th className="p-2 border text-center">Import Dte.</th>
-                      <th className="p-2 border text-center">Total Línia</th>
-                      <th className="p-2 border text-center">Accions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {formData.items.map((item, index) => (
-                      <tr key={index} className="border-t">
-                        <td className="p-2 border">
-                          <EditableCell
-                            value={item.description}
-                            onUpdate={value =>
-                              handleItemUpdate(index, 'description', value)
-                            }
-                            canEdit={true}
-                          />
-                        </td>
-                        <td className="p-2 border text-center">
-                          <EditableCell
-                            value={item.quantity.toString()}
-                            onUpdate={value =>
-                              handleItemUpdate(index, 'quantity', Number(value))
-                            }
-                            canEdit={true}
-                          />
-                        </td>
-                        <td className="p-2 border text-center">
-                          <EditableCell
-                            value={item.unitPrice.toString()}
-                            onUpdate={value =>
-                              handleItemUpdate(
-                                index,
-                                'unitPrice',
-                                Number(value)
-                              )
-                            }
-                            canEdit={true}
-                          />
-                        </td>
-                        <td className="p-2 border text-center">
-                          <EditableCell
-                            value={item.discountPercentage?.toString() ?? '0'}
-                            onUpdate={value =>
-                              handleItemUpdate(
-                                index,
-                                'discountPercentage',
-                                Number(value)
-                              )
-                            }
-                            canEdit={true}
-                          />
-                        </td>
-                        <td className="p-2 border text-center">
-                          {formatEuropeanCurrency(item.discountAmount)}
-                        </td>
-                        <td className="p-2 border text-center">
-                          {formatEuropeanCurrency(item.lineTotal)}
-                        </td>
-                        <td className="p-2 border text-center">
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveItem(index)}
-                            className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                          >
-                            Eliminar
-                          </button>
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full border border-gray-300">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="p-2 border text-left">Descripció</th>
+                        <th className="p-2 border text-center">Quantitat</th>
+                        <th className="p-2 border text-center">Preu Unitari</th>
+                        <th className="p-2 border text-center">% Dte.</th>
+                        <th className="p-2 border text-center">Import Dte.</th>
+                        <th className="p-2 border text-center">Total Línia</th>
+                        <th className="p-2 border text-center">Accions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {wo.items.map((item, itemIndex) => (
+                        <tr key={itemIndex} className="border-t">
+                          <td className="p-2 border">
+                            <EditableCell
+                              value={item.description}
+                              onUpdate={value =>
+                                handleItemUpdate(
+                                  woIndex,
+                                  itemIndex,
+                                  'description',
+                                  value
+                                )
+                              }
+                              canEdit={true}
+                            />
+                          </td>
+                          <td className="p-2 border text-center">
+                            <EditableCell
+                              value={item.quantity.toString()}
+                              onUpdate={value =>
+                                handleItemUpdate(
+                                  woIndex,
+                                  itemIndex,
+                                  'quantity',
+                                  Number(value)
+                                )
+                              }
+                              canEdit={true}
+                            />
+                          </td>
+                          <td className="p-2 border text-center">
+                            <EditableCell
+                              value={item.unitPrice.toString()}
+                              onUpdate={value =>
+                                handleItemUpdate(
+                                  woIndex,
+                                  itemIndex,
+                                  'unitPrice',
+                                  Number(value)
+                                )
+                              }
+                              canEdit={true}
+                            />
+                          </td>
+                          <td className="p-2 border text-center">
+                            <EditableCell
+                              value={item.discountPercentage?.toString() ?? '0'}
+                              onUpdate={value =>
+                                handleItemUpdate(
+                                  woIndex,
+                                  itemIndex,
+                                  'discountPercentage',
+                                  Number(value)
+                                )
+                              }
+                              canEdit={true}
+                            />
+                          </td>
+                          <td className="p-2 border text-center">
+                            {formatEuropeanCurrency(item.discountAmount)}
+                          </td>
+                          <td className="p-2 border text-center">
+                            {formatEuropeanCurrency(item.lineTotal)}
+                          </td>
+                          <td className="p-2 border text-center">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleRemoveItem(woIndex, itemIndex)
+                              }
+                              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                            >
+                              Eliminar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Add Item Button */}
+                <Button
+                  type="create"
+                  onClick={() => handleAddNewItem(woIndex)}
+                  variant="outline"
+                  className="flex items-center gap-2 mt-2"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </div>
-
-              {/* Botón para añadir nueva línea - DEBAJO de la tabla */}
-              <Button
-                type="create"
-                onClick={handleAddNewItem}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-
-              {errors.items && (
-                <p className="text-destructive text-sm text-red-500">
-                  {errors.items}
-                </p>
-              )}
-            </div>
+            ))}
 
             {/* Totals */}
             <div className="flex justify-end">
@@ -462,7 +490,7 @@ export function DeliveryNoteDetailForm({
               </div>
             </div>
 
-            {/* Comment */}
+            {/* External Comments */}
             <div className="space-y-2">
               <label htmlFor="comment" className="font-semibold">
                 Comentaris Externs

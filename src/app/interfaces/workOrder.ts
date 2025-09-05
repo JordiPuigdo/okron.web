@@ -13,6 +13,7 @@ export interface WorkOrder extends BaseModel {
   id: string;
   code: string;
   description: string;
+  creationTime: Date;
   startTime: Date;
   endTime: Date;
   stateWorkOrder: StateWorkOrder;

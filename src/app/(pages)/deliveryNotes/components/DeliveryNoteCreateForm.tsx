@@ -148,7 +148,9 @@ export function DeliveryNoteCreateForm() {
     if (!formData.deliveryNoteDate?.trim()) {
       newErrors.deliveryNoteDate = 'La data es obligatoria';
     }
-
+    if (!formData.workOrderIds || formData.workOrderIds.length === 0) {
+      newErrors.workOrderIds = 'Cal seleccionar almenys una ordre de treball';
+    }
     if (!formData.customerId) {
       newErrors.customerId = 'Cal seleccionar un client';
     }
@@ -256,12 +258,12 @@ export function DeliveryNoteCreateForm() {
                     }  `,
                   })}
                 />
-                {errors.workOrderIds && (
-                  <p className="text-destructive text-sm text-red-500">
-                    {errors.workOrderIds}
-                  </p>
-                )}
               </div>
+            )}
+            {errors.workOrderIds && (
+              <p className="text-destructive text-sm text-red-500">
+                {errors.workOrderIds}
+              </p>
             )}
 
             {/* Action Buttons */}

@@ -28,6 +28,7 @@ h1, td, label, span, input, textarea {
   color: black; /* Set text color to black for h1 and td */
 }
 
+html, body, #root { height: 100%; margin: 0; }
 
 /* Small (sm) */
 @media (min-width: 640px) { /* ... */ }
@@ -51,39 +52,25 @@ h1, td, label, span, input, textarea {
   margin: 0mm;
 }
 
+
+
 @media print {
+   * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
   body {
+    background: white !important; 
     margin: 0;
     padding: 0;
   }
   
   /* Hide URL in print preview */
   @page {
-    margin: 0;
+    margin: 0.7cm;
     size: auto;
-  }
-  
-  /* Optional: force portrait mode */
-  @page {
-    size: portrait;
-  }
-
-  .no-break {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  /* Force page breaks */
-  .page-break-before {
-    page-break-before: always;
-  }
-
-  .page-break-after {
-    page-break-after: always;
-  }
-
-  .no-scroll {
-    overflow: visible !important;
   }
 }
 

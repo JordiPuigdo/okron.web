@@ -218,7 +218,7 @@ export function RepairReportForm() {
               id="startDate"
               selected={formData.initialDateTime}
               onChange={(date: Date) =>
-                setFormData(prev => ({ ...prev, date }))
+                setFormData(prev => ({ ...prev, initialDateTime: date }))
               }
               dateFormat="dd/MM/yyyy"
               locale={ca}

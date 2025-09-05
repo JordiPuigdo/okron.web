@@ -74,34 +74,33 @@ export const getNestedFieldValue = (rowData: any, key: string) => {
   return value;
 };
 
-export const sortData = (
-  data: any[],
-  sortColumn: string,
+export const sortData = <T extends Record<string, any>>(
+  data: T[],
+  sortColumn: keyof T,
   sortOrder: 'ASC' | 'DESC'
-): any[] => {
-  return data.sort((a: any, b: any) => {
-    if (!a.hasOwnProperty(sortColumn) || !b.hasOwnProperty(sortColumn)) {
-      return 0;
-    }
+): T[] => {
+  return [...data].sort((a, b) => {
+    const aValue = a[sortColumn];
+    const bValue = b[sortColumn];
 
-    let aValue = a[sortColumn];
-    let bValue = b[sortColumn];
+    // Convert to comparable values
+    const aComparable = getComparableValue(aValue);
+    const bComparable = getComparableValue(bValue);
 
-    // Try converting to numbers if they look like numbers
-    const aNum = parseFloat(aValue);
-    const bNum = parseFloat(bValue);
-    const aIsNumeric = !isNaN(aNum);
-    const bIsNumeric = !isNaN(bNum);
-
-    if (aIsNumeric && bIsNumeric) {
-      aValue = aNum;
-      bValue = bNum;
-    }
-
-    if (aValue < bValue) return sortOrder === 'ASC' ? -1 : 1;
-    if (aValue > bValue) return sortOrder === 'ASC' ? 1 : -1;
-    return 0;
+    const comparison =
+      aComparable < bComparable ? -1 : aComparable > bComparable ? 1 : 0;
+    return sortOrder === 'ASC' ? comparison : -comparison;
   });
+};
+
+const getComparableValue = (value: any): number | string => {
+  if (value == null) return '';
+  if (value instanceof Date) return value.getTime();
+
+  const num = typeof value === 'number' ? value : parseFloat(value);
+  if (!isNaN(num) && typeof value !== 'boolean') return num;
+
+  return String(value);
 };
 
 export const filterByActiveStatus = (record: any, filterActive: boolean) =>

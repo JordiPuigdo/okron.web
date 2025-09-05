@@ -1,3 +1,6 @@
+import { BaseModel } from './BaseModel';
+import { CustomerAddress, CustomerInstallations } from './Customer';
+
 export enum DeliveryNoteStatus {
   Draft = 0,
   Sent = 1,
@@ -13,27 +16,31 @@ export enum DeliveryNoteItemType {
   Other,
 }
 
-export interface DeliveryNote {
-  id: string;
+export interface DeliveryNote extends BaseModel {
   code: string;
   deliveryNoteDate: string;
-  dueDate: string;
   companyName: string;
-  companyAddress: string;
-  companyCity: string;
-  companyPostalCode: string;
-  companyProvince: string | null;
+  customerPhone: string;
+  customerEmail: string;
+  customerNif: string;
+  customerAddress: CustomerAddress;
   externalComments: string | null;
   subtotal: number;
   totalTax: number;
   total: number;
   status: DeliveryNoteStatus;
-  workOrderIds: string[];
-  concepts: string[];
+  installation?: CustomerInstallations;
+  workOrders: DeliveryNoteWorkOrder[];
+}
+
+export interface DeliveryNoteWorkOrder {
+  workOrderId: string;
+  workOrderCode: string;
+  workOrderDescription: string;
+  workOrderRefId: string;
+  workOrderStartTime: Date;
+  concept: string;
   items: DeliveryNoteItem[];
-  active: boolean;
-  creationDate: string;
-  refCustomerIds: string;
 }
 
 export interface DeliveryNoteItem {
@@ -64,8 +71,5 @@ export interface DeliveryNoteUpdateRequest {
   id: string;
   externalComments?: string;
   status: DeliveryNoteStatus | string;
-  items: DeliveryNoteItem[];
-  companyName?: string;
-  companyAddress?: string;
-  concepts?: string[];
+  workOrders: DeliveryNoteWorkOrder[];
 }

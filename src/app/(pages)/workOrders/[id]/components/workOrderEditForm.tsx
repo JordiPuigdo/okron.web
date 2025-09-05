@@ -657,11 +657,11 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                 htmlFor="stateWorkOrder"
                 className="block text-sm font-medium text-gray-700 py-2"
               >
-                Data Inici
+                Data Creació
               </label>
               <DatePicker
                 disabled={isDisabledField}
-                id="startDate"
+                id="creationTime"
                 selected={startDate}
                 onChange={(date: Date) => setStartDate(date)}
                 dateFormat="dd/MM/yyyy"
