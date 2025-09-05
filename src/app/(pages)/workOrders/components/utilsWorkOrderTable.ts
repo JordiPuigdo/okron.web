@@ -25,8 +25,8 @@ export const baseColumns: Column[] = [
     format: ColumnFormat.WORKORDERTYPE,
   },
   {
-    label: 'Data Inici',
-    key: 'startTime',
+    label: 'Data Creació',
+    key: 'creationTime',
     format: ColumnFormat.DATETIME,
   },
   {
