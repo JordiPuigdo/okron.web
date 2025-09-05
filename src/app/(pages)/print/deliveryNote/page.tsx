@@ -64,7 +64,7 @@ export default async function DeliveryNotePage({
 
   return (
     <div className="px-4 w-full flex-grow text-sm flex flex-col">
-      <div className="flex flex-col  flex-grow gap-4 p-4 bg-white">
+      <div className="flex flex-col flex-grow p-4 bg-white">
         <DeliveryNoteHeader deliveryNote={deliveryNote} config={config} />
         <DeliveryNoteBody deliveryNote={deliveryNote} />
         <DeliveryNoteFooter deliveryNote={deliveryNote} />
