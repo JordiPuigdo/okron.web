@@ -217,11 +217,12 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
       setValue('downtimeReason', responseWorkOrder.downtimeReason);
       setValue('visibleReport', responseWorkOrder.visibleReport);
       setValue('refCustomerId', responseWorkOrder.refCustomerId);
+      setValue('creationTime', responseWorkOrder.creationTime);
 
       if (responseWorkOrder.asset) {
         setSelectedAssetId(responseWorkOrder.asset!.id);
       }
-      const finalData = new Date(responseWorkOrder.startTime);
+      const finalData = new Date(responseWorkOrder.creationTime);
       setStartDate(finalData);
 
       const operatorsToAdd = aviableOperators?.filter((operator: any) =>
@@ -412,7 +413,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
         stateWorkOrder: data.stateWorkOrder,
         operatorId:
           selectedOperators.length > 0 ? selectedOperators.map(x => x.id) : [],
-        startTime: startDate || new Date(),
+        creationTime: startDate || new Date(),
         operatorCreatorId:
           operatorLogged?.idOperatorLogged ||
           (selectedOperators.length > 0 ? selectedOperators[0].id : ''),

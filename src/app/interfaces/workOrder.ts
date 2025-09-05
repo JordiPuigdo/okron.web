@@ -97,6 +97,7 @@ export interface UpdateWorkOrderRequest extends CreateWorkOrderRequest {
   startTime?: Date;
   visibleReport?: boolean;
   refCustomerId?: string;
+  creationTime?: Date;
 }
 
 export interface CreateWorkOrderRequest {
