@@ -42,7 +42,18 @@ export default function CompanyComponent() {
             <p className="text-red-500 text-sm">{t('company.name.required')}</p>
           )}
         </div>
-
+        <div>
+          <input
+            placeholder={t('company.fiscalName.placeholder')}
+            {...register('fiscalName', { required: true })}
+            className="w-full border border-gray-300 p-2 rounded"
+          />
+          {errors.name && (
+            <p className="text-red-500 text-sm">
+              {t('company.fiscalName.required')}
+            </p>
+          )}
+        </div>
         <div>
           <input
             placeholder={t('company.email.placeholder')}

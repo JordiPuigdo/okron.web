@@ -17,10 +17,9 @@ export const DeliveryNoteHeader = ({
       {/* Logo and Document Title */}
       <div className="flex justify-between items-start">
         <div className="w-48 h-16 relative">
-          <Image
+          <img
             src={company.urlLogo}
             alt={company.name}
-            fill
             className="object-contain object-left"
           />
         </div>
@@ -41,7 +40,7 @@ export const DeliveryNoteHeader = ({
           <div className="flex flex-col flex-grow justify-between space-y-4 bg-gray-50">
             {/* Primera sección: Nombre de la empresa */}
             <div>
-              <p className="font-medium text-gray-900">{company.name}</p>
+              <p className="font-medium text-gray-900">{company.fiscalName}</p>
             </div>
 
             {/* Segunda sección: Dirección completa */}
