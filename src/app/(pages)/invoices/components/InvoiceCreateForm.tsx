@@ -27,16 +27,28 @@ export function InvoiceCreateForm() {
   const [formData, setFormData] = useState<Partial<InvoiceCreateRequest>>({
     deliveryNoteId: '',
     invoiceDate: new Date().toISOString().split('T')[0],
-    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0], // 30 days from now
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | undefined>(undefined);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | undefined>(undefined);
-  const [availableDeliveryNotes, setAvailableDeliveryNotes] = useState<DeliveryNote[]>([]);
-  const [selectedDeliveryNoteId, setSelectedDeliveryNoteId] = useState<string | undefined>(undefined);
-  const [selectedDeliveryNote, setSelectedDeliveryNote] = useState<DeliveryNote | undefined>(undefined);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<
+    string | undefined
+  >(undefined);
+  const [selectedCustomer, setSelectedCustomer] = useState<
+    Customer | undefined
+  >(undefined);
+  const [availableDeliveryNotes, setAvailableDeliveryNotes] = useState<
+    DeliveryNote[]
+  >([]);
+  const [selectedDeliveryNoteId, setSelectedDeliveryNoteId] = useState<
+    string | undefined
+  >(undefined);
+  const [selectedDeliveryNote, setSelectedDeliveryNote] = useState<
+    DeliveryNote | undefined
+  >(undefined);
   const deliveryNoteService = new DeliveryNoteService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
@@ -70,7 +82,7 @@ export function InvoiceCreateForm() {
       const deliveryNotes = await deliveryNoteService.searchDeliveryNotes({
         customerId: customerId,
         companyName: customer?.name,
-        hasInvoice: false
+        hasInvoice: false,
       });
       setAvailableDeliveryNotes(deliveryNotes);
     } catch (error) {
@@ -97,7 +109,7 @@ export function InvoiceCreateForm() {
       ...prev,
       deliveryNoteId: deliveryNoteId,
     }));
-    
+
     // Fetch and set the selected delivery note details
     try {
       const deliveryNote = await deliveryNoteService.getById(deliveryNoteId);
@@ -125,7 +137,9 @@ export function InvoiceCreateForm() {
     setIsLoading(true);
 
     try {
-      const response = await invoiceService.create(formData as InvoiceCreateRequest);
+      const response = await invoiceService.create(
+        formData as InvoiceCreateRequest
+      );
       router.push(`/invoices/${response.id}`);
     } catch (error) {
       console.error('Error creating invoice:', error);
@@ -167,7 +181,10 @@ export function InvoiceCreateForm() {
             className="space-y-6"
             onKeyDown={e => {
               const tag = (e.target as HTMLElement).tagName.toLowerCase();
-              if (e.key === 'Enter' && (tag === 'input' || tag === 'textarea')) {
+              if (
+                e.key === 'Enter' &&
+                (tag === 'input' || tag === 'textarea')
+              ) {
                 e.preventDefault();
               }
             }}
@@ -177,7 +194,11 @@ export function InvoiceCreateForm() {
               <div className="space-y-2">
                 <label className="font-semibold">Data</label>
                 <DatePicker
-                  selected={formData.invoiceDate ? new Date(formData.invoiceDate) : new Date()}
+                  selected={
+                    formData.invoiceDate
+                      ? new Date(formData.invoiceDate)
+                      : new Date()
+                  }
                   onChange={(date: Date) =>
                     setFormData(prev => ({
                       ...prev,
@@ -188,7 +209,7 @@ export function InvoiceCreateForm() {
                   locale={ca}
                   className={cn(
                     'flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm',
-                    errors.invoiceDate && 'border-destructive',
+                    errors.invoiceDate && 'border-destructive'
                   )}
                 />
                 {errors.invoiceDate && (
@@ -201,7 +222,9 @@ export function InvoiceCreateForm() {
               <div className="space-y-2">
                 <label className="font-semibold">Data de Venciment</label>
                 <DatePicker
-                  selected={formData.dueDate ? new Date(formData.dueDate) : null}
+                  selected={
+                    formData.dueDate ? new Date(formData.dueDate) : null
+                  }
                   onChange={(date: Date) =>
                     setFormData(prev => ({
                       ...prev,
@@ -212,7 +235,7 @@ export function InvoiceCreateForm() {
                   locale={ca}
                   className={cn(
                     'flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm',
-                    errors.dueDate && 'border-destructive',
+                    errors.dueDate && 'border-destructive'
                   )}
                 />
                 {errors.dueDate && (
@@ -228,7 +251,9 @@ export function InvoiceCreateForm() {
               <label className="font-semibold">Client</label>
               <ChooseElement
                 elements={customers ? customers.filter(x => x.active) : []}
-                selectedElements={selectedCustomerId ? [selectedCustomerId] : []}
+                selectedElements={
+                  selectedCustomerId ? [selectedCustomerId] : []
+                }
                 onElementSelected={handleSelectedCustomer}
                 onDeleteElementSelected={handleDeleteSelectedCustomer}
                 placeholder="Buscar Client"
@@ -252,13 +277,19 @@ export function InvoiceCreateForm() {
                   <>
                     <ChooseElement
                       elements={availableDeliveryNotes}
-                      selectedElements={selectedDeliveryNoteId ? [selectedDeliveryNoteId] : []}
+                      selectedElements={
+                        selectedDeliveryNoteId ? [selectedDeliveryNoteId] : []
+                      }
                       onElementSelected={handleDeliveryNoteSelected}
                       onDeleteElementSelected={handleDeleteSelectedDeliveryNote}
                       placeholder="Buscar Albarà"
                       mapElement={deliveryNote => ({
                         id: deliveryNote.id,
-                        description: `${deliveryNote.code} - ${new Date(deliveryNote.deliveryNoteDate).toLocaleDateString()} - ${deliveryNote.total.toFixed(2)}€`,
+                        description: `${deliveryNote.code} - ${new Date(
+                          deliveryNote.deliveryNoteDate
+                        ).toLocaleDateString()} - ${deliveryNote.total.toFixed(
+                          2
+                        )}€`,
                       })}
                     />
                     {errors.deliveryNoteId && (
@@ -278,17 +309,29 @@ export function InvoiceCreateForm() {
             {/* Selected Delivery Note Preview */}
             {selectedDeliveryNote && (
               <div className="space-y-2 p-4 border rounded-lg bg-gray-50">
-                <h3 className="font-semibold">Detalls de l'Albarà Seleccionat</h3>
+                <h3 className="font-semibold">
+                  Detalls de l'Albarà Seleccionat
+                </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div><strong>Client:</strong> {selectedCustomer?.name}</div>
-                  <div><strong>Codi Albarà:</strong> {selectedDeliveryNote.code}</div>
-                  <div><strong>Data:</strong> {new Date(selectedDeliveryNote.deliveryNoteDate).toLocaleDateString()}</div>
-                  <div><strong>Total:</strong> {selectedDeliveryNote.total.toFixed(2)}€</div>
-                  <div><strong>Articles:</strong> {selectedDeliveryNote.items.length}</div>
+                  <div>
+                    <strong>Client:</strong> {selectedCustomer?.name}
+                  </div>
+                  <div>
+                    <strong>Codi Albarà:</strong> {selectedDeliveryNote.code}
+                  </div>
+                  <div>
+                    <strong>Data:</strong>{' '}
+                    {new Date(
+                      selectedDeliveryNote.deliveryNoteDate
+                    ).toLocaleDateString()}
+                  </div>
+                  <div>
+                    <strong>Total:</strong>{' '}
+                    {selectedDeliveryNote.total.toFixed(2)}€
+                  </div>
                 </div>
               </div>
             )}
-
 
             {/* Action Buttons */}
             <div className="flex gap-3 pt-6 border-t">

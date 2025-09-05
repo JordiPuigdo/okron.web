@@ -1,5 +1,11 @@
 ﻿import { DeliveryNote } from '../interfaces';
-import { DeliveryNoteSearchFilters,Invoice, InvoiceCreateRequest, InvoiceSearchFilters, InvoiceUpdateRequest } from '../interfaces/Invoice';
+import {
+  DeliveryNoteSearchFilters,
+  Invoice,
+  InvoiceCreateRequest,
+  InvoiceSearchFilters,
+  InvoiceUpdateRequest,
+} from '../interfaces/Invoice';
 
 export class InvoiceService {
   private baseUrl: string;
@@ -24,7 +30,9 @@ export class InvoiceService {
       queryParams.append('status', filters.status.toString());
     }
 
-    const response = await fetch(`${this.baseUrl}invoices?${queryParams.toString()}`);
+    const response = await fetch(
+      `${this.baseUrl}invoices?${queryParams.toString()}`
+    );
 
     if (!response.ok) {
       throw new Error('Failed to fetch invoices');
@@ -101,7 +109,9 @@ export class InvoiceService {
     return response.json();
   }
 
-  async searchDeliveryNotes(filters: DeliveryNoteSearchFilters): Promise<DeliveryNote[]> {
+  async searchDeliveryNotes(
+    filters: DeliveryNoteSearchFilters
+  ): Promise<DeliveryNote[]> {
     const response = await fetch(`${this.baseUrl}GetDeliveryNotesWithFilters`, {
       method: 'POST',
       headers: {
@@ -117,24 +127,28 @@ export class InvoiceService {
     return response.json();
   }
 
-  async validateInvoiceCreation(deliveryNoteId: string): Promise<{isValid: boolean, message: string}> {
+  async validateInvoiceCreation(
+    deliveryNoteId: string
+  ): Promise<{ isValid: boolean; message: string }> {
     try {
-      const response = await fetch(`${this.baseUrl}deliveryNotes/${deliveryNoteId}`);
-      
+      const response = await fetch(
+        `${this.baseUrl}deliveryNotes/${deliveryNoteId}`
+      );
+
       if (!response.ok) {
         return { isValid: false, message: 'Delivery Note not found' };
       }
-      
+
       const deliveryNote: DeliveryNote = await response.json();
-      
-      if (!deliveryNote.items || deliveryNote.items.length === 0) {
-        return { isValid: false, message: 'Delivery note contains no items' };
+
+      if (deliveryNote.status === 4) {
+        // Cancelled
+        return {
+          isValid: false,
+          message: 'Cannot create invoice from cancelled delivery note',
+        };
       }
-      
-      if (deliveryNote.status === 4) { // Cancelled
-        return { isValid: false, message: 'Cannot create invoice from cancelled delivery note' };
-      }
-      
+
       return { isValid: true, message: 'Valid' };
     } catch (error) {
       return { isValid: false, message: 'Error validating delivery note' };
