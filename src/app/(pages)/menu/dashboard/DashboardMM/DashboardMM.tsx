@@ -496,8 +496,8 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
             {workOrders.length > 0 ? (
               <WorkOrdersDashboard
                 workOrders={workOrders.sort((a, b) => {
-                  const dateA = new Date(a.startTime).getTime();
-                  const dateB = new Date(b.startTime).getTime();
+                  const dateA = new Date(a.creationTime).getTime();
+                  const dateB = new Date(b.creationTime).getTime();
                   return dateB - dateA;
                 })}
               />

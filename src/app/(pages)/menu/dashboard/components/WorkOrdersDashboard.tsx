@@ -36,7 +36,7 @@ const WorkOrdersDashboard: React.FC<WorkOrdersDashboardProps> = ({
   };
 
   const groupedWorkOrders = workOrders.reduce((acc, workOrder) => {
-    const dayKey = dayjs(workOrder.startTime).format('DD/MM/YYYY');
+    const dayKey = dayjs(workOrder.creationTime).format('DD/MM/YYYY');
     const typeKey = workOrder.workOrderType;
     const totalTime = calculateTotalTime(workOrder);
     const totalCost = calculateTotalCost(workOrder);
