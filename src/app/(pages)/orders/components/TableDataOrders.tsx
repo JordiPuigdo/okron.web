@@ -358,4 +358,9 @@ const filtersOrders: Filters[] = [
     key: 'providerName',
     format: FiltersFormat.TEXT,
   },
+  {
+    label: 'Comentari',
+    key: 'comment',
+    format: FiltersFormat.TEXT,
+  },
 ];
