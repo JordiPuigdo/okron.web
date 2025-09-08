@@ -14,7 +14,7 @@ import {
   WorkOrder,
   WorkOrderType,
 } from 'app/interfaces/workOrder';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import { useSessionStore } from 'app/stores/globalStore';
 import { Button } from 'designSystem/Button/Buttons';
 
@@ -28,9 +28,7 @@ const WorkOrderButtons: React.FC<WorkOrderButtonsProps> = ({
   handleReload,
 }: WorkOrderButtonsProps) => {
   const [errorMessage, setErrorMessage] = useState('');
-  const workOrderService = new WorkOrderService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ''
-  );
+
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
   const { loginUser, operatorLogged } = useSessionStore(state => state);
 

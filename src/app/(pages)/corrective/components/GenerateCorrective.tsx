@@ -11,7 +11,7 @@ import { DowntimesReasons } from 'app/interfaces/Production/Downtimes';
 import { UserType } from 'app/interfaces/User';
 import { StateWorkOrder, WorkOrderType } from 'app/interfaces/workOrder';
 import AssetService from 'app/services/assetService';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import { useGlobalStore, useSessionStore } from 'app/stores/globalStore';
 import { translateStateWorkOrder } from 'app/utils/utils';
 import { ErrorMessage } from 'components/Alerts/ErrorMessage';
@@ -46,9 +46,6 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
   originalWorkOrderId,
   originalWorkOrderCode,
 }) => {
-  const workOrderService = new WorkOrderService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ''
-  );
   const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
   const [selectedOperator, setSelectedOperator] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string>('');

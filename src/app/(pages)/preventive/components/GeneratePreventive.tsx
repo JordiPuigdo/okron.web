@@ -5,7 +5,7 @@ import { SvgClose, SvgSpinner } from 'app/icons/icons';
 import { Preventive } from 'app/interfaces/Preventive';
 import { UserPermission } from 'app/interfaces/User';
 import PreventiveService from 'app/services/preventiveService';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import { useGlobalStore, useSessionStore } from 'app/stores/globalStore';
 import { formatDate } from 'app/utils/utils';
 import { Button } from 'designSystem/Button/Buttons';
@@ -23,9 +23,6 @@ const GeneratePreventive = () => {
   >([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const preventiveService = new PreventiveService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ''
-  );
-  const workOrderService = new WorkOrderService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
 

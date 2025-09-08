@@ -2,12 +2,8 @@ import WorkOrder, {
   SearchWorkOrderFilters,
   WorkOrderType,
 } from 'app/interfaces/workOrder';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import { Fetcher } from 'swr';
-
-const workOrderService = new WorkOrderService(
-  process.env.NEXT_PUBLIC_API_BASE_URL!
-);
 
 const fetchWorkOrdersWithFilters = async (
   filters?: SearchWorkOrderFilters

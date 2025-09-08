@@ -14,7 +14,7 @@ import {
   WorkOrderOperatorTimes,
   WorkOrderOperatorTimeType,
 } from 'app/interfaces/workOrder';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import { useSessionStore } from 'app/stores/globalStore';
 import { formatDate } from 'app/utils/utils';
 import dayjs from 'dayjs';
@@ -42,9 +42,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
   isFinished,
 }) => {
   const [codeOperator, setCodeOperator] = useState('');
-  const workOrderService = new WorkOrderService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ''
-  );
+
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [enterManualTime, setEnterManualTime] = useState(false);

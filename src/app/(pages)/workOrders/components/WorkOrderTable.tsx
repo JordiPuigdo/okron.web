@@ -16,7 +16,7 @@ import WorkOrder, {
   WorkOrderType,
 } from 'app/interfaces/workOrder';
 import AssetService from 'app/services/assetService';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import { useSessionStore } from 'app/stores/globalStore';
 import { ElementList } from 'components/selector/ElementList';
 import DataTable from 'components/table/DataTable';
@@ -91,9 +91,6 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
-  const workOrderService = new WorkOrderService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ''
-  );
 
   const [workOrdersFilters, setWorkOrdersFilters] = useState<WorkOrdersFilters>(
     {

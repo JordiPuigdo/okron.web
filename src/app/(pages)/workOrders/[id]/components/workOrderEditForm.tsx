@@ -29,7 +29,7 @@ import WorkOrder, {
 } from 'app/interfaces/workOrder';
 import OperatorService from 'app/services/operatorService';
 import SparePartService from 'app/services/sparePartService';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import { useGlobalStore, useSessionStore } from 'app/stores/globalStore';
 import useRoutes from 'app/utils/useRoutes';
 import {
@@ -79,9 +79,6 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
   const { isModalOpen, setIsModalOpen } = useGlobalStore(state => state);
 
-  const workOrderService = new WorkOrderService(
-    process.env.NEXT_PUBLIC_API_BASE_URL!
-  );
   const operatorService = new OperatorService(
     process.env.NEXT_PUBLIC_API_BASE_URL!
   );

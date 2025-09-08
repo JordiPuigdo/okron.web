@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { DowntimesTicketReport } from 'app/interfaces/Production/DowntimesTicketReport';
-import WorkOrderService from 'app/services/workOrderService';
-
-const workOrderService = new WorkOrderService(
-  process.env.NEXT_PUBLIC_API_BASE_URL || ''
-);
+import { workOrderService } from 'app/services/workOrderService';
 
 export function useDowntimeReport() {
   const [downtimes, setDowntimes] = useState<DowntimesTicketReport[]>([]);

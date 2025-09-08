@@ -2,7 +2,7 @@ import { FilterValue } from 'app/types/filters';
 
 import { Column } from '../interface/interfaceTable';
 import { EntityTable } from '../interface/tableEntitys';
-import { TableRowComponent } from './TableRow';
+import TableRowComponent from './TableRowComponent';
 import { TableTotalRowComponent } from './TableTotalRowComponent';
 
 interface TableBodyProps {

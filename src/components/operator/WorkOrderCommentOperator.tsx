@@ -7,7 +7,7 @@ import {
   WorkOrderComment,
   WorkOrderCommentType,
 } from 'app/interfaces/workOrder';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import { useSessionStore } from 'app/stores/globalStore';
 import { formatDate, translateWorkOrderCommentType } from 'app/utils/utils';
 import { RenderFileComment } from 'components/Comments/RenderFileComment';
@@ -47,11 +47,6 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
     type: WorkOrderCommentType.External,
   });
   const [isEditing, setIsEditing] = useState(false);
-
-  const workOrderService = useMemo(
-    () => new WorkOrderService(process.env.NEXT_PUBLIC_API_BASE_URL || ''),
-    []
-  );
 
   const { operatorLogged } = useSessionStore(state => state);
 

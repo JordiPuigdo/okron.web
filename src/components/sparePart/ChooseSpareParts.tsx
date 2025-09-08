@@ -11,7 +11,7 @@ import SparePart, {
 import { WareHouseStockAvailability } from 'app/interfaces/WareHouse';
 import WorkOrder, { WorkOrderSparePart } from 'app/interfaces/workOrder';
 import SparePartService from 'app/services/sparePartService';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import { useGlobalStore, useSessionStore } from 'app/stores/globalStore';
 import { formatDate } from 'app/utils/utils';
 import Link from 'next/link';
@@ -34,9 +34,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
   const sparePartService = new SparePartService(
     process.env.NEXT_PUBLIC_API_BASE_URL!
   );
-  const workOrderService = new WorkOrderService(
-    process.env.NEXT_PUBLIC_API_BASE_URL!
-  );
+
   const [filteredSpareParts, setFilteredSpareParts] =
     useState<WareHouseStockAvailability[]>();
 

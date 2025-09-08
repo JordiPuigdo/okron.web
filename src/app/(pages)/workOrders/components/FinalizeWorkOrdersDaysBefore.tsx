@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { SvgSpinner } from 'app/icons/icons';
 import { UserPermission } from 'app/interfaces/User';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import { useSessionStore } from 'app/stores/globalStore';
 import { Button } from 'designSystem/Button/Buttons';
 
@@ -15,9 +15,7 @@ const FinalizeWorkOrdersDaysBefore: React.FC<
   FinalizeWorkOrdersDaysBeforeProps
 > = ({ onFinalizeWorkOrdersDayBefore }) => {
   const { loginUser } = useSessionStore(state => state);
-  const workOrderService = new WorkOrderService(
-    process.env.NEXT_PUBLIC_API_BASE_URL!
-  );
+
   const [isLoading, setIsLoading] = useState(false);
 
   const handleFinalizeWorkOrdersDayBefore = async () => {

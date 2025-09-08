@@ -1,14 +1,11 @@
-import { useState } from 'react';
-import { SvgDelete, SvgDetail, SvgSpinner } from 'app/icons/icons';
+import { memo, useCallback } from 'react';
+import { SvgDelete, SvgDetail } from 'app/icons/icons';
 import { LoginUser, UserPermission } from 'app/interfaces/User';
-import { LoadingState } from 'app/types/loadingState';
 import Link from 'next/link';
 
-import { ButtonTypesTable } from '../../DataTable';
 import { TableButtons } from '../../interface/interfaceTable';
 import { EntityTable } from '../../interface/tableEntitys';
 import { OrdersButtons } from './OrdersButtonts';
-import { PreventiveButtons } from './PreventiveButtons';
 import WorkOrderOperationsInTable from './WorkOrderOperationsInTable';
 
 interface HeadTableActionsProps {
@@ -16,21 +13,25 @@ interface HeadTableActionsProps {
   entity: EntityTable;
 }
 
-export const HeadTableActions = ({
-  tableButtons,
-  entity,
-}: HeadTableActionsProps) => {
-  return tableButtons.delete ||
-    tableButtons.detail ||
-    tableButtons.edit ||
-    entity === EntityTable.WORKORDER ? (
-    <th className="text-center border-b border-blue-gray-100 bg-blue-gray-50 ">
-      Accions
-    </th>
-  ) : (
-    <></>
-  );
-};
+export const HeadTableActions = memo(
+  ({ tableButtons, entity }: HeadTableActionsProps) => {
+    const showActions =
+      tableButtons.delete ||
+      tableButtons.detail ||
+      tableButtons.edit ||
+      entity === EntityTable.WORKORDER;
+
+    if (!showActions) return null;
+
+    return (
+      <th className="text-center border-b border-blue-gray-100 bg-blue-gray-50">
+        Accions
+      </th>
+    );
+  }
+);
+
+HeadTableActions.displayName = 'HeadTableActions';
 
 interface TableButtonsComponentProps {
   item: any;
@@ -42,49 +43,48 @@ interface TableButtonsComponentProps {
   onDelete?: (id: string) => void;
 }
 
-export const TableButtonsComponent = ({
-  item,
-  tableButtons,
-  entity,
-  loginUser,
-  pathDetail,
-  onDelete,
-}: TableButtonsComponentProps) => {
-  let colorRow = '';
-  if (item.colorRow) {
-    colorRow = item.colorRow;
-  }
+export const TableButtonsComponent = memo(
+  ({
+    item,
+    tableButtons,
+    entity,
+    loginUser,
+    pathDetail,
+    onDelete,
+  }: TableButtonsComponentProps) => {
+    const colorRow = item.colorRow || '';
 
-  return (
-    <td className={` ${colorRow} p-4`}>
-      <div className="flex flex-row gap-2 justify-center">
-        {entity != EntityTable.WORKORDER && (
-          <TableButtonsComponentStandard
-            entity={entity}
-            item={item}
-            loginUser={loginUser}
-            pathDetail={pathDetail}
-            tableButtons={tableButtons}
-            onDelete={onDelete}
-          />
-        )}
-        {EntityTable.WORKORDER == entity && (
-          <>
+    return (
+      <td className={`${colorRow} p-4`}>
+        <div className="flex flex-row gap-2 justify-center">
+          {entity !== EntityTable.WORKORDER && (
+            <TableButtonsComponentStandard
+              entity={entity}
+              item={item}
+              loginUser={loginUser}
+              pathDetail={pathDetail}
+              tableButtons={tableButtons}
+              onDelete={onDelete}
+            />
+          )}
+          {entity === EntityTable.WORKORDER && (
             <WorkOrderOperationsInTable
               workOrderId={item.id}
               workOrder={item}
               onChangeStateWorkOrder={() => {}}
               enableActions={tableButtons.edit || tableButtons.delete}
             />
-          </>
-        )}
-        {entity == EntityTable.ORDER && (
-          <OrdersButtons orderId={item.id} order={item} />
-        )}
-      </div>
-    </td>
-  );
-};
+          )}
+          {entity === EntityTable.ORDER && (
+            <OrdersButtons orderId={item.id} order={item} />
+          )}
+        </div>
+      </td>
+    );
+  }
+);
+
+TableButtonsComponent.displayName = 'TableButtonsComponent';
 
 interface TableButtonsComponentStandardProps {
   item: any;
@@ -95,74 +95,64 @@ interface TableButtonsComponentStandardProps {
   onDelete?: (id: string) => void;
 }
 
-export const TableButtonsComponentStandard = ({
-  item,
-  tableButtons,
-  loginUser,
-  pathDetail,
-  onDelete,
-}: TableButtonsComponentStandardProps) => {
-  const [loadingState, setLoadingState] = useState<LoadingState>({});
+const validPermissions = [
+  UserPermission.Administrator,
+  UserPermission.SpareParts,
+  UserPermission.AdminCRM,
+];
 
-  const toggleLoading = (
-    id: string,
-    buttonType: ButtonTypesTable,
-    isLoading: boolean
-  ) => {
-    const loadingKey = `${id}_${buttonType}`;
-    setLoadingState(prevLoadingState => ({
-      ...prevLoadingState,
-      [loadingKey]: isLoading,
-    }));
-  };
+export const TableButtonsComponentStandard = memo(
+  ({
+    item,
+    tableButtons,
+    loginUser,
+    pathDetail,
+    onDelete,
+  }: TableButtonsComponentStandardProps) => {
+    const canEdit = validPermissions.includes(loginUser?.permission!);
 
-  const handleDelete = async (id: string) => {
-    toggleLoading(id, ButtonTypesTable.Delete, true);
-    onDelete && onDelete(id);
-    toggleLoading(id, ButtonTypesTable.Delete, false);
-  };
+    if (!canEdit) return null;
 
-  const validPermission = [
-    UserPermission.Administrator,
-    UserPermission.SpareParts,
-    UserPermission.AdminCRM,
-  ];
+    const showEdit = tableButtons.edit;
+    const showDelete = tableButtons.delete;
 
-  const canEdit = validPermission.includes(loginUser?.permission!);
-  return (
-    <>
-      {canEdit && (
-        <>
-          {tableButtons.edit && (
-            <Link href={pathDetail} onClick={e => {}}>
-              <p
-                className="flex items-center font-medium text-white rounded-xl bg-okron-btEdit hover:bg-okron-btEditHover"
-                onClick={() => {
-                  toggleLoading(pathDetail, ButtonTypesTable.Edit, true);
-                }}
-              >
-                {loadingState[pathDetail + '_' + ButtonTypesTable.Edit] ? (
-                  <SvgSpinner className="p-2" />
-                ) : (
-                  <SvgDetail className="p-2" />
-                )}
-              </p>
-            </Link>
-          )}
-          {tableButtons.delete && (
-            <div
-              className="flex items-center text-white rounded-xl bg-okron-btDelete hover:bg-okron-btDeleteHover hover:cursor-pointer"
-              onClick={() => handleDelete(item.id)}
-            >
-              {loadingState[pathDetail + '_' + ButtonTypesTable.Delete] ? (
-                <SvgSpinner className="p-2" />
-              ) : (
-                <SvgDelete className="p-2" />
-              )}
-            </div>
-          )}
-        </>
-      )}
-    </>
-  );
-};
+    if (!showEdit && !showDelete) return null;
+
+    return (
+      <>
+        {showEdit && <EditButton pathDetail={pathDetail} />}
+        {showDelete && <DeleteButton item={item} onDelete={onDelete} />}
+      </>
+    );
+  }
+);
+
+TableButtonsComponentStandard.displayName = 'TableButtonsComponentStandard';
+
+// Componentes separados para mejor rendimiento
+const EditButton = memo(({ pathDetail }: { pathDetail: string }) => (
+  <Link href={pathDetail}>
+    <p className="flex items-center font-medium text-white rounded-xl bg-okron-btEdit hover:bg-okron-btEditHover">
+      <SvgDetail className="p-2" />
+    </p>
+  </Link>
+));
+EditButton.displayName = 'EditButton';
+
+const DeleteButton = memo(
+  ({ item, onDelete }: { item: any; onDelete?: (id: string) => void }) => {
+    const handleDelete = useCallback(() => {
+      onDelete && onDelete(item.id);
+    }, [onDelete, item.id]);
+
+    return (
+      <div
+        className="flex items-center text-white rounded-xl bg-okron-btDelete hover:bg-okron-btDeleteHover hover:cursor-pointer"
+        onClick={handleDelete}
+      >
+        <SvgDelete className="p-2" />
+      </div>
+    );
+  }
+);
+DeleteButton.displayName = 'DeleteButton';

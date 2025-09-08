@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSparePartsHook } from 'app/hooks/useSparePartsHook';
 import {
   SvgCheck,
@@ -17,7 +17,7 @@ import WorkOrder, {
   WorkOrderSparePart,
   WorkOrderType,
 } from 'app/interfaces/workOrder';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import { useGlobalStore, useSessionStore } from 'app/stores/globalStore';
 import useRoutes from 'app/utils/useRoutes';
 import { checkAllInspectionPoints } from 'app/utils/utilsInspectionPoints';
@@ -34,294 +34,338 @@ interface WorkOrderOperationsInTableProps {
   enableActions?: boolean;
 }
 
-export default function WorkOrderOperationsInTable({
-  workOrderId,
-  workOrder,
-  onChangeStateWorkOrder,
-  enableActions = true,
-}: WorkOrderOperationsInTableProps) {
-  const [isPassInspectionPoints, setIsPassInspectionPoints] =
-    React.useState(false);
+// ✅ Singleton para el servicio (fuera del componente)
+const SparePartsModalContent = React.memo(
+  ({
+    workOrder,
+    isFinished,
+  }: {
+    workOrder: WorkOrder;
+    isFinished: boolean;
+  }) => {
+    const { setIsModalOpen } = useGlobalStore();
+    const { spareParts, sparePartsError } = useSparePartsHook(true);
+    const [selectedSpareParts, setSelectedSpareParts] = useState<
+      WorkOrderSparePart[]
+    >(workOrder.workOrderSpareParts || []);
 
-  const workOrderService = new WorkOrderService(
-    process.env.NEXT_PUBLIC_API_BASE_URL!
-  );
-
-  const Routes = useRoutes();
-  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
-
-  const { operatorLogged, loginUser } = useSessionStore(state => state);
-  const { isModalOpen } = useGlobalStore(state => state);
-  const [showModal, setShowModal] = useState(false);
-
-  function handleInspectionPoints(workOrderId: string) {
-    if (!operatorLogged) {
-      alert('Has de tenir un operari fitxat per fer aquesta acció');
-      return;
+    if (sparePartsError) {
+      return <div>Error loading spare parts: {sparePartsError.message}</div>;
     }
-    toggleLoading(workOrderId + '_InspectionPoints');
-    checkAllInspectionPoints(workOrder.workOrderInspectionPoint!, workOrderId);
-    setIsPassInspectionPoints(!isPassInspectionPoints);
-    toggleLoading(workOrderId + '_InspectionPoints');
-    setIsPassInspectionPoints(!isPassInspectionPoints);
+
+    return (
+      <div className="bg-blue-950 p-1 rounded-lg shadow-md w-full">
+        <div className="relative bg-white">
+          <div className="absolute p-2 top-0 right-0 justify-end hover:cursor-pointer">
+            <SvgClose onClick={() => setIsModalOpen(false)} />
+          </div>
+          {spareParts && spareParts.length > 0 ? (
+            <ChooseSpareParts
+              selectedSpareParts={selectedSpareParts}
+              setSelectedSpareParts={setSelectedSpareParts}
+              workOrder={workOrder}
+              isFinished={isFinished}
+            />
+          ) : (
+            <SvgSpinner />
+          )}
+        </div>
+      </div>
+    );
   }
+);
 
-  const toggleLoading = (id: string) => {
-    setIsLoading(prevLoading => ({
-      ...prevLoading,
-      [id]: !prevLoading[id],
-    }));
-  };
+SparePartsModalContent.displayName = 'SparePartsModalContent';
 
-  useEffect(() => {
-    if (workOrder.stateWorkOrder == StateWorkOrder.Finished) return;
-    if (workOrder.workOrderType == WorkOrderType.Preventive) {
-      const allInspectionPointsChecked =
-        workOrder.workOrderInspectionPoint !== undefined
-          ? workOrder.workOrderInspectionPoint.every(
-              inspectionPoint => inspectionPoint.check
-            )
-          : false;
-      setIsPassInspectionPoints(allInspectionPointsChecked ?? false);
-    }
-  }, []);
+const WorkOrderOperationsInTable = React.memo(
+  ({
+    workOrderId,
+    workOrder,
+    onChangeStateWorkOrder,
+    enableActions = true,
+  }: WorkOrderOperationsInTableProps) => {
+    const Routes = useRoutes();
+    const { operatorLogged, loginUser } = useSessionStore();
+    const { isModalOpen } = useGlobalStore();
 
-  const hasDefaultReason =
-    workOrder?.downtimeReason != undefined &&
-    workOrder.downtimeReason.assetId == '';
+    const [isPassInspectionPoints, setIsPassInspectionPoints] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [isLoading, setIsLoading] = useState<string | null>(null);
 
-  async function handleChangeStateWorkOrder(state: StateWorkOrder) {
-    toggleLoading(
-      workOrderId +
-        (state === StateWorkOrder.PendingToValidate ||
-        state === StateWorkOrder.Closed
-          ? '_Validate'
-          : '_Sign')
+    // ✅ Memoizar valores derivados
+    const hasDefaultReason = useMemo(
+      () =>
+        workOrder?.downtimeReason != undefined &&
+        workOrder.downtimeReason.assetId === '',
+      [workOrder?.downtimeReason]
     );
 
-    if (!operatorLogged) {
-      alert('Has de tenir un operari fitxat per fer aquesta acció');
-      toggleLoading(
-        workOrderId +
-          (state === StateWorkOrder.PendingToValidate ||
-          state === StateWorkOrder.Closed
-            ? '_Validate'
-            : '_Sign')
-      );
-      return;
-    }
-    if (hasDefaultReason) {
-      alert("Tens el motiu per defecte, no pots canviar l'estat");
-      toggleLoading(
-        workOrderId +
-          (state === StateWorkOrder.PendingToValidate ||
-          state === StateWorkOrder.Closed
-            ? '_Validate'
-            : '_Sign')
-      );
-      return;
-    }
-    if (workOrder.stateWorkOrder == state) {
-      toggleLoading(
-        workOrderId +
-          (state === StateWorkOrder.PendingToValidate ||
-          state === StateWorkOrder.Closed
-            ? '_Validate'
-            : '_Sign')
-      );
-      return;
-    }
+    const validStates = useMemo(
+      () => [
+        StateWorkOrder.Waiting,
+        StateWorkOrder.OnGoing,
+        StateWorkOrder.Paused,
+        StateWorkOrder.Open,
+      ],
+      []
+    );
 
-    const update: UpdateStateWorkOrder[] = [
-      {
-        workOrderId: workOrder.id,
-        state: state,
-        operatorId: operatorLogged?.idOperatorLogged,
-        userId: loginUser?.agentId,
-      },
-    ];
-    await workOrderService.updateStateWorkOrder(update).then(response => {
-      if (response) {
-        workOrder.stateWorkOrder = state;
-        onChangeStateWorkOrder && onChangeStateWorkOrder();
-      } else {
-        //     setErrorMessage("Error actualitzant el treball");
+    // ✅ Efecto optimizado para inspection points
+    useEffect(() => {
+      if (workOrder.stateWorkOrder === StateWorkOrder.Finished) return;
+
+      if (
+        workOrder.workOrderType === WorkOrderType.Preventive &&
+        workOrder.workOrderInspectionPoint
+      ) {
+        const allChecked = workOrder.workOrderInspectionPoint.every(
+          inspectionPoint => inspectionPoint.check
+        );
+        setIsPassInspectionPoints(allChecked);
       }
-    });
-    toggleLoading(
-      workOrderId +
-        (state === StateWorkOrder.PendingToValidate ||
-        state === StateWorkOrder.Closed
-          ? '_Validate'
-          : '_Sign')
+    }, [
+      workOrder.stateWorkOrder,
+      workOrder.workOrderType,
+      workOrder.workOrderInspectionPoint,
+    ]);
+
+    // ✅ Handlers memoizados
+    const handleInspectionPoints = useCallback(async () => {
+      if (!operatorLogged) {
+        alert('Has de tenir un operari fitxat per fer aquesta acció');
+        return;
+      }
+
+      setIsLoading('InspectionPoints');
+      try {
+        await checkAllInspectionPoints(
+          workOrder.workOrderInspectionPoint!,
+          workOrderId
+        );
+        setIsPassInspectionPoints(prev => !prev);
+      } finally {
+        setIsLoading(null);
+      }
+    }, [operatorLogged, workOrder.workOrderInspectionPoint, workOrderId]);
+
+    const handleChangeStateWorkOrder = useCallback(
+      async (state: StateWorkOrder) => {
+        const loadingKey =
+          state === StateWorkOrder.PendingToValidate ||
+          state === StateWorkOrder.Closed
+            ? 'Validate'
+            : 'Sign';
+
+        setIsLoading(loadingKey);
+
+        try {
+          if (!operatorLogged) {
+            alert('Has de tenir un operari fitxat per fer aquesta acció');
+            return;
+          }
+
+          if (hasDefaultReason) {
+            alert("Tens el motiu per defecte, no pots canviar l'estat");
+            return;
+          }
+
+          if (workOrder.stateWorkOrder === state) {
+            return;
+          }
+
+          const update: UpdateStateWorkOrder[] = [
+            {
+              workOrderId: workOrder.id,
+              state: state,
+              operatorId: operatorLogged?.idOperatorLogged,
+              userId: loginUser?.agentId,
+            },
+          ];
+
+          await workOrderService.updateStateWorkOrder(update);
+          workOrder.stateWorkOrder = state;
+          onChangeStateWorkOrder?.();
+        } finally {
+          setIsLoading(null);
+        }
+      },
+      [
+        operatorLogged,
+        hasDefaultReason,
+        workOrder,
+        loginUser?.agentId,
+        onChangeStateWorkOrder,
+      ]
     );
-  }
 
-  function handleSparePartsModal() {
-    if (!operatorLogged) {
-      alert('Has de tenir un operari fitxat per fer aquesta acció');
-      return;
+    const handleSparePartsModal = useCallback(() => {
+      if (!operatorLogged) {
+        alert('Has de tenir un operari fitxat per fer aquesta acció');
+        return;
+      }
+      setShowModal(true);
+    }, [operatorLogged]);
+
+    useEffect(() => {
+      if (!isModalOpen) {
+        setShowModal(false);
+      }
+    }, [isModalOpen]);
+
+    // ✅ Classes memoizadas
+    const classNameOnGoing = useMemo(
+      () =>
+        validStates.includes(workOrder.stateWorkOrder)
+          ? `${
+              workOrder.stateWorkOrder === StateWorkOrder.OnGoing
+                ? 'bg-gray-500'
+                : 'bg-okron-onGoing'
+            } hover:${
+              workOrder.stateWorkOrder === StateWorkOrder.OnGoing
+                ? 'bg-okron-hoverWaiting'
+                : 'bg-okron-hoverOnGoing'
+            }`
+          : 'bg-gray-200 pointer-events-none',
+      [workOrder.stateWorkOrder, validStates]
+    );
+
+    const classNameValidate = useMemo(
+      () =>
+        validStates.includes(workOrder.stateWorkOrder)
+          ? `${
+              workOrder.stateWorkOrder === StateWorkOrder.PendingToValidate
+                ? 'bg-emerald-700'
+                : 'bg-okron-finished'
+            } hover:${
+              workOrder.stateWorkOrder === StateWorkOrder.PendingToValidate
+                ? 'bg-emerald-900 pointer-events-none'
+                : 'bg-okron-hoverPendingToValidate'
+            }`
+          : 'bg-gray-200 pointer-events-none',
+      [workOrder.stateWorkOrder, validStates]
+    );
+
+    const classNameSpareParts = useMemo(
+      () =>
+        validStates.includes(workOrder.stateWorkOrder)
+          ? `${
+              workOrder.stateWorkOrder === StateWorkOrder.PendingToValidate
+                ? 'bg-emerald-700'
+                : 'bg-gray-500'
+            } hover:${
+              workOrder.stateWorkOrder === StateWorkOrder.PendingToValidate
+                ? 'bg-emerald-900 pointer-events-none'
+                : 'bg-gray-700'
+            }`
+          : 'bg-gray-200 pointer-events-none',
+      [workOrder.stateWorkOrder, validStates]
+    );
+
+    const classNamePreventive = useMemo(
+      () =>
+        validStates.includes(workOrder.stateWorkOrder)
+          ? `${isPassInspectionPoints ? 'bg-lime-700' : 'bg-red-500'} hover:${
+              isPassInspectionPoints ? 'cursor-not-allowed' : 'bg-red-700'
+            }`
+          : 'bg-gray-200 pointer-events-none',
+      [workOrder.stateWorkOrder, validStates, isPassInspectionPoints]
+    );
+
+    if (!enableActions) {
+      return (
+        <Button
+          type="none"
+          href={`${Routes.workOrders}/${workOrder.id}`}
+          className="bg-okron-btDetail hover:bg-okron-btnDetailHover rounded flex text-center p-2 w-full justify-center align-middle text-white"
+          customStyles="justify-center align-middle"
+        >
+          {isLoading === 'Detail' ? <SvgSpinner /> : <SvgDetail />}
+        </Button>
+      );
     }
-    setShowModal(true);
-  }
 
-  useEffect(() => {
-    if (!isModalOpen) {
-      setShowModal(false);
-    }
-  }, [isModalOpen]);
-
-  const validStates = [
-    StateWorkOrder.Waiting,
-    StateWorkOrder.OnGoing,
-    StateWorkOrder.Paused,
-    StateWorkOrder.Open,
-  ];
-
-  const classNameOnGoing = `${
-    validStates.includes(workOrder.stateWorkOrder)
-      ? `${
-          workOrder.stateWorkOrder == StateWorkOrder.OnGoing
-            ? 'bg-gray-500'
-            : 'bg-okron-onGoing '
-        } hover:${
-          workOrder.stateWorkOrder == StateWorkOrder.OnGoing
-            ? 'bg-okron-hoverWaiting'
-            : 'bg-okron-hoverOnGoing'
-        }`
-      : 'bg-gray-200 pointer-events-none'
-  } text-white  rounded flex gap-1 w-full justify-center items-center `;
-
-  const classNameValidate = `${
-    validStates.includes(workOrder.stateWorkOrder)
-      ? `${
-          workOrder.stateWorkOrder == StateWorkOrder.PendingToValidate
-            ? 'bg-emerald-700'
-            : 'bg-okron-finished '
-        } hover:${
-          workOrder.stateWorkOrder == StateWorkOrder.PendingToValidate
-            ? 'bg-emerald-900 pointer-events-none'
-            : 'bg-okron-hoverPendingToValidate'
-        }`
-      : 'bg-gray-200 pointer-events-none'
-  } text-white  rounded flex gap-1 w-full justify-center items-center `;
-
-  const classNameSpareParts = `${
-    validStates.includes(workOrder.stateWorkOrder)
-      ? `${
-          workOrder.stateWorkOrder == StateWorkOrder.PendingToValidate
-            ? 'bg-emerald-700'
-            : 'bg-gray-500 '
-        } hover:${
-          workOrder.stateWorkOrder == StateWorkOrder.PendingToValidate
-            ? 'bg-emerald-900 pointer-events-none'
-            : 'bg-gray-700'
-        }`
-      : 'bg-gray-200 pointer-events-none'
-  } text-white  rounded flex gap-1 w-full justify-center items-center `;
-
-  const classNamePreventive = `
-    ${
-      validStates.includes(workOrder.stateWorkOrder)
-        ? `${isPassInspectionPoints ? 'bg-lime-700' : 'bg-red-500'} hover:${
-            isPassInspectionPoints ? 'cursor-not-allowed' : 'bg-red-700'
-          }`
-        : 'bg-gray-200 pointer-events-none'
-    } text-white rounded p-2 flex gap-2 justify-center align-middle w-full`;
-
-  if (enableActions)
     return (
       <div className="flex w-full gap-2">
         {showModal && (
-          <SparePartsModal workOrder={workOrder} isFinished={false} />
+          <Modal
+            isVisible={true}
+            type="center"
+            height="h-auto"
+            width="w-full"
+            className="max-w-md mx-auto"
+          >
+            <SparePartsModalContent workOrder={workOrder} isFinished={false} />
+          </Modal>
         )}
-        {loginUser?.userType == UserType.Maintenance &&
-          workOrder.workOrderType != WorkOrderType.Ticket && (
+
+        {loginUser?.userType === UserType.Maintenance &&
+          workOrder.workOrderType !== WorkOrderType.Ticket && (
             <Button
-              data-tooltip-id="my-tooltip-1"
               type="none"
               size="md"
-              onClick={() => {
-                workOrder.stateWorkOrder == StateWorkOrder.OnGoing
-                  ? handleChangeStateWorkOrder(StateWorkOrder.Paused)
-                  : handleChangeStateWorkOrder(StateWorkOrder.OnGoing);
-              }}
+              onClick={() =>
+                handleChangeStateWorkOrder(
+                  workOrder.stateWorkOrder === StateWorkOrder.OnGoing
+                    ? StateWorkOrder.Paused
+                    : StateWorkOrder.OnGoing
+                )
+              }
               className={classNameOnGoing}
             >
-              {isLoading[workOrderId + '_Sign'] ? (
+              {isLoading === 'Sign' ? (
                 <SvgSpinner className="text-white" />
-              ) : workOrder.stateWorkOrder == StateWorkOrder.OnGoing ? (
+              ) : workOrder.stateWorkOrder === StateWorkOrder.OnGoing ? (
                 <SvgPause className="text-white" />
               ) : (
                 <SvgStart />
               )}
             </Button>
           )}
-        {((loginUser?.userType == UserType.Maintenance &&
-          workOrder.workOrderType != WorkOrderType.Ticket) ||
-          loginUser?.userType == UserType.Production) && (
-          <Button
-            data-tooltip-id="my-tooltip-2"
-            type="none"
-            className={`${classNameValidate}`}
-            onClick={() => {
-              if (
-                (!validStates.includes(workOrder.stateWorkOrder) &&
-                  workOrder.workOrderType != WorkOrderType.Ticket) ||
-                isLoading[workOrderId + '_Validate']
-              )
-                return;
 
-              if (
-                workOrder.stateWorkOrder != StateWorkOrder.PendingToValidate
-              ) {
-                handleChangeStateWorkOrder(
-                  loginUser?.userType == UserType.Maintenance
-                    ? StateWorkOrder.PendingToValidate
-                    : StateWorkOrder.Closed
-                );
-              }
-            }}
-          >
-            {isLoading[workOrderId + '_Validate'] ? (
-              <SvgSpinner />
-            ) : (
-              <SvgCheck />
-            )}
-          </Button>
-        )}
-
-        {workOrder.workOrderType == WorkOrderType.Corrective &&
-          loginUser?.userType == UserType.Maintenance && (
+        {(loginUser?.userType === UserType.Maintenance &&
+          workOrder.workOrderType !== WorkOrderType.Ticket) ||
+          (loginUser?.userType === UserType.Production && (
             <Button
-              data-tooltip-id="my-tooltip-3"
-              onClick={() => {
-                handleSparePartsModal();
-              }}
               type="none"
-              className={`${classNameSpareParts}`}
+              className={classNameValidate}
+              onClick={() => {
+                if (
+                  workOrder.stateWorkOrder !== StateWorkOrder.PendingToValidate
+                ) {
+                  handleChangeStateWorkOrder(
+                    loginUser?.userType === UserType.Maintenance
+                      ? StateWorkOrder.PendingToValidate
+                      : StateWorkOrder.Closed
+                  );
+                }
+              }}
             >
-              {isLoading[workOrderId + '_SpareParts'] ? (
-                <SvgSpinner />
-              ) : (
-                <SvgSparePart />
-              )}
+              {isLoading === 'Validate' ? <SvgSpinner /> : <SvgCheck />}
+            </Button>
+          ))}
+
+        {workOrder.workOrderType === WorkOrderType.Corrective &&
+          loginUser?.userType === UserType.Maintenance && (
+            <Button
+              type="none"
+              onClick={handleSparePartsModal}
+              className={classNameSpareParts}
+            >
+              {isLoading === 'SpareParts' ? <SvgSpinner /> : <SvgSparePart />}
             </Button>
           )}
-        {workOrder.workOrderType == WorkOrderType.Preventive &&
-          loginUser?.userType == UserType.Maintenance && (
+
+        {workOrder.workOrderType === WorkOrderType.Preventive &&
+          loginUser?.userType === UserType.Maintenance && (
             <Button
-              data-tooltip-id="InspectionPoints"
-              onClick={() => {
-                !isPassInspectionPoints && handleInspectionPoints(workOrderId);
-              }}
               type="none"
-              customStyles={`${
-                isPassInspectionPoints ? 'cursor-not-allowed' : ''
-              }`}
-              className={`${classNamePreventive} text-white rounded p-2 flex gap-2 justify-center align-middle w-full`}
+              onClick={
+                !isPassInspectionPoints ? handleInspectionPoints : undefined
+              }
+              className={classNamePreventive}
+              customStyles={isPassInspectionPoints ? 'cursor-not-allowed' : ''}
             >
-              {isLoading[workOrderId + '_InspectionPoints'] ? (
+              {isLoading === 'InspectionPoints' ? (
                 <SvgSpinner />
               ) : (
                 <SvgInspectionPoints />
@@ -330,103 +374,22 @@ export default function WorkOrderOperationsInTable({
           )}
 
         <Button
-          data-tooltip-id="edit"
           type="none"
-          onClick={() => {
-            toggleLoading(workOrderId + '_Detail');
-          }}
-          href={`${Routes.workOrders + '/' + workOrder.id}`}
-          className={`bg-okron-btDetail hover:bg-okron-btnDetailHover rounded flex text-center p-2 w-full justify-center align-middle text-white`}
+          href={`${Routes.workOrders}/${workOrder.id}`}
+          className="bg-okron-btDetail hover:bg-okron-btnDetailHover rounded flex text-center p-2 w-full justify-center align-middle text-white"
           customStyles="justify-center align-middle"
         >
-          {isLoading[workOrderId + '_Detail'] ? <SvgSpinner /> : <SvgDetail />}
+          <SvgDetail />
         </Button>
+
         <WorkOrderOperationsInTableToolTips
-          pause={workOrder.stateWorkOrder == StateWorkOrder.Paused}
+          pause={workOrder.stateWorkOrder === StateWorkOrder.Paused}
         />
       </div>
     );
-  else
-    return (
-      <Button
-        data-tooltip-id="my-tooltip-4"
-        type="none"
-        onClick={() => {
-          toggleLoading(workOrderId + '_Detail');
-        }}
-        href={`${Routes.workOrders + '/' + workOrder.id}`}
-        className={`bg-okron-btDetail hover:bg-okron-btnDetailHover rounded flex text-center p-2 w-full justify-center align-middle text-white`}
-        customStyles="justify-center align-middle"
-      >
-        {isLoading[workOrderId + '_Detail'] ? <SvgSpinner /> : <SvgDetail />}
-      </Button>
-    );
-}
-
-interface SparePartsModalProps {
-  workOrder: WorkOrder;
-  isFinished: boolean;
-}
-
-export const SparePartsModal = ({
-  workOrder,
-  isFinished,
-}: SparePartsModalProps) => {
-  const { setIsModalOpen } = useGlobalStore(state => state);
-
-  const { spareParts, sparePartsError } = useSparePartsHook(true);
-
-  const [selectedSpareParts, setSelectedSpareParts] = useState<
-    WorkOrderSparePart[]
-  >([]);
-
-  useEffect(() => {
-    if (workOrder.workOrderSpareParts) {
-      setSelectedSpareParts(workOrder.workOrderSpareParts);
-    }
-  }, []);
-
-  useEffect(() => {
-    workOrder.workOrderSpareParts?.forEach(x => {
-      setSelectedSpareParts(prevSelected => [...prevSelected, x]);
-    });
-  }, [selectedSpareParts]);
-
-  if (sparePartsError) {
-    return <div>Error loading spare parts: {sparePartsError.message}</div>;
   }
+);
 
-  return (
-    <>
-      <Modal
-        isVisible={true}
-        type="center"
-        height="h-auto"
-        width="w-full"
-        className="max-w-md mx-auto"
-      >
-        <div className="bg-blue-950 p-1 rounded-lg shadow-md w-full">
-          <div className="relative bg-white">
-            <div className="absolute p-2 top-0 right-0 justify-end hover:cursor-pointer">
-              <SvgClose
-                onClick={() => {
-                  setIsModalOpen(false);
-                }}
-              />
-            </div>
-            {spareParts != undefined && spareParts.length > 0 ? (
-              <ChooseSpareParts
-                selectedSpareParts={selectedSpareParts!}
-                setSelectedSpareParts={setSelectedSpareParts}
-                workOrder={workOrder}
-                isFinished={isFinished}
-              />
-            ) : (
-              <SvgSpinner />
-            )}
-          </div>
-        </div>
-      </Modal>
-    </>
-  );
-};
+WorkOrderOperationsInTable.displayName = 'WorkOrderOperationsInTable';
+
+export default WorkOrderOperationsInTable;

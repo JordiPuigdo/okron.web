@@ -7,7 +7,7 @@ import WorkOrder, {
   OriginWorkOrder,
   SearchWorkOrderFilters,
 } from 'app/interfaces/workOrder';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 
 import WorkOrderList from './WorkOrderList';
 
@@ -28,9 +28,6 @@ const WorkOrderContainer = ({
   userType,
   searchPreventive = false,
 }: WorkOrderContainerProps) => {
-  const workOrderService = new WorkOrderService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ''
-  );
   const [workOrders, setWorkOrders] = useState<WorkOrder[] | []>([]);
 
   const [isLoading, setIsLoading] = useState(false);

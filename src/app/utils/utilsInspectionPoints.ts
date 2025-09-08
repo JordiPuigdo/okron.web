@@ -3,11 +3,7 @@ import {
   SaveInspectionResultPointRequest,
   WorkOrderInspectionPoint,
 } from 'app/interfaces/workOrder';
-import WorkOrderService from 'app/services/workOrderService';
-
-const workOrderService = new WorkOrderService(
-  process.env.NEXT_PUBLIC_API_BASE_URL!
-);
+import { workOrderService } from 'app/services/workOrderService';
 
 export async function checkAllInspectionPoints(
   workOrderInspectionPoints: WorkOrderInspectionPoint[],

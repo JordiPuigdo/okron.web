@@ -7,7 +7,7 @@ import WorkOrder, {
   StateWorkOrder,
   WorkOrderInspectionPoint,
 } from 'app/interfaces/workOrder';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import { useGlobalStore, useSessionStore } from 'app/stores/globalStore';
 import { checkAllInspectionPoints } from 'app/utils/utilsInspectionPoints';
 
@@ -28,9 +28,6 @@ const CompleteInspectionPoints: React.FC<CompleteInspectionPointsProps> = ({
   isFinished,
   workOrder,
 }) => {
-  const workOrderService = new WorkOrderService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ''
-  );
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
   const [description, setDescription] = useState<string | null>(null);
   const { operatorLogged } = useSessionStore(state => state);

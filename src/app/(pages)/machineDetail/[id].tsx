@@ -6,7 +6,7 @@ import WorkOrder, {
   StateWorkOrder,
 } from 'app/interfaces/workOrder';
 import MachineService from 'app/services/machineService';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import MainLayout from 'components/layout/MainLayout';
 import { useRouter } from 'next/router';
 
@@ -18,9 +18,7 @@ const MachineDetailsPage = () => {
   const machineService = new MachineService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
-  const workOrderService = new WorkOrderService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ''
-  );
+
   const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<
     string | null
   >();

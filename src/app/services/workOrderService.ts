@@ -18,10 +18,18 @@ import WorkOrder, {
 } from 'app/interfaces/workOrder';
 
 class WorkOrderService {
+  private static instance: WorkOrderService;
   private baseUrl: string;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
+  }
+
+  public static getInstance(baseUrl?: string): WorkOrderService {
+    if (!WorkOrderService.instance && baseUrl) {
+      WorkOrderService.instance = new WorkOrderService(baseUrl);
+    }
+    return WorkOrderService.instance;
   }
 
   async createWorkOrder(
@@ -505,4 +513,6 @@ class WorkOrderService {
   }
 }
 
-export default WorkOrderService;
+export const workOrderService = WorkOrderService.getInstance(
+  process.env.NEXT_PUBLIC_API_BASE_URL!
+);

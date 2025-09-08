@@ -11,6 +11,7 @@ import { DeliveryNoteCreateRequest } from 'app/interfaces/DeliveryNote';
 import { UserType } from 'app/interfaces/User';
 import WorkOrder, { OriginWorkOrder } from 'app/interfaces/workOrder';
 import { cn } from 'app/lib/utils';
+import { workOrderService } from 'app/services/workOrderService';
 import ChooseElement from 'components/ChooseElement';
 import { HeaderForm } from 'components/layout/HeaderForm';
 import { ca } from 'date-fns/locale';
@@ -19,7 +20,6 @@ import { Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { DeliveryNoteService } from '../../../services/deliveryNoteService';
-import WorkOrderService from '../../../services/workOrderService';
 
 export function DeliveryNoteCreateForm() {
   const { customers, getById } = useCustomers();
@@ -46,9 +46,7 @@ export function DeliveryNoteCreateForm() {
   const [selectedWorkOrderIds, setSelectedWorkOrderIds] = useState<string[]>(
     []
   );
-  const workOrderService = new WorkOrderService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ''
-  );
+
   const deliveryNoteService = new DeliveryNoteService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );

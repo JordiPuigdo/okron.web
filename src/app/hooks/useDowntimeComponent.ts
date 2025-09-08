@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { calculateTotalSecondsBetweenDates } from 'app/(pages)/reports/downtimesReport/component/downtimeUtils';
 import { Downtimes } from 'app/interfaces/Production/Downtimes';
-import WorkOrderService from 'app/services/workOrderService';
+import { workOrderService } from 'app/services/workOrderService';
 import {
   calculateTimeDifference,
   validateFormattedDateTime,
@@ -13,10 +13,6 @@ export function useDowntimes(
   initialDowntimes: Downtimes[],
   workOrderId: string
 ) {
-  const workOrderService = new WorkOrderService(
-    process.env.NEXT_PUBLIC_API_BASE_URL || ''
-  );
-
   const [downtimesWorkorder, setDowntimesWorkorder] =
     useState<Downtimes[]>(initialDowntimes);
 
