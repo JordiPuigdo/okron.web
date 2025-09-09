@@ -64,9 +64,6 @@ export default async function OrderPage({
   const config = await getConfig();
   return (
     <div className="min-h-screen flex flex-col items-center">
-      <head>
-        <title>{order.code}</title>
-      </head>
       <div className="flex flex-col  bg-white gap-4 p-4 w-full ">
         <OrderHeader order={order} company={config.company} />
         <OrderBody order={order} />
