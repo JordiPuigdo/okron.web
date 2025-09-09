@@ -150,7 +150,7 @@ const columnsInvoices: Column[] = [
   },
   {
     label: 'Client',
-    key: 'companyName',
+    key: 'customerName',
     format: ColumnFormat.TEXT,
   },
   {
@@ -162,6 +162,21 @@ const columnsInvoices: Column[] = [
     label: 'Venciment',
     key: 'dueDate',
     format: ColumnFormat.DATE,
+  },
+  {
+    label: 'Albarà',
+    key: 'deliveryNotesCodes',
+    format: ColumnFormat.TEXT,
+  },
+  {
+    label: 'Ref. Client',
+    key: 'refCustomerIds',
+    format: ColumnFormat.TEXT,
+  },
+  {
+    label: 'Ordre',
+    key: 'workOrderCodes',
+    format: ColumnFormat.TEXT,
   },
   {
     label: 'Estat',
@@ -185,6 +200,21 @@ const filtersInvoices: Filters[] = [
   {
     label: 'Client',
     key: 'customer.name',
+    format: FiltersFormat.TEXT,
+  },
+  {
+    label: 'Ref. Client',
+    key: 'refCustomerIds',
+    format: FiltersFormat.TEXT,
+  },
+  {
+    label: 'Ordre',
+    key: 'workOrderCodes',
+    format: FiltersFormat.TEXT,
+  },
+  {
+    label: 'Albarà',
+    key: 'deliveryNotesCodes',
     format: FiltersFormat.TEXT,
   },
 ];

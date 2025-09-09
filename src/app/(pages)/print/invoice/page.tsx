@@ -70,12 +70,6 @@ export default async function InvoicePage({
       <div className="flex flex-col bg-white gap-4 p-4 w-full">
         <InvoiceHeader invoice={invoice} config={config} />
         <InvoiceBody invoice={invoice} />
-        {invoice.externalComments && (
-          <div className="mt-4 p-4 bg-gray-50 rounded">
-            <h4 className="font-semibold mb-2">Comentaris:</h4>
-            <p className="text-sm">{invoice.externalComments}</p>
-          </div>
-        )}
       </div>
       <InvoiceFooter invoice={invoice} />
       <script
