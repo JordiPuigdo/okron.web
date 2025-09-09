@@ -1,15 +1,24 @@
+'use client';
+
+import Company from 'app/interfaces/Company';
 import { Order } from 'app/interfaces/Order';
-import { useSessionStore } from 'app/stores/globalStore';
 import dayjs from 'dayjs';
 
-export const OrderHeader = ({ order }: { order: Order }) => {
-  //const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
-  const { config } = useSessionStore(state => state);
-  const company = config?.company;
-  if (!company) return null;
+export const OrderHeader = ({
+  order,
+  company,
+}: {
+  order: Order;
+  company: Company;
+}) => {
   return (
     <div>
       <div className="flex justify-between">
+        <img
+          src={company.urlLogo}
+          alt={company.name}
+          className="h-[150px] w-[150px] p-2 "
+        />
         <div className="flex">
           <div className="border p-2 my-6">
             <p className="relative">Comanda</p>
@@ -31,7 +40,7 @@ export const OrderHeader = ({ order }: { order: Order }) => {
         <div>
           <p className="font-semibold">{company.name}</p>
           <p>{company.nif}</p>
-          <p className="font-semibold">{company.address}</p>
+          <p className="font-semibold">{company.address.address}</p>
           <p>Tel: {company.phone}</p>
           <p>{company.email}</p>
         </div>
