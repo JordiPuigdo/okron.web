@@ -69,6 +69,7 @@ const DataTable: React.FC<DataTableProps> = ({
   const tableState = useTableState(data, itemsPerPageOptions[1]);
   const tableFilters = useTableFilters(enableFilterActive);
   const { loginUser } = useSessionStore(state => state);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { filteredData, totalRecords, totalPages } = useFilteredData(
     data,
@@ -106,6 +107,7 @@ const DataTable: React.FC<DataTableProps> = ({
   const isAllSelected =
     data.length > 0 && tableState.selectedRows.size === data.length;
   useEffect(() => {
+    setIsLoading(false);
     setPathDetail(() => {
       return getRoute(entity);
     });
@@ -143,9 +145,6 @@ const DataTable: React.FC<DataTableProps> = ({
     }
     onChecked?.();
   };
-
-  // Loading state
-  const isLoading = data.length === 0;
 
   if (filteredData)
     return (

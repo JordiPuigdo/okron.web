@@ -90,7 +90,7 @@ export const TableDataOrders = ({
   }, []);
 
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized && !selectedProviderId) {
       const newFilters: FilterValue = { ...filters };
       if (Object.keys(queryParams).length === 0) {
         newFilters.status = enableFilters
