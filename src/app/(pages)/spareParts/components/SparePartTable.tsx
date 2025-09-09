@@ -3,6 +3,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
+import { usePermissions } from 'app/hooks/usePermissions';
 import { SvgCreate, SvgMachines, SvgSpinner } from 'app/icons/icons';
 import SparePart, {
   SparePartDetailRequest,
@@ -86,30 +87,6 @@ const columns: Column[] = [
     key: 'stock',
     format: ColumnFormat.NUMBER,
     align: ColumnnAlign.RIGHT,
-  },
-  {
-    label: 'Pdt.',
-    key: 'pendingQuantity',
-    format: ColumnFormat.NUMBER,
-    align: ColumnnAlign.RIGHT,
-    className:
-      'font-semibold bg-yellow-200 p-2 rounded-xl text-xl  text-center',
-  },
-  {
-    label: 'Preu',
-    key: 'price',
-    format: ColumnFormat.PRICE,
-    align: ColumnnAlign.RIGHT,
-  },
-  {
-    key: 'lastMovementConsume',
-    label: 'Últim Consum',
-    format: ColumnFormat.DATETIME,
-  },
-  {
-    label: 'Actiu',
-    key: 'active',
-    format: ColumnFormat.BOOLEAN,
   },
 ];
 
@@ -223,6 +200,7 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
   const [endDate, setEndDate] = useState<Date | null>(new Date());
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string>('');
+  const { isCRM } = usePermissions();
 
   const tableButtons: TableButtons = {
     edit: enableEdit,
@@ -234,6 +212,66 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
     async function fetchSpareParts() {
       try {
         const data = await sparePartService.getSpareParts(withoutStock);
+
+        if (isCRM) {
+          if (!columns.find(x => x.key === 'rrp')) {
+            columns.push(
+              {
+                key: 'rrp',
+                label: 'Preu',
+                format: ColumnFormat.PRICE,
+                align: ColumnnAlign.RIGHT,
+              },
+              {
+                label: 'Pdt.',
+                key: 'pendingQuantity',
+                format: ColumnFormat.NUMBER,
+                align: ColumnnAlign.RIGHT,
+                className:
+                  'font-semibold bg-yellow-200 p-2 rounded-xl text-xl  text-center',
+              },
+              {
+                key: 'lastMovementConsume',
+                label: 'Últim Consum',
+                format: ColumnFormat.DATETIME,
+              },
+              {
+                label: 'Actiu',
+                key: 'active',
+                format: ColumnFormat.BOOLEAN,
+              }
+            );
+          }
+        } else {
+          if (!columns.find(x => x.key === 'price')) {
+            columns.push(
+              {
+                label: 'Preu',
+                key: 'price',
+                format: ColumnFormat.PRICE,
+                align: ColumnnAlign.RIGHT,
+              },
+              {
+                label: 'Pdt.',
+                key: 'pendingQuantity',
+                format: ColumnFormat.NUMBER,
+                align: ColumnnAlign.RIGHT,
+                className:
+                  'font-semibold bg-yellow-200 p-2 rounded-xl text-xl  text-center',
+              },
+              {
+                key: 'lastMovementConsume',
+                label: 'Últim Consum',
+                format: ColumnFormat.DATETIME,
+              },
+              {
+                label: 'Actiu',
+                key: 'active',
+                format: ColumnFormat.BOOLEAN,
+              }
+            );
+          }
+        }
         if (timer > 0) {
           setSpareParts(data.filter(sparePart => sparePart.active == true));
           return;
@@ -291,6 +329,7 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
         if (response.length == 0) {
           setMessage('No hi ha recanvis disponibles amb aquests filtres');
           setSparePartsPerAsset([]);
+
           setTimeout(() => {
             setMessage('');
           }, 3000);
