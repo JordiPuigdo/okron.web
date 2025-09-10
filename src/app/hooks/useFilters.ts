@@ -43,7 +43,7 @@ export const useQueryParams = () => {
         }
       });
 
-      router.push(`?${params.toString()}`, { scroll: false });
+      router.replace(`?${params.toString()}`, { scroll: false });
     },
     [router, searchParams]
   );

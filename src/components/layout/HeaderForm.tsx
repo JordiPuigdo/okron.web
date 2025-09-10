@@ -29,6 +29,7 @@ export const HeaderForm = ({
   const id = searchParams.get('id') ?? '';
 
   function handleOnClick() {
+    /* debugger;
     if (entity) {
       let finalRoute = getRoute(entity, true);
 
@@ -49,7 +50,8 @@ export const HeaderForm = ({
       router.push(finalUrl);
     } else {
       router.back();
-    }
+    }*/
+    router.back();
   }
 
   if (isCreate)

@@ -115,39 +115,41 @@ export const WorkOrderPerPreventive = ({ id }: { id: string }) => {
           </div>
         </div>
         <div>
-          {currentWorkOrders.map((workOrder, index) => (
-            <div
-              key={index}
-              className={`flex flex-row items-center border-b border-gray-200 ${
-                dayjs(workOrder.startTime).isAfter(now) ? 'bg-yellow-500' : ''
-              }`}
-            >
-              <div className="p-2 w-full">{workOrder.code}</div>
-              <div className="p-2 w-full">{workOrder.description}</div>
-              <div className="p-2 w-full">
-                {formatDate(workOrder.creationTime)}
+          <div className="overflow-auto max-h-80">
+            {currentWorkOrders.map((workOrder, index) => (
+              <div
+                key={index}
+                className={`flex flex-row items-center border-b border-gray-200 ${
+                  dayjs(workOrder.startTime).isAfter(now) ? 'bg-yellow-500' : ''
+                }`}
+              >
+                <div className="p-2 w-full">{workOrder.code}</div>
+                <div className="p-2 w-full">{workOrder.description}</div>
+                <div className="p-2 w-full">
+                  {formatDate(workOrder.creationTime)}
+                </div>
+                <div className="p-2 w-full">
+                  {translateStateWorkOrder(workOrder.stateWorkOrder)}
+                </div>
+                {dayjs(workOrder.startTime).isBefore(now) && (
+                  <Button
+                    type="none"
+                    onClick={() => {
+                      toggleLoading(workOrder.id + '_Detail');
+                    }}
+                    href={`${Routes.workOrders}/${workOrder.id}`}
+                    className="bg-okron-btDetail hover:bg-okron-btnDetailHover rounded flex text-center p-2 w-full justify-center align-middle text-white"
+                  >
+                    {isLoading[workOrder.id + '_Detail'] ? (
+                      <SvgSpinner />
+                    ) : (
+                      <SvgDetail />
+                    )}
+                  </Button>
+                )}
               </div>
-              <div className="p-2 w-full">
-                {translateStateWorkOrder(workOrder.stateWorkOrder)}
-              </div>
-              {dayjs(workOrder.startTime).isBefore(now) && (
-                <Button
-                  type="none"
-                  onClick={() => {
-                    toggleLoading(workOrder.id + '_Detail');
-                  }}
-                  href={`${Routes.workOrders}/${workOrder.id}`}
-                  className="bg-okron-btDetail hover:bg-okron-btnDetailHover rounded flex text-center p-2 w-full justify-center align-middle text-white"
-                >
-                  {isLoading[workOrder.id + '_Detail'] ? (
-                    <SvgSpinner />
-                  ) : (
-                    <SvgDetail />
-                  )}
-                </Button>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
