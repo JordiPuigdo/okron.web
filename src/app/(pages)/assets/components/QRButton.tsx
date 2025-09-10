@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { Button } from 'designSystem/Button/Buttons';
 import { QrCode } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 
 export default function QRButton({ assetId }: { assetId: string }) {
+  const { t } = useTranslations();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [qrUrl, setQrUrl] = useState('');
   const qrRef = useRef<HTMLCanvasElement>(null);
@@ -17,7 +19,7 @@ export default function QRButton({ assetId }: { assetId: string }) {
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(qrUrl);
-    alert('URL copiada!');
+    alert(t('url.copied'));
   };
 
   const handleDownload = () => {
@@ -35,7 +37,7 @@ export default function QRButton({ assetId }: { assetId: string }) {
     <>
       <div
         data-tooltip-id="QR"
-        data-tooltip-content="Generar QR"
+        data-tooltip-content={t('generate.qr')}
         className="flex items-center justify-center"
       >
         <Button
@@ -50,7 +52,7 @@ export default function QRButton({ assetId }: { assetId: string }) {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-            <h2 className="text-xl font-semibold mb-4">QR generat</h2>
+            <h2 className="text-xl font-semibold mb-4">{t('qr.generated')}</h2>
 
             <div className="flex justify-center mb-4">
               <QRCodeCanvas
@@ -72,13 +74,13 @@ export default function QRButton({ assetId }: { assetId: string }) {
                 onClick={handleCopy}
                 customStyles="flex px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm "
               >
-                Copiar URL
+                {t('copy.url')}
               </Button>
               <Button
                 onClick={handleDownload}
                 customStyles="flex px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 text-sm"
               >
-                Descarregar QR
+                {t('download.qr')}
               </Button>
               <a
                 href={qrUrl}
@@ -86,13 +88,13 @@ export default function QRButton({ assetId }: { assetId: string }) {
                 rel="noopener noreferrer"
                 className="flex px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-sm items-center"
               >
-                Obrir
+                {t('open')}
               </a>
               <Button
                 onClick={() => setIsModalOpen(false)}
                 customStyles="flex px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 text-sm"
               >
-                Tancar
+                {t('close')}
               </Button>
             </div>
           </div>
