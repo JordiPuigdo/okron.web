@@ -130,7 +130,9 @@ export const WorkOrderPerPreventive = ({
               <div
                 key={index}
                 className={`flex flex-row items-center border-b border-gray-200 ${
-                  dayjs(workOrder.startTime).isAfter(now) ? 'bg-yellow-500' : ''
+                  dayjs(workOrder.creationTime).isAfter(now)
+                    ? 'bg-yellow-500'
+                    : ''
                 }`}
               >
                 <div className="p-2 w-full">{workOrder.code}</div>

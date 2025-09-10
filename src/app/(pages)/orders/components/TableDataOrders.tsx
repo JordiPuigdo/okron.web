@@ -53,8 +53,8 @@ export const TableDataOrders = ({
   const [firstLoad, setFirstLoad] = useState(true);
   const { updateQueryParams, queryParams } = useQueryParams();
   const [dateFilters, setDateFilters] = useState<DateFilters>({
-    startDate: null,
-    endDate: null,
+    startDate: DEFAULT_DATE_START,
+    endDate: DEFAULT_DATE_END,
   });
 
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -90,7 +90,7 @@ export const TableDataOrders = ({
   }, []);
 
   useEffect(() => {
-    if (!isInitialized && !selectedProviderId) {
+    if (!isInitialized) {
       const newFilters: FilterValue = { ...filters };
       if (Object.keys(queryParams).length === 0) {
         newFilters.status = enableFilters
@@ -151,6 +151,13 @@ export const TableDataOrders = ({
       setFilters(newFilters);
       setIsInitialized(true);
     }
+    /*if (sparePartId && !isInitialized) {
+      setDateFilters(prev => ({
+        ...prev,
+        startDate: DEFAULT_DATE_START,
+        endDate: DEFAULT_DATE_END,
+      }));
+    }*/
   }, [queryParams, isInitialized]);
 
   useEffect(() => {
@@ -183,8 +190,14 @@ export const TableDataOrders = ({
     if (dateFilters.startDate && dateFilters.endDate && isInitialized) {
       const timeoutId = setTimeout(() => {
         const filtersApplied: Record<string, string> = {
-          startDate: dayjs(dateFilters.startDate).format('YYYY-MM-DD'),
-          endDate: dayjs(dateFilters.endDate).format('YYYY-MM-DD'),
+          startDate:
+            dateFilters.startDate == DEFAULT_DATE_START
+              ? ''
+              : dayjs(dateFilters.startDate).format('YYYY-MM-DD'),
+          endDate:
+            dateFilters.endDate == DEFAULT_DATE_END
+              ? ''
+              : dayjs(dateFilters.endDate).format('YYYY-MM-DD'),
         };
 
         // Procesar todos los filtros dinámicamente
@@ -311,7 +324,7 @@ const columnsOrders: Column[] = [
   },
   {
     label: 'Codi',
-    key: 'code',
+    key: 'orderCode',
     format: ColumnFormat.TEXT,
   },
   {
@@ -350,7 +363,7 @@ const columnsOrders: Column[] = [
 const filtersOrders: Filters[] = [
   {
     label: 'Codi',
-    key: 'code',
+    key: 'orderCode',
     format: FiltersFormat.TEXT,
   },
   {
