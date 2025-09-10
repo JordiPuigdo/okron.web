@@ -8,6 +8,7 @@ const LanguageSelector = () => {
   const languages = [
     { code: 'es', label: 'Español' },
     { code: 'ca', label: 'Català' },
+    { code: 'en', label: 'English' },
   ];
 
   const handleChangeLang = async (lang: string) => {

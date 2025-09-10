@@ -1,6 +1,7 @@
 import React from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { usePermissions } from 'app/hooks/usePermissions';
+import { useTranslations } from 'app/hooks/useTranslations';
 import Operator, { OperatorType } from 'app/interfaces/Operator';
 import { translateOperatorType } from 'app/utils/utils';
 
@@ -20,6 +21,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
   onUpdatedSuccesfully,
 }) => {
   const { filterOperatorTypes } = usePermissions();
+  const { t } = useTranslations();
 
   const operatorTypes = filterOperatorTypes(
     Object.values(OperatorType).filter(v => typeof v === 'number')
@@ -42,7 +44,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
           htmlFor="code"
           className="block text-sm font-medium text-gray-700"
         >
-          Codi Operari
+          t
         </label>
         <Controller
           name="code"
@@ -52,7 +54,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
             <input
               {...field}
               type="text"
-              placeholder="Codi Operari"
+              placeholder={t('operator.code')}
               className="border rounded-md w-full px-3 py-2 mt-1 text-gray-700 focus:outline-none focus:border-indigo-500"
             />
           )}

@@ -20,6 +20,7 @@ import { formatDate } from 'app/utils/utils';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
+import { useTranslations } from '../../app/hooks/useTranslations';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -56,13 +57,14 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
   const [editedType, setEditedType] = useState<
     WorkOrderOperatorTimeType | undefined
   >(undefined);
+  const {t} = useTranslations();
   const { isAdmin, isCRM } = usePermissions();
   const addWorkOrderTime = async () => {
     setIsLoading(true);
 
     let op = operators.find(x => x.code === codeOperator);
     if (!op && operatorLogged == undefined) {
-      alert('Codi Operari Incorrecte');
+      alert(t('operator.code.incorrect'));
       setIsLoading(false);
       return;
     } else {
@@ -120,7 +122,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
     setIsLoading(true);
     let op = operators.find(x => x.code === codeOperator);
     if (!op && operatorLogged == undefined) {
-      alert('Codi Operari Incorrecte');
+      alert(t('operator.code.incorrect'));
       setIsLoading(false);
       return;
     } else {
@@ -362,7 +364,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
       <div className="flex space-x-4 items-center">
         <input
           type="text"
-          placeholder="Codi Operari"
+          placeholder={t('operator.code')}
           value={codeOperator}
           onChange={e => {
             setCodeOperator(e.target.value);
