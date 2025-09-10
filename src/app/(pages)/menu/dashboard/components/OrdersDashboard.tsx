@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useOrder } from 'app/hooks/useOrder';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import { DateFilters } from 'components/Filters/DateFilter';
@@ -13,6 +13,25 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+
+// Hook personalizado para detectar clics fuera de un elemento
+const useClickOutside = (
+  ref: React.RefObject<HTMLElement>,
+  callback: () => void
+) => {
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        callback();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [ref, callback]);
+};
 
 interface OrdersDashboardProps {
   dateRange: DateFilters;
@@ -31,6 +50,16 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
   const [chartData, setChartData] = useState<
     { account: string; total: number }[]
   >([]);
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  // Referencia para el dropdown
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Cerrar dropdown al hacer clic fuera
+  useClickOutside(dropdownRef, () => {
+    setDropdownOpen(false);
+  });
 
   // Cargar órdenes según dateRange
   useEffect(() => {
@@ -69,11 +98,14 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
       : orders;
 
     const accountMap = new Map<string, number>();
+    let overallTotal = 0;
+
     filteredOrders.forEach(order => {
       const account = order.account || 'Sense Compte';
       const total = parseFloat(order.totalAmount || '0');
       const current = accountMap.get(account) || 0;
       accountMap.set(account, current + total);
+      overallTotal += total;
     });
 
     const data = Array.from(accountMap.entries())
@@ -82,13 +114,38 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
       .sort((a, b) => b.total - a.total);
 
     setChartData(data);
+    setTotalAmount(overallTotal);
   }, [orders, selectedProvider]);
-
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
     <div className="flex flex-col gap-6 w-full p-4 rounded-xl flex-grow bg-white shadow">
-      <div className="relative w-full max-w-md">
+      {/* Sección de total general */}
+      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-700">
+              Total general
+            </h2>
+            <p className="text-sm text-gray-500">
+              {selectedProvider
+                ? `Proveïdor seleccionat: ${
+                    providers.find(p => p.id === selectedProvider)?.name || ''
+                  }`
+                : 'Tots els proveïdors'}
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-blue-700">
+              {formatEuropeanCurrency(totalAmount)}
+            </div>
+            <div className="text-sm text-gray-500">
+              {chartData.length} {chartData.length === 1 ? 'compte' : 'comptes'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative w-full max-w-md" ref={dropdownRef}>
         <label className="font-semibold text-gray-700 mb-1 block">
           Proveïdor
         </label>
@@ -149,7 +206,7 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ top: 20, right: 55, left: 25, bottom: 20 }}
+            margin={{ top: 20, right: 125, left: 25, bottom: 20 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
@@ -164,7 +221,10 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
               tick={{ fontSize: 14, fill: '#374151' }}
             />
             <Tooltip
-              formatter={(value: number) => formatEuropeanCurrency(value)}
+              formatter={(value: number) => [
+                formatEuropeanCurrency(value),
+                'Total',
+              ]}
               labelFormatter={(label: string) => `Compte: ${label}`}
             />
             <Bar
@@ -176,7 +236,7 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
               <LabelList
                 dataKey="total"
                 position="right"
-                formatter={(value: number) => formatEuropeanCurrency(value)}
+                formatter={formatEuropeanCurrency}
               />
             </Bar>
           </BarChart>
