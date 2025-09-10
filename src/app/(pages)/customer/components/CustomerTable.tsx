@@ -1,6 +1,7 @@
 'use client';
 
 import { useCustomers } from 'app/hooks/useCustomers';
+import { useTranslations } from 'app/hooks/useTranslations';
 import DataTable from 'components/table/DataTable';
 import {
   Column,
@@ -10,44 +11,44 @@ import {
 } from 'components/table/interface/interfaceTable';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 
-const columnsCustomers: Column[] = [
+const getColumnsCustomers = (t: any): Column[] => [
   {
     label: 'ID',
     key: 'id',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Codi',
+    label: t('code'),
     key: 'code',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Nom',
+    label: t('name'),
     key: 'name',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Nom Fiscal',
+    label: t('fiscal.name'),
     key: 'fiscalName',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'NIF/CIF',
+    label: t('tax.id'),
     key: 'taxId',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Telèfon',
+    label: t('phone'),
     key: 'phoneNumber',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Whtasapp',
+    label: t('whatsapp'),
     key: 'whatsappNumber',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Actiu',
+    label: t('active'),
     key: 'active',
     format: ColumnFormat.BOOLEAN,
   },
@@ -57,49 +58,50 @@ export const tableButtons = {
   detail: true,
 };
 
-const filterCustomer: Filters[] = [
+const getFilterCustomer = (t: any): Filters[] => [
   {
-    label: 'Codi',
+    label: t('code'),
     key: 'code',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Nom',
+    label: t('name'),
     key: 'name',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Nom Fiscal',
+    label: t('fiscal.name'),
     key: 'fiscalName',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Telèfon',
+    label: t('phone'),
     key: 'phoneNumber',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'NIF/CIF',
+    label: t('tax.id'),
     key: 'taxId',
     format: FiltersFormat.TEXT,
   },
 ];
 
 export const CustomerTable = () => {
+  const { t } = useTranslations();
   const { customers, loading, error } = useCustomers();
 
-  if (loading) return <div>Carregant clients...</div>;
-  if (error) return <div className="text-red-500">Error: {error}</div>;
+  if (loading) return <div>{t('loading.customers')}</div>;
+  if (error) return <div className="text-red-500">{t('error')}: {error}</div>;
 
   return (
     <div className="w-full">
       <DataTable
         data={customers}
-        columns={columnsCustomers}
+        columns={getColumnsCustomers(t)}
         entity={EntityTable.CUSTOMER}
         tableButtons={tableButtons}
         hideShadow={false}
-        filters={filterCustomer}
+        filters={getFilterCustomer(t)}
       />
     </div>
   );

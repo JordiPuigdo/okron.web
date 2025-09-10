@@ -1,3 +1,5 @@
+'use client';
+
 import { HeaderTable } from 'components/layout/HeaderTable';
 
 import { useTranslations } from '../../../hooks/useTranslations';
@@ -8,9 +10,9 @@ export default function CustomerComponent() {
   return (
     <div className="flex flex-col h-full">
       <HeaderTable
-        title="Clients"
-        subtitle={`${t('start')} - Llistat de Client`}
-        createButton="Crear Client"
+        title={t('customers')}
+        subtitle={`${t('start')} - ${t('customer.list')}`}
+        createButton={t('create.customer')}
         urlCreateButton="/customer/new"
       />
       <CustomerTable />
