@@ -166,7 +166,23 @@
       "tax.id": "Tax ID",
       "phone": "Phone",
       "whatsapp": "WhatsApp",
-      "loading.customers": "Loading customers..."
+      "loading.customers": "Loading customers...",
+      "delivery.notes": "Delivery Notes",
+      "delivery.notes.list": "Delivery Notes List",
+      "create.delivery.note": "Create Delivery Note",
+      "reception": "Reception",
+      "reception.list": "Reception List",
+      "create.reception": "Create Reception",
+      "no.delivery.notes.filters": "No delivery notes with these filters",
+      "customer": "Customer",
+      "customer.ref": "Customer Ref",
+      "internal.codes": "Internal Codes",
+      "status": "Status",
+      "date.required": "Date is required",
+      "select.work.order.required": "Must select at least one work order",
+      "select.customer.required": "Must select a customer",
+      "search.customer": "Search Customer",
+      "search.work.orders": "Search Work Orders"
     }
   }
 ]

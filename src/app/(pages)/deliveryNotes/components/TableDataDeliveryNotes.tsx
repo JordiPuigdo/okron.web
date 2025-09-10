@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
 import DataTable from 'components/table/DataTable';
@@ -29,6 +30,7 @@ export const TableDataDeliveryNotes = ({
   hideShadow = false,
   enableFilters = true,
 }: TableDataDeliveryNotesProps) => {
+  const { t } = useTranslations();
   const [deliveryNotes, setDeliveryNotes] = useState<DeliveryNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
@@ -85,7 +87,7 @@ export const TableDataDeliveryNotes = ({
       dateFilters.endDate &&
       !firstLoad
     ) {
-      setMessage('No hi ha albarans amb aquests filtres');
+      setMessage(t('no.delivery.notes.filters'));
       setTimeout(() => {
         setMessage('');
       }, 5000);
@@ -130,10 +132,10 @@ export const TableDataDeliveryNotes = ({
       </div>
       <DataTable
         data={filteredDeliveryNotes}
-        columns={columnsDeliveryNotes}
+        columns={getColumnsDeliveryNotes(t)}
         entity={EntityTable.DELIVERYNOTE}
         tableButtons={tableButtons}
-        filters={filtersDeliveryNotes}
+        filters={getFiltersDeliveryNotes(t)}
         hideShadow={hideShadow}
         totalCounts
         totalCalculated={Number(formattedPrice)}
@@ -147,68 +149,68 @@ const tableButtons: TableButtons = {
   detail: true,
 };
 
-const columnsDeliveryNotes: Column[] = [
+const getColumnsDeliveryNotes = (t: any): Column[] => [
   {
     label: 'ID',
     key: 'id',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Codi',
+    label: t('code'),
     key: 'code',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Client',
+    label: t('customer'),
     key: 'companyName',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Ref. Client',
+    label: t('customer.ref'),
     key: 'refCustomerIds',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Codis Interns',
+    label: t('internal.codes'),
     key: 'workOrderCodes',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Data',
+    label: t('date'),
     key: 'deliveryNoteDate',
     format: ColumnFormat.DATE,
   },
   {
-    label: 'Estat',
+    label: t('status'),
     key: 'status',
     format: ColumnFormat.DELIVERYNOTESTATUS,
   },
   {
-    label: 'Total',
+    label: t('total'),
     key: 'total',
     format: ColumnFormat.PRICE,
     align: ColumnnAlign.RIGHT,
   },
 ];
 
-const filtersDeliveryNotes: Filters[] = [
+const getFiltersDeliveryNotes = (t: any): Filters[] => [
   {
-    label: 'Codi',
+    label: t('code'),
     key: 'code',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Client',
+    label: t('customer'),
     key: 'companyName',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Ref. Client',
+    label: t('customer.ref'),
     key: 'refCustomerIds',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Codis Interns',
+    label: t('internal.codes'),
     key: 'workOrderCodes',
     format: FiltersFormat.TEXT,
   },
