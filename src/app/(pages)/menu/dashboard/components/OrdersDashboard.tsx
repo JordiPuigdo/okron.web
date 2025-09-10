@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { useOrder } from 'app/hooks/useOrder';
+import { OrderType } from 'app/interfaces/Order';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import { DateFilters } from 'components/Filters/DateFilter';
 import {
@@ -72,17 +73,19 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
   // Extraer proveedores únicos
   useEffect(() => {
     const uniqueProviders: SimpleProvider[] = [];
-    orders.forEach(order => {
-      if (
-        order.providerId &&
-        !uniqueProviders.some(p => p.id === order.providerId)
-      ) {
-        uniqueProviders.push({
-          id: order.providerId,
-          name: order.providerName || '',
-        });
-      }
-    });
+    orders
+      .filter(order => order.type === OrderType.Purchase)
+      .forEach(order => {
+        if (
+          order.providerId &&
+          !uniqueProviders.some(p => p.id === order.providerId)
+        ) {
+          uniqueProviders.push({
+            id: order.providerId,
+            name: order.providerName || '',
+          });
+        }
+      });
     setProviders(uniqueProviders);
   }, [orders]);
 
@@ -94,8 +97,12 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
   // Agrupar por cuenta contable y sumar total
   useEffect(() => {
     const filteredOrders = selectedProvider
-      ? orders.filter(order => order.providerId === selectedProvider)
-      : orders;
+      ? orders.filter(
+          order =>
+            order.providerId === selectedProvider &&
+            order.type === OrderType.Purchase
+        )
+      : orders.filter(order => order.type === OrderType.Purchase);
 
     const accountMap = new Map<string, number>();
     let overallTotal = 0;
