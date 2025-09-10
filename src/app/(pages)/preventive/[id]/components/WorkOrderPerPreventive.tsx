@@ -125,7 +125,7 @@ export const WorkOrderPerPreventive = ({ id }: { id: string }) => {
               <div className="p-2 w-full">{workOrder.code}</div>
               <div className="p-2 w-full">{workOrder.description}</div>
               <div className="p-2 w-full">
-                {formatDate(workOrder.startTime)}
+                {formatDate(workOrder.creationTime)}
               </div>
               <div className="p-2 w-full">
                 {translateStateWorkOrder(workOrder.stateWorkOrder)}
