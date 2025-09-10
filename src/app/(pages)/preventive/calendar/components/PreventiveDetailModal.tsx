@@ -11,13 +11,15 @@ import {
 import { DailyPreventivesAndOperations } from 'app/interfaces/Preventive';
 import dayjs from 'dayjs';
 
+import { WorkOrderPerPreventive } from '../../[id]/components/WorkOrderPerPreventive';
+
 // Estilos para el modal
 const modalStyle = {
   position: 'absolute' as const,
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: '90%', sm: '80%', md: '700px' },
+  width: { xs: '90%', sm: '80%', md: '1200px' },
   maxHeight: '85vh',
   bgcolor: 'background.paper',
   borderRadius: '12px',
@@ -262,6 +264,18 @@ const PreventiveDetailModal = ({
                 </Typography>
               )}
             </Box>
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 600, mb: 2, color: 'primary.main' }}
+            >
+              Històric Ordres de treball
+            </Typography>
+            <WorkOrderPerPreventive
+              id={preventive.preventive.id}
+              className="overflow-auto max-h-80"
+            />
           </Box>
         </Box>
       </Box>

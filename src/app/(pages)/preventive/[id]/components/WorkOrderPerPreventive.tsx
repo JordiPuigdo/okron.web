@@ -14,7 +14,17 @@ import ca from 'date-fns/locale/ca';
 import dayjs from 'dayjs';
 import { Button } from 'designSystem/Button/Buttons';
 
-export const WorkOrderPerPreventive = ({ id }: { id: string }) => {
+interface WorkOrderPerPreventiveProps {
+  id: string;
+  title?: string;
+  className?: string;
+}
+
+export const WorkOrderPerPreventive = ({
+  id,
+  title,
+  className,
+}: WorkOrderPerPreventiveProps) => {
   const preventiveService = new PreventiveService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
@@ -70,7 +80,7 @@ export const WorkOrderPerPreventive = ({ id }: { id: string }) => {
 
   return (
     <div className="w-full flex flex-col bg-white p-4 rounded-lg shadow-md">
-      <p className="text-lg font-semibold mb-2">Històric OT</p>
+      {title && <p className="text-lg font-semibold mb-2">{title}</p>}
       <div className="flex gap-2">
         <div className="flex gap-2 items-center justify-center">
           <p>Inci:</p>
@@ -115,7 +125,7 @@ export const WorkOrderPerPreventive = ({ id }: { id: string }) => {
           </div>
         </div>
         <div>
-          <div className="overflow-auto max-h-80">
+          <div className={className}>
             {currentWorkOrders.map((workOrder, index) => (
               <div
                 key={index}
