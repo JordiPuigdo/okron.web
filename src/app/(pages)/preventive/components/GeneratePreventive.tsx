@@ -11,6 +11,8 @@ import { formatDate } from 'app/utils/utils';
 import { Button } from 'designSystem/Button/Buttons';
 import { Modal } from 'designSystem/Modals/Modal';
 
+import { useTranslations } from '../../../hooks/useTranslations';
+
 interface PreventiveCreateds {
   key: Preventive;
   value: number;
@@ -25,7 +27,7 @@ const GeneratePreventive = () => {
   const preventiveService = new PreventiveService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
-
+  const {t} = useTranslations();
   const { loginUser, operatorLogged } = useSessionStore(state => state);
   const { setIsModalOpen } = useGlobalStore(state => state);
 
@@ -118,7 +120,7 @@ const GeneratePreventive = () => {
             onClick={generateWorkOrders}
             customStyles="flex bg-white border-okron-main text-okron-main text-sm sm:text-xs md:text-sm lg:text-base rounded-md font-semibold hover:bg-[#E7DDFC] hover:border-okron-main border-2 w-full overflow-hidden text-ellipsis whitespace-nowrap"
           >
-            Generar Revisions {formatDate(new Date(), false, false)}
+            {t('generate.reviews')} {formatDate(new Date(), false, false)}
             {isLoading && <SvgSpinner className=" w-6 h-6" />}
           </Button>
         </div>

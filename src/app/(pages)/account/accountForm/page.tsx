@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Account, CreateAccountRequest } from 'app/interfaces/Account';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { AccountService } from 'app/services/accountService';
 import Container from 'components/layout/Container';
 import { HeaderForm } from 'components/layout/HeaderForm';
@@ -9,6 +10,7 @@ import BaseForm from 'components/OkronForm/BaseForm';
 import { useRouter } from 'next/navigation';
 
 export default function AccountFormPage() {
+  const { t } = useTranslations();
   const router = useRouter();
   const accountService = new AccountService();
   const [Account, setAccount] = useState<Account[]>([]);
@@ -28,7 +30,7 @@ export default function AccountFormPage() {
         x => x.code.toLocaleUpperCase() == data.code.toLocaleUpperCase()
       )
     ) {
-      setErrorMessage('El codi ja existeix');
+      setErrorMessage(t('code.already.exists'));
       setTimeout(() => {
         setErrorMessage(undefined);
       }, 2000);
@@ -42,21 +44,21 @@ export default function AccountFormPage() {
   return (
     <MainLayout>
       <Container>
-        <HeaderForm header="Crear Compte Comptable" isCreate />
+        <HeaderForm header={t('create.accounting.account')} isCreate />
         <BaseForm<CreateAccountRequest>
-          title="Nou Compta Comptable"
+          title={t('new.accounting.account')}
           fields={[
             {
               name: 'code',
-              label: 'Codi',
-              placeholder: 'Introdueix el codi',
-              rules: { required: 'El codi és obligatori' },
+              label: t('code'),
+              placeholder: t('enter.code'),
+              rules: { required: t('code.required') },
             },
             {
               name: 'description',
-              label: 'Descripció',
-              placeholder: 'Introdueix la descripció',
-              rules: { required: 'La descripció és obligatòria' },
+              label: t('description'),
+              placeholder: t('enter.description'),
+              rules: { required: t('description.required') },
             },
           ]}
           onSubmit={handleCreate}

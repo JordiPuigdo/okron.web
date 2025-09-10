@@ -13,6 +13,7 @@ import utc from 'dayjs/plugin/utc';
 import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
 
+import { useTranslations } from '../../../../hooks/useTranslations';
 import SparePartBarchart from './component/sparePartBarchart';
 import SparePartsConsumedReportTable from './component/SparePartsConsumedReportTable';
 
@@ -27,6 +28,8 @@ export default function ConsumedSparePartsComponent() {
     return date;
   });
   const [to, setTo] = useState(new Date());
+
+  const { t } = useTranslations();
 
   const { sparePartsConsumeds, isLoading, isError, reloadSparePartsConsumeds } =
     useSparePartsHook().fetchSparePartsConsumedsHook(
@@ -75,7 +78,7 @@ export default function ConsumedSparePartsComponent() {
           />
 
           <Button type="create" onClick={() => reloadSparePartsConsumeds()}>
-            Buscar
+            {t('search')}
           </Button>
         </div>
       </div>

@@ -8,6 +8,7 @@ import MainLayout from 'components/layout/MainLayout';
 import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
 
+import { useTranslations } from '../../hooks/useTranslations';
 import GeneratePreventive from './components/GeneratePreventive';
 import PreventiveTable from './preventiveTable/preventiveTable';
 
@@ -20,7 +21,7 @@ function PreventivePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingPage, setIsLoadingPage] = useState(true);
   const router = useRouter();
-
+  const {t} = useTranslations();
   useEffect(() => {
     const fetchPreventives = async () => {
       try {
@@ -45,7 +46,7 @@ function PreventivePage() {
             Revisions
           </h2>
           <span className="text-l self-start">
-            Inici - Llistat de Revisions
+            {t('start')} - Llistat de Revisions
           </span>
         </div>
         <div className="w-full flex flex-col justify-end items-end gap-2 ">

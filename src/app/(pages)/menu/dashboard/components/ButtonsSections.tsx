@@ -1,9 +1,28 @@
+import { useTranslations } from 'app/hooks/useTranslations';
+
 const BUTTONS = ['Costos', 'Recanvis', 'Ordres de treball', 'Compres'];
 
 export default function ButtonsSections({
   selectedButton,
   handleButtonClick,
 }: any) {
+  const { t } = useTranslations();
+  
+  const getButtonText = (button: string) => {
+    switch (button) {
+      case 'Costos':
+        return t('costs');
+      case 'Recanvis':
+        return t('spare.parts');
+      case 'Ordres de treball':
+        return t('work.orders');
+      case 'Compres':
+        return t('purchases');
+      default:
+        return button;
+    }
+  };
+  
   return (
     <div className="flex gap-4">
       {BUTTONS.map(button => (
@@ -16,7 +35,7 @@ export default function ButtonsSections({
               : 'text-okron-main border-okron-main'
           }`}
         >
-          {button}
+          {getButtonText(button)}
         </button>
       ))}
     </div>

@@ -14,6 +14,8 @@ import ca from 'date-fns/locale/ca';
 import dayjs from 'dayjs';
 import { Button } from 'designSystem/Button/Buttons';
 
+import { useTranslations } from '../../../../hooks/useTranslations';
+
 interface WorkOrderPerPreventiveProps {
   id: string;
   title?: string;
@@ -73,6 +75,8 @@ export const WorkOrderPerPreventive = ({
   const [currentPage, setCurrentPage] = useState(1);
   const now = new Date();
 
+  const { t } = useTranslations();
+
   // Calculate pagination range
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -110,7 +114,7 @@ export const WorkOrderPerPreventive = ({
             onClick={() => handleSearch()}
             customStyles="flex"
           >
-            {isLoading[id + '_Search'] ? <SvgSpinner /> : 'Buscar'}
+            {isLoading[id + '_Search'] ? <SvgSpinner /> : t('search')}
           </Button>
         </div>
       </div>

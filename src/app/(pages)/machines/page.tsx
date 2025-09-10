@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgCreate, SvgMachines } from 'app/icons/icons';
 import Section from 'app/interfaces/Section';
 import MachineService from 'app/services/machineService';
@@ -40,7 +41,7 @@ export default function MachinesPage() {
   const [filterActive, setFilterActive] = useState(true);
   const [selectedSection, setSelectedSection] = useState('');
   const router = useRouter();
-
+  const {t} = useTranslations();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -173,7 +174,7 @@ export default function MachinesPage() {
             <SvgMachines />
             Màquines
           </h2>
-          <span className="text-l">Inici - Llistat de Màquines</span>
+          <span className="text-l">{t('start')} - Llistat de Màquines</span>
         </div>
         <div className="w-full flex justify-end items-center">
           <button

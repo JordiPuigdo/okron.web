@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { useOrder } from 'app/hooks/useOrder';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { OrderType } from 'app/interfaces/Order';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import { DateFilters } from 'components/Filters/DateFilter';
@@ -45,6 +46,7 @@ interface SimpleProvider {
 
 export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
   const { orders, getOrderWithFilters } = useOrder();
+  const { t } = useTranslations();
   const [selectedProvider, setSelectedProvider] = useState<string>('');
   const [providerSearch, setProviderSearch] = useState<string>('');
   const [providers, setProviders] = useState<SimpleProvider[]>([]);
@@ -131,14 +133,14 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-lg font-semibold text-gray-700">
-              Total general
+              {t('total.general')}
             </h2>
             <p className="text-sm text-gray-500">
               {selectedProvider
-                ? `Proveïdor seleccionat: ${
+                ? `${t('selected.provider')}: ${
                     providers.find(p => p.id === selectedProvider)?.name || ''
                   }`
-                : 'Tots els proveïdors'}
+                : t('all.providers')}
             </p>
           </div>
           <div className="text-right">
@@ -146,7 +148,7 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
               {formatEuropeanCurrency(totalAmount)}
             </div>
             <div className="text-sm text-gray-500">
-              {chartData.length} {chartData.length === 1 ? 'compte' : 'comptes'}
+              {chartData.length} {chartData.length === 1 ? t('account') : t('accounts')}
             </div>
           </div>
         </div>
@@ -154,11 +156,11 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
 
       <div className="relative w-full max-w-md" ref={dropdownRef}>
         <label className="font-semibold text-gray-700 mb-1 block">
-          Proveïdor
+          {t('provider')}
         </label>
         <input
           type="text"
-          placeholder="Buscar proveïdor..."
+          placeholder={t('search.provider')}
           value={providerSearch}
           onChange={e => {
             setProviderSearch(e.target.value);
@@ -184,7 +186,7 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
                   setProviderSearch('');
                 }}
               >
-                Tots
+                {t('all')}
               </button>
             </li>
             {filteredProviders.map(provider => (
@@ -230,9 +232,9 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
             <Tooltip
               formatter={(value: number) => [
                 formatEuropeanCurrency(value),
-                'Total',
+                t('total'),
               ]}
-              labelFormatter={(label: string) => `Compte: ${label}`}
+              labelFormatter={(label: string) => `${t('account')}: ${label}`}
             />
             <Bar
               dataKey="total"

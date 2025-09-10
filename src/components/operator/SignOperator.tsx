@@ -74,7 +74,7 @@ export default function SignOperator() {
           onClick={signOperator}
           className="absolute right-2 px-4 py-1 bg-okron-main text-white text-sm font-semibold rounded-md hover:bg-okron-hoverButtonMain"
         >
-          {operatorLogged?.codeOperatorLogged ? 'Desfitxar' : 'Fitxar'}
+          {operatorLogged?.codeOperatorLogged ? t('clock.out') : t('clock.in')}
         </button>
       </div>
       {errorSign && (

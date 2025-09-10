@@ -17,12 +17,14 @@ import {
 import { EntityTable } from 'components/table/interface/tableEntitys';
 import Link from 'next/link';
 
+import { useTranslations } from '../../hooks/useTranslations';
+
 export default function AuthenticationPage() {
   const sectionService = new SectionService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
   const [sections, setSections] = useState<Section[]>([]);
-
+  const {t} = useTranslations();
   const [isLoading, setIsLoading] = useState(false);
 
   const columns: Column[] = [
@@ -76,7 +78,7 @@ export default function AuthenticationPage() {
     <MainLayout>
       <Container>
         <div className="flex flex-col h-full">
-          {renderHeader()}
+          {renderHeader(t)}
           <DataTable
             data={sections}
             tableButtons={tableButtons}
@@ -90,7 +92,7 @@ export default function AuthenticationPage() {
   );
 }
 
-const renderHeader = () => {
+const renderHeader = (t:any) => {
   return (
     <div className="flex p-2 my-2">
       <div className="w-full flex flex-col gap-2 items">
@@ -98,7 +100,7 @@ const renderHeader = () => {
           <SvgMachines />
           Seccions
         </h2>
-        <span className="text-l">Inici - Llistat de Seccions</span>
+        <span className="text-l">{t('start')} - Llistat de Seccions</span>
       </div>
       <div className="w-full flex justify-end items-center">
         <Link

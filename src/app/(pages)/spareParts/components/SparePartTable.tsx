@@ -25,6 +25,8 @@ import { EntityTable } from 'components/table/interface/tableEntitys';
 import ca from 'date-fns/locale/ca';
 import { Button } from 'designSystem/Button/Buttons';
 
+import { useTranslations } from '../../../hooks/useTranslations';
+
 interface SparePartTableProps {
   enableFilterAssets?: boolean;
   enableFilters: boolean;
@@ -352,12 +354,13 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
   }
 
   const renderFilter = () => {
+    const {t} = useTranslations();
     return (
       <div className="bg-white p-2 my-4 rounded-xl gap-4 shadow-md">
         <div className="flex gap-4 p-2 my-4 items-center">
           <div className="flex items-center">
             <label htmlFor="startDate" className="mr-2">
-              Inici
+              {t('start')}
             </label>
             <DatePicker
               id="startDate"
@@ -386,7 +389,7 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
             className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 flex items-center"
             onClick={e => handleSearch()}
           >
-            Buscar
+            {t('search')}
             {isLoading && <SvgSpinner style={{ marginLeft: '0.5rem' }} />}
           </button>
           {message != '' && (

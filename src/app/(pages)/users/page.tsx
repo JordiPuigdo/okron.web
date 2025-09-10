@@ -17,6 +17,8 @@ import {
 import { EntityTable } from 'components/table/interface/tableEntitys';
 import { Button } from 'designSystem/Button/Buttons';
 
+import { useTranslations } from '../../hooks/useTranslations';
+
 const columns: Column[] = [
   {
     label: 'ID',
@@ -52,7 +54,7 @@ export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingCreate, setIsLoadingCreate] = useState(false);
-
+  const {t} = useTranslations();
   const fetchUsers = async () => {
     await userService.getUsers().then(data => {
       if (data) {
@@ -69,7 +71,7 @@ export default function UsersPage() {
     <MainLayout>
       <Container>
         <div className="flex flex-col h-full">
-          {renderHeader()}
+          {renderHeader(t)}
           {isLoading ? (
             <p>Carregant dades...</p>
           ) : (
@@ -86,7 +88,7 @@ export default function UsersPage() {
   );
 }
 
-const renderHeader = () => {
+const renderHeader = (t:any) => {
   return (
     <div className="flex flex-col p-2 my-2">
       <div className="flex w-full">
@@ -95,7 +97,7 @@ const renderHeader = () => {
             <SvgMachines />
             Usuaris
           </h2>
-          <span className="text-l">Inici - Llistat de Usuaris</span>
+          <span className="text-l">{t('start')} - Llistat de Usuaris</span>
         </div>
         <div className="w-full flex justify-end items-center"></div>
       </div>

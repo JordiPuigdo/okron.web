@@ -7,6 +7,8 @@ import { workOrderService } from 'app/services/workOrderService';
 import { useSessionStore } from 'app/stores/globalStore';
 import { Button } from 'designSystem/Button/Buttons';
 
+import { useTranslations } from '../../../hooks/useTranslations';
+
 interface FinalizeWorkOrdersDaysBeforeProps {
   onFinalizeWorkOrdersDayBefore?: () => void;
 }
@@ -17,7 +19,7 @@ const FinalizeWorkOrdersDaysBefore: React.FC<
   const { loginUser } = useSessionStore(state => state);
 
   const [isLoading, setIsLoading] = useState(false);
-
+  const {t} = useTranslations();
   const handleFinalizeWorkOrdersDayBefore = async () => {
     const isConfirmed = window.confirm(
       'Segur que voleu finalitzar totes les ordres de treball pendents?'
@@ -38,7 +40,7 @@ const FinalizeWorkOrdersDaysBefore: React.FC<
         customStyles="bg-okron-main text-sm sm:text-xs text-white rounded-md md:text-sm lg:text-base font-semibold hover:bg-okron-hoverButtonMain jw-full overflow-hidden text-ellipsis whitespace-nowrap"
         onClick={() => handleFinalizeWorkOrdersDayBefore()}
       >
-        Finalitzar Ordres{isLoading && <SvgSpinner />}
+        {t('finalize.orders')}{isLoading && <SvgSpinner />}
       </Button>
     </div>
   );

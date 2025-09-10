@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Preventive } from "app/interfaces/Preventive";
 
+import { useTranslations } from '../../../hooks/useTranslations';
+
 interface PreventiveOperatorTableProps {
   title: string;
   preventives?: Preventive[] | null;
@@ -33,6 +35,8 @@ const PreventiveOperatorTable: React.FC<PreventiveOperatorTableProps> = ({
       preventive.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
       preventive.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const { t } = useTranslations();
 
   // Filter for pending preventives
   const displayedPreventives = showPending
@@ -85,7 +89,7 @@ const PreventiveOperatorTable: React.FC<PreventiveOperatorTableProps> = ({
 
         <input
           type="text"
-          placeholder="Buscar..."
+          placeholder={t('search')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="p-2 border border-gray-300 rounded m-2"

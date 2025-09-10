@@ -5,6 +5,8 @@ import DatePicker from 'react-datepicker';
 import ca from 'date-fns/locale/ca';
 import dayjs from 'dayjs';
 
+import { useTranslations } from '../../app/hooks/useTranslations';
+
 export interface DateFilterProps {
   dateFilters: DateFilters;
   setDateFilters: (dateFilters: DateFilters) => void;
@@ -27,6 +29,8 @@ export const DateFilter = ({
 }: DateFilterProps) => {
   const { startDate, endDate } = dateFilters;
 
+  const {t} = useTranslations();
+  
   const handleStartDateChange = useCallback(
     (date: Date | null) => {
       const normalizedDate = date ? dayjs(date).startOf('day').toDate() : null;
@@ -67,7 +71,7 @@ export const DateFilter = ({
           htmlFor="startDate"
           className={`mr-2 min-w-[40px] ${startTimeClassName}`}
         >
-          Inici
+          {t('start')}
         </label>
         <DatePicker
           {...commonDatePickerProps}

@@ -26,6 +26,7 @@ import { Button } from 'designSystem/Button/Buttons';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { useTranslations } from '../../../../hooks/useTranslations';
 import {
   calculateDowntimeCount,
   calculateTotalDowntimeMWO,
@@ -60,7 +61,7 @@ const DowntimeReport: React.FC<DowntimeReportProps> = ({
   const [onlyTickets, setOnlyTickets] = useState(true);
   // const [onlyMaintenance, setOnlyMaintenance] = useState(false);
   const router = useRouter();
-
+  const { t } = useTranslations();
   const toggleExpand = (assetCode: string) => {
     setExpandedAssets(prev => {
       const newSet = new Set(prev);
@@ -248,7 +249,7 @@ const DowntimeReport: React.FC<DowntimeReportProps> = ({
           >
             <div className="w-full flex flex-col border-r-2 gap-2">
               <div className="w-full flex gap-1 ">
-                <span className="text-white font-bold">Inici:</span>
+                <span className="text-white font-bold">{t('start')}:</span>
                 <span className="text-white">
                   {formatDate(downtime.startTime)}
                 </span>
@@ -332,7 +333,7 @@ const DowntimeReport: React.FC<DowntimeReportProps> = ({
             />
 
             <Button type="create" onClick={() => reloadData}>
-              Buscar
+              {t('search')}
             </Button>
             <div
               className="flex items-center gap-4 cursor-pointer"

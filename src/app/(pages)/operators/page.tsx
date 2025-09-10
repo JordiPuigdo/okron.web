@@ -18,6 +18,7 @@ import { EntityTable } from 'components/table/interface/tableEntitys';
 import { Button } from 'designSystem/Button/Buttons';
 
 import OperatorForm from '../../../components/OperatorForm';
+import { useTranslations } from '../../hooks/useTranslations';
 
 function OperatorsPage() {
   const [operators, setOperators] = useState<Operator[]>([]);
@@ -127,7 +128,7 @@ const renderHeader = (operators: Operator[]) => {
   const operatorService = new OperatorService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
-
+  const {t} = useTranslations();
   const [isOperatorCreated, setIsOperatorCreated] = useState<boolean | null>(
     null
   );
@@ -164,7 +165,7 @@ const renderHeader = (operators: Operator[]) => {
             <SvgMachines />
             Operaris
           </h2>
-          <span className="text-l">Inici - Llistat de Operaris</span>
+          <span className="text-l">{t('start')} - Llistat de Operaris</span>
         </div>
         <div className="w-full flex justify-end items-center">
           <Button
