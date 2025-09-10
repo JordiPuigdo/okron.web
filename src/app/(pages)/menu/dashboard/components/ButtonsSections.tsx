@@ -1,4 +1,4 @@
-const BUTTONS = ['Costos', 'Recanvis', 'Ordres de treball'];
+const BUTTONS = ['Costos', 'Recanvis', 'Ordres de treball', 'Compres'];
 
 export default function ButtonsSections({
   selectedButton,

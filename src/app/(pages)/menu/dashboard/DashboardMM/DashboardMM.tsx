@@ -25,6 +25,7 @@ import { DonutChartComponent } from 'designSystem/DonutChart/DonutChartComponent
 
 import ButtonsSections from '../components/ButtonsSections';
 import CostXAsset from '../components/CostXAsset';
+import OrdersDashboard from '../components/OrdersDashboard';
 import WorkOrdersDashboard from '../components/WorkOrdersDashboard';
 
 interface WorkOrdersChartProps {
@@ -488,8 +489,8 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
         handleButtonClick={handleButtonClick}
       />
       {selectedButton === 'Costos' ? (
-        <div className="flex flex-col lg:flex-row flex-grow gap-4">
-          <div className="border-2 p-2 w-full rounded-xl bg-white justify-center">
+        <div className="flex flex-col lg:flex-row flex-grow gap-4 ">
+          <div className="flex flex-col flex-grow border-2 p-2 w-full rounded-xl bg-white">
             <p className="text-lg lg:text-2xl font-semibold p-2 text-left">
               Costos
             </p>
@@ -507,7 +508,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
               </span>
             )}
           </div>
-          <div className="flex w-full bg-white rounded-xl p-2 border-2">
+          <div className="flex w-full bg-white rounded-xl p-2 border-2 h-full">
             <CostXAsset workOrders={workOrders} />
           </div>
         </div>
@@ -528,6 +529,8 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
             />
           </div>
         </div>
+      ) : selectedButton === 'Compres' ? (
+        <OrdersDashboard dateRange={dateFilters} />
       ) : (
         <div className="flex flex-col lg:flex-row flex-grow gap-4">
           <div className="flex w-full bg-white rounded-xl p-2 border-2">

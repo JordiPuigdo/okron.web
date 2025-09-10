@@ -481,16 +481,27 @@ export const getRoute = (entity: EntityTable, isForHeader = false) => {
 export const formatEuropeanCurrency = (
   value: number | string | undefined | null
 ): string => {
-  if (value === undefined || value === null || isNaN(Number(value))) {
-    return 'N/A';
-  }
+  if (value === undefined || value === null) return 'N/A';
 
-  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+  // Convertir a número
+  const numericValue =
+    typeof value === 'string'
+      ? parseFloat(value.replace(/\./g, '').replace(',', '.'))
+      : value;
 
-  return new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(numericValue);
+  if (isNaN(numericValue)) return 'N/A';
+
+  // Separar la parte entera y decimal
+  const parts = numericValue.toFixed(2).split('.');
+  const integerPart = parts[0];
+  const decimalPart = parts[1];
+
+  // Añadir separador de miles a la parte entera
+  const integerWithThousands = integerPart.replace(
+    /\B(?=(\d{3})+(?!\d))/g,
+    '.'
+  );
+
+  // Construir string final con formato europeo
+  return `${integerWithThousands},${decimalPart}€`;
 };

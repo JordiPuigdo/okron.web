@@ -1,5 +1,5 @@
-import WorkOrder from "app/interfaces/workOrder";
-import { BarChartComponent } from "designSystem/BarChart/BarChartComponent";
+import WorkOrder from 'app/interfaces/workOrder';
+import RechartsBarChart from 'designSystem/BarChart/RechartsBarChart';
 
 interface CostXAssetProps {
   workOrders: WorkOrder[];
@@ -8,32 +8,31 @@ interface CostXAssetProps {
 const CostXAsset: React.FC<CostXAssetProps> = ({ workOrders }) => {
   const assetCostMap = new Map<string, number>();
 
-  workOrders.forEach((workOrder) => {
-    const totalCost = workOrder.workOrderSpareParts?.reduce(
+  workOrders.forEach(workOrder => {
+    const total = workOrder.workOrderSpareParts?.reduce(
       (acc, sparePart) => acc + sparePart.quantity * sparePart.sparePart.price,
       0
     );
 
-    const assetDescription = workOrder.asset?.description || "Unknown Asset";
+    const assetDescription = workOrder.asset?.description || 'Unknown Asset';
 
-    if (totalCost) {
+    if (total) {
       const currentCost = assetCostMap.get(assetDescription) || 0;
-      assetCostMap.set(assetDescription, currentCost + totalCost);
+      assetCostMap.set(assetDescription, currentCost + total);
     }
   });
 
   const chartData = Array.from(assetCostMap.entries())
-    .map(([asset, totalCost]) => ({ asset, totalCost }))
-    .sort((a, b) => b.totalCost - a.totalCost)
+    .map(([asset, total]) => ({ asset, total }))
+    .sort((a, b) => b.total - a.total)
     .slice(0, 10);
 
   return (
-    <BarChartComponent
-      category={["totalCost"]}
+    <RechartsBarChart
       chartData={chartData}
-      index="asset"
       title="Cost Material per Equip"
       showLegend={false}
+      barColor="#3b82f6"
     />
   );
 };

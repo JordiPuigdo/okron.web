@@ -1,5 +1,8 @@
 import WorkOrder, { WorkOrderType } from 'app/interfaces/workOrder';
-import { translateWorkOrderType } from 'app/utils/utils';
+import {
+  formatEuropeanCurrency,
+  translateWorkOrderType,
+} from 'app/utils/utils';
 import dayjs from 'dayjs';
 
 interface WorkOrdersDashboardProps {
@@ -57,8 +60,8 @@ const WorkOrdersDashboard: React.FC<WorkOrdersDashboardProps> = ({
   }, {} as Record<string, Record<string, { count: number; totalTime: number; totalCost: number }>>);
 
   return (
-    <div className="flex flex-col bg-white gap-4 w-full items-center p-4 rounded-xl ">
-      <div className="w-full max-h-64 overflow-y-auto">
+    <div className="flex flex-col gap-4 w-full items-center p-4 rounded-xl flex-grow ">
+      <div className="w-full max-h-96 overflow-y-auto">
         <table className="table-auto w-full border-collapse">
           <thead className="sticky top-0 bg-white z-10">
             <tr className="text-left text-gray-400 text-sm">
@@ -69,7 +72,7 @@ const WorkOrdersDashboard: React.FC<WorkOrdersDashboardProps> = ({
               <th className="p-3 text-right">Cost</th>
             </tr>
           </thead>
-          <tbody className="text-sm">
+          <tbody className="text-sm ">
             {Object.entries(groupedWorkOrders).map(([day, types], index) =>
               Object.entries(types).map(([type, data]) => {
                 const isEvenRow = index % 2 === 0;
@@ -91,7 +94,7 @@ const WorkOrdersDashboard: React.FC<WorkOrdersDashboardProps> = ({
                     <td className="p-3">{data.count}</td>
                     <td className="p-3">{Math.round(data.totalTime)}</td>
                     <td className="p-3 text-right whitespace-nowrap">
-                      {Math.round(data.totalCost)} €
+                      {formatEuropeanCurrency(data.totalCost)}
                     </td>
                   </tr>
                 );
