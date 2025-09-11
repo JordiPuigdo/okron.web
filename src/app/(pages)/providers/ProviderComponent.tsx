@@ -1,3 +1,4 @@
+'use client';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { HeaderTable } from 'components/layout/HeaderTable';
 

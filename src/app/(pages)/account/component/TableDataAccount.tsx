@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Account } from 'app/interfaces/Account';
 import { useTranslations } from 'app/hooks/useTranslations';
+import { Account } from 'app/interfaces/Account';
 import { AccountService } from 'app/services/accountService';
 import DataTable from 'components/table/DataTable';
 import {

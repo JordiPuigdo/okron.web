@@ -121,7 +121,6 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
   const [sparePartCosts, setSparePartCosts] = useState<number>(0);
   const [operatorCosts, setOperatorCosts] = useState<number>(0);
   const Routes = useRoutes();
-  const [activeTab, setActiveTab] = useState<Tab>(Tab.OPERATORTIMES);
   const { operatorLogged } = useSessionStore(state => state);
   const [workOrderTimeExceeded, setWorkOrderTimeExceeded] =
     useState<boolean>(false);
