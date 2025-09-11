@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'app/hooks/useTranslations';
 import { usePaymentMethods } from 'app/hooks/usePaymentMethod';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import { PaymentMethod } from 'app/interfaces/Customer';
 

@@ -1,3 +1,4 @@
+'use client';
 import WorkOrder from 'app/interfaces/workOrder';
 import { formatDate, formatTimeSpan } from 'app/utils/utils';
 

@@ -1,7 +1,7 @@
 'use client';
 
-import { OrderType } from 'app/interfaces/Order';
 import { useTranslations } from 'app/hooks/useTranslations';
+import { OrderType } from 'app/interfaces/Order';
 import { HeaderTable } from 'components/layout/HeaderTable';
 
 import { TableDataOrders } from '../../components/TableDataOrders';

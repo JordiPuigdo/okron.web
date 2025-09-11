@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
 import { SvgIcon } from '@mui/material';
-import { useTranslations } from 'app/hooks/useTranslations';
 import { useRates } from 'app/hooks/useRates';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import { DayOfWeek, Rate } from 'app/interfaces/Rate';
 import { formatTime } from 'app/utils/utils';

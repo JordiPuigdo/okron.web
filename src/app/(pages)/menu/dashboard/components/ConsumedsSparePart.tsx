@@ -1,4 +1,5 @@
 import { useTranslations } from 'app/hooks/useTranslations';
+
 import { ConsumedSparePartsChartProps } from '../DashboardMM/DashboardMM';
 
 export default function ConsumedsSparePart({

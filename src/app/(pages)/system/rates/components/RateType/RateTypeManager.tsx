@@ -1,7 +1,7 @@
 'use client';
 
-import { useTranslations } from 'app/hooks/useTranslations';
 import { useRates } from 'app/hooks/useRates';
+import { useTranslations } from 'app/hooks/useTranslations';
 
 import { EditableTable } from '../EditableTable';
 import { RateTypeForm } from './RateTypeForm';

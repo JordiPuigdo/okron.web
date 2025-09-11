@@ -1,7 +1,7 @@
 'use client';
 
-import { SparePartsConsumedsReport } from 'app/interfaces/SparePart';
 import { useTranslations } from 'app/hooks/useTranslations';
+import { SparePartsConsumedsReport } from 'app/interfaces/SparePart';
 import DataTable from 'components/table/DataTable';
 import {
   Filters,

@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { UpdateAccountRequest } from 'app/interfaces/Account';
 import { useTranslations } from 'app/hooks/useTranslations';
+import { UpdateAccountRequest } from 'app/interfaces/Account';
 import { AccountService } from 'app/services/accountService';
 import Container from 'components/layout/Container';
 import { HeaderForm } from 'components/layout/HeaderForm';
