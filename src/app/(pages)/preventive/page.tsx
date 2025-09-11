@@ -29,7 +29,7 @@ function PreventivePage() {
         setPreventives(fetchedPreventives);
       } catch (error) {
         setIsLoadingPage(false);
-        console.error('Error fetching preventives:', error);
+        console.error(t('error.fetching.preventives'), error);
       }
       setIsLoadingPage(false);
     };
@@ -43,10 +43,10 @@ function PreventivePage() {
         <div className="w-full flex flex-col gap-2  justify-between">
           <h2 className="text-2xl font-bold text-black flex gap-2 flex-grow">
             <SvgMachines />
-            Revisions
+            {t('revisions')}
           </h2>
           <span className="text-l self-start">
-            {t('start')} - Llistat de Revisions
+            {t('start')} - {t('revisions.list')}
           </span>
         </div>
         <div className="w-full flex flex-col justify-end items-end gap-2 ">
@@ -57,7 +57,7 @@ function PreventivePage() {
             customStyles="flex items-center gap-2"
           >
             <SvgCreate />
-            Crear Revisió
+            {t('create.revision')}
             {isLoading && <SvgSpinner className="w-6 h-6" />}
           </Button>
           <GeneratePreventive />

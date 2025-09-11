@@ -71,7 +71,7 @@ const PreventiveOperatorTable: React.FC<PreventiveOperatorTableProps> = ({
               type="button"
               onClick={togglePendingFilter}
             >
-              {showPending ? "Tots el preventius" : "Pendents d'assignar"}
+              {showPending ? t('all.preventives') : t('pending.assign')}
             </button>
             <button
               type="button"
@@ -80,7 +80,7 @@ const PreventiveOperatorTable: React.FC<PreventiveOperatorTableProps> = ({
               } text-white p-2 rounded-xl m-2`}
               onClick={toggleAssignedFilter}
             >
-              {showAssigned ? "Tots els preventius" : "Assignats al operari"}
+              {showAssigned ? t('all.preventives') : t('assigned.to.operator')}
             </button>
           </div>
         ) : (
@@ -109,9 +109,9 @@ const PreventiveOperatorTable: React.FC<PreventiveOperatorTableProps> = ({
                   }
                 />
               </th>
-              <th className="p-2">Codi</th>
-              <th className="p-2">Descripció</th>
-              <th className="p-2 text-end">Acció</th>
+              <th className="p-2">{t('code')}</th>
+              <th className="p-2">{t('description')}</th>
+              <th className="p-2 text-end">{t('action')}</th>
             </tr>
           </thead>
           <tbody>
@@ -149,7 +149,7 @@ const PreventiveOperatorTable: React.FC<PreventiveOperatorTableProps> = ({
         </table>
       </div>
       <div className="flex flex-row w-full justify-between p-2 items-end border-t-2 border-gray-500">
-        <span>Total: {displayedPreventives?.length}</span>
+        <span>{t('total')}: {displayedPreventives?.length}</span>
         <div className="flex justify-end p-2">
           <button
             onClick={() => onActionClick()}

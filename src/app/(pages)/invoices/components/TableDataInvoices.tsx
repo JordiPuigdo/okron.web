@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { Invoice } from 'app/interfaces/Invoice';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
 import DataTable from 'components/table/DataTable';
@@ -29,6 +30,7 @@ export const TableDataInvoices = ({
   hideShadow = false,
   enableFilters = true,
 }: TableDataInvoicesProps) => {
+  const { t } = useTranslations();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
@@ -85,7 +87,7 @@ export const TableDataInvoices = ({
       dateFilters.endDate &&
       !firstLoad
     ) {
-      setMessage('No hi ha factures amb aquests filtres');
+      setMessage(t('no.invoices.filters'));
       setTimeout(() => {
         setMessage('');
       }, 5000);
@@ -121,10 +123,10 @@ export const TableDataInvoices = ({
       </div>
       <DataTable
         data={filteredInvoices}
-        columns={columnsInvoices}
+        columns={getColumnsInvoices(t)}
         entity={EntityTable.INVOICE}
         tableButtons={tableButtons}
-        filters={filtersInvoices}
+        filters={getFiltersInvoices(t)}
         hideShadow={hideShadow}
         totalCounts
       />
@@ -137,53 +139,53 @@ const tableButtons: TableButtons = {
   detail: true,
 };
 
-const columnsInvoices: Column[] = [
+const getColumnsInvoices = (t: any): Column[] => [
   {
     label: 'ID',
     key: 'id',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Codi',
+    label: t('code'),
     key: 'code',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Client',
+    label: t('customer'),
     key: 'companyName',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Data',
+    label: t('date'),
     key: 'invoiceDate',
     format: ColumnFormat.DATE,
   },
   {
-    label: 'Venciment',
+    label: t('due.date'),
     key: 'dueDate',
     format: ColumnFormat.DATE,
   },
   {
-    label: 'Estat',
+    label: t('status'),
     key: 'status',
     format: ColumnFormat.INVOICESTATUS,
   },
   {
-    label: 'Total',
+    label: t('total'),
     key: 'total',
     format: ColumnFormat.PRICE,
     align: ColumnnAlign.RIGHT,
   },
 ];
 
-const filtersInvoices: Filters[] = [
+const getFiltersInvoices = (t: any): Filters[] => [
   {
-    label: 'Codi',
+    label: t('code'),
     key: 'code',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Client',
+    label: t('customer'),
     key: 'customer.name',
     format: FiltersFormat.TEXT,
   },

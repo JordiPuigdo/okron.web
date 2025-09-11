@@ -58,7 +58,7 @@ export default function ConsumedSparePartsComponent() {
             </svg>
           </div>
           <div className="flex w-full text-center justify-center">
-            Històric de consums de recanvis
+            {t('spare.parts.consumption.history')}
           </div>
         </div>
         <div className="flex gap-4">
@@ -87,7 +87,7 @@ export default function ConsumedSparePartsComponent() {
           <SvgSpinner className="items-center justify-center" />
         </div>
       )}
-      {isError && <div>Error loading spare parts consumeds</div>}
+      {isError && <div>{t('error.loading.spare.parts.consumeds')}</div>}
 
       {sparePartsConsumeds && sparePartsConsumeds?.length > 0 && (
         <>

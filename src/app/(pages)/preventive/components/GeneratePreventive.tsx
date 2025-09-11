@@ -41,7 +41,7 @@ const GeneratePreventive = () => {
 
   const generateWorkOrders = async () => {
     if (operatorLogged == undefined) {
-      alert('Has de tenir un operari fitxat per fer aquesta acció');
+      alert(t('need.clocked.operator.action'));
       return;
     }
     if (isLoading) return;
@@ -65,7 +65,7 @@ const GeneratePreventive = () => {
         setPreventivesCreated([]);
       }, 10000);*/
     } else {
-      setMessage('Avui no hi ha revisions per crear');
+      setMessage(t('no.revisions.today'));
       setTimeout(() => {
         setMessage('');
       }, 3000);
@@ -101,7 +101,7 @@ const GeneratePreventive = () => {
                 <>
                   <p className="text-black font-semibold">
                     {(preventivesCreated?.length || 0 > 0) &&
-                      'Revisions creades:'}
+                      t('revisions.created') + ':'}
                   </p>
                   {preventivesCreated?.map((preventive, index) => (
                     <div key={index} className="text-black">
@@ -120,7 +120,7 @@ const GeneratePreventive = () => {
             onClick={generateWorkOrders}
             customStyles="flex bg-white border-okron-main text-okron-main text-sm sm:text-xs md:text-sm lg:text-base rounded-md font-semibold hover:bg-[#E7DDFC] hover:border-okron-main border-2 w-full overflow-hidden text-ellipsis whitespace-nowrap"
           >
-            {t('generate.reviews')} {formatDate(new Date(), false, false)}
+            {t('generate.revisions')} {formatDate(new Date(), false, false)}
             {isLoading && <SvgSpinner className=" w-6 h-6" />}
           </Button>
         </div>

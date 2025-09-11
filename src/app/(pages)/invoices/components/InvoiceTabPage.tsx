@@ -9,12 +9,14 @@ import { TableDataInvoices } from './TableDataInvoices';
 
 // Componentes que se muestran en las pestañas
 function Invoices() {
+  const { t } = useTranslations();
+  
   return (
     <>
       <HeaderTable
-        title="Factures"
-        subtitle="Inici - Llistat de Factures"
-        createButton="Crear Factura"
+        title={t('invoices')}
+        subtitle={`${t('start')} - ${t('invoices.list')}`}
+        createButton={t('create.invoice')}
         urlCreateButton="/invoices/create"
       />
       <TableDataInvoices className="bg-white p-4 rounded-xl shadow-md" />
@@ -23,13 +25,15 @@ function Invoices() {
 }
 
 function DeliveryNotes() {
+  const { t } = useTranslations();
+  
   return (
     <>
       {' '}
       <HeaderTable
-        title="Albarans"
-        subtitle="Inici - Llistat d'Albarans"
-        createButton="Crear Albarà"
+        title={t('delivery.notes')}
+        subtitle={`${t('start')} - ${t('delivery.notes.list')}`}
+        createButton={t('create.delivery.note')}
         urlCreateButton="/deliveryNotes/create"
       />
       <TableDataDeliveryNotes className="bg-white p-4 rounded-xl shadow-md" />

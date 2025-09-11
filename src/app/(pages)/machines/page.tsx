@@ -45,58 +45,58 @@ export default function MachinesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const columns: Column[] = [
+  const getColumns = (t: any): Column[] => [
     {
       label: 'ID',
       key: 'id',
       format: ColumnFormat.TEXT,
     },
     {
-      label: 'Codi',
+      label: t('code'),
       key: 'code',
       format: ColumnFormat.TEXT,
     },
     {
-      label: 'Descripció',
+      label: t('description'),
       key: 'description',
       format: ColumnFormat.TEXT,
     },
     {
-      label: 'Secció',
+      label: t('section'),
       key: 'section.description',
       format: ColumnFormat.TEXT,
     },
     {
-      label: 'Numero de Sèrie',
+      label: t('serial.number'),
       key: 'serialNumber',
       format: ColumnFormat.TEXT,
     },
     {
-      label: 'Empresa',
+      label: t('company'),
       key: 'company',
       format: ColumnFormat.TEXT,
     },
     {
-      label: 'Activa',
+      label: t('active'),
       key: 'active',
       format: ColumnFormat.BOOLEAN,
     },
   ];
 
-  const filters: Filters[] = [
+  const getFilters = (t: any): Filters[] => [
     {
       key: 'code',
-      label: 'Codi',
+      label: t('code'),
       format: FiltersFormat.TEXT,
     },
     {
       key: 'description',
-      label: 'Descripció',
+      label: t('description'),
       format: FiltersFormat.TEXT,
     },
     {
       key: 'section.description',
-      label: 'Secció',
+      label: t('section'),
       format: FiltersFormat.TEXT,
     },
   ];
@@ -133,7 +133,7 @@ export default function MachinesPage() {
   async function handleDeleteMachine(id: string) {
     try {
       const isConfirmed = window.confirm(
-        'Segur que voleu eliminar la màquina?'
+        t('confirm.delete.machine')
       );
       if (isConfirmed) {
         const machineService = new MachineService(
@@ -163,7 +163,7 @@ export default function MachinesPage() {
   };
 
   if (isLoading) {
-    return <div className="container mx-auto py-8">Carregant...</div>;
+    return <div className="container mx-auto py-8">{t('loading')}...</div>;
   }
 
   const renderHeader = () => {
@@ -172,9 +172,9 @@ export default function MachinesPage() {
         <div className="w-full flex flex-col gap-2 items">
           <h2 className="text-2xl font-bold text-black flex gap-2">
             <SvgMachines />
-            Màquines
+            {t('machines')}
           </h2>
-          <span className="text-l">{t('start')} - Llistat de Màquines</span>
+          <span className="text-l">{t('start')} - {t('machines.list')}</span>
         </div>
         <div className="w-full flex justify-end items-center">
           <button
@@ -182,7 +182,7 @@ export default function MachinesPage() {
             className="bg-okron-btCreate text-white font-semibold p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100 flex items-center gap-2"
           >
             {!isFormVisible && <SvgCreate className="text-white" />}
-            {isFormVisible ? 'Tancar' : 'Crear Màquina'}
+            {isFormVisible ? t('close') : t('create.machine')}
           </button>
         </div>
       </div>
@@ -198,13 +198,13 @@ export default function MachinesPage() {
             <div className="flex">
               <input
                 type="text"
-                placeholder="Nom"
+                placeholder={t('name')}
                 {...register('description', { required: true })}
                 className="border rounded-md w-1/2 px-3 py-2 mt-1 mr-2 text-gray-700 focus:outline-none focus:border-blue-500"
               />
               <input
                 type="text"
-                placeholder="Empresa"
+                placeholder={t('company')}
                 {...register('company', { required: true })}
                 className="border rounded-md w-1/2 px-3 py-2 mt-1 text-gray-700 focus:outline-none focus:border-blue-500"
               />
@@ -213,23 +213,23 @@ export default function MachinesPage() {
                 disabled={isSubmitting}
                 className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100"
               >
-                {isSubmitting ? 'Creant...' : 'Crear Màquina'}
+                {isSubmitting ? t('creating') : t('create.machine')}
               </button>
             </div>
             {errors.description && (
-              <div className="text-red-600 mt-1">Has d'introduïr un nom</div>
+              <div className="text-red-600 mt-1">{t('name.required')}</div>
             )}
             {errors.company && (
-              <div className="text-red-600 mt-1">Has d'introduïr l'Empresa</div>
+              <div className="text-red-600 mt-1">{t('company.required')}</div>
             )}
           </form>
         )}
         <DataTable
-          columns={columns}
+          columns={getColumns(t)}
           data={machines}
           tableButtons={tableButtons}
           entity={EntityTable.MACHINE}
-          filters={filters}
+          filters={getFilters(t)}
           onDelete={handleDeleteMachine}
         />
       </Container>

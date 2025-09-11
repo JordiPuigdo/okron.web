@@ -44,7 +44,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
           htmlFor="code"
           className="block text-sm font-medium text-gray-700"
         >
-          t
+          {t('code')}
         </label>
         <Controller
           name="code"
@@ -66,7 +66,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
           htmlFor="description"
           className="block text-sm font-medium text-gray-700"
         >
-          Nom
+          {t('name')}
         </label>
         <Controller
           name="name"
@@ -76,7 +76,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
             <input
               {...field}
               type="text"
-              placeholder="Nom"
+              placeholder={t('name')}
               className="border rounded-md w-full px-3 py-2 mt-1 text-gray-700 focus:outline-none focus:border-indigo-500"
             />
           )}
@@ -88,7 +88,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
           htmlFor="name"
           className="block text-sm font-medium text-gray-700"
         >
-          Preu Hora
+          {t('price.hour')}
         </label>
         <Controller
           name="priceHour"
@@ -98,7 +98,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
             <input
               {...field}
               type="number"
-              placeholder="Preu / Hora"
+              placeholder={t('price.hour')}
               className="border rounded-md w-full px-3 py-2 mt-1 text-gray-700 focus:outline-none focus:border-indigo-500"
             />
           )}
@@ -109,7 +109,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
           htmlFor="name"
           className="block text-sm font-medium text-gray-700"
         >
-          Tipus
+          {t('type')}
         </label>
         <Controller
           name="operatorType"
@@ -139,7 +139,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
           htmlFor="name"
           className="block text-sm font-medium text-gray-700"
         >
-          Actiu
+          {t('active')}
         </label>
         <Controller
           name="active"
@@ -160,7 +160,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
           type="submit"
           className="bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
         >
-          Guardar
+          {t('save')}
         </button>
         <button
           type="button"
@@ -169,7 +169,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
           }}
           className="bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-100"
         >
-          Cancelar
+          {t('cancel')}
         </button>
         {onDelete && (
           <button
@@ -177,7 +177,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
             onClick={onDelete}
             className="text-red-600 hover:text-red-900 font-semibold focus:outline-none"
           >
-            Eliminar
+            {t('delete')}
           </button>
         )}
 
@@ -188,8 +188,8 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
             } text-center`}
           >
             {onUpdatedSuccesfully
-              ? 'Operari actualitzat correctament!'
-              : 'Error actualitzant operari!'}
+              ? t('operator.updated.successfully')
+              : t('error.updating.operator')}
           </div>
         )}
       </div>

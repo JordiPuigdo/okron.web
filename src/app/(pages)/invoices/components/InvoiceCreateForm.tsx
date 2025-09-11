@@ -5,6 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { useCustomers } from 'app/hooks/useCustomers';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import { Customer } from 'app/interfaces/Customer';
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
@@ -21,6 +22,7 @@ import { DeliveryNoteService } from '../../../services/deliveryNoteService';
 import { InvoiceService } from '../../../services/invoiceService';
 
 export function InvoiceCreateForm() {
+  const { t } = useTranslations();
   const { customers, getById } = useCustomers();
   const router = useRouter();
 
@@ -151,19 +153,19 @@ export function InvoiceCreateForm() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.invoiceDate?.trim()) {
-      newErrors.invoiceDate = 'La data es obligatoria';
+      newErrors.invoiceDate = t('date.required');
     }
 
     if (!formData.dueDate?.trim()) {
-      newErrors.dueDate = 'La data de venciment es obligatoria';
+      newErrors.dueDate = t('due.date.required');
     }
 
     if (!selectedCustomerId) {
-      newErrors.customerId = 'Cal seleccionar un client';
+      newErrors.customerId = t('select.customer.required');
     }
 
     if (!formData.deliveryNoteId) {
-      newErrors.deliveryNoteId = 'Cal seleccionar un albarà';
+      newErrors.deliveryNoteId = t('select.delivery.note.required');
     }
 
     setErrors(newErrors);
@@ -173,7 +175,7 @@ export function InvoiceCreateForm() {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto space-y-8">
-        <HeaderForm header="Crear Factura" isCreate={true} />
+        <HeaderForm header={t('create.invoice')} isCreate={true} />
 
         <div className="bg-white rounded-xl p-6 shadow-lg">
           <form
@@ -192,7 +194,7 @@ export function InvoiceCreateForm() {
             {/* Date Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="font-semibold">Data</label>
+                <label className="font-semibold">{t('date')}</label>
                 <DatePicker
                   selected={
                     formData.invoiceDate
@@ -220,7 +222,7 @@ export function InvoiceCreateForm() {
               </div>
 
               <div className="space-y-2">
-                <label className="font-semibold">Data de Venciment</label>
+                <label className="font-semibold">{t('due.date')}</label>
                 <DatePicker
                   selected={
                     formData.dueDate ? new Date(formData.dueDate) : null
@@ -248,7 +250,7 @@ export function InvoiceCreateForm() {
 
             {/* Customer Selection */}
             <div className="space-y-2">
-              <label className="font-semibold">Client</label>
+              <label className="font-semibold">{t('customer')}</label>
               <ChooseElement
                 elements={customers ? customers.filter(x => x.active) : []}
                 selectedElements={
@@ -256,7 +258,7 @@ export function InvoiceCreateForm() {
                 }
                 onElementSelected={handleSelectedCustomer}
                 onDeleteElementSelected={handleDeleteSelectedCustomer}
-                placeholder="Buscar Client"
+                placeholder={t('search.customer')}
                 mapElement={customer => ({
                   id: customer.id,
                   description: `${customer.name} - ${customer.taxId}`,
@@ -272,7 +274,7 @@ export function InvoiceCreateForm() {
             {/* Delivery Note Selection - Only show when customer is selected */}
             {selectedCustomer && (
               <div className="space-y-2">
-                <label className="font-semibold">Albarans del Client</label>
+                <label className="font-semibold">{t('customer.delivery.notes')}</label>
                 {availableDeliveryNotes.length > 0 ? (
                   <>
                     <ChooseElement
@@ -282,7 +284,7 @@ export function InvoiceCreateForm() {
                       }
                       onElementSelected={handleDeliveryNoteSelected}
                       onDeleteElementSelected={handleDeleteSelectedDeliveryNote}
-                      placeholder="Buscar Albarà"
+                      placeholder={t('search.delivery.note')}
                       mapElement={deliveryNote => ({
                         id: deliveryNote.id,
                         description: `${deliveryNote.code} - ${new Date(
@@ -300,7 +302,7 @@ export function InvoiceCreateForm() {
                   </>
                 ) : (
                   <p className="text-gray-500 text-sm">
-                    Aquest client no té albarans disponibles per facturar.
+                    {t('no.delivery.notes.available')}
                   </p>
                 )}
               </div>
@@ -310,23 +312,23 @@ export function InvoiceCreateForm() {
             {selectedDeliveryNote && (
               <div className="space-y-2 p-4 border rounded-lg bg-gray-50">
                 <h3 className="font-semibold">
-                  Detalls de l'Albarà Seleccionat
+                  {t('selected.delivery.note.details')}
                 </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <strong>Client:</strong> {selectedCustomer?.name}
+                    <strong>{t('customer')}:</strong> {selectedCustomer?.name}
                   </div>
                   <div>
-                    <strong>Codi Albarà:</strong> {selectedDeliveryNote.code}
+                    <strong>{t('delivery.note.code')}:</strong> {selectedDeliveryNote.code}
                   </div>
                   <div>
-                    <strong>Data:</strong>{' '}
+                    <strong>{t('date')}:</strong>{' '}
                     {new Date(
                       selectedDeliveryNote.deliveryNoteDate
                     ).toLocaleDateString()}
                   </div>
                   <div>
-                    <strong>Total:</strong>{' '}
+                    <strong>{t('total')}:</strong>{' '}
                     {selectedDeliveryNote.total.toFixed(2)}€
                   </div>
                 </div>
@@ -347,7 +349,7 @@ export function InvoiceCreateForm() {
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}
-                <p>Generar Borrador</p>
+                <p>{t('generate.draft')}</p>
               </Button>
               <Button
                 type="cancel"
@@ -358,7 +360,7 @@ export function InvoiceCreateForm() {
                 disabled={isLoading}
               >
                 <X className="mr-2 h-4 w-4" />
-                <p>Cancelar</p>
+                <p>{t('cancel')}</p>
               </Button>
             </div>
           </form>

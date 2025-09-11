@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgDelete } from 'app/icons/icons';
 import {
   DowntimesReasons,
@@ -22,6 +23,7 @@ const DownTimeReasonsConfigured: React.FC<DownTimeReasonsConfiguredProps> = ({
   asssetId = '',
   addDowntimeReason,
 }) => {
+  const { t } = useTranslations();
   const [downtimeReasons, setDowntimeReasons] = useState<DowntimesReasons[]>(
     []
   );
@@ -46,7 +48,7 @@ const DownTimeReasonsConfigured: React.FC<DownTimeReasonsConfiguredProps> = ({
           );
         if (data) setDowntimeReasons(data);
       } catch (err) {
-        setError('Failed to fetch downtime reasons');
+        setError(t('error.fetch.downtime.reasons'));
       } finally {
         setLoading(false);
       }
@@ -107,7 +109,7 @@ const DownTimeReasonsConfigured: React.FC<DownTimeReasonsConfiguredProps> = ({
     setFilteredReasonType(selectedValue);
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p>{t('loading')}...</p>;
   if (error) return <p>{error}</p>;
 
   return (
@@ -115,7 +117,7 @@ const DownTimeReasonsConfigured: React.FC<DownTimeReasonsConfiguredProps> = ({
       <div className="flex justify-between gap-2 py-4">
         <input
           type="text"
-          placeholder="Buscar per descripció..."
+          placeholder={t('search.by.description')}
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
           className="w-64 p-2 border border-gray-300 rounded-md "
@@ -124,7 +126,7 @@ const DownTimeReasonsConfigured: React.FC<DownTimeReasonsConfiguredProps> = ({
           className="w-full p-2 border border-gray-300 rounded-md"
           onChange={handleFilterChange}
         >
-          <option value="-1">Sense Filtre</option>
+          <option value="-1">{t('no.filter')}</option>
           {Object.values(DowntimesReasonsType)
             .filter(value => typeof value === 'number')
             .map(state => (
@@ -139,13 +141,13 @@ const DownTimeReasonsConfigured: React.FC<DownTimeReasonsConfiguredProps> = ({
           <thead className="bg-gray-100">
             <tr>
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                Descripció
+                {t('description')}
               </th>
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                Tipus
+                {t('type')}
               </th>
               <th className="px-6 py-3 text-sm font-medium text-gray-500 uppercase tracking-wider text-end">
-                Eliminar
+                {t('delete')}
               </th>
             </tr>
           </thead>
@@ -187,17 +189,17 @@ const DownTimeReasonsConfigured: React.FC<DownTimeReasonsConfiguredProps> = ({
           disabled={currentPage === 1}
           className="p-2 bg-gray-300 rounded disabled:bg-gray-100"
         >
-          Anterior
+          {t('previous')}
         </button>
         <span>
-          Pàgina {currentPage} de {totalPages}
+          {t('page')} {currentPage} {t('of')} {totalPages}
         </span>
         <button
           onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
           disabled={currentPage === totalPages}
           className="p-2 bg-gray-300 rounded disabled:bg-gray-100"
         >
-          Següent
+          {t('next')}
         </button>
       </div>
     </div>

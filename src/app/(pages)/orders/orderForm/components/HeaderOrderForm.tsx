@@ -1,6 +1,9 @@
+'use client';
+
 import 'react-datepicker/dist/react-datepicker.css';
 
 import DatePicker from 'react-datepicker';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgProvider } from 'app/icons/designSystem/SvgProvider';
 import { Account } from 'app/interfaces/Account';
 import {
@@ -40,6 +43,8 @@ export default function HeaderOrderForm({
   setSelectedAccount,
   valueProgressBar,
 }: HeaderOrderFormProps) {
+  const { t } = useTranslations();
+  
   const handleDateChange = (date: any, isProvider: boolean) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
     if (isProvider) {
@@ -69,7 +74,7 @@ export default function HeaderOrderForm({
           {!isEditing && !disabledSearchPurchaseOrder && (
             <div className="flex flex-col gap-2">
               <label className="block text-sm font-semibold">
-                {order.type == OrderType.Purchase ? 'Proveeïdor' : 'Comanada:'}
+                {order.type == OrderType.Purchase ? t('provider') : t('order') + ':'}
               </label>
               {order.type == OrderType.Purchase ? (
                 <SearchProviderComponent
@@ -81,7 +86,7 @@ export default function HeaderOrderForm({
             </div>
           )}
           <div className="flex flex-col gap-2">
-            <label className="block text-sm font-semibold">Data:</label>
+            <label className="block text-sm font-semibold">{t('date')}:</label>
             <DatePicker
               dateFormat="dd/MM/yyyy"
               locale={ca}
@@ -95,7 +100,7 @@ export default function HeaderOrderForm({
         </div>
         <div className="flex flex-col flex-1 gap-2">
           <div className="flex flex-col gap-2">
-            <label className="block text-sm font-semibold">Estat:</label>
+            <label className="block text-sm font-semibold">{t('state')}:</label>
             <select
               className="w-full p-2 border rounded-md"
               value={order.status}
@@ -127,7 +132,7 @@ export default function HeaderOrderForm({
           <div className="flex flex-col flex-1 gap-2">
             <div className="flex flex-col gap-2">
               <label className="block text-sm font-semibold">
-                Data Albarà Proveeïdor:
+                {t('provider.delivery.date')}:
               </label>
               <DatePicker
                 dateFormat="dd/MM/yyyy"
@@ -141,7 +146,7 @@ export default function HeaderOrderForm({
             </div>
             <div className="flex flex-col gap-2">
               <label className="block text-sm font-semibold">
-                Albarà Proveeïdor:
+                {t('provider.delivery.note')}:
               </label>
               <input
                 type="text"
@@ -160,7 +165,7 @@ export default function HeaderOrderForm({
 
         <div className="flex flex-col flex-1">
           <div className="flex flex-col flex-1 gap-2">
-            <label className="text-sm font-semibold">Comentari:</label>
+            <label className="text-sm font-semibold">{t('comment')}:</label>
             <textarea
               className="flex flex-grow border rounded-md"
               value={order.comment}
@@ -172,7 +177,7 @@ export default function HeaderOrderForm({
       {isEditing && (
         <div className="mt-4 flex w-full gap-4">
           <div>
-            <label className="block text-sm font-semibold">Actiu:</label>
+            <label className="block text-sm font-semibold">{t('active')}:</label>
             <input
               type="checkbox"
               className="p-2 border rounded-md"
@@ -182,7 +187,7 @@ export default function HeaderOrderForm({
           </div>
           {valueProgressBar !== undefined && valueProgressBar > 0 && (
             <div className="flex flex-col w-full">
-              <label className="block text-sm font-semibold">Progrés:</label>
+              <label className="block text-sm font-semibold">{t('progress')}:</label>
               <ProgressBar value={valueProgressBar} showLabel size="lg" />
             </div>
           )}

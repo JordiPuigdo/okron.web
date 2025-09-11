@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgCreate, SvgMachines } from 'app/icons/icons';
 import InspectionPointService from 'app/services/inspectionPointService';
 import Container from 'components/layout/Container';
@@ -18,6 +19,7 @@ import { EntityTable } from 'components/table/interface/tableEntitys';
 import InspectionPoint from '../../interfaces/inspectionPoint';
 
 export default function InspectionPointsPage() {
+  const { t } = useTranslations();
   const [inspectionPoints, setInspectionPoints] = useState<InspectionPoint[]>(
     []
   );
@@ -29,28 +31,28 @@ export default function InspectionPointsPage() {
   };
   const [filterActive, setFilterActive] = useState(true);
 
-  const columns: Column[] = [
+  const getColumns = (): Column[] => [
     {
       label: 'ID',
       key: 'id',
       format: ColumnFormat.TEXT,
     },
     {
-      label: 'Descripció',
+      label: t('description'),
       key: 'description',
       format: ColumnFormat.TEXT,
     },
     {
-      label: 'Actiu',
+      label: t('active'),
       key: 'active',
       format: ColumnFormat.BOOLEAN,
     },
   ];
 
-  const filters: Filters[] = [
+  const getFilters = (): Filters[] => [
     {
       key: 'description',
-      label: 'Descripció',
+      label: t('description'),
       format: FiltersFormat.TEXT,
     },
   ];
@@ -105,7 +107,7 @@ export default function InspectionPointsPage() {
   const handleEditDescription = useCallback(
     async (id: string, description: string) => {
       try {
-        const newDescription = prompt('Edita la descripció', description);
+        const newDescription = prompt(t('edit.description'), description);
         if (newDescription === null) {
           return;
         }
@@ -136,7 +138,7 @@ export default function InspectionPointsPage() {
   async function handleDeleteInspectionPoint(id: string) {
     try {
       const isConfirmed = window.confirm(
-        "Segur que voleu eliminar aquest punt d'inspecció?"
+        t('confirm.delete.inspection.point')
       );
       if (isConfirmed) {
         const inspectionPointService = new InspectionPointService(
@@ -156,7 +158,7 @@ export default function InspectionPointsPage() {
   }
 
   if (isLoading) {
-    return <div className="container mx-auto py-8">Carregant...</div>;
+    return <div className="container mx-auto py-8">{t('loading')}</div>;
   }
 
   const renderHeader = () => {
@@ -165,9 +167,9 @@ export default function InspectionPointsPage() {
         <div className="w-full flex flex-col gap-2 items">
           <h2 className="text-2xl font-bold text-black flex gap-2">
             <SvgMachines />
-            Punts d'Inspecció
+            {t('inspection.points')}
           </h2>
-          <span className="text-l">Inici - Llistat de Punts d'inspecció</span>
+          <span className="text-l">{t('start')} - {t('inspection.points.list')}</span>
         </div>
         <div className="w-full flex justify-end items-center">
           <button
@@ -175,7 +177,7 @@ export default function InspectionPointsPage() {
             className="bg-okron-btCreate text-white font-semibold p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100 flex items-center gap-2"
           >
             {!isFormVisible && <SvgCreate className="text-white" />}
-            {isFormVisible ? 'Tancar' : "Crear Punt d'inspecció"}
+            {isFormVisible ? t('close') : t('create.inspection.point')}
           </button>
         </div>
       </div>
@@ -191,7 +193,7 @@ export default function InspectionPointsPage() {
             <form onSubmit={handleFormSubmit} className="mb-4">
               <input
                 type="text"
-                placeholder="Escriu la descripció"
+                placeholder={t('enter.description')}
                 value={newDescription}
                 onChange={e => setNewDescription(e.target.value)}
                 className="border rounded py-2 px-3"
@@ -200,14 +202,14 @@ export default function InspectionPointsPage() {
                 type="submit"
                 className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 ml-2 rounded"
               >
-                Crear
+                {t('create')}
               </button>
             </form>
           )}
           <DataTable
             data={inspectionPoints}
-            columns={columns}
-            filters={filters}
+            columns={getColumns()}
+            filters={getFilters()}
             tableButtons={tableButtons}
             entity={EntityTable.INSPECTIONPOINTS}
             onDelete={handleDeleteInspectionPoint}

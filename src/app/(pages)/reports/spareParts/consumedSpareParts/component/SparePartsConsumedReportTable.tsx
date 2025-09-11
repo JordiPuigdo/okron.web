@@ -1,4 +1,7 @@
+'use client';
+
 import { SparePartsConsumedsReport } from 'app/interfaces/SparePart';
+import { useTranslations } from 'app/hooks/useTranslations';
 import DataTable from 'components/table/DataTable';
 import {
   Filters,
@@ -7,7 +10,7 @@ import {
 } from 'components/table/interface/interfaceTable';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 
-import { columnsSparePartConsumedReport } from './columnsReport';
+import { getColumnsSparePartConsumedReport } from './columnsReport';
 
 interface SparePartsConsumedReportTableProps {
   sparePartsConsumeds: SparePartsConsumedsReport[];
@@ -17,38 +20,40 @@ const tableButtons: TableButtons = {
   delete: false,
   detail: false,
 };
-const filters: Filters[] = [
+const getFilters = (t: any): Filters[] => [
   {
     key: 'sparePartCode',
-    label: 'Codi Recanvi',
+    label: t('spare.part.code'),
     format: FiltersFormat.TEXT,
   },
   {
     key: 'sparePartDescription',
-    label: 'Descripció Recanvi',
+    label: t('spare.part.description'),
     format: FiltersFormat.TEXT,
   },
   {
     key: 'operator',
-    label: 'Operari',
+    label: t('operator'),
     format: FiltersFormat.TEXT,
   },
   {
     key: 'workOrderDescription',
-    label: 'Descripció OT',
+    label: t('work.order.description'),
     format: FiltersFormat.TEXT,
   },
 ];
 export default function SparePartsConsumedReportTable({
   sparePartsConsumeds,
 }: SparePartsConsumedReportTableProps) {
+  const { t } = useTranslations();
+  
   return (
     <DataTable
-      columns={columnsSparePartConsumedReport}
+      columns={getColumnsSparePartConsumedReport(t)}
       data={sparePartsConsumeds}
       tableButtons={tableButtons}
       entity={EntityTable.SPAREPART}
-      filters={filters}
+      filters={getFilters(t)}
       onDelete={undefined}
       enableFilterActive={false}
       totalCounts={false}

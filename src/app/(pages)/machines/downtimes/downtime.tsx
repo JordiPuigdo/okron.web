@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgCreate } from 'app/icons/icons';
 import {
   DowntimesReasons,
@@ -20,11 +21,13 @@ export default function Downtimes({
   assetId = '',
   machineId = '',
 }: DowntimesReasonsProps) {
+  const { t } = useTranslations();
+  
   return (
     <div className="w-full bg-white shadow-lg rounded-lg p-4 h-full">
       <div className="flex flex-col gap-2 h-full">
         <div className="w-full h-full">
-          <span className="font-bold">Nou Motiu Aturada </span>
+          <span className="font-bold">{t('new.downtime.reason')} </span>
           <CreateDowntimeReasons assetId={assetId} machineId={machineId} />
         </div>
       </div>
@@ -36,6 +39,7 @@ const CreateDowntimeReasons: React.FC<DowntimesReasonsProps> = ({
   assetId,
   machineId,
 }) => {
+  const { t } = useTranslations();
   const { formValues, isSubmitting, handleChange, handleSubmit } =
     useCreateDowntimeReason({
       machineId: machineId,
@@ -57,7 +61,7 @@ const CreateDowntimeReasons: React.FC<DowntimesReasonsProps> = ({
             htmlFor="description"
             className="text-sm font-medium text-gray-700"
           >
-            Descripció:
+            {t('description')}:
           </label>
           <input
             id="description"
@@ -75,7 +79,7 @@ const CreateDowntimeReasons: React.FC<DowntimesReasonsProps> = ({
             htmlFor="downTimeType"
             className="text-sm font-medium text-gray-700"
           >
-            Tipus:
+            {t('type')}:
           </label>
           <select
             id="downTimeType"
@@ -102,12 +106,12 @@ const CreateDowntimeReasons: React.FC<DowntimesReasonsProps> = ({
             className="flex items-center justify-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             {!isSubmitting && <SvgCreate className="text-white" />}
-            {isSubmitting ? 'Creant...' : 'Crear'}
+            {isSubmitting ? t('creating') : t('create')}
           </button>
         </div>
       </form>
       <div className="w-full py-4 border-t-2 border-gray-200">
-        <span className="font-bold py-4 ">Motius Aturada Configurats</span>
+        <span className="font-bold py-4 ">{t('configured.downtime.reasons')}</span>
         <DownTimeReasonsConfigured
           machineId={machineId}
           asssetId={assetId}
