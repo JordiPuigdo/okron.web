@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { WareHouseStock } from 'app/interfaces/WareHouse';
 
 interface WarehouseStockProps {
@@ -6,6 +7,7 @@ interface WarehouseStockProps {
 }
 
 const WarehouseStock: React.FC<WarehouseStockProps> = ({ stock }) => {
+  const { t } = useTranslations();
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredStock = stock.filter(
@@ -20,7 +22,7 @@ const WarehouseStock: React.FC<WarehouseStockProps> = ({ stock }) => {
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Buscar per codi o descripció..."
+          placeholder={t('warehouse.searchByCodeOrDescription')}
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -32,16 +34,16 @@ const WarehouseStock: React.FC<WarehouseStockProps> = ({ stock }) => {
           <thead className="bg-gray-50 sticky top-0 z-10">
             <tr>
               <th className="px-4 py-2 text-left text-sm font-medium text-gray-600 uppercase">
-                Codi
+                {t('code')}
               </th>
               <th className="px-4 py-2 text-left text-sm font-medium text-gray-600 uppercase">
-                Descripció
+                {t('description')}
               </th>
               <th className="px-4 py-2 text-right text-sm font-medium text-gray-600 uppercase">
-                Quantitat
+                {t('quantity')}
               </th>
               <th className="px-4 py-2 text-right text-sm font-medium text-gray-600 uppercase">
-                Preu
+                {t('price')}
               </th>
             </tr>
           </thead>
@@ -72,7 +74,7 @@ const WarehouseStock: React.FC<WarehouseStockProps> = ({ stock }) => {
       </div>
 
       {filteredStock.length === 0 && (
-        <p className="mt-4 text-gray-500">No hi ha resultats.</p>
+        <p className="mt-4 text-gray-500">{t('warehouse.noResults')}</p>
       )}
     </div>
   );

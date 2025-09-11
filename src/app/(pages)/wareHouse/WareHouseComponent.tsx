@@ -8,9 +8,9 @@ export default function WareHouseComponent() {
   return (
     <div className="flex flex-col h-full">
       <HeaderTable
-        title="Magatzems"
-        subtitle={`${t('start')} - Llistat de Magatzems`}
-        createButton="Crear Magatzem"
+        title={t('sidebar.warehouse')}
+        subtitle={t('warehouse.listTitle')}
+        createButton={t('warehouse.createWarehouse')}
         urlCreateButton="/wareHouse/WareHouseForm"
       />
       <TableDataWareHouse />

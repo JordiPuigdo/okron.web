@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import { WareHouse } from 'app/interfaces/WareHouse';
 import DataTable from 'components/table/DataTable';
@@ -13,10 +14,14 @@ import {
 import { EntityTable } from 'components/table/interface/tableEntitys';
 
 export const TableDataWareHouse = () => {
+  const { t } = useTranslations();
   const { warehouses, deleteWareHouse } = useWareHouses(true);
   const [filteredWarehouses, setFilteredWarehouses] = useState<
     WareHouse[] | undefined
   >(undefined);
+
+  const columnsWareHouse = getColumns(t);
+  const filtersWareHouse = getFilters(t);
 
   function onDelete(id: string) {
     if (filteredWarehouses) {
@@ -51,32 +56,32 @@ const tableButtons: TableButtons = {
   detail: true,
   delete: true,
 };
-const columnsWareHouse: Column[] = [
+const getColumns = (t: any): Column[] => [
   {
     label: 'ID',
     key: 'id',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Codi',
+    label: t('code'),
     key: 'code',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Descripció',
+    label: t('description'),
     key: 'description',
     format: ColumnFormat.TEXT,
   },
 ];
 
-const filtersWareHouse: Filters[] = [
+const getFilters = (t: any): Filters[] => [
   {
-    label: 'Codi',
+    label: t('code'),
     key: 'code',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Descripció',
+    label: t('description'),
     key: 'description',
     format: FiltersFormat.TEXT,
   },

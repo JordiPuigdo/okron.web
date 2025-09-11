@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Select, { MultiValue } from 'react-select';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { WorkOrdersFilters, WorkOrderType } from 'app/interfaces/workOrder';
 import { translateWorkOrderType } from 'app/utils/utils';
 
@@ -12,6 +13,7 @@ export const WorkOrderTypeFilter = ({
   workOrdersFilters,
   setWorkOrdersFilters,
 }: WorkOrderTypeFilterProps) => {
+  const { t } = useTranslations();
   const validTypes: WorkOrderType[] = [
     WorkOrderType.Corrective,
     WorkOrderType.Preventive,
@@ -56,7 +58,7 @@ export const WorkOrderTypeFilter = ({
         className="w-full"
         classNamePrefix="react-select"
         styles={customStyles}
-        placeholder="Tipus"
+        placeholder={t('type')}
       />
     </div>
   );

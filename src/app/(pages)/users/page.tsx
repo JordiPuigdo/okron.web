@@ -19,28 +19,28 @@ import { Button } from 'designSystem/Button/Buttons';
 
 import { useTranslations } from '../../hooks/useTranslations';
 
-const columns: Column[] = [
+const getColumns = (t: any): Column[] => [
   {
     label: 'ID',
     key: 'id',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Usuari',
+    label: t('users.username'),
     key: 'username',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Actiu',
+    label: t('active'),
     key: 'active',
     format: ColumnFormat.BOOLEAN,
   },
 ];
 
-const filters: Filters[] = [
+const getFilters = (t: any): Filters[] => [
   {
     key: 'description',
-    label: 'Descripció',
+    label: t('description'),
     format: FiltersFormat.TEXT,
   },
 ];
@@ -50,11 +50,14 @@ const tableButtons: TableButtons = {
   delete: false,
 };
 export default function UsersPage() {
+  const {t} = useTranslations();
   const userService = new UserService(process.env.NEXT_PUBLIC_API_BASE_URL!);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingCreate, setIsLoadingCreate] = useState(false);
-  const {t} = useTranslations();
+  
+  const columns = getColumns(t);
+  const filters = getFilters(t);
   const fetchUsers = async () => {
     await userService.getUsers().then(data => {
       if (data) {
@@ -73,11 +76,12 @@ export default function UsersPage() {
         <div className="flex flex-col h-full">
           {renderHeader(t)}
           {isLoading ? (
-            <p>Carregant dades...</p>
+            <p>{t('loading')}</p>
           ) : (
             <DataTable
               data={users}
               columns={columns}
+              filters={filters}
               tableButtons={tableButtons}
               entity={EntityTable.SECTION}
             />
@@ -95,9 +99,9 @@ const renderHeader = (t:any) => {
         <div className="w-full flex flex-col gap-2 items">
           <h2 className="text-2xl font-bold text-black flex gap-2">
             <SvgMachines />
-            Usuaris
+            {t('sidebar.users')}
           </h2>
-          <span className="text-l">{t('start')} - Llistat de Usuaris</span>
+          <span className="text-l">{t('users.listTitle')}</span>
         </div>
         <div className="w-full flex justify-end items-center"></div>
       </div>

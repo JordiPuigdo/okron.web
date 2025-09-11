@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import { SvgSpinner } from 'app/icons/icons';
 import { WareHouse, WareHouseDetail } from 'app/interfaces/WareHouse';
@@ -19,6 +20,7 @@ export default function wareHouseDetailPage({
 }: {
   params: { id: string };
 }) {
+  const { t } = useTranslations();
   const [wareHouse, setWareHouse] = useState<WareHouseDetail>();
   const [totalPrice, setTotalPrice] = useState<string>('0');
   const router = useRouter();
@@ -60,7 +62,7 @@ export default function wareHouseDetailPage({
           x.id != params.id
       )
     ) {
-      alert('El codi ja existeix');
+      alert(t('warehouse.codeExists'));
       return;
     }
     updateWareHouse({
@@ -84,7 +86,7 @@ export default function wareHouseDetailPage({
             <div className="flex flex-col w-full bg-white p-6 rounded-md shadow-md my-4 gap-6 ">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
                 <div className="flex flex-col gap-2 border p-4 rounded-md">
-                  <label className="font-semibold">Codi</label>
+                  <label className="font-semibold">{t('code')}</label>
                   <input
                     className="border p-2 rounded-md"
                     type="text"
@@ -93,7 +95,7 @@ export default function wareHouseDetailPage({
                       setWareHouse({ ...wareHouse, code: e.target.value })
                     }
                   />
-                  <label className="font-semibold mt-2">Descripció</label>
+                  <label className="font-semibold mt-2">{t('description')}</label>
                   <input
                     className="border p-2 rounded-md"
                     type="text"
@@ -106,7 +108,7 @@ export default function wareHouseDetailPage({
                     }
                   />
                   <div className="flex flex-row gap-2 items-center mt-2">
-                    <label className="font-semibold">Virtual</label>
+                    <label className="font-semibold">{t('warehouse.virtual')}</label>
                     <input
                       type="checkbox"
                       checked={wareHouse?.isVirtual}
@@ -120,7 +122,7 @@ export default function wareHouseDetailPage({
                     />
                   </div>
                   <div className="flex flex-row gap-2 items-center mt-2">
-                    <label className="font-semibold">Actiu</label>
+                    <label className="font-semibold">{t('active')}</label>
                     <input
                       type="checkbox"
                       checked={wareHouse?.active}
@@ -139,7 +141,7 @@ export default function wareHouseDetailPage({
                         {wareHouse.totalStock}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Total Referències
+                        {t('warehouse.totalReferences')}
                       </div>
                     </div>
 
@@ -151,7 +153,7 @@ export default function wareHouseDetailPage({
                         {wareHouse.lowStock}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Sota Stock
+                        {t('warehouse.lowStock')}
                       </div>
                     </div>
 
@@ -163,7 +165,7 @@ export default function wareHouseDetailPage({
                         {wareHouse.highStock}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Sobre Stock
+                        {t('warehouse.highStock')}
                       </div>
                     </div>
                   </div>
@@ -176,7 +178,7 @@ export default function wareHouseDetailPage({
                         {totalPrice + '€'}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Valor Stock
+                        {t('warehouse.stockValue')}
                       </div>
                     </div>
                   </div>
@@ -192,7 +194,7 @@ export default function wareHouseDetailPage({
                   }`}
                   onClick={handleUpdate}
                 >
-                  Guardar
+                  {t('common.save')}
                   {isLoadingWareHouse && <SvgSpinner className="ml-2" />}
                 </Button>
                 <Button
@@ -200,7 +202,7 @@ export default function wareHouseDetailPage({
                   type="cancel"
                   customStyles="gap-2 flex"
                 >
-                  Cancelar
+                  {t('common.cancel')}
                 </Button>
               </div>
             </div>

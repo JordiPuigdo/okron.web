@@ -8,6 +8,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import ModalDowntimeReasons from 'app/(pages)/corrective/components/ModalDowntimeReasons';
 import ModalGenerateCorrective from 'app/(pages)/corrective/components/ModalGenerateCorrective';
 import { usePermissions } from 'app/hooks/usePermissions';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgPrint } from 'app/icons/designSystem/SvgPrint';
 import { SvgSave } from 'app/icons/designSystem/SvgSave';
 import { SvgClose, SvgSpinner } from 'app/icons/icons';
@@ -59,16 +60,18 @@ interface TabWO {
   key: string;
   permission: UserPermission;
 }
-enum Tab {
-  OPERATORTIMES = 'Temps Operaris',
-  COMMENTS = 'Comentaris',
-  SPAREPARTS = 'Recanvis',
-  INSPECTIONPOINTS = "Punts d'Inspecció",
-  EVENTSWORKORDER = 'Events',
-}
-
 const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
+  const { t } = useTranslations();
+  
+  const getTabLabels = () => ({
+    OPERATORTIMES: t('workOrders.operatorTimes'),
+    COMMENTS: t('workOrders.comments'),
+    SPAREPARTS: t('workOrders.spareParts'),
+    INSPECTIONPOINTS: t('workOrders.inspectionPoints'),
+    EVENTSWORKORDER: t('workOrders.events'),
+  });
   const { register, handleSubmit, setValue } = useForm<WorkOrder>({});
+  const tabLabels = getTabLabels();
   const { filterOperatorTypesWorkOrder, workorderHeader, isAdmin, isCRM } =
     usePermissions();
   const router = useRouter();

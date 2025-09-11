@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Combobox } from '@headlessui/react';
 import { Checkbox, ListItemText, MenuItem, Select } from '@mui/material';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgArrowDown } from 'app/icons/icons';
 import { DayOfWeek, Rate, RateType } from 'app/interfaces/Rate';
 import { formatTime } from 'app/utils/utils';
@@ -18,17 +19,18 @@ interface Props {
   isSubmit?: boolean;
 }
 
-const dayOfWeekOptions = [
-  { value: DayOfWeek.Monday, label: 'Dilluns' },
-  { value: DayOfWeek.Tuesday, label: 'Dimarts' },
-  { value: DayOfWeek.Wednesday, label: 'Dimecres' },
-  { value: DayOfWeek.Thursday, label: 'Dijous' },
-  { value: DayOfWeek.Friday, label: 'Divendres' },
-  { value: DayOfWeek.Saturday, label: 'Dissabte' },
-  { value: DayOfWeek.Sunday, label: 'Diumenge' },
-];
-
 export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
+  const { t } = useTranslations();
+  
+  const dayOfWeekOptions = [
+    { value: DayOfWeek.Monday, label: t('system.rates.monday') },
+    { value: DayOfWeek.Tuesday, label: t('system.rates.tuesday') },
+    { value: DayOfWeek.Wednesday, label: t('system.rates.wednesday') },
+    { value: DayOfWeek.Thursday, label: t('system.rates.thursday') },
+    { value: DayOfWeek.Friday, label: t('system.rates.friday') },
+    { value: DayOfWeek.Saturday, label: t('system.rates.saturday') },
+    { value: DayOfWeek.Sunday, label: t('system.rates.sunday') },
+  ];
   const { control, register, handleSubmit, reset, getValues } =
     useForm<Omit<Rate, 'id'>>();
   const [query, setQuery] = useState('');
@@ -75,7 +77,7 @@ export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Tipus de tarifa *
+            {t('system.rates.rateType')} *
           </label>
           <Combobox value={selectedRateType} onChange={setSelectedRateType}>
             <div className="relative">
@@ -83,7 +85,7 @@ export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
                 className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onChange={e => setQuery(e.target.value)}
                 displayValue={getRateTypeDisplay}
-                placeholder="Ex: FESTIU"
+                placeholder={t('system.rates.rateTypePlaceholder')}
               />
               <Combobox.Button className="absolute inset-y-0 right-2 flex items-center">
                 <SvgArrowDown />
@@ -123,7 +125,7 @@ export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Preu *
+            {t('price')} *
           </label>
           <Input
             type="number"
@@ -131,13 +133,13 @@ export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
             id="rate-price"
             step="0.01"
             min="0"
-            placeholder="Ex: 12.50"
+            placeholder={t('system.rates.pricePlaceholder')}
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Dies de la setmana *
+            {t('system.rates.weekDays')} *
           </label>
           <Controller
             name="daysOfWeek"
@@ -174,7 +176,7 @@ export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
         <div className="flex gap-8">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Hora d'inici *
+              {t('system.rates.startTime')} *
             </label>
             <Controller
               name="startTime"
@@ -190,7 +192,7 @@ export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Hora de fi
+              {t('system.rates.endTime')}
             </label>
             <Controller
               name="endTime"
@@ -221,7 +223,7 @@ export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
             : undefined
         }
       >
-        {loading ? 'Creant...' : 'Crear Tarifa'}
+        {loading ? t('creating') : t('system.rates.createRate')}
       </Button>
     </form>
   );

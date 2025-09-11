@@ -22,7 +22,7 @@ const FinalizeWorkOrdersDaysBefore: React.FC<
   const {t} = useTranslations();
   const handleFinalizeWorkOrdersDayBefore = async () => {
     const isConfirmed = window.confirm(
-      'Segur que voleu finalitzar totes les ordres de treball pendents?'
+      t('workOrders.confirmFinalizeAll')
     );
     if (!isConfirmed) return;
 
