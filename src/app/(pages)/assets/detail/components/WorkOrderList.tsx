@@ -18,7 +18,7 @@ const WorkOrderList = ({ workOrders }: WorkOrderListProps) => {
 
   if (workOrders.length === 0) {
     return (
-      <p className="text-gray-500">No se encontraron órdenes de trabajo</p>
+      <p className="text-gray-500">{t('no.work.orders.found')}</p>
     );
   }
 
@@ -29,7 +29,7 @@ const WorkOrderList = ({ workOrders }: WorkOrderListProps) => {
 
   return (
     <div className="space-y-3">
-      <h3 className="font-semibold text-lg">Ordres de treball</h3>
+      <h3 className="font-semibold text-lg">{t('work.orders')}</h3>
       <ul className="divide-y divide-gray-200">
         {workOrders.map(order => (
           <li

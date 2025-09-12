@@ -209,7 +209,6 @@
       "error.state.not.changed": "The order state has not changed correctly",
       "alert.select.operator": "You need to select at least one operator",
       "alert.default.reason": "You have the default reason, you cannot change the state",
-      "work.order": "Work Order",
       "loading.data": "Loading Data",
       "description": "Description",
       "client.ref": "Client Ref.",
@@ -672,7 +671,12 @@
       "workorder.search.operators": "Search Operators",
       "customer.search.customer": "Search Customer",
       "customer.stores": "Stores",
-      "customer.search.store": "Search Store"
+      "customer.search.store": "Search Store",
+      "scanned.on": "Scanned on",
+      "no.spare.parts.used": "No spare parts used",
+      "error.contact.admin": "Error, contact administrator",
+      "no.work.orders.found": "No work orders found",
+      "work.order": "Work Order"
     }
   }
 ]
