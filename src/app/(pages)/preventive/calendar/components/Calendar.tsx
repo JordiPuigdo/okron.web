@@ -1,5 +1,10 @@
 'use client';
 import 'dayjs/locale/ca';
+import 'dayjs/locale/es';
+import 'dayjs/locale/en';
+import 'dayjs/locale/fr';
+import 'dayjs/locale/pl';
+import 'dayjs/locale/pt';
 
 import React, { useMemo, useRef, useState } from 'react';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
@@ -17,6 +22,7 @@ import { useAssetHook } from 'app/hooks/useAssetHook';
 import { usePreventiveSchedule } from 'app/hooks/usePreventives';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { DailyPreventives } from 'app/interfaces/Preventive';
+import { useTranslationStore } from 'app/stores/translationStore';
 import useRoutes from 'app/utils/useRoutes';
 import { FilterType } from 'components/table/components/Filters/FilterType';
 import dayjs from 'dayjs';
@@ -26,7 +32,6 @@ import PreventiveCard from './PreventiveCard';
 import PreventiveDetailModal from './PreventiveDetailModal';
 
 dayjs.extend(isoWeek);
-dayjs.locale('ca');
 
 const cardStyles = {
   calendarCointainer: {
@@ -86,6 +91,12 @@ export default function PreventiveCalendar() {
     {}
   );
   const { t } = useTranslations();
+  const { currentLang } = useTranslationStore();
+
+  // Helper function to capitalize first letter of month name
+  const capitalizeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
 
   const [filters, setFilters] = useState<{ [key: string]: any[] }>({
     status: [],
@@ -223,7 +234,7 @@ export default function PreventiveCalendar() {
                 variant="h6"
                 sx={{ mx: 2, minWidth: 180, textAlign: 'center' }}
               >
-                {currentMonth.format('MMMM YYYY')}
+                {capitalizeFirstLetter(currentMonth.locale(currentLang).format('MMMM YYYY'))}
               </Typography>
 
               <IconButton
