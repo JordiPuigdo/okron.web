@@ -2,11 +2,14 @@ import { useEffect, useState } from 'react';
 import { Rate, RateType } from 'app/interfaces/Rate';
 import { RateService } from 'app/services/rateService';
 
+import { useTranslations } from './useTranslations';
+
 export function useRates() {
   const [rates, setRates] = useState<Rate[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rateTypes, setRateTypes] = useState<RateType[]>([]);
+  const { t } = useTranslations();
 
   const rateService = new RateService();
 
@@ -113,9 +116,7 @@ export function useRates() {
     setError(null);
     try {
       if (rates.find(r => r.rateTypeId === id)) {
-        setError(
-          'No es pot eliminar un tipus de tarifa que tingui alguns tarifes creades'
-        );
+        setError(t('rates.error.cannot.delete.type.with.rates'));
         /*setTimeout(() => {
           setError(null);
         }, 3000);*/

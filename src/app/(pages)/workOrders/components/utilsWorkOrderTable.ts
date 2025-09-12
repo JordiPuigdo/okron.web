@@ -3,146 +3,146 @@ import {
   ColumnFormat,
 } from 'components/table/interface/interfaceTable';
 
-export const baseColumns: Column[] = [
+export const getBaseColumns = (t: any): Column[] => [
   {
-    label: 'ID',
+    label: t('common.id'),
     key: 'id',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Num Sèrie',
+    label: t('workorder.serial.number'),
     key: 'code',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Descripció',
+    label: t('common.description'),
     key: 'description',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Tipus',
+    label: t('workorder.type'),
     key: 'workOrderType',
     format: ColumnFormat.WORKORDERTYPE,
   },
   {
-    label: 'Data Creació',
+    label: t('workorder.creation.date'),
     key: 'creationTime',
     format: ColumnFormat.DATETIME,
   },
   {
-    label: 'Estat',
+    label: t('workorder.state'),
     key: 'stateWorkOrder',
     format: ColumnFormat.STATEWORKORDER,
   },
   {
-    label: 'Equip',
+    label: t('workorder.equipment'),
     key: 'asset.description',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Original',
+    label: t('workorder.original'),
     key: 'originalWorkOrderCode',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Operaris',
+    label: t('workorder.operators'),
     key: 'operatorsNames',
     format: ColumnFormat.TEXT,
     width: 'w-1/4',
   },
 ];
 
-export const columnsTicket: Column[] = [
+export const getColumnsTicket = (t: any): Column[] => [
   {
-    label: 'ID',
+    label: t('common.id'),
     key: 'id',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Num Sèrie',
+    label: t('workorder.serial.number'),
     key: 'code',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Descripció',
+    label: t('common.description'),
     key: 'description',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Tipus',
+    label: t('workorder.type'),
     key: 'workOrderType',
     format: ColumnFormat.WORKORDERTYPE,
   },
   {
-    label: 'Data Inici',
+    label: t('workorder.start.date'),
     key: 'startTime',
     format: ColumnFormat.DATETIME,
   },
   {
-    label: 'Estat',
+    label: t('workorder.state'),
     key: 'stateWorkOrder',
     format: ColumnFormat.STATEWORKORDER,
   },
   {
-    label: 'Equip',
+    label: t('workorder.equipment'),
     key: 'asset.description',
     format: ColumnFormat.TEXT,
   },
 ];
 
-export const columnsCRM: Column[] = [
+export const getColumnsCRM = (t: any): Column[] => [
   {
-    label: 'ID',
+    label: t('common.id'),
     key: 'id',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Num Sèrie',
+    label: t('workorder.serial.number'),
     key: 'code',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Descripció',
+    label: t('common.description'),
     key: 'description',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Tipus',
+    label: t('workorder.type'),
     key: 'workOrderType',
     format: ColumnFormat.WORKORDERTYPE,
   },
   {
-    label: 'Data Creació',
+    label: t('workorder.creation.date'),
     key: 'creationTime',
     format: ColumnFormat.DATETIME,
   },
   {
-    label: 'Data Inici',
+    label: t('workorder.start.date'),
     key: 'startTime',
     format: ColumnFormat.DATETIME,
   },
   {
-    label: 'Estat',
+    label: t('workorder.state'),
     key: 'stateWorkOrder',
     format: ColumnFormat.STATEWORKORDER,
   },
   {
-    label: 'Client',
+    label: t('customer.customer'),
     key: 'customerWorkOrder.customerName',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Botiga',
+    label: t('customer.store'),
     key: 'customerWorkOrder.customerInstallationAddress.city',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Codi',
+    label: t('common.code'),
     key: 'customerWorkOrder.customerInstallationCode',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Ref. Client',
+    label: t('customer.reference'),
     key: 'refCustomerId',
     format: ColumnFormat.TEXT,
   },
