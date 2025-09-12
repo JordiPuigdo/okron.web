@@ -676,7 +676,8 @@
       "no.spare.parts.used": "No spare parts used",
       "error.contact.admin": "Error, contact administrator",
       "no.work.orders.found": "No work orders found",
-      "work.order": "Work Order"
+      "work.order": "Work Order",
+      "incident.management": "Incident Management"
     }
   }
 ]
