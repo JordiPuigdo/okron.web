@@ -1,4 +1,5 @@
 import { EditableCell } from 'app/(pages)/machines/downtimes/components/EditingCell';
+import { useTranslations } from 'app/hooks/useTranslations';
 import SparePart from 'app/interfaces/SparePart';
 
 interface SparePartProvidersSelectedProps {
@@ -18,12 +19,14 @@ export default function SparePartProvidersSelected({
   handleUpdateDiscount,
   handleUpdateRefProvider,
 }: SparePartProvidersSelectedProps) {
+  const { t } = useTranslations();
+  
   function handleCheckIsDefault(providerId: string) {
     const provider = sparePart.providers.find(
       x => x.isDefault && x.providerId !== providerId
     );
     if (provider) {
-      alert('Només pots tenir un proveïdor per habitual');
+      alert(t('providers.only.one.default'));
       return;
     } else {
       handleUpdateIsDefault(providerId);
@@ -33,12 +36,12 @@ export default function SparePartProvidersSelected({
   return (
     <div className="flex flex-col flex-grow ">
       <div className="flex gap-2 justify-between items-center bg-gray-100 p-3 rounded-lg font-semibold text-gray-700 text-sm">
-        <div className="flex-[2]">Nom</div>
-        <div className="flex-[2]">Referència</div>
-        <div className="flex-[1]">Preu</div>
-        <div className="flex-[1]">% Dte.</div>
-        <div className="flex-[1]">Habitual</div>
-        <div className="flex-[1]">Accions</div>
+        <div className="flex-[2]">{t('providers.name')}</div>
+        <div className="flex-[2]">{t('providers.reference')}</div>
+        <div className="flex-[1]">{t('providers.price')}</div>
+        <div className="flex-[1]">{t('providers.discount.percentage')}</div>
+        <div className="flex-[1]">{t('providers.default')}</div>
+        <div className="flex-[1]">{t('actions')}</div>
       </div>
       <div className="overflow-y-auto max-h-[300px] divide-y divide-gray-200 text-sm">
         {sparePart?.providers.map(x => (

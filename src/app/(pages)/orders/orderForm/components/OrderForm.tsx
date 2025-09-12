@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useOrder } from 'app/hooks/useOrder';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import { Account } from 'app/interfaces/Account';
 import {
@@ -50,6 +51,7 @@ export default function OrderForm({
     orders,
   } = useOrder();
   const { warehouses } = useWareHouses(true);
+  const { t } = useTranslations();
   const router = useRouter();
   const [order, setOrder] = useState<OrderCreationRequest>({
     code: '',
@@ -266,6 +268,7 @@ export default function OrderForm({
 
   const headerName = generateNameHeader(
     isPurchase!,
+    t,
     orderRequest,
     order && order.code
   );

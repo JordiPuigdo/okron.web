@@ -273,7 +273,7 @@ const DowntimeReport: React.FC<DowntimeReportProps> = ({
               <div className="flex flex-col gap-2 items-end">
                 <span className="text-white font-semibold">
                   {translateDowntimeReasonType(
-                    downtime.originDownTime as unknown as DowntimesReasonsType
+                    downtime.originDownTime as unknown as DowntimesReasonsType, t
                   )}
                 </span>
                 <div className="flex flex-wrap">

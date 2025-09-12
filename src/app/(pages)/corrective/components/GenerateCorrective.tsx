@@ -345,10 +345,10 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                     value={stateCorrective}
                   >
                     <option value={StateWorkOrder.OnGoing}>
-                      {translateStateWorkOrder(StateWorkOrder.OnGoing)}
+                      {translateStateWorkOrder(StateWorkOrder.OnGoing, t)}
                     </option>
                     <option value={StateWorkOrder.Waiting}>
-                      {translateStateWorkOrder(StateWorkOrder.Waiting)}
+                      {translateStateWorkOrder(StateWorkOrder.Waiting, t)}
                     </option>
                   </select>
                 </>

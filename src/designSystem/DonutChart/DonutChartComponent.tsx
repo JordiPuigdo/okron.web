@@ -6,11 +6,13 @@ import DonutChart from './DonutChart';
 export interface DonutChartComponentProps {
   chartData: any[];
   title: string;
+  t: (key: string) => string
 }
 
 export const DonutChartComponent = ({
   chartData,
   title,
+  t
 }: DonutChartComponentProps) => (
   <div className="w-full flex flex-col p-4">
     <p className="text-2xl font-semibold text-left">{title}</p>
@@ -31,7 +33,7 @@ export const DonutChartComponent = ({
                 }`}
               ></span>
               <span className="font-sm text-gray-500 text-sm">
-                {translateWorkOrderType(item.workOrderType as WorkOrderType)}
+                {translateWorkOrderType(item.workOrderType as WorkOrderType, t)}
               </span>
             </div>
           ))}

@@ -6,7 +6,7 @@ import {
 } from 'app/utils/utils';
 import * as XLSX from 'xlsx';
 
-import { entityStatusConfig } from '../interface/EntityStatusConfig';
+import { getEntityStatusConfig } from '../interface/EntityStatusConfig';
 import {
   Column,
   ColumnFormat,
@@ -14,8 +14,8 @@ import {
 } from '../interface/interfaceTable';
 import { EntityTable } from '../interface/tableEntitys';
 
-export function onDelete(id: string, entity: EntityTable) {
-  const confirm = window.confirm('Segur que voleu eliminar aquest registre?');
+export function onDelete(id: string, entity: EntityTable, t?: (key: string) => string) {
+  const confirm = window.confirm(t ? t('confirm.delete.record') : 'Segur que voleu eliminar aquest registre?');
   if (!confirm) return;
 
   switch (entity) {
@@ -114,7 +114,8 @@ export const filterByUnderStock = (record: any) =>
 export const formatCellContent = (
   column: Column,
   rowData: any,
-  entity: string
+  entity: string,
+  t?: (key: string) => string
 ) => {
   let value = getNestedFieldValue(rowData, column.key);
   let classNametd = 'p-4';
@@ -125,15 +126,15 @@ export const formatCellContent = (
   if (column.format === ColumnFormat.DATETIME) value = formatDate(value);
   if (column.format === ColumnFormat.WORKORDERTYPE) {
     className = getStatusClassName(value, entity);
-    value = translateWorkOrderType(value);
+    value = t ? translateWorkOrderType(value, t) : value;
   }
   if (column.format === ColumnFormat.STATEWORKORDER) {
     className = getStatusClassName(value, 'WORKORDERSTATE');
-    value = translateStateWorkOrder(value);
+    value = t ? translateStateWorkOrder(value, t) : value;
   }
   if (column.format === ColumnFormat.ORDERSTATE) {
-    className = getStatusClassName(value, 'ORDER');
-    value = getStatusText(value, 'ORDER');
+    className = getStatusClassName(value, 'ORDER', t);
+    value = getStatusText(value, 'ORDER', t);
   }
   if (column.format === ColumnFormat.PRICE) {
     className = 'justify-end text-end';
@@ -151,23 +152,23 @@ export const formatCellContent = (
     }
   }
   if (column.format == ColumnFormat.INVOICESTATUS) {
-    className = getStatusClassName(value, 'INVOICE');
-    value = getStatusText(value, 'INVOICE');
+    className = getStatusClassName(value, 'INVOICE', t);
+    value = getStatusText(value, 'INVOICE', t);
   }
 
   if (column.format === ColumnFormat.DELIVERYNOTESTATUS) {
-    className = getStatusClassName(value, 'DELIVERYNOTE');
-    value = getStatusText(value, 'DELIVERYNOTE');
+    className = getStatusClassName(value, 'DELIVERYNOTE', t);
+    value = getStatusText(value, 'DELIVERYNOTE', t);
   }
 
   if (column.format === ColumnFormat.STOCKMOVEMENTTYPE) {
-    className = getStatusClassName(value, 'STOCKMOVEMENT');
-    value = getStatusText(value, 'STOCKMOVEMENT');
+    className = getStatusClassName(value, 'STOCKMOVEMENT', t);
+    value = getStatusText(value, 'STOCKMOVEMENT', t);
   }
 
   if (column.format === ColumnFormat.OPERATORTYPE) {
     className = getStatusClassName(value, entity);
-    value = translateOperatorType(value);
+    value = t ? translateOperatorType(value, t) : value;
   }
 
   if (column.key === 'active') {
@@ -189,10 +190,14 @@ export const formatCellContent = (
   return { value, classNametd, className };
 };
 
-export function getStatusText(statusText: string, entity: string): string {
+export function getStatusText(statusText: string, entity: string, t?: (key: string) => string): string {
   const lowercaseStatus = statusText;
 
-  const config = entityStatusConfig[entity];
+  if (!t) {
+    return statusText; // Sin traducción disponible, devolver el texto original
+  }
+
+  const config = getEntityStatusConfig(t)[entity];
 
   if (config && lowercaseStatus in config.names) {
     return config.names[lowercaseStatus];
@@ -200,9 +205,13 @@ export function getStatusText(statusText: string, entity: string): string {
   return statusText;
 }
 
-export const getStatusClassName = (status: string, entity: string): string => {
+export const getStatusClassName = (status: string, entity: string, t?: (key: string) => string): string => {
   const uppercaseStatus = status.toString().toUpperCase();
-  const config = entityStatusConfig[entity];
+  
+  // Para los colores, podemos usar una función dummy ya que solo necesitamos la estructura de colores
+  const dummyT = (key: string) => key; // Función dummy para acceder a los colores
+  const config = getEntityStatusConfig(t || dummyT)[entity];
+  
   if (config && uppercaseStatus in config.colors) {
     const style = config.colors[uppercaseStatus];
     return ` text-white rounded-full p-1 text-sm flex justify-center text-center  ${style}`;

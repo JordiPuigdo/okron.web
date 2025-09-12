@@ -23,94 +23,94 @@ dayjs.extend(customParseFormat);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export const translateStateWorkOrder = (state: any): string => {
+export const translateStateWorkOrder = (state: any, t: (key: string) => string): string => {
   switch (state) {
     case StateWorkOrder.Waiting:
-      return 'Pendent';
+      return t('workorder.state.waiting');
     case StateWorkOrder.OnGoing:
-      return 'En curs';
+      return t('workorder.state.ongoing');
     case StateWorkOrder.Paused:
-      return 'Pausada';
+      return t('workorder.state.paused');
     case StateWorkOrder.Finished:
-      return 'Finalitzada';
+      return t('workorder.state.finished');
     case StateWorkOrder.PendingToValidate:
-      return 'Pendent Validar';
+      return t('workorder.state.pending.validate');
     case StateWorkOrder.Requested:
-      return 'Sol·licitat';
+      return t('workorder.state.requested');
     case StateWorkOrder.Open:
-      return 'Obert';
+      return t('workorder.state.open');
     case StateWorkOrder.Closed:
-      return 'Tancat';
+      return t('workorder.state.closed');
     case StateWorkOrder.NotFinished:
-      return 'No Finalitzada';
+      return t('workorder.state.not.finished');
     default:
       return '';
   }
 };
 
 export const translateWorkOrderCommentType = (
-  commentType: WorkOrderCommentType
+  commentType: WorkOrderCommentType,
+  t: (key: string) => string
 ): string => {
   switch (commentType) {
     case WorkOrderCommentType.Internal:
-      return 'Obervacions';
+      return t('workorder.comment.internal');
     case WorkOrderCommentType.External:
-      return 'Descripció Reparació';
+      return t('workorder.comment.external');
     case WorkOrderCommentType.NoFinished:
-      return 'No Finalitzada';
+      return t('workorder.comment.no.finished');
     default:
       return '';
   }
 };
 
 export const translateWorkOrderEventType = (
-  eventType: WorkOrderEventType
+  eventType: WorkOrderEventType,
+  t: (key: string) => string
 ): string => {
   switch (eventType) {
-    /*case WorkOrderEventType.Requested:
-      return "Sol·licitud";*/
     case WorkOrderEventType.Waiting:
-      return 'Pendent';
+      return t('workorder.event.waiting');
     case WorkOrderEventType.Started:
-      return 'En curs';
+      return t('workorder.event.started');
     case WorkOrderEventType.Paused:
-      return 'Pausada';
+      return t('workorder.event.paused');
     case WorkOrderEventType.PendingToValidate:
-      return 'Validació Pendent';
+      return t('workorder.event.pending.validate');
     case WorkOrderEventType.Finished:
-      return 'Finalitzada';
+      return t('workorder.event.finished');
     case WorkOrderEventType.Created:
-      return 'Creada';
+      return t('workorder.event.created');
     default:
       return '';
   }
 };
 
-export const translateInvoiceStatus = (status: InvoiceStatus): string => {
+export const translateInvoiceStatus = (status: InvoiceStatus, t: (key: string) => string): string => {
   switch (status) {
     case InvoiceStatus.Draft:
-      return 'Esborrany';
+      return t('invoice.status.draft');
     case InvoiceStatus.Paid:
-      return 'Pagada';
+      return t('invoice.status.paid');
     case InvoiceStatus.Overdue:
-      return 'Vençuda';
+      return t('invoice.status.overdue');
     case InvoiceStatus.Cancelled:
-      return 'Cancel·lada';
+      return t('invoice.status.cancelled');
     default:
-      return 'Desconegut';
+      return t('invoice.status.unknown');
   }
 };
 
-export const translateInvoiceItemType = (type: InvoiceItemType): string => {
+export const translateInvoiceItemType = (type: InvoiceItemType, t: (key: string) => string): string => {
   switch (type) {
     case InvoiceItemType.Labor:
-      return "Mà d'Obra";
+      return t('invoice.item.labor');
     case InvoiceItemType.SparePart:
-      return 'Recanvi';
+      return t('invoice.item.spare.part');
     case InvoiceItemType.Other:
-      return 'Altres';
+      return t('invoice.item.other');
     default:
-      return 'Desconegut';
+      return t('invoice.item.unknown');
   }
 };
 
@@ -214,16 +214,21 @@ export function formatTimeSpan(timeSpan: string): string {
   return `${sign}${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 }
 export const translateWorkOrderType = (
-  workOrderType: WorkOrderType
+  workOrderType: WorkOrderType,
+  t: (key: string) => string
 ): string => {
-  const translations: { [key in WorkOrderType]: string } = {
-    [WorkOrderType.Preventive]: 'Preventiu',
-    [WorkOrderType.Corrective]: 'Correctiu',
-    [WorkOrderType.Predicitve]: '',
-    [WorkOrderType.Ticket]: 'Tiquet',
-  };
-
-  return translations[workOrderType];
+  switch (workOrderType) {
+    case WorkOrderType.Preventive:
+      return t('workorder.type.preventive');
+    case WorkOrderType.Corrective:
+      return t('workorder.type.corrective');
+    case WorkOrderType.Ticket:
+      return t('workorder.type.ticket');
+    case WorkOrderType.Predicitve:
+      return '';
+    default:
+      return '';
+  }
 };
 export const validateEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -263,9 +268,9 @@ export const isOperatorLogged = () => {
   return operatorLogged == undefined ? false : true;
 };
 
-export function checkOperatorCreated() {
+export function checkOperatorCreated(t: (key: string) => string) {
   if (!isOperatorLogged) {
-    alert('Operari no assignat');
+    alert(t('error.operator.not.assigned'));
     return false;
   } else {
     return true;
@@ -298,32 +303,32 @@ export function formatDateQuery(date: Date, startDate: boolean) {
   ).toISOString();
 }
 
-export const translateOperatorType = (operatorType: any): string => {
+export const translateOperatorType = (operatorType: any, t: (key: string) => string): string => {
   switch (operatorType) {
     case OperatorType.Maintenance:
-      return 'Manteniment';
+      return t('operator.type.maintenance');
     case OperatorType.Production:
-      return 'Producció';
+      return t('operator.type.production');
     case OperatorType.Quality:
-      return 'Qualitat';
+      return t('operator.type.quality');
     case OperatorType.Repairs:
-      return 'Reparació';
+      return t('operator.type.repairs');
     case OperatorType.Assembly:
-      return 'Muntatge';
+      return t('operator.type.assembly');
     default:
       return '';
   }
 };
 
 export const translateDowntimeReasonType = (
-  type: DowntimesReasonsType
+  type: DowntimesReasonsType,
+  t: (key: string) => string
 ): string => {
   switch (type) {
     case DowntimesReasonsType.Maintanance:
-      return 'Manteniment';
-
+      return t('downtime.reason.maintenance');
     case DowntimesReasonsType.Production:
-      return 'Producció';
+      return t('downtime.reason.production');
     default:
       return '';
   }
@@ -342,7 +347,7 @@ export function convertUTCDateToLocalDate(date: Date) {
   return newDate;
 }
 
-export function differenceBetweenDates(date1: Date, date2: Date) {
+export function differenceBetweenDates(date1: Date, date2: Date, t: (key: string) => string) {
   const diff = Math.abs(date1.getTime() - date2.getTime());
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -350,7 +355,10 @@ export function differenceBetweenDates(date1: Date, date2: Date) {
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
   const pad = (num: number) => num.toString().padStart(2, '0');
-  const fullTime = `${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+  const hSuffix = t('time.hours');
+  const mSuffix = t('time.minutes');
+  const sSuffix = t('time.seconds');
+  const fullTime = `${pad(hours)}${hSuffix} ${pad(minutes)}${mSuffix} ${pad(seconds)}${sSuffix}`;
   return {
     days,
     hours,
@@ -410,26 +418,26 @@ export function isValidDateTimeFormat(dateTime: string): boolean {
   return true; // String is a valid "DD/MM/YYYY HH:mm:ss" format
 }
 
-export function translateOriginDowntime(originDowntime: OriginDowntime) {
+export function translateOriginDowntime(originDowntime: OriginDowntime, t: (key: string) => string) {
   switch (originDowntime) {
     case 0:
-      return 'Manteniment';
+      return t('downtime.origin.maintenance');
     case 1:
-      return 'Producció';
+      return t('downtime.origin.production');
     default:
       return originDowntime;
   }
 }
 
-export const fetcher = async (url: string) => {
+export const fetcher = async (url: string, t: (key: string) => string) => {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error('Error fetching data');
+    throw new Error(t('error.fetching.data'));
   }
   return response.json();
 };
 
-export const getRoute = (entity: EntityTable, isForHeader = false) => {
+export const getRoute = (entity: EntityTable, isForHeader = false, t: (key: string) => string) => {
   const ROUTES = useRoutes();
   switch (entity) {
     case EntityTable.WORKORDER:
@@ -473,35 +481,36 @@ export const getRoute = (entity: EntityTable, isForHeader = false) => {
     case EntityTable.DELIVERYNOTE:
       return ROUTES.deliveryNote.list;
     default:
-      return 'error';
+      return t('common.error');
   }
 };
 
-// Función utilitaria para formatear números en formato europeo
+// Utility function to format numbers in European format
 export const formatEuropeanCurrency = (
-  value: number | string | undefined | null
+  value: number | string | undefined | null,
+  t: (key: string) => string
 ): string => {
-  if (value === undefined || value === null) return 'N/A';
+  if (value === undefined || value === null) return t('common.not.available');
 
-  // Convertir a número
+  // Convert to number
   const numericValue =
     typeof value === 'string'
       ? parseFloat(value.replace(/\./g, '').replace(',', '.'))
       : value;
 
-  if (isNaN(numericValue)) return 'N/A';
+  if (isNaN(numericValue)) return t('common.not.available');
 
-  // Separar la parte entera y decimal
+  // Separate integer and decimal parts
   const parts = numericValue.toFixed(2).split('.');
   const integerPart = parts[0];
   const decimalPart = parts[1];
 
-  // Añadir separador de miles a la parte entera
+  // Add thousands separator to integer part
   const integerWithThousands = integerPart.replace(
     /\B(?=(\d{3})+(?!\d))/g,
     '.'
   );
 
-  // Construir string final con formato europeo
+  // Build final string with European format
   return `${integerWithThousands},${decimalPart}€`;
 };

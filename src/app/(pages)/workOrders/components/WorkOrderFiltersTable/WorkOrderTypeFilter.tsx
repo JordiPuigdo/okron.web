@@ -25,7 +25,7 @@ export const WorkOrderTypeFilter = ({
 
   const mapTypesToOptions = (types: WorkOrderType[]) =>
     types.map(type => ({
-      label: translateWorkOrderType(type),
+      label: translateWorkOrderType(type, t),
       value: type.toString(),
     }));
 

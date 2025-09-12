@@ -214,7 +214,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
             const workOrderTypeChartProps: WorkOrderTypeChartProps = {
               workOrderType: workOrderType,
               value: 1,
-              index: translateWorkOrderType(workOrderType),
+              index: translateWorkOrderType(workOrderType, t),
             };
             workOrderTypeMap.set(workOrderType, workOrderTypeChartProps);
           }
@@ -472,7 +472,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
             >
               <div className="flex w-full items-center justify-center">
                 <p className="text-lg font-semibold text-white">
-                  {translateStateWorkOrder(workOrderType.statWorkOrder)}
+                  {translateStateWorkOrder(workOrderType.statWorkOrder, t)}
                 </p>
               </div>
               <div className="flex w-full items-center justify-around">
@@ -537,6 +537,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
             <DonutChartComponent
               chartData={workOrderTypeChartData}
               title={`${t('corrective')} vs ${t('preventive')} (${totalCorrective} / ${totalPreventive})`}
+              t={t}
             />
           </div>
           <div className="flex w-full bg-white rounded-xl p-2 border-2">

@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { useAssetHook } from 'app/hooks/useAssetHook';
 import { usePreventiveSchedule } from 'app/hooks/usePreventives';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { DailyPreventives } from 'app/interfaces/Preventive';
 import useRoutes from 'app/utils/useRoutes';
 import { FilterType } from 'components/table/components/Filters/FilterType';
@@ -84,6 +85,7 @@ export default function PreventiveCalendar() {
   const [expandedDays, setExpandedDays] = useState<{ [key: string]: boolean }>(
     {}
   );
+  const { t } = useTranslations();
 
   const [filters, setFilters] = useState<{ [key: string]: any[] }>({
     status: [],
@@ -201,7 +203,7 @@ export default function PreventiveCalendar() {
             setFilters={setFilters}
             validTypes={assets?.map(asset => asset.id) || []}
             filterKey="asset"
-            placeholder="Filtrar per equip"
+            placeholder={t('calendar.filter.equipment')}
             translateFn={(id: string) => {
               const asset = assets?.find(c => c.id === id);
               return asset ? `${asset.code} - ${asset.description}` : id;
@@ -258,7 +260,15 @@ export default function PreventiveCalendar() {
               mb: 1,
             }}
           >
-            {['Dl', 'Dt', 'Dc', 'Dj', 'Dv', 'Ds', 'Dg'].map((day, index) => (
+            {[
+              t('calendar.day.monday'),
+              t('calendar.day.tuesday'), 
+              t('calendar.day.wednesday'),
+              t('calendar.day.thursday'),
+              t('calendar.day.friday'),
+              t('calendar.day.saturday'),
+              t('calendar.day.sunday')
+            ].map((day, index) => (
               <Box key={index} textAlign="center" py={1}>
                 <Typography
                   variant="subtitle2"
@@ -374,7 +384,7 @@ export default function PreventiveCalendar() {
                             color="text.secondary"
                             sx={{ textAlign: 'center', mt: 1 }}
                           >
-                            No hi ha preventius
+                            {t('calendar.no.preventives')}
                           </Typography>
                         )}
                       </Box>
@@ -386,8 +396,8 @@ export default function PreventiveCalendar() {
                           onClick={() => toggleExpanded(key)}
                         >
                           {isExpanded
-                            ? 'Mostrar menys'
-                            : `+${preventivesForDay.length - maxShowMore} més`}
+                            ? t('calendar.show.less')
+                            : `+${preventivesForDay.length - maxShowMore} ${t('calendar.show.more')}`}
                         </Typography>
                       )}
                     </Paper>

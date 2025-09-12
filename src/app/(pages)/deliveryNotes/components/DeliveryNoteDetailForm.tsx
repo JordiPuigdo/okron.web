@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { HeaderForm } from '../../../../components/layout/HeaderForm';
 import { Textarea } from '../../../../components/textarea';
 import { Button } from '../../../../designSystem/Button/Buttons';
+import { useTranslations } from '../../../hooks/useTranslations';
 import { SvgSpinner } from '../../../icons/icons';
 import {
   DeliveryNote,
@@ -38,6 +39,7 @@ export function DeliveryNoteDetailForm({
 }: DeliveryNoteDetailFormProps) {
   const router = useRouter();
   const ROUTES = useRoutes();
+  const { t } = useTranslations();
 
   const [formData, setFormData] = useState<DeliveryNote>(deliveryNote);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -50,7 +52,7 @@ export function DeliveryNoteDetailForm({
   /** ===== WORK ORDER ITEMS ===== */
   const handleAddNewItem = (workOrderIndex: number) => {
     const newItem: DeliveryNoteItem = {
-      description: 'Nou Concepte',
+      description: t('deliveryNote.new.concept'),
       quantity: 1,
       unitPrice: 0,
       discountPercentage: 0,
@@ -156,7 +158,7 @@ export function DeliveryNoteDetailForm({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (!formData.deliveryNoteDate?.trim()) {
-      newErrors.deliveryNoteDate = 'La data es obligatoria';
+      newErrors.deliveryNoteDate = t('deliveryNote.date.required');
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -178,14 +180,14 @@ export function DeliveryNoteDetailForm({
             {/* Delivery Note Top */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <label className="font-semibold">Albarà</label>
+                <label className="font-semibold">{t('deliveryNote.code')}</label>
                 <div className="p-2 bg-gray-50 rounded border text-gray-700">
                   {formData.code}
                 </div>
               </div>
 
               <div className="space-y-2 flex flex-col">
-                <label className="font-semibold">Data</label>
+                <label className="font-semibold">{t('deliveryNote.date')}</label>
                 <DatePicker
                   selected={
                     formData.deliveryNoteDate
@@ -210,7 +212,7 @@ export function DeliveryNoteDetailForm({
               </div>
 
               <div className="space-y-2">
-                <label className="font-semibold">Estat</label>
+                <label className="font-semibold">{t('deliveryNote.status')}</label>
                 <select
                   value={formData.status}
                   onChange={e =>
@@ -238,23 +240,23 @@ export function DeliveryNoteDetailForm({
             {formData.installation?.code && (
               <div className="p-4 bg-gray-50 rounded-lg">
                 <h3 className="font-semibold mb-2">
-                  Instal·lació Client - {formData.installation.code}
+                  {t('deliveryNote.installation.client')} - {formData.installation.code}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <span className="font-medium">Adreça:</span>{' '}
+                    <span className="font-medium">{t('deliveryNote.company.address')}:</span>{' '}
                     {formData.installation.address.address}
                   </div>
                   <div>
-                    <span className="font-medium">Ciutat:</span>{' '}
+                    <span className="font-medium">{t('deliveryNote.company.city')}:</span>{' '}
                     {formData.installation.address.city}
                   </div>
                   <div>
-                    <span className="font-medium">Codi Postal:</span>{' '}
+                    <span className="font-medium">{t('deliveryNote.company.postalCode')}:</span>{' '}
                     {formData.installation.address.postalCode}
                   </div>
                   <div>
-                    <span className="font-medium">Província:</span>{' '}
+                    <span className="font-medium">{t('deliveryNote.company.province')}:</span>{' '}
                     {formData.installation.address.province}
                   </div>
                 </div>
@@ -263,10 +265,10 @@ export function DeliveryNoteDetailForm({
 
             {/* Company Information */}
             <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-semibold mb-2">Informació de l'Empresa</h3>
+              <h3 className="font-semibold mb-2">{t('deliveryNote.company.info')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="font-medium">Nom:</label>
+                  <label className="font-medium">{t('deliveryNote.company.name')}:</label>
                   <input
                     value={formData.companyName}
                     onChange={e =>
@@ -279,7 +281,7 @@ export function DeliveryNoteDetailForm({
                   />
                 </div>
                 <div>
-                  <label className="font-medium">Adreça:</label>
+                  <label className="font-medium">{t('deliveryNote.company.address')}:</label>
                   <input
                     value={formData.customerAddress.address}
                     onChange={e =>
@@ -295,7 +297,7 @@ export function DeliveryNoteDetailForm({
                   />
                 </div>
                 <div>
-                  <label className="font-medium">Ciutat:</label>
+                  <label className="font-medium">{t('deliveryNote.company.city')}:</label>
                   <input
                     value={formData.customerAddress.city}
                     onChange={e =>
@@ -311,7 +313,7 @@ export function DeliveryNoteDetailForm({
                   />
                 </div>
                 <div>
-                  <label className="font-medium">Codi Postal:</label>
+                  <label className="font-medium">{t('deliveryNote.company.postalCode')}:</label>
                   <input
                     value={formData.customerAddress.postalCode}
                     onChange={e =>
@@ -327,7 +329,7 @@ export function DeliveryNoteDetailForm({
                   />
                 </div>
                 <div>
-                  <label className="font-medium">Província:</label>
+                  <label className="font-medium">{t('deliveryNote.company.province')}:</label>
                   <input
                     value={formData.customerAddress.province}
                     onChange={e =>
@@ -357,7 +359,7 @@ export function DeliveryNoteDetailForm({
                 </h3>
 
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="font-medium">Concepte:</span>
+                  <span className="font-medium">{t('deliveryNote.concept')}:</span>
                   <EditableCell
                     value={wo.concept}
                     onUpdate={value => handleUpdateConcept(woIndex, value)}
@@ -369,13 +371,13 @@ export function DeliveryNoteDetailForm({
                   <table className="w-full border border-gray-300">
                     <thead>
                       <tr className="bg-gray-100">
-                        <th className="p-2 border text-left">Descripció</th>
-                        <th className="p-2 border text-center">Quantitat</th>
-                        <th className="p-2 border text-center">Preu Unitari</th>
-                        <th className="p-2 border text-center">% Dte.</th>
-                        <th className="p-2 border text-center">Import Dte.</th>
-                        <th className="p-2 border text-center">Total Línia</th>
-                        <th className="p-2 border text-center">Accions</th>
+                        <th className="p-2 border text-left">{t('deliveryNote.item.description')}</th>
+                        <th className="p-2 border text-center">{t('deliveryNote.item.quantity')}</th>
+                        <th className="p-2 border text-center">{t('deliveryNote.item.unitPrice')}</th>
+                        <th className="p-2 border text-center">{t('providers.discount.percentage')}</th>
+                        <th className="p-2 border text-center">{t('deliveryNote.item.discountAmount')}</th>
+                        <th className="p-2 border text-center">{t('deliveryNote.item.lineTotal')}</th>
+                        <th className="p-2 border text-center">{t('actions')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -438,10 +440,10 @@ export function DeliveryNoteDetailForm({
                             />
                           </td>
                           <td className="p-2 border text-center">
-                            {formatEuropeanCurrency(item.discountAmount)}
+                            {formatEuropeanCurrency(item.discountAmount, t)}
                           </td>
                           <td className="p-2 border text-center">
-                            {formatEuropeanCurrency(item.lineTotal)}
+                            {formatEuropeanCurrency(item.lineTotal, t)}
                           </td>
                           <td className="p-2 border text-center">
                             <button
@@ -451,7 +453,7 @@ export function DeliveryNoteDetailForm({
                               }
                               className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                             >
-                              Eliminar
+                              {t('deliveryNote.item.remove')}
                             </button>
                           </td>
                         </tr>
@@ -476,16 +478,16 @@ export function DeliveryNoteDetailForm({
             <div className="flex justify-end">
               <div className="w-96 space-y-2 p-4 border rounded-lg bg-gray-50">
                 <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span>{formatEuropeanCurrency(formData.subtotal)}</span>
+                  <span>{t('deliveryNote.subtotal')}:</span>
+                  <span>{formatEuropeanCurrency(formData.subtotal, t)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>IVA (21%):</span>
-                  <span>{formatEuropeanCurrency(formData.totalTax)}</span>
+                  <span>{t('deliveryNote.tax')}:</span>
+                  <span>{formatEuropeanCurrency(formData.totalTax, t)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
-                  <span>Total:</span>
-                  <span>{formatEuropeanCurrency(formData.total)}</span>
+                  <span>{t('deliveryNote.total')}:</span>
+                  <span>{formatEuropeanCurrency(formData.total, t)}</span>
                 </div>
               </div>
             </div>
@@ -493,11 +495,11 @@ export function DeliveryNoteDetailForm({
             {/* External Comments */}
             <div className="space-y-2">
               <label htmlFor="comment" className="font-semibold">
-                Comentaris Externs
+                {t('deliveryNote.externalComments')}
               </label>
               <Textarea
                 id="comment"
-                placeholder="Comentaris addicionals..."
+                placeholder={t('deliveryNote.comments.placeholder')}
                 value={formData.externalComments || ''}
                 onChange={e =>
                   setFormData(prev => ({
@@ -523,7 +525,7 @@ export function DeliveryNoteDetailForm({
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}
-                <p>Actualitzar</p>
+                <p>{t('deliveryNote.update')}</p>
               </Button>
               <Button
                 type="cancel"
@@ -536,7 +538,7 @@ export function DeliveryNoteDetailForm({
                 disabled={isLoading}
               >
                 <X className="mr-2 h-4 w-4" />
-                <p>Cancel·lar</p>
+                <p>{t('common.cancel')}</p>
               </Button>
             </div>
           </form>

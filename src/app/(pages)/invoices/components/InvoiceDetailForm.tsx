@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { HeaderForm } from '../../../../components/layout/HeaderForm';
 import { Textarea } from '../../../../components/textarea';
 import { Button } from '../../../../designSystem/Button/Buttons';
+import { useTranslations } from '../../../hooks/useTranslations';
 import { SvgSpinner } from '../../../icons/icons';
 import { Invoice, InvoiceItem, InvoiceStatus, InvoiceUpdateRequest } from '../../../interfaces/Invoice';
 import { cn } from '../../../lib/utils';
@@ -25,6 +26,7 @@ interface InvoiceDetailFormProps {
 export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps) {
   const router = useRouter();
   const ROUTES = useRoutes();
+  const { t } = useTranslations();
 
   const [formData, setFormData] = useState<Invoice>(invoice);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -37,17 +39,17 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
   const translateInvoiceStatus = (status: InvoiceStatus): string => {
     switch (status) {
       case InvoiceStatus.Draft:
-        return 'Borrador';
+        return t('invoice.status.draft');
       case InvoiceStatus.Pending:
-        return 'Pendent';
+        return t('invoice.status.pending');
       case InvoiceStatus.Paid:
-        return 'Pagada';
+        return t('invoice.status.paid');
       case InvoiceStatus.Cancelled:
-        return 'Cancel·lada';
+        return t('invoice.status.cancelled');
       case InvoiceStatus.Overdue:
-        return 'Vençuda';
+        return t('invoice.status.overdue');
       default:
-        return 'Desconegut';
+        return t('invoice.status.unknown');
     }
   };
 
@@ -127,15 +129,15 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
     const newErrors: Record<string, string> = {};
 
     if (!formData.invoiceDate?.trim()) {
-      newErrors.invoiceDate = 'La data es obligatoria';
+      newErrors.invoiceDate = t('invoice.date.required');
     }
 
     if (!formData.dueDate?.trim()) {
-      newErrors.dueDate = 'La data de venciment es obligatoria';
+      newErrors.dueDate = t('invoice.dueDate.required');
     }
 
     if (!formData.items || formData.items.length === 0) {
-      newErrors.items = 'La factura ha de tenir almenys un element';
+      newErrors.items = t('invoice.items.required');
     }
 
     setErrors(newErrors);
@@ -156,14 +158,14 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
             {/* Header Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
-                <label className="font-semibold">Codi</label>
+                <label className="font-semibold">{t('invoice.code')}</label>
                 <div className="p-2 bg-gray-50 rounded border text-gray-700">
                   {formData.code}
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="font-semibold">Data</label>
+                <label className="font-semibold">{t('invoice.date')}</label>
                 <DatePicker
                   selected={formData.invoiceDate ? new Date(formData.invoiceDate) : new Date()}
                   onChange={(date: Date) =>
@@ -182,7 +184,7 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
               </div>
 
               <div className="space-y-2">
-                <label className="font-semibold">Data de Venciment</label>
+                <label className="font-semibold">{t('invoice.dueDate')}</label>
                 <DatePicker
                   selected={formData.dueDate ? new Date(formData.dueDate) : null}
                   onChange={(date: Date) =>
@@ -201,7 +203,7 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
               </div>
 
               <div className="space-y-2">
-                <label className="font-semibold">Estat</label>
+                <label className="font-semibold">{t('invoice.status')}</label>
                 <select
                   value={formData.status}
                   onChange={e => setFormData(prev => ({
@@ -223,23 +225,23 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
 
             {/* Company Information */}
             <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-semibold mb-2">Informació de l'Empresa</h3>
+              <h3 className="font-semibold mb-2">{t('invoice.company.info')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <span className="font-medium">Nom:</span> {formData.companyName}
+                  <span className="font-medium">{t('invoice.company.name')}:</span> {formData.companyName}
                 </div>
                 <div>
-                  <span className="font-medium">Adreça:</span> {formData.companyAddress}
+                  <span className="font-medium">{t('invoice.company.address')}:</span> {formData.companyAddress}
                 </div>
                 <div>
-                  <span className="font-medium">Ciutat:</span> {formData.companyCity}
+                  <span className="font-medium">{t('invoice.company.city')}:</span> {formData.companyCity}
                 </div>
                 <div>
-                  <span className="font-medium">Codi Postal:</span> {formData.companyPostalCode}
+                  <span className="font-medium">{t('invoice.company.postalCode')}:</span> {formData.companyPostalCode}
                 </div>
                 {formData.companyProvince && (
                   <div>
-                    <span className="font-medium">Província:</span> {formData.companyProvince}
+                    <span className="font-medium">{t('invoice.company.province')}:</span> {formData.companyProvince}
                   </div>
                 )}
               </div>
@@ -248,14 +250,14 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
             {/* Delivery Note */}
             {formData.deliveryNoteId && (
               <div className="p-4 bg-blue-50 rounded-lg">
-                <h3 className="font-semibold mb-2">Albarà Vinculat</h3>
+                <h3 className="font-semibold mb-2">{t('invoice.deliveryNote.linked')}</h3>
                 <div className="flex justify-between items-center">
                   <span>ID: {formData.deliveryNoteId}</span>
                   <button
                     onClick={() => router.push(`/deliveryNotes/${formData.deliveryNoteId}`)}
                     className="text-blue-600 hover:text-blue-800 underline"
                   >
-                    Veure Detalls
+                    {t('invoice.deliveryNote.viewDetails')}
                   </button>
                 </div>
               </div>
@@ -263,19 +265,19 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
 
             {/* Invoice Items */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Elements de la Factura</h3>
+              <h3 className="text-lg font-semibold">{t('invoice.items')}</h3>
 
               <div className="overflow-x-auto">
                 <table className="w-full border border-gray-300">
                   <thead>
                   <tr className="bg-gray-100">
-                    <th className="p-2 border text-left">Descripció</th>
-                    <th className="p-2 border text-center">Quantitat</th>
-                    <th className="p-2 border text-center">Preu Unitari</th>
-                    <th className="p-2 border text-center">% Dte.</th>
-                    <th className="p-2 border text-center">Import Dte.</th>
-                    <th className="p-2 border text-center">Total Línia</th>
-                    <th className="p-2 border text-center">Accions</th>
+                    <th className="p-2 border text-left">{t('invoice.item.description')}</th>
+                    <th className="p-2 border text-center">{t('invoice.item.quantity')}</th>
+                    <th className="p-2 border text-center">{t('invoice.item.unitPrice')}</th>
+                    <th className="p-2 border text-center">{t('providers.discount.percentage')}</th>
+                    <th className="p-2 border text-center">{t('invoice.item.discountAmount')}</th>
+                    <th className="p-2 border text-center">{t('invoice.item.lineTotal')}</th>
+                    <th className="p-2 border text-center">{t('actions')}</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -325,7 +327,7 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
                           onClick={() => handleRemoveItem(index)}
                           className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                         >
-                          Eliminar
+                          {t('invoice.item.remove')}
                         </button>
                       </td>
                     </tr>
@@ -345,15 +347,15 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
             <div className="flex justify-end">
               <div className="w-96 space-y-2 p-4 border rounded-lg bg-gray-50">
                 <div className="flex justify-between">
-                  <span>Subtotal:</span>
+                  <span>{t('invoice.subtotal')}:</span>
                   <span>{formData.subtotal.toFixed(2)}€</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>IVA (21%):</span>
+                  <span>{t('invoice.tax')}:</span>
                   <span>{formData.totalTax !== undefined && formData.totalTax !== null ? formData.totalTax.toFixed(2) : '0.00'}€</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
-                  <span>Total:</span>
+                  <span>{t('invoice.total')}:</span>
                   <span>{formData.total.toFixed(2)}€</span>
                 </div>
               </div>
@@ -362,11 +364,11 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
             {/* Comment */}
             <div className="space-y-2">
               <label htmlFor="comment" className="font-semibold">
-                Comentaris Externs
+                {t('invoice.externalComments')}
               </label>
               <Textarea
                 id="comment"
-                placeholder="Comentaris addicionals..."
+                placeholder={t('invoice.comments.placeholder')}
                 value={formData.externalComments || ''}
                 onChange={e =>
                   setFormData(prev => ({ ...prev, externalComments: e.target.value }))
@@ -389,7 +391,7 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}
-                <p>Actualitzar</p>
+                <p>{t('invoice.update')}</p>
               </Button>
               <Button
                 type="cancel"
@@ -400,7 +402,7 @@ export function InvoiceDetailForm({ invoice, onUpdate }: InvoiceDetailFormProps)
                 disabled={isLoading}
               >
                 <X className="mr-2 h-4 w-4" />
-                <p>Cancelar</p>
+                <p>{t('common.cancel')}</p>
               </Button>
             </div>
           </form>

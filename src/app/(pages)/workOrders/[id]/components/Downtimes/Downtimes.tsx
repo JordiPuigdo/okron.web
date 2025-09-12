@@ -1,4 +1,5 @@
 import { useDowntimes } from 'app/hooks/useDowntimeComponent';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { Downtimes } from 'app/interfaces/Production/Downtimes';
 import { LoginUser } from 'app/interfaces/User';
 import WorkOrder, { StateWorkOrder } from 'app/interfaces/workOrder';
@@ -27,11 +28,12 @@ export default function DowntimesComponent({
 }: DowntimesProps) {
   const { downtimesWorkorder, handleUpdate, totalTime, totalTimeString } =
     useDowntimes(downtimes, workOrderId);
+  const { t } = useTranslations();
 
   return (
     <div className="p-2 bg-white rounded-lg w-full">
       <div className="flex flex-row items-center py-2 text-lg font-semibold">
-        Aturada Producció
+        {t('downtimes.title')}
       </div>
       <table className="min-w-full divide-y divide-gray-200 table-fixed">
         <thead className="bg-gray-50">
@@ -40,25 +42,25 @@ export default function DowntimesComponent({
               scope="col"
               className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-1/4"
             >
-              Inici
+              {t('downtimes.start')}
             </th>
             <th
               scope="col"
               className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-1/4"
             >
-              Fi
+              {t('downtimes.end')}
             </th>
             <th
               scope="col"
               className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-1/4"
             >
-              Temps Total
+              {t('downtimes.total.time')}
             </th>
             <th
               scope="col"
               className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-1/4"
             >
-              Operari
+              {t('downtimes.operator')}
             </th>
           </tr>
         </thead>

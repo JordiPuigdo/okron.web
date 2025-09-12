@@ -1,4 +1,5 @@
 import { calculateTotalSecondsBetweenDates } from 'app/(pages)/reports/downtimesReport/component/downtimeUtils';
+import { useTranslations } from 'app/hooks/useTranslations';
 import WorkOrder from 'app/interfaces/workOrder';
 
 interface DowntimeRowFooterProps {
@@ -12,12 +13,13 @@ export function DowntimeTotalFooter({
   currentWorkOrder,
   totalTimeString,
 }: DowntimeRowFooterProps) {
+  const { t } = useTranslations();
   return (
     <tfoot className="bg-white divide-y divide-gray-200">
       <tr>
         <td colSpan={1}></td>
         <td className=" whitespace-nowrap text-sm text-gray-900 font-bold">
-          Temps Total
+          {t('downtimes.total.time')}
         </td>
         <td
           colSpan={2}

@@ -91,12 +91,12 @@ const WorkOrdersDashboard: React.FC<WorkOrdersDashboardProps> = ({
                           : 'text-blue-500'
                       } font-semibold`}
                     >
-                      {translateWorkOrderType(type as unknown as WorkOrderType)}
+                      {translateWorkOrderType(type as unknown as WorkOrderType, t)}
                     </td>
                     <td className="p-3">{data.count}</td>
                     <td className="p-3">{Math.round(data.totalTime)}</td>
                     <td className="p-3 text-right whitespace-nowrap">
-                      {formatEuropeanCurrency(data.totalCost)}
+                      {formatEuropeanCurrency(data.totalCost, t)}
                     </td>
                   </tr>
                 );
