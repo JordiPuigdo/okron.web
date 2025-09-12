@@ -131,7 +131,7 @@ const DownTimeReasonsConfigured: React.FC<DownTimeReasonsConfiguredProps> = ({
             .filter(value => typeof value === 'number')
             .map(state => (
               <option key={state} value={state}>
-                {translateDowntimeReasonType(state as DowntimesReasonsType)}
+                {translateDowntimeReasonType(state as DowntimesReasonsType, t)}
               </option>
             ))}
         </select>
@@ -168,7 +168,7 @@ const DownTimeReasonsConfigured: React.FC<DownTimeReasonsConfiguredProps> = ({
                   />
                 </td>
                 <td className="px-6 py-2 text-sm text-gray-900 text-start">
-                  {translateDowntimeReasonType(reason.downTimeType)}
+                  {translateDowntimeReasonType(reason.downTimeType, t)}
                 </td>
                 <td className="px-6 py-2 text-sm font-medium text-gray-900 text-end">
                   <button

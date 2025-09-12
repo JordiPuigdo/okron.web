@@ -3,6 +3,7 @@ import { WareHouse } from 'app/interfaces/WareHouse';
 
 export function generateNameHeader(
   isPurchase: boolean,
+  t: (key: string) => string,
   orderRequest?: Order,
   code = ''
 ) {
@@ -10,8 +11,8 @@ export function generateNameHeader(
     return orderRequest.code;
   }
   return isPurchase
-    ? `Crear Comanda ${code && ' > ' + code} `
-    : 'Crear Recepció';
+    ? `${t('order.create.purchase')} ${code && ' > ' + code} `
+    : t('order.create.reception');
 }
 
 export function mapItems(orderSelected: Order, warehouses: WareHouse[]) {
@@ -39,17 +40,17 @@ export function mapItems(orderSelected: Order, warehouses: WareHouse[]) {
   return items;
 }
 
-export function translateOrderState(state: OrderStatus) {
+export function translateOrderState(state: OrderStatus, t: (key: string) => string): string {
   switch (state) {
     case OrderStatus.Pending:
-      return 'Pendent';
+      return t('order.status.pending');
     case OrderStatus.Completed:
-      return 'Completada';
+      return t('order.status.completed');
     case OrderStatus.Cancelled:
-      return 'Cancelada';
+      return t('order.status.cancelled');
     case OrderStatus.InProgress:
-      return 'En Procés';
+      return t('order.status.in.progress');
     default:
-      return 'Desconocido';
+      return t('order.status.unknown');
   }
 }

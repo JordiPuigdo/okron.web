@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import WorkOrder from 'app/interfaces/workOrder';
 import { translateStateWorkOrder } from 'app/utils/utils';
@@ -13,6 +14,7 @@ const WorkOrderList = ({ workOrders }: WorkOrderListProps) => {
   const now = new Date();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<string | undefined>(undefined);
+  const { t } = useTranslations();
 
   if (workOrders.length === 0) {
     return (
@@ -48,7 +50,7 @@ const WorkOrderList = ({ workOrders }: WorkOrderListProps) => {
             </p>
             <div className="flex gap-4">
               <p className="text-sm text-gray-500">
-                {translateStateWorkOrder(order.stateWorkOrder)}
+                {translateStateWorkOrder(order.stateWorkOrder, t)}
               </p>
               <p className="text-sm text-gray-500">
                 {dayjs(order.creationDate).format('DD/MM/YYYY')}

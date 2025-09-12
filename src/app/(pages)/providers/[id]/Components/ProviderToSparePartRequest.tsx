@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useProviders } from 'app/hooks/useProviders';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { Provider, SparePartProviderRequest } from 'app/interfaces/Provider';
 import SparePart from 'app/interfaces/SparePart';
 
@@ -12,6 +13,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
   sparePart,
   setSparePart,
 }) => {
+  const { t } = useTranslations();
   const [selectedProvider, setSelectedProvider] = useState<
     Provider | undefined
   >(undefined);
@@ -88,7 +90,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
       <input
         type="text"
         className="w-full p-2 border rounded-md mb-2"
-        placeholder="Afegir proveïdor..."
+        placeholder={t('providers.add.placeholder')}
         value={searchText}
         onChange={e => setSearchText(e.target.value)}
         onFocus={() => setSearchText('')}
@@ -102,7 +104,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
             value={selectedProvider?.id || ''}
             size={5}
           >
-            <option value="">Selecciona un proveïdor</option>
+            <option value="">{t('providers.select.placeholder')}</option>
             {filteredProviders?.map(sp => (
               <option key={sp.id} value={sp.id}>
                 {sp.name}
@@ -114,11 +116,11 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
       {selectedProvider && (
         <div className="bg-white rounded-lg border border-gray-200 mt-1">
           <div className="grid grid-cols-6 gap-2 px-3 py-2 bg-gray-50 text-sm text-gray-600 border-b">
-            <span className="col-span-2">Proveïdor</span>
-            <span className="col-span-1">Referència</span>
-            <span className="col-span-1">Preu</span>
-            <span className="col-span-1 text-center">Habitual</span>
-            <span className="col-span-1 text-right">Accions</span>
+            <span className="col-span-2">{t('providers.name')}</span>
+            <span className="col-span-1">{t('providers.reference')}</span>
+            <span className="col-span-1">{t('providers.price')}</span>
+            <span className="col-span-1 text-center">{t('providers.default')}</span>
+            <span className="col-span-1 text-right">{t('actions')}</span>
           </div>
 
           <div className="grid grid-cols-6 gap-2 px-3 py-2 items-center text-sm">
@@ -131,7 +133,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
             <div className="col-span-1 flex justify-center">
               <input
                 type="text"
-                placeholder="Referència"
+                placeholder={t('providers.reference.placeholder')}
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                 value={refProvider}
                 onChange={e => setRefProvider(e.target.value)}
@@ -195,10 +197,12 @@ const PriceInput: React.FC<PriceInputProps> = ({
     }
   };
 
+  const { t } = useTranslations();
+
   return (
     <div className={className}>
       <input
-        placeholder="Preu"
+        placeholder={t('providers.price.placeholder')}
         value={price}
         onChange={e => {
           const value = e.target.value;

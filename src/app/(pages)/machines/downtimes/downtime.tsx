@@ -93,7 +93,7 @@ const CreateDowntimeReasons: React.FC<DowntimesReasonsProps> = ({
               .filter(value => typeof value === 'number')
               .map(state => (
                 <option key={state} value={state}>
-                  {translateDowntimeReasonType(state as DowntimesReasonsType)}
+                  {translateDowntimeReasonType(state as DowntimesReasonsType, t)}
                 </option>
               ))}
           </select>

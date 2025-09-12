@@ -126,6 +126,9 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
     setTotalAmount(overallTotal);
   }, [orders, selectedProvider]);
 
+  const formatCurrency = (value: number | string | undefined | null) =>
+    formatEuropeanCurrency(value, t);
+
   return (
     <div className="flex flex-col gap-6 w-full p-4 rounded-xl flex-grow bg-white shadow">
       {/* Sección de total general */}
@@ -145,7 +148,7 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold text-blue-700">
-              {formatEuropeanCurrency(totalAmount)}
+              {formatEuropeanCurrency(totalAmount, t)}
             </div>
             <div className="text-sm text-gray-500">
               {chartData.length} {chartData.length === 1 ? t('account') : t('accounts')}
@@ -220,7 +223,7 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               type="number"
-              tickFormatter={formatEuropeanCurrency}
+              tickFormatter={formatCurrency}
               width={90}
             />
             <YAxis
@@ -231,7 +234,7 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
             />
             <Tooltip
               formatter={(value: number) => [
-                formatEuropeanCurrency(value),
+                formatEuropeanCurrency(value, t),
                 t('total'),
               ]}
               labelFormatter={(label: string) => `${t('account')}: ${label}`}
@@ -245,7 +248,7 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
               <LabelList
                 dataKey="total"
                 position="right"
-                formatter={formatEuropeanCurrency}
+                formatter={formatCurrency}
               />
             </Bar>
           </BarChart>

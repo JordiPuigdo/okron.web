@@ -31,6 +31,7 @@ export const WorkOrderPerPreventive = ({
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
+  const { t } = useTranslations();
   const Routes = useRoutes();
 
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
@@ -74,8 +75,6 @@ export const WorkOrderPerPreventive = ({
   const itemsPerPage = 10; // Number of items to display per page
   const [currentPage, setCurrentPage] = useState(1);
   const now = new Date();
-
-  const { t } = useTranslations();
 
   // Calculate pagination range
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -145,7 +144,7 @@ export const WorkOrderPerPreventive = ({
                   {formatDate(workOrder.creationTime)}
                 </div>
                 <div className="p-2 w-full">
-                  {translateStateWorkOrder(workOrder.stateWorkOrder)}
+                  {translateStateWorkOrder(workOrder.stateWorkOrder, t)}
                 </div>
                 {dayjs(workOrder.startTime).isBefore(now) && (
                   <Button

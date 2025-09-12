@@ -127,7 +127,7 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
                 Object.values(OperatorType).filter(v => typeof v === 'number')
               ).map(operatorType => (
                 <option key={operatorType} value={operatorType}>
-                  {translateOperatorType(operatorType)}
+                  {translateOperatorType(operatorType, t)}
                 </option>
               ))}
             </select>

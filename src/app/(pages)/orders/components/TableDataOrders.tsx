@@ -272,7 +272,7 @@ export const TableDataOrders = ({
               }
               filterKey="status"
               placeholder={t('state')}
-              translateFn={translateOrderState}
+              translateFn={(state: OrderStatus) => translateOrderState(state, t)}
             />
           </div>
           {accounts.length > 0 && (

@@ -2,11 +2,14 @@ import { DeliveryNote } from 'app/interfaces/DeliveryNote';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import dayjs from 'dayjs';
 
+import { useTranslations } from '../../../../hooks/useTranslations';
+
 export const DeliveryNoteBody = ({
   deliveryNote,
 }: {
   deliveryNote: DeliveryNote;
 }) => {
+  const { t } = useTranslations();
   return (
     <div className="mt-6 space-y-6">
       {deliveryNote.workOrders.map((workOrder, workOrderIndex) => (
@@ -61,16 +64,16 @@ export const DeliveryNoteBody = ({
                   <td className="p-2 text-sm">{item.description}</td>
                   <td className="p-2 text-center text-sm">{item.quantity}</td>
                   <td className="p-2 text-center text-sm">
-                    {formatEuropeanCurrency(item.unitPrice.toFixed(2))}
+                    {formatEuropeanCurrency(item.unitPrice.toFixed(2), t)}
                   </td>
                   <td className="p-2 text-center text-sm">
                     {item.discountPercentage}%
                   </td>
                   <td className="p-2 text-center text-sm">
-                    {formatEuropeanCurrency(item.discountAmount.toFixed(2))}
+                    {formatEuropeanCurrency(item.discountAmount.toFixed(2), t)}
                   </td>
                   <td className="p-2 text-center text-sm font-medium">
-                    {formatEuropeanCurrency(item.lineTotal.toFixed(2))}
+                    {formatEuropeanCurrency(item.lineTotal.toFixed(2), t)}
                   </td>
                 </tr>
               ))}

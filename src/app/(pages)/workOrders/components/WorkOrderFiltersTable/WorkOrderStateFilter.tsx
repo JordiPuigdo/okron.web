@@ -22,7 +22,7 @@ export const WorkOrderStateFilter = ({
 
   const mapStatesToOptions = (states: StateWorkOrder[]) =>
     states.map(state => ({
-      label: translateStateWorkOrder(state),
+      label: translateStateWorkOrder(state, t),
       value: state.toString(),
     }));
   const mapOptionsToStates = (
