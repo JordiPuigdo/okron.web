@@ -151,7 +151,7 @@ const tableButtons: TableButtons = {
 
 const getColumnsDeliveryNotes = (t: any): Column[] => [
   {
-    label: 'ID',
+    label: t('common.id'),
     key: 'id',
     format: ColumnFormat.TEXT,
   },

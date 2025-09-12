@@ -13,7 +13,7 @@ import { EntityTable } from 'components/table/interface/tableEntitys';
 
 const getColumnsCustomers = (t: any): Column[] => [
   {
-    label: 'ID',
+    label: t('common.id'),
     key: 'id',
     format: ColumnFormat.TEXT,
   },

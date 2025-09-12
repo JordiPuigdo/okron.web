@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useCustomers } from 'app/hooks/useCustomers';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { Customer } from 'app/interfaces/Customer';
 import Container from 'components/layout/Container';
 import { HeaderForm } from 'components/layout/HeaderForm';
@@ -12,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import CustomerForm from '../components/CustomerForm';
 
 export default function CustomerPage({ params }: { params: { id: string } }) {
+  const { t } = useTranslations();
   const { getById } = useCustomers();
   const router = useRouter();
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -40,7 +42,7 @@ export default function CustomerPage({ params }: { params: { id: string } }) {
         <div className="flex flex-col h-full pb-4">
           <HeaderForm
             isCreate={isNew}
-            header={isNew ? 'Crear client' : 'Editar client'}
+            header={isNew ? t('customer.create') : t('customer.edit')}
             subtitle={subTitle}
             entity={isNew ? undefined : EntityTable.CUSTOMER}
           />
