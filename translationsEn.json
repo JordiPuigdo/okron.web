@@ -264,6 +264,8 @@
       "search.by.code.description": "Search by code or description",
       "create.work.order": "Create Work Order",
       "add": "Add",
+      "units": "Units",
+      "units.cannot.exceed.available": "Units cannot exceed available units",
       "cancel": "Cancel",
       "create.revision": "Create Revision",
       "generate.qr": "Generate QR",

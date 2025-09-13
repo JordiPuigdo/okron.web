@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgClose } from 'app/icons/icons';
 import { OrderItemRequest } from 'app/interfaces/Order';
 import { useGlobalStore } from 'app/stores/globalStore';
@@ -10,6 +11,7 @@ interface ModalUnitsProps {
 }
 
 const ModalUnits: React.FC<ModalUnitsProps> = ({ item, onAddUnits }) => {
+  const { t } = useTranslations();
   const { setIsModalOpen } = useGlobalStore(state => state);
   const [units, setUnits] = useState<number>(0);
   const [error, setError] = useState<string>('');
@@ -17,7 +19,7 @@ const ModalUnits: React.FC<ModalUnitsProps> = ({ item, onAddUnits }) => {
   function checkUnits(unitsRequested: number) {
     if (unitsRequested > item.quantity) {
       setError(
-        "El número de unitats no pot ser major al número d'unitats disponibles"
+        t('units.cannot.exceed.available')
       );
     } else {
       setError('');
@@ -72,19 +74,19 @@ const ModalUnits: React.FC<ModalUnitsProps> = ({ item, onAddUnits }) => {
         <div className="flex flex-col gap-2 p-4 pt-10 items-center">
           <div className="flex flex-col gap-2">
             <div className="flex flex-row gap-2">
-              <span className="font-medium text-gray-700">Codi:</span>
+              <span className="font-medium text-gray-700">{t('code')}:</span>
               <span className="text-gray-500 truncate">
                 {item.sparePart.code}
               </span>
               <div className="flex flex-row gap-2">
-                <span className="font-medium text-gray-700">Descripció:</span>
+                <span className="font-medium text-gray-700">{t('description')}:</span>
                 <span className="text-gray-500 truncate">
                   {item.sparePart.description}
                 </span>
               </div>
             </div>
             <div>
-              Unitats:{' '}
+              {t('units')}:{' '}
               <input
                 type="text"
                 value={units || ''}
@@ -103,7 +105,7 @@ const ModalUnits: React.FC<ModalUnitsProps> = ({ item, onAddUnits }) => {
               onClick={() => onAddUnits(units, item.sparePart.id)}
               disabled={error !== ''}
             >
-              Afegir
+              {t('add')}
             </button>
           </div>
           {error && <div className="text-red-500">{error}</div>}
