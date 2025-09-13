@@ -156,7 +156,7 @@ export default function ProviderForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block font-medium">Email</label>
+          <label className="block font-medium">{t('email')}</label>
           <input
             type="email"
             {...register('email', {
@@ -166,7 +166,7 @@ export default function ProviderForm({
               },
             })}
             className="w-full border rounded p-2"
-            placeholder="Email"
+            placeholder={t('email')}
           />
           {errors.email && (
             <p className="text-red-500 text-sm">{errors.email.message}</p>
@@ -174,7 +174,7 @@ export default function ProviderForm({
         </div>
 
         <div>
-          <label className="block font-medium">WhatsApp</label>
+          <label className="block font-medium">{t('whatsapp')}</label>
           <input
             {...register('whatsappNumber')}
             className="w-full border rounded p-2"
