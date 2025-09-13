@@ -1,6 +1,6 @@
 import { useTranslations } from 'app/hooks/useTranslations';
 
-const BUTTONS = ['Costos', 'Recanvis', 'Ordres de treball', 'Compres'];
+const BUTTONS = ['costs', 'spare.parts', 'work.orders', 'purchases'];
 
 export default function ButtonsSections({
   selectedButton,
@@ -9,18 +9,7 @@ export default function ButtonsSections({
   const { t } = useTranslations();
   
   const getButtonText = (button: string) => {
-    switch (button) {
-      case 'Costos':
-        return t('costs');
-      case 'Recanvis':
-        return t('spare.parts');
-      case 'Ordres de treball':
-        return t('work.orders');
-      case 'Compres':
-        return t('purchases');
-      default:
-        return button;
-    }
+    return t(button);
   };
   
   return (

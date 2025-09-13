@@ -23,7 +23,7 @@ interface PreventiveTableProps {
 
 const getColumns = (t: any): Column[] => [
   {
-    label: 'ID',
+    label: t('common.id'),
     key: 'id',
     format: ColumnFormat.TEXT,
   },

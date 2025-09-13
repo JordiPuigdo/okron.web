@@ -4,22 +4,24 @@ import { useEffect, useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { EditableTable } from 'app/(pages)/system/rates/components/EditableTable';
 import { useRates } from 'app/hooks/useRates';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { DayOfWeek, Rate } from 'app/interfaces/Rate';
 
 import { RateField } from '../CustomerRatesManager';
 
-const dayOfWeekLabels = {
-  [DayOfWeek.Monday]: 'Dilluns',
-  [DayOfWeek.Tuesday]: 'Dimarts',
-  [DayOfWeek.Wednesday]: 'Dimecres',
-  [DayOfWeek.Thursday]: 'Dijous',
-  [DayOfWeek.Friday]: 'Divendres',
-  [DayOfWeek.Saturday]: 'Dissabte',
-  [DayOfWeek.Sunday]: 'Diumenge',
-};
-
 export function InstallationRatesManager({ index }: { index: number }) {
   const { rates: generalRates, rateTypes, loading, fetchRates } = useRates();
+  const { t } = useTranslations();
+
+  const dayOfWeekLabels = {
+    [DayOfWeek.Monday]: t('days.monday'),
+    [DayOfWeek.Tuesday]: t('days.tuesday'),
+    [DayOfWeek.Wednesday]: t('days.wednesday'),
+    [DayOfWeek.Thursday]: t('days.thursday'),
+    [DayOfWeek.Friday]: t('days.friday'),
+    [DayOfWeek.Saturday]: t('days.saturday'),
+    [DayOfWeek.Sunday]: t('days.sunday'),
+  };
 
   const { control } = useFormContext();
 
@@ -92,21 +94,21 @@ export function InstallationRatesManager({ index }: { index: number }) {
 
   const columns = [
     {
-      header: 'Tipus tarifa',
+      header: t('rates.type'),
       accessor: (row: Rate) => {
         const rt = rateTypes.find(r => r.id === row.rateTypeId);
         return rt ? `${rt.code} - ${rt.description ?? ''}` : '';
       },
     },
     {
-      header: 'Preu',
+      header: t('rates.price'),
       accessor: 'price',
       editable: true,
       inputType: 'number',
       width: 'w-24',
     },
     {
-      header: 'Dies de la setmana',
+      header: t('rates.days.of.week'),
       accessor: (row: Rate) =>
         row.daysOfWeek
           .sort((a, b) => a - b)
@@ -116,14 +118,14 @@ export function InstallationRatesManager({ index }: { index: number }) {
       inputType: 'daysOfWeek',
     },
     {
-      header: "Hora d'inici",
+      header: t('rates.start.time'),
       accessor: 'startTime',
       editable: true,
       inputType: 'time',
       width: 'w-24',
     },
     {
-      header: 'Hora de fi',
+      header: t('rates.end.time'),
       accessor: 'endTime',
       editable: true,
       inputType: 'time',
@@ -164,7 +166,7 @@ export function InstallationRatesManager({ index }: { index: number }) {
                 className="text-blue-600 hover:underline"
                 onClick={() => addGeneralMethod(rate)}
               >
-                Afegir a botiga
+                {t('rates.add.to.store')}
               </button>
             </div>
           ))}

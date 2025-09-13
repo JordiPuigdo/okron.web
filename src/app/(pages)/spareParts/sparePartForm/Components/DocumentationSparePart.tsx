@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import {
   CreateDocumentationRequest,
@@ -16,6 +17,7 @@ interface DocumentationSparePartProps {
 export default function DocumentationSparePart({
   sparePart,
 }: DocumentationSparePartProps) {
+  const { t } = useTranslations();
   const documentationService = new DocumentationService(
     process.env.NEXT_PUBLIC_API_BASE_URL!
   );
@@ -86,7 +88,7 @@ export default function DocumentationSparePart({
 
   return (
     <div className="flex flex-col w-full p-2 border border-gray-200 rounded-lg bg-white shadow-sm">
-      <h2 className="font-semibold mb-2">Documentació</h2>
+      <h2 className="font-semibold mb-2">{t('documentation')}</h2>
 
       <div className="flex flex-col flex-grow gap-2">
         {sparePart?.documentation?.map(document => (
@@ -111,7 +113,7 @@ export default function DocumentationSparePart({
               className="flex items-center bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
               disabled={loadingMap['DELETEDOCUMENTATION']}
             >
-              Eliminar
+              {t('delete')}
               {loadingMap['DELETEDOCUMENTATION'] && (
                 <SvgSpinner className="w-5 h-5 ml-2" />
               )}
@@ -134,7 +136,7 @@ export default function DocumentationSparePart({
           className="flex items-center bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
           disabled={loadingMap['DOCUMENTATION']}
         >
-          Afegir Documentació
+          {t('add.documentation')}
           {loadingMap['DOCUMENTATION'] && (
             <SvgSpinner className="w-5 h-5 ml-2" />
           )}

@@ -6,13 +6,13 @@ import TimeInput from 'components/input/TimeInput';
 
 // Function to get translated day labels
 const getDayOfWeekLabels = (t: (key: string) => string): Record<DayOfWeek, string> => ({
-  [DayOfWeek.Monday]: t('days.monday'),
-  [DayOfWeek.Tuesday]: t('days.tuesday'),
-  [DayOfWeek.Wednesday]: t('days.wednesday'),
-  [DayOfWeek.Thursday]: t('days.thursday'),
-  [DayOfWeek.Friday]: t('days.friday'),
-  [DayOfWeek.Saturday]: t('days.saturday'),
-  [DayOfWeek.Sunday]: t('days.sunday'),
+  [DayOfWeek.Monday]: t('system.rates.monday'),
+  [DayOfWeek.Tuesday]: t('system.rates.tuesday'),
+  [DayOfWeek.Wednesday]: t('system.rates.wednesday'),
+  [DayOfWeek.Thursday]: t('system.rates.thursday'),
+  [DayOfWeek.Friday]: t('system.rates.friday'),
+  [DayOfWeek.Saturday]: t('system.rates.saturday'),
+  [DayOfWeek.Sunday]: t('system.rates.sunday'),
 });
 
 type Column<T> = {

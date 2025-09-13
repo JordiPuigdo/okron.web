@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import { Provider, UpdateProviderRequest } from 'app/interfaces/Provider';
 import { Textarea } from 'components/textarea';
@@ -19,6 +20,7 @@ export default function ProviderForm({
   providerData,
   onSubmit,
 }: ProviderFormProps) {
+  const { t } = useTranslations();
   const router = useRouter();
   const {
     register,
@@ -52,24 +54,24 @@ export default function ProviderForm({
       className="flex flex-col flex-1 space-y-4 p-4 border bg-white rounded-md"
     >
       <div>
-        <label className="block font-medium">Nom</label>
+        <label className="block font-medium">{t('name')}</label>
         <input
           {...register('name', {
-            required: 'El nombre es obligatorio',
+            required: t('validation.name.required'),
           })}
           className="w-full border rounded p-2"
-          placeholder="Nombre del proveedor"
+          placeholder={t('provider.name.placeholder')}
         />
         {errors.name && (
           <p className="text-red-500 text-sm">{errors.name.message}</p>
         )}
       </div>
       <div>
-        <label className="block font-medium">Nom Comercial</label>
+        <label className="block font-medium">{t('commercial.name')}</label>
         <input
           {...register('commercialName')}
           className="w-full border rounded p-2"
-          placeholder="Nombre del proveedor"
+          placeholder={t('provider.commercial.name.placeholder')}
         />
         {errors.name && (
           <p className="text-red-500 text-sm">{errors.name.message}</p>
@@ -77,11 +79,11 @@ export default function ProviderForm({
       </div>
 
       <div>
-        <label className="block font-medium">NIE</label>
+        <label className="block font-medium">{t('nie')}</label>
         <input
           {...register('nie')}
           className="w-full border rounded p-2"
-          placeholder="NIE del proveeïdor"
+          placeholder={t('provider.nie.placeholder')}
         />
         {errors.nie && (
           <p className="text-red-500 text-sm">{errors.nie.message}</p>
@@ -89,11 +91,11 @@ export default function ProviderForm({
       </div>
 
       <div>
-        <label className="block font-medium">Direcció</label>
+        <label className="block font-medium">{t('address')}</label>
         <input
           {...register('address', {})}
           className="w-full border rounded p-2"
-          placeholder="Direcció"
+          placeholder={t('address')}
         />
         {errors.address && (
           <p className="text-red-500 text-sm">{errors.address.message}</p>
@@ -102,11 +104,11 @@ export default function ProviderForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block font-medium">Ciutat</label>
+          <label className="block font-medium">{t('city')}</label>
           <input
             {...register('city', {})}
             className="w-full border rounded p-2"
-            placeholder="Ciutat"
+            placeholder={t('city')}
           />
           {errors.city && (
             <p className="text-red-500 text-sm">{errors.city.message}</p>
@@ -114,11 +116,11 @@ export default function ProviderForm({
         </div>
 
         <div>
-          <label className="block font-medium">Provincia</label>
+          <label className="block font-medium">{t('province')}</label>
           <input
             {...register('province', {})}
             className="w-full border rounded p-2"
-            placeholder="Provincia"
+            placeholder={t('province')}
           />
           {errors.province && (
             <p className="text-red-500 text-sm">{errors.province.message}</p>
@@ -128,11 +130,11 @@ export default function ProviderForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block font-medium">Codi Postal</label>
+          <label className="block font-medium">{t('postal.code')}</label>
           <input
             {...register('postalCode', {})}
             className="w-full border rounded p-2"
-            placeholder="Codi Postal"
+            placeholder={t('postal.code')}
           />
           {errors.postalCode && (
             <p className="text-red-500 text-sm">{errors.postalCode.message}</p>
@@ -140,11 +142,11 @@ export default function ProviderForm({
         </div>
 
         <div>
-          <label className="block font-medium">Telèfon</label>
+          <label className="block font-medium">{t('phone')}</label>
           <input
             {...register('phoneNumber')}
             className="w-full border rounded p-2"
-            placeholder="Telèfon"
+            placeholder={t('phone')}
           />
           {errors.phoneNumber && (
             <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>
@@ -154,17 +156,17 @@ export default function ProviderForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block font-medium">Email</label>
+          <label className="block font-medium">{t('email')}</label>
           <input
             type="email"
             {...register('email', {
               pattern: {
                 value: /\S+@\S+\.\S+/,
-                message: 'Formato de email inválido',
+                message: t('validation.email.invalid'),
               },
             })}
             className="w-full border rounded p-2"
-            placeholder="Email"
+            placeholder={t('email')}
           />
           {errors.email && (
             <p className="text-red-500 text-sm">{errors.email.message}</p>
@@ -172,25 +174,25 @@ export default function ProviderForm({
         </div>
 
         <div>
-          <label className="block font-medium">WhatsApp</label>
+          <label className="block font-medium">{t('whatsapp')}</label>
           <input
             {...register('whatsappNumber')}
             className="w-full border rounded p-2"
-            placeholder="Número de WhatsApp"
+            placeholder={t('whatsapp.number.placeholder')}
           />
         </div>
       </div>
       <div>
-        <label className="block font-medium">Número de compte</label>
+        <label className="block font-medium">{t('account.number')}</label>
         <input
           {...register('accountNumber')}
           className="w-full border rounded p-2"
-          placeholder="Número de compte"
+          placeholder={t('account.number')}
         />
       </div>
 
       <div>
-        <label className="block font-medium">Mètode de pagament</label>
+        <label className="block font-medium">{t('payment.method')}</label>
         <select
           {...register('paymentMethod')}
           className="w-full border rounded p-2"
@@ -203,16 +205,16 @@ export default function ProviderForm({
         </select>
       </div>
       <div>
-        <label className="block font-medium">Comentaris</label>
+        <label className="block font-medium">{t('comments')}</label>
         <Textarea
           {...register('comments')}
           className="w-full border rounded p-2"
-          placeholder="Comentaris"
+          placeholder={t('comments')}
         />
       </div>
 
       <div>
-        <label className="block font-medium">Virtual</label>
+        <label className="block font-medium">{t('virtual')}</label>
         <input
           {...register('isVirtual')}
           type="checkbox"
@@ -221,7 +223,7 @@ export default function ProviderForm({
       </div>
       {providerData && (
         <div>
-          <label className="block font-medium">Estat del proveïdor</label>
+          <label className="block font-medium">{t('provider.status')}</label>
           <input
             {...register('active')}
             type="checkbox"
@@ -237,7 +239,7 @@ export default function ProviderForm({
           disabled={isSubmitting}
           onClick={handleSubmit(onSubmit)}
         >
-          {providerData ? 'Actualitzar' : 'Crear Proveïdor'}
+          {providerData ? t('update') : t('create.provider')}
           {isSubmitting && <SvgSpinner />}
         </Button>
         <Button
@@ -246,7 +248,7 @@ export default function ProviderForm({
           customStyles="gap-2 flex"
           disabled={isSubmitting}
         >
-          Cancelar {isSubmitting && <SvgSpinner />}
+          {t('cancel')} {isSubmitting && <SvgSpinner />}
         </Button>
       </div>
     </form>

@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import { Invoice, InvoiceUpdateRequest } from 'app/interfaces/Invoice';
 import Container from 'components/layout/Container';
@@ -14,6 +15,7 @@ interface InvoiceDetailPageProps {
 }
 
 export default function InvoiceDetailPage({ params }: InvoiceDetailPageProps) {
+  const { t } = useTranslations();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const invoiceService = new InvoiceService(
@@ -41,7 +43,7 @@ export default function InvoiceDetailPage({ params }: InvoiceDetailPageProps) {
       setInvoice(updatedInvoice);
 
     } catch (error) {
-      console.error('Error actualizando la factura:', error);
+      console.error('Error updating invoice:', error);
       throw error;
     }
   };
@@ -64,7 +66,7 @@ export default function InvoiceDetailPage({ params }: InvoiceDetailPageProps) {
       <MainLayout>
         <Container>
           <div className="text-center text-red-500">
-            Factura no trobada
+            {t('invoice.not.found')}
           </div>
         </Container>
       </MainLayout>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import {
   SvgCheck,
   SvgPause,
@@ -27,6 +28,7 @@ const WorkOrderButtons: React.FC<WorkOrderButtonsProps> = ({
   workOrder,
   handleReload,
 }: WorkOrderButtonsProps) => {
+  const { t } = useTranslations();
   const [errorMessage, setErrorMessage] = useState('');
 
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
@@ -41,7 +43,7 @@ const WorkOrderButtons: React.FC<WorkOrderButtonsProps> = ({
 
   function handleChangeStateWorkOrder(state: StateWorkOrder) {
     if (!operatorLogged) {
-      alert('Has de tenir un operari fitxat per fer aquesta acció');
+      alert(t('workOrders.needOperatorLogged'));
       return;
     }
 
@@ -50,7 +52,7 @@ const WorkOrderButtons: React.FC<WorkOrderButtonsProps> = ({
       (state == StateWorkOrder.PendingToValidate ||
         state == StateWorkOrder.Closed)
     ) {
-      alert("Tens el motiu per defecte, no pots canviar l'estat");
+      alert(t('workOrders.defaultReasonCannotChangeState'));
       return;
     }
     if (workOrder.stateWorkOrder == state) {
@@ -70,7 +72,7 @@ const WorkOrderButtons: React.FC<WorkOrderButtonsProps> = ({
         handleReload();
         toggleLoading(state);
       } else {
-        setErrorMessage('Error actualitzant el treball');
+        setErrorMessage(t('workOrders.errorUpdatingWork'));
         toggleLoading(state);
       }
     });
@@ -206,7 +208,7 @@ const WorkOrderButtons: React.FC<WorkOrderButtonsProps> = ({
             {isLoading[StateWorkOrder.Waiting] ? (
               <SvgSpinner className="text-white" />
             ) : (
-              'Reobrir'
+              t('reopen')
             )}
           </Button>
         )}

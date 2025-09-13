@@ -110,7 +110,7 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
     let overallTotal = 0;
 
     filteredOrders.forEach(order => {
-      const account = order.account || 'Sense Compte';
+      const account = order.account || t('no.account');
       const total = parseFloat(order.totalAmount || '0');
       const current = accountMap.get(account) || 0;
       accountMap.set(account, current + total);

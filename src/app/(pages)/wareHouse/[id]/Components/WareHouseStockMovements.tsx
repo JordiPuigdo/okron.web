@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import { StockMovement } from 'app/interfaces/StockMovement';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
@@ -16,6 +17,7 @@ interface WareHouseStockMovementsProps {
 export default function WareHouseStockMovements({
   wareHouseId,
 }: WareHouseStockMovementsProps) {
+  const { t } = useTranslations();
   const [dateFilters, setDateFilters] = useState<DateFilters>({
     startDate: null,
     endDate: null,
@@ -86,12 +88,12 @@ export default function WareHouseStockMovements({
 
   return (
     <div className="flex flex-col bg-white rounded-xl gap-4 p-4 shadow-md flex-1 overflow-y-auto">
-      <span className="text-lg font-semibold">Moviments Stock</span>
+      <span className="text-lg font-semibold">{t('warehouse.stock.movements')}</span>
       <div className="flex flex-row items-center">
         <DateFilter dateFilters={dateFilters} setDateFilters={setDateFilters} />
         <input
           type="text"
-          placeholder="Buscar"
+          placeholder={t('common.search')}
           className="rounded"
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -100,24 +102,24 @@ export default function WareHouseStockMovements({
           className="ml-2 flex flex-row gap-2 items-center hover:cursor-pointer"
           onClick={() => setActive(!active)}
         >
-          <label className="hover:cursor-pointer">Actiu</label>
+          <label className="hover:cursor-pointer">{t('common.active')}</label>
           <input
             id="actives"
-            placeholder="Actius"
+            placeholder={t('active')}
             type="checkbox"
             checked={active}
           />
         </div>
         {showNoResults && !firstLoad && (
           <div className="text-red-500">
-            No hi ha resultats amb aquests filtres
+            {t('common.no.results.with.filters')}
           </div>
         )}
       </div>
       <div className="flex flex-col gap-4 flex-1 overflow-y-auto">
         <DataTable
           data={filteredStockMovements}
-          columns={ColumnsStockMovements}
+          columns={getColumnsStockMovements(t)}
           entity={EntityTable.ORDER}
           tableButtons={tableButtons}
           enableFilterActive={false}
@@ -133,35 +135,35 @@ const tableButtons: TableButtons = {
   edit: true,
 };
 
-const ColumnsStockMovements: Column[] = [
+const getColumnsStockMovements = (t: any): Column[] => [
   {
     key: 'relatedDocumentId',
-    label: 'ID',
+    label: t('common.id'),
     format: ColumnFormat.TEXT,
   },
   {
     key: 'sparePartCode',
-    label: 'Recanvi',
+    label: t('spareparts.spare.part'),
     format: ColumnFormat.TEXT,
   },
   {
     key: 'creationDate',
-    label: 'Data',
+    label: t('common.date'),
     format: ColumnFormat.DATETIME,
   },
   {
     key: 'quantity',
-    label: 'Quantitat',
+    label: t('common.quantity'),
     format: ColumnFormat.TEXT,
   },
   {
     key: 'relatedDocumentCode',
-    label: 'Operació',
+    label: t('warehouse.operation'),
     format: ColumnFormat.TEXT,
   },
   {
     key: 'stockMovementType',
-    label: 'Tipus',
+    label: t('warehouse.type'),
     format: ColumnFormat.STOCKMOVEMENTTYPE,
   },
 ];

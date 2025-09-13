@@ -313,7 +313,7 @@ const tableButtons: TableButtons = {
 };
 const getColumnsOrders = (t: any): Column[] => [
   {
-    label: 'ID',
+    label: t('common.id'),
     key: 'id',
     format: ColumnFormat.TEXT,
   },

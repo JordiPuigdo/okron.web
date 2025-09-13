@@ -33,7 +33,7 @@ export default function InspectionPointsPage() {
 
   const getColumns = (): Column[] => [
     {
-      label: 'ID',
+      label: t('common.id'),
       key: 'id',
       format: ColumnFormat.TEXT,
     },

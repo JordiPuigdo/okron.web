@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import { DeliveryNote, DeliveryNoteUpdateRequest } from 'app/interfaces/DeliveryNote';
 import Container from 'components/layout/Container';
@@ -14,6 +15,7 @@ interface DeliveryNoteDetailPageProps {
 }
 
 export default function DeliveryNoteDetailPage({ params }: DeliveryNoteDetailPageProps) {
+  const { t } = useTranslations();
   const [deliveryNote, setDeliveryNote] = useState<DeliveryNote | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const deliveryNoteService = new DeliveryNoteService(
@@ -41,7 +43,7 @@ export default function DeliveryNoteDetailPage({ params }: DeliveryNoteDetailPag
       setDeliveryNote(updatedDeliveryNote);
 
     } catch (error) {
-      console.error('Error actualizando el albarà:', error);
+      console.error('Error updating delivery note:', error);
       throw error;
     }
   };
@@ -64,7 +66,7 @@ export default function DeliveryNoteDetailPage({ params }: DeliveryNoteDetailPag
       <MainLayout>
         <Container>
           <div className="text-center text-red-500">
-            Albarà no trobat
+            {t('delivery.note.not.found')}
           </div>
         </Container>
       </MainLayout>
