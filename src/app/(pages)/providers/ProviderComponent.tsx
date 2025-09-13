@@ -9,9 +9,9 @@ export default function ProviderComponent() {
   return (
     <div className="flex flex-col h-full">
       <HeaderTable
-        title="Proveïdors"
-        subtitle={`${t('start')} - Llistat de Proveïdors`}
-        createButton="Crear Proveïdor"
+        title={t('providers')}
+        subtitle={`${t('start')} - ${t('providers.list')}`}
+        createButton={t('create.provider')}
         urlCreateButton="/providers/ProviderForm"
       />
       <TableProvider />
