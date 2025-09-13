@@ -1,8 +1,9 @@
 import {
-  baseColumns,
-  columnsCRM,
-  columnsTicket,
+  getBaseColumns,
+  getColumnsCRM,
+  getColumnsTicket,
 } from 'app/(pages)/workOrders/components/utilsWorkOrderTable';
+import { useTranslations } from 'app/hooks/useTranslations';
 import Operator, { OperatorType } from 'app/interfaces/Operator';
 import { UserPermission, UserType } from 'app/interfaces/User';
 import WorkOrder from 'app/interfaces/workOrder';
@@ -14,6 +15,7 @@ type PermissionFilter<T> = {
 };
 
 export const usePermissions = () => {
+  const { t } = useTranslations();
   const isCRM = useSessionStore(state => state.config?.isCRM ?? false);
   const { loginUser } = useSessionStore(state => state);
 
@@ -75,10 +77,10 @@ export const usePermissions = () => {
     },
     workOrderColumns: () => {
       return isCRM
-        ? columnsCRM
+        ? getColumnsCRM(t)
         : loginUser?.userType == UserType.Maintenance
-        ? baseColumns
-        : columnsTicket;
+        ? getBaseColumns(t)
+        : getColumnsTicket(t);
     },
     isAdmin,
   };
