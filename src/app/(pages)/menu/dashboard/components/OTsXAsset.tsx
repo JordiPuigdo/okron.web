@@ -30,17 +30,17 @@ export default function OTsXAsset({
                   </span>
                   {index === 0 && (
                     <span className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
-                      1r
+                      {t('first')}
                     </span>
                   )}
                   {index === 1 && (
                     <span className="bg-yellow-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
-                      2n
+                      {t('second')}
                     </span>
                   )}
                   {index === 2 && (
                     <span className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
-                      3r
+                      {t('third')}
                     </span>
                   )}
                 </div>
