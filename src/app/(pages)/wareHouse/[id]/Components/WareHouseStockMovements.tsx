@@ -105,7 +105,7 @@ export default function WareHouseStockMovements({
           <label className="hover:cursor-pointer">{t('common.active')}</label>
           <input
             id="actives"
-            placeholder="Actius"
+            placeholder={t('active')}
             type="checkbox"
             checked={active}
           />

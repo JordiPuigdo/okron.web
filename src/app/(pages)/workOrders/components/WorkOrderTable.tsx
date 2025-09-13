@@ -246,7 +246,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
 
   const handleDeleteOrder = (orderId: string) => {
     const isConfirmed = window.confirm(
-      `Esteu segurs que voleu eliminar l'ordre de treball?`
+      t('workorders.confirm.delete')
     );
 
     if (isConfirmed) {
@@ -348,7 +348,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
       .then(response => {
         if (response) {
           setResponseMessage({
-            message: 'Ordres actualitzades correctament',
+            message: t('workorders.updated.successfully'),
             isSuccess: true,
           });
           setTimeout(() => {
@@ -362,7 +362,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
         } else {
           setTimeout(() => {
             setResponseMessage({
-              message: 'Error actualitzant ordres',
+              message: t('workorders.error.updating'),
               isSuccess: false,
             });
           }, 3000);
@@ -451,7 +451,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
               {isUpdating ? (
                 <SvgSpinner className="text-white" />
               ) : (
-                <>Finalitzar</>
+                <>{t('finalize')}</>
               )}
             </Button>
             {responseMessage && (
