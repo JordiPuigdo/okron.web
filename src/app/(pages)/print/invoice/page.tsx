@@ -1,4 +1,7 @@
-﻿import React from 'react';
+﻿'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SystemConfiguration } from 'app/interfaces/Config';
 import { Invoice } from 'app/interfaces/Invoice';
 
@@ -43,24 +46,38 @@ async function getConfig() {
   }
 }
 
-export async function generateMetadata({
-  searchParams,
-}: {
+interface InvoicePageProps {
   searchParams: { id: string };
-}) {
-  const invoice = await getInvoice(searchParams.id);
-  return {
-    title: invoice.code || 'Invoice',
-  };
 }
 
-export default async function InvoicePage({
-  searchParams,
-}: {
-  searchParams: { id: string };
-}) {
-  const invoice = await getInvoice(searchParams.id);
-  const config = await getConfig();
+export default function InvoicePage({ searchParams }: InvoicePageProps) {
+  const { t } = useTranslations();
+  const [invoice, setInvoice] = useState<Invoice | null>(null);
+  const [config, setConfig] = useState<SystemConfiguration | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const invoiceData = await getInvoice(searchParams.id);
+      const configData = await getConfig();
+      setInvoice(invoiceData);
+      setConfig(configData);
+    };
+    loadData();
+  }, [searchParams.id]);
+
+  useEffect(() => {
+    if (invoice && config) {
+      // Auto-print after data loads
+      const timer = setTimeout(() => {
+        window.print();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [invoice, config]);
+
+  if (!invoice || !config) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -72,17 +89,12 @@ export default async function InvoicePage({
         <InvoiceBody invoice={invoice} />
         {invoice.externalComments && (
           <div className="mt-4 p-4 bg-gray-50 rounded">
-            <h4 className="font-semibold mb-2">Comentaris:</h4>
+            <h4 className="font-semibold mb-2">{t('comments')}:</h4>
             <p className="text-sm">{invoice.externalComments}</p>
           </div>
         )}
       </div>
       <InvoiceFooter invoice={invoice} />
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `window.onload = function() { window.print(); }`,
-        }}
-      />
     </div>
   );
 }

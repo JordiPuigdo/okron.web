@@ -1,4 +1,7 @@
-﻿import { SystemConfiguration } from 'app/interfaces/Config';
+﻿'use client';
+
+import { useTranslations } from 'app/hooks/useTranslations';
+import { SystemConfiguration } from 'app/interfaces/Config';
 import { Invoice } from 'app/interfaces/Invoice';
 import dayjs from 'dayjs';
 
@@ -9,6 +12,7 @@ export const InvoiceHeader = ({
   invoice: Invoice;
   config: SystemConfiguration;
 }) => {
+  const { t } = useTranslations();
   //const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
   const company = config.company;
 
@@ -17,13 +21,13 @@ export const InvoiceHeader = ({
       <div className="flex justify-between">
         <div className="flex">
           <div className="border p-2 my-6">
-            <p className="relative">Factura</p>
+            <p className="relative">{t('invoice')}</p>
             <div className="p-4">
               <p className="font-semibold">{invoice.code}</p>
             </div>
           </div>
           <div className="border p-2 my-6">
-            <p className="relative">Data</p>
+            <p className="relative">{t('date')}</p>
             <div className="p-4">
               <p className="font-semibold">
                 {dayjs(invoice.invoiceDate).format('DD/MM/YYYY')}
@@ -31,7 +35,7 @@ export const InvoiceHeader = ({
             </div>
           </div>
           <div className="border p-2 my-6">
-            <p className="relative">Venciment</p>
+            <p className="relative">{t('due.date')}</p>
             <div className="p-4">
               <p className="font-semibold">
                 {dayjs(invoice.dueDate).format('DD/MM/YYYY')}

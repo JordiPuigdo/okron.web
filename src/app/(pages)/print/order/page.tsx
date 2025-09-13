@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { SystemConfiguration } from 'app/interfaces/Config';
 import { Order } from 'app/interfaces/Order';
 
@@ -43,25 +45,36 @@ async function getConfig() {
   }
 }
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: { id: string };
-}) {
-  const order = await getOrder(searchParams.id);
-
-  return {
-    title: order.code || 'Order',
-  };
+interface OrderPageProps {
+  searchParams: { id: string; parentId?: string };
 }
 
-export default async function OrderPage({
-  searchParams,
-}: {
-  searchParams: { id: string; parentId?: string };
-}) {
-  const order = await getOrder(searchParams.id);
-  const config = await getConfig();
+export default function OrderPage({ searchParams }: OrderPageProps) {
+  const [order, setOrder] = useState<Order | null>(null);
+  const [config, setConfig] = useState<SystemConfiguration | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const orderData = await getOrder(searchParams.id);
+      const configData = await getConfig();
+      setOrder(orderData);
+      setConfig(configData);
+    };
+    loadData();
+  }, [searchParams.id]);
+
+  useEffect(() => {
+    if (order && config) {
+      const timer = setTimeout(() => {
+        window.print();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [order, config]);
+
+  if (!order || !config) {
+    return <div>Loading...</div>;
+  }
   return (
     <div className="min-h-screen flex flex-col items-center">
       <div className="flex flex-col  bg-white gap-4 p-4 w-full ">
@@ -69,11 +82,6 @@ export default async function OrderPage({
         <OrderBody order={order} />
       </div>
       <OrderFooter order={order} />
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `window.onload = function() { window.print(); }`,
-        }}
-      />
     </div>
   );
 }

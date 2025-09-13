@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SystemConfiguration } from 'app/interfaces/Config';
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
 import dayjs from 'dayjs';
@@ -10,6 +13,7 @@ export const DeliveryNoteHeader = ({
   deliveryNote: DeliveryNote;
   config: SystemConfiguration;
 }) => {
+  const { t } = useTranslations();
   const company = config.company;
 
   return (
@@ -25,13 +29,13 @@ export const DeliveryNoteHeader = ({
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-gray-200">
           <div className="text-center p-2 bg-gray-100 rounded-md align-bottom">
-            <p className="text-xs font-medium text-gray-600">Número d'Albarà</p>
+            <p className="text-xs font-medium text-gray-600">{t('delivery.note.number')}</p>
             <p className="text-lg font-bold text-gray-800">
               {deliveryNote.code}
             </p>
           </div>
           <div className="text-center p-2 bg-gray-100 rounded-md">
-            <p className="text-xs font-medium text-gray-600">Data</p>
+            <p className="text-xs font-medium text-gray-600">{t('date')}</p>
             <p className="text-lg font-bold text-gray-800">
               {dayjs(deliveryNote.deliveryNoteDate).format('DD/MM/YYYY')}
             </p>
@@ -45,7 +49,7 @@ export const DeliveryNoteHeader = ({
         <div className="p-4 bg-gray-50 rounded-lg flex flex-col h-60">
           {/* Altura fija */}
           <h2 className="text-sm font-semibold text-gray-800 mb-2 border-b bg-gray-50 border-gray-200">
-            Informació de l'Empresa
+            {t('company.information')}
           </h2>
           <div className="flex flex-col flex-grow justify-between bg-gray-50">
             {/* Primera sección: Nombre de la empresa */}
