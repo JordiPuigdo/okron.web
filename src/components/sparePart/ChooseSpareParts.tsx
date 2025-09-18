@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import ModalOrderWareHouse from 'app/(pages)/orders/orderForm/components/ModalOrderWareHouse';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import { SvgConsumeSparePart, SvgRestoreSparePart } from 'app/icons/icons';
 import SparePart, {
@@ -31,6 +32,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
   isFinished,
   workOrder,
 }) => {
+  const { t } = useTranslations();
   const sparePartService = new SparePartService(
     process.env.NEXT_PUBLIC_API_BASE_URL!
   );
@@ -77,7 +79,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
 
   function checkSparePart(sparePart: WareHouseStockAvailability): boolean {
     if (operatorLogged == undefined) {
-      alert('Has de tenir un operari fitxat per fer aquesta acció!');
+      alert(t('error.operator.not.assigned'));
       return false;
     }
 
@@ -88,7 +90,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
     const currentUnits = unitsPerSparePart[sparePart.sparePartId] || 0;
 
     if (sparePart.warehouseStock[0].stock <= 0) {
-      alert('No tens cap unitat disponible per aquest recanvi');
+      alert(t('error.no.units.available'));
       return false;
     }
 
@@ -109,7 +111,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
       currentUnits == null ||
       currentUnits <= 0
     ) {
-      alert('No tens tant stock!');
+      alert(t('error.insufficient.stock'));
       return;
     }
     consumeSparePart(sparePart, currentUnits, wareHouseId);
@@ -192,11 +194,11 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
     wareHouseId: string
   ) {
     if (operatorLogged == undefined) {
-      alert('Has de tenir un operari fitxat per fer aquesta acció!');
+      alert(t('error.operator.not.assigned'));
       return;
     }
     if (quantity <= 0) {
-      alert('Quantitat negativa!');
+      alert(t('error.negative.quantity'));
     }
 
     const sparePartfinded = filteredSpareParts?.find(
@@ -241,7 +243,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
           <input
             disabled={isFinished}
             type="text"
-            placeholder="Buscador"
+            placeholder={t('search.by.code.description')}
             className="p-2 mb-4 border border-gray-300 rounded-md"
             onChange={e => setSearchTerm(e.target.value)}
             onKeyPress={e => {
@@ -256,16 +258,16 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
             <thead className="bg-gray-50">
               <tr>
                 <th className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Codi - Descripció
+                  {t('code')} - {t('description')}
                 </th>
                 <th className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Magatzem Stock
+                  {t('warehouse')} {t('spareParts.stock')}
                 </th>
                 <th className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Unitats
+                  {t('units')}
                 </th>
                 <th className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                  Accions
+                  {t('actions')}
                 </th>
               </tr>
             </thead>
@@ -336,7 +338,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
         </div>
         <div className="text-black p-2">
           <p className="text-sm font-bold border-b-2 py-2">
-            Peçes de recanvi consumides a la ordre
+            {t('spareParts.consumedUnits')}
           </p>
           <div className="p-2">
             {selectedSpareParts.map(selectedPart => (
@@ -374,7 +376,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
                   </Link>
                 </p>
                 <p>{' - '}</p>
-                <p className="font-bold">{' Unitats Consumides:'} </p>
+                <p className="font-bold">{t('spareParts.units')} {t('consumed')}: </p>
                 {selectedPart.quantity}
                 <button
                   disabled={isFinished}

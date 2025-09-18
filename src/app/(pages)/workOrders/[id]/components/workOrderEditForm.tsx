@@ -212,17 +212,31 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
       setValue('code', responseWorkOrder.code);
       setValue('description', responseWorkOrder.description);
       setValue('stateWorkOrder', responseWorkOrder.stateWorkOrder);
-      setValue('startTime', responseWorkOrder.startTime);
+      const startTimeDate = new Date(responseWorkOrder.startTime);
+      if (startTimeDate.getFullYear() > 1900 && !isNaN(startTimeDate.getTime())) {
+        setValue('startTime', responseWorkOrder.startTime);
+      } else {
+        setValue('startTime', new Date().toISOString());
+      }
       setValue('downtimeReason', responseWorkOrder.downtimeReason);
       setValue('visibleReport', responseWorkOrder.visibleReport);
       setValue('refCustomerId', responseWorkOrder.refCustomerId);
-      setValue('creationTime', responseWorkOrder.creationTime);
+      const creationTimeDate = new Date(responseWorkOrder.creationTime);
+      if (creationTimeDate.getFullYear() > 1900 && !isNaN(creationTimeDate.getTime())) {
+        setValue('creationTime', responseWorkOrder.creationTime);
+      } else {
+        setValue('creationTime', new Date().toISOString());
+      }
 
       if (responseWorkOrder.asset) {
         setSelectedAssetId(responseWorkOrder.asset!.id);
       }
       const finalData = new Date(responseWorkOrder.creationTime);
-      setStartDate(finalData);
+      if (finalData.getFullYear() > 1900 && !isNaN(finalData.getTime())) {
+        setStartDate(finalData);
+      } else {
+        setStartDate(new Date());
+      }
 
       const operatorsToAdd = aviableOperators?.filter((operator: any) =>
         responseWorkOrder.operatorId!.includes(operator.id)
