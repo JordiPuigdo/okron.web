@@ -214,18 +214,18 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
       setValue('stateWorkOrder', responseWorkOrder.stateWorkOrder);
       const startTimeDate = new Date(responseWorkOrder.startTime);
       if (startTimeDate.getFullYear() > 1900 && !isNaN(startTimeDate.getTime())) {
-        setValue('startTime', responseWorkOrder.startTime);
+        setValue('startTime', startTimeDate);
       } else {
-        setValue('startTime', new Date().toISOString());
+        setValue('startTime', new Date());
       }
       setValue('downtimeReason', responseWorkOrder.downtimeReason);
       setValue('visibleReport', responseWorkOrder.visibleReport);
       setValue('refCustomerId', responseWorkOrder.refCustomerId);
       const creationTimeDate = new Date(responseWorkOrder.creationTime);
       if (creationTimeDate.getFullYear() > 1900 && !isNaN(creationTimeDate.getTime())) {
-        setValue('creationTime', responseWorkOrder.creationTime);
+        setValue('creationTime', creationTimeDate);
       } else {
-        setValue('creationTime', new Date().toISOString());
+        setValue('creationTime', new Date());
       }
 
       if (responseWorkOrder.asset) {
