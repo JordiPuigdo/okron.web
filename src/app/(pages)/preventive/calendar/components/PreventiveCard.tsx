@@ -1,10 +1,17 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Typography } from '@mui/material';
+import dayjs from 'dayjs';
 import Link from 'next/link';
 
+const DEFAULT_DATE = new Date('01/01/1901');
+
 const styles = {
-  preventiveCard: (hasWorkOrder: boolean) => ({
-    backgroundColor: hasWorkOrder ? '#e6f4ea' : '#fef7cd',
+  preventiveCard: (hasWorkOrder: boolean, isRescheduled: boolean) => ({
+    backgroundColor: isRescheduled
+      ? '#bae0fd'
+      : hasWorkOrder
+      ? '#e6f4ea'
+      : '#fef7cd',
     p: 1,
     borderRadius: '6px',
     borderLeft: `3px solid ${hasWorkOrder ? '#34a853' : '#fabc05'}`,
@@ -42,6 +49,7 @@ const PreventiveCard = ({
   size?: 'small' | 'medium' | 'large';
 }) => {
   const hasWorkOrder = !!item.workOrder;
+  const isRescheduled = !!item.isRescheduled;
 
   const AssetBox = () => {
     const slice = size === 'small' ? 10 : size === 'medium' ? 15 : 20;
@@ -79,7 +87,7 @@ const PreventiveCard = ({
   const slice = size === 'small' ? 7 : size === 'medium' ? 7 : 10;
 
   return (
-    <Box sx={styles.preventiveCard(hasWorkOrder)}>
+    <Box sx={styles.preventiveCard(hasWorkOrder, isRescheduled)}>
       <div onClick={() => onClick && onClick()}>
         <AssetBox />
 
@@ -124,9 +132,28 @@ const PreventiveCard = ({
             {item.preventive.description.slice(0, slice) + '...'}
           </Typography>
         </Box>
+        {item.isRescheduled &&
+          dayjs(item.rescheduledDate).isAfter(DEFAULT_DATE) && (
+            <Typography
+              variant="caption"
+              sx={{
+                fontSize: '11px',
+                fontWeight: 700,
+                color: '#5f6368',
+                flexShrink: 0,
+                minWidth: '42px',
+                lineHeight: 1.3,
+              }}
+            >
+              Reagendat:{' '}
+              {item.rescheduledDate
+                ? dayjs(item.rescheduledDate).format('DD/MM/YYYY')
+                : 'No rescheduled'}
+            </Typography>
+          )}
       </div>
       {/* Código de trabajo si existe */}
-      {hasWorkOrder && (
+      {(dayjs(item.rescheduledDate).isAfter(DEFAULT_DATE) || hasWorkOrder) && (
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
           <Link
             href={`${routes.workOrders}/${item.workOrder?.id}`}

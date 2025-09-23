@@ -68,4 +68,6 @@ export interface DailyPreventives {
 export interface DailyPreventivesAndOperations {
   preventive: Preventive;
   workOrder: WorkOrder | null;
+  rescheduledDate: Date | null;
+  isRescheduled: boolean;
 }

@@ -49,6 +49,10 @@ const PreventiveDetailModal = ({
     return adjustedDate;
   };
 
+  const lastExecutionDate = preventive.isRescheduled
+    ? preventive.rescheduledDate
+    : preventive.preventive.lastExecution;
+
   return (
     <Modal
       open={open}
@@ -157,9 +161,7 @@ const PreventiveDetailModal = ({
                 Última execució
               </Typography>
               <Typography variant="body1">
-                {dayjs(preventive.preventive.lastExecution).format(
-                  'DD/MM/YYYY'
-                )}
+                {dayjs(lastExecutionDate).format('DD/MM/YYYY')}
               </Typography>
             </Box>
 
