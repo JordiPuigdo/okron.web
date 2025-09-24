@@ -69,7 +69,9 @@ export const usePermissions = () => {
         ? `Client - ${workOrder?.customerWorkOrder?.customerName ?? ''} ${
             workOrder.customerWorkOrder?.customerInstallationCode ?? ''
           }
-          ${workOrder.customerWorkOrder?.customerInstallationAddress.city ?? ''}
+          ${
+            workOrder.customerWorkOrder?.customerInstallationAddress?.city ?? ''
+          }
           `
         : `Equip - ${workOrder?.asset?.description ?? ''}`;
     },

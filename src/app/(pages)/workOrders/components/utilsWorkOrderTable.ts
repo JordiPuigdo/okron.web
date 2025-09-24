@@ -146,4 +146,10 @@ export const columnsCRM: Column[] = [
     key: 'refCustomerId',
     format: ColumnFormat.TEXT,
   },
+  {
+    label: 'Operaris',
+    key: 'operatorsNames',
+    format: ColumnFormat.TEXT,
+    width: 'w-1/4',
+  },
 ];
