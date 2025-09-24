@@ -118,7 +118,7 @@ export default function OrderForm({
       }
       setIsLoading(false);
     } catch (error) {
-      console.error('Error al obtener el código:', error);
+      console.error(t('order.error.fetching.code'), error);
     }
   };
 
@@ -146,7 +146,7 @@ export default function OrderForm({
       }
 
       setMessage(
-        `${orderRequest == null ? 'Creada' : 'Actualitzada'} Correctament`
+        `${orderRequest == null ? t('order.created.successfully') : t('order.updated.successfully')}`
       );
       setIsSuccess(true);
     } catch (error) {
@@ -353,7 +353,7 @@ export default function OrderForm({
         <div className="mt-auto">
           <div className="flex flex-col  p-4 border-t border-b my-4 px-16">
             <div className="flex flex-row justify-between">
-              <div className="font-bold">Total:</div>
+              <div className="font-bold">{t('total')}:</div>
               <div className="font-bold">
                 {order.items
                   .reduce(
@@ -369,7 +369,7 @@ export default function OrderForm({
               </div>
             </div>
             <div className="flex flex-row justify-between">
-              <div className="font-bold">Total (IVA Inclòs):</div>
+              <div className="font-bold">{t('order.total.vat.included')}</div>
               <div className="font-bold">
                 {(
                   order.items.reduce(
@@ -393,7 +393,7 @@ export default function OrderForm({
               }`}
               disabled={order.items.length == 0}
             >
-              {orderRequest == null ? headerName : 'Actualitzar'}
+              {orderRequest == null ? headerName : t('order.update')}
             </button>
             {order.type == OrderType.Purchase &&
               orderRequest?.status != OrderStatus.Completed &&
@@ -406,7 +406,7 @@ export default function OrderForm({
                   }
                   className="w-full bg-okron-btCreate text-white p-2 rounded-md hover:bg-okron-btCreateHover text-center"
                 >
-                  Crear Albarà
+                  {t('order.create.delivery.note')}
                 </Link>
               )}
           </div>

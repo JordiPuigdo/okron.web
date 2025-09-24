@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { EditableCell } from 'app/(pages)/machines/downtimes/components/EditingCell';
 import { useProviders } from 'app/hooks/useProviders';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { OrderItemRequest } from 'app/interfaces/Order';
 
 interface OrderDetailItemsProps {
@@ -22,6 +23,7 @@ export default function OrderDetailItems({
   onChangeQuantity,
   onChangeDiscount,
 }: OrderDetailItemsProps) {
+  const { t } = useTranslations();
   const [itemsDetail, setItemsDetail] = useState<OrderItemRequest[]>(items);
   const { updateSparePartPrice, updateSparePartDiscount } = useProviders();
 
@@ -98,21 +100,21 @@ export default function OrderDetailItems({
   return (
     <div>
       <div className="border-t pt-4">
-        <h3 className="text-lg font-semibold">Llista de Recanvis</h3>
+        <h3 className="text-lg font-semibold">{t('order.spare.parts.list')}</h3>
         <table className="w-full border border-gray-300 mt-2">
           <thead>
             <tr className="bg-gray-100">
-              <th className="p-2  ">Nº</th>
-              <th className="p-2 border w-2/6">Recanvi</th>
-              <th className="p-2 border w-1/10">Magatzem</th>
-              <th className="p-2 border w-1/10">Referencia Proveidor</th>
-              <th className="p-2 border w-1/10">Quantitat</th>
-              {!canEdit && <th className="p-2 border w-1/10">Qtt Rebuda</th>}
-              <th className="p-2 border w-1/10">Data Estimada</th>
-              <th className="p-2 border w-1/10">Preu Unitari</th>
-              <th className="p-2 border w-1/12">% Dte.</th>
-              <th className="p-2 border w-1/10">Total</th>
-              <th className="p-2 border w-1/10">Acció</th>
+              <th className="p-2  ">{t('order.number.short')}</th>
+              <th className="p-2 border w-2/6">{t('order.spare.part')}</th>
+              <th className="p-2 border w-1/10">{t('order.warehouse')}</th>
+              <th className="p-2 border w-1/10">{t('order.provider.reference')}</th>
+              <th className="p-2 border w-1/10">{t('quantity')}</th>
+              {!canEdit && <th className="p-2 border w-1/10">{t('order.quantity.received')}</th>}
+              <th className="p-2 border w-1/10">{t('order.estimated.date')}</th>
+              <th className="p-2 border w-1/10">{t('order.unit.price')}</th>
+              <th className="p-2 border w-1/12">{t('order.discount.percentage')}</th>
+              <th className="p-2 border w-1/10">{t('total')}</th>
+              <th className="p-2 border w-1/10">{t('actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -183,7 +185,7 @@ export default function OrderDetailItems({
                       }`}
                       disabled={!canEdit}
                     >
-                      Eliminar
+                      {t('order.remove')}
                     </button>
                   </td>
                 </tr>

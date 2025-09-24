@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useProviders } from 'app/hooks/useProviders';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { Provider } from 'app/interfaces/Provider';
 import { Button } from 'designSystem/Button/Buttons';
 
@@ -9,6 +10,7 @@ interface SearchProviderComponentProps {
 export default function SearchProviderComponent({
   onSelectedProvider,
 }: SearchProviderComponentProps) {
+  const { t } = useTranslations();
   const { providers } = useProviders(true);
   const [searchProvider, setSearchProvider] = useState('');
   const [selectedProvider, setSelectedProvider] = useState<
@@ -34,7 +36,7 @@ export default function SearchProviderComponent({
         <input
           type="text"
           className="w-full p-2 pl-8 border rounded-md"
-          placeholder="Buscar proveïdor..."
+          placeholder={t('search.provider')}
           value={searchProvider}
           onChange={e => setSearchProvider(e.target.value)}
           onFocus={() => setSearchProvider('')}
@@ -81,7 +83,7 @@ export default function SearchProviderComponent({
             ))}
             {filteredProviders?.length === 0 && (
               <div className="px-4 py-2 text-gray-500 text-center">
-                No s'han trobat resultats
+                {t('common.no.results.with.filters')}
               </div>
             )}
           </div>
