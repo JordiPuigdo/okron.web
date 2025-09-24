@@ -115,7 +115,7 @@ export default function HeaderOrderForm({
                 .filter(value => typeof value === 'number')
                 .map(status => (
                   <option key={status} value={status}>
-                    {translateOrderStatus(status as OrderStatus)}
+                    {translateOrderStatus(status as OrderStatus, t)}
                   </option>
                 ))}
             </select>
