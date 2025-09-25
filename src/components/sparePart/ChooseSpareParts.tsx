@@ -87,7 +87,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
     }
     const currentUnits = unitsPerSparePart[sparePart.sparePartId] || 0;
 
-    if (sparePart.warehouseStock[0].stock <= 0) {
+    if (sparePart.warehouseStock[0].stock <= 0 && !sparePart.isVirtual) {
       alert('No tens cap unitat disponible per aquest recanvi');
       return false;
     }
