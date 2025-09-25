@@ -77,26 +77,36 @@ const CustomerDataCard: React.FC<CustomerDataProps> = ({
       <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 flex flex-col w-[50%]">
         <div className="space-y-2 text-gray-600">
           <div className="flex flex-col">
-            <span className="text-gray-500">BOTIGA</span>
+            <span className="text-gray-500">CLIENT</span>
             <span className="font-medium">
-              {workOrder.customerWorkOrder?.customerInstallationCode ||
-                'No especificada'}
+              {workOrder.customerWorkOrder?.customerName || 'No especificada'}
             </span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-gray-500">DIRECCIÓ</span>
-            <span className="font-medium">
-              {workOrder.customerWorkOrder?.customerInstallationAddress
-                ?.address || 'No especificada'}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-gray-500">POBLACIÓ</span>
-            <span className="font-medium">
-              {workOrder.customerWorkOrder?.customerInstallationAddress?.city ||
-                'No especificada'}
-            </span>
-          </div>
+          {workOrder.customerWorkOrder?.customerInstallationCode && (
+            <>
+              <div className="flex flex-col">
+                <span className="text-gray-500">BOTIGA</span>
+                <span className="font-medium">
+                  {workOrder.customerWorkOrder?.customerInstallationCode ||
+                    'No especificada'}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-gray-500">DIRECCIÓ</span>
+                <span className="font-medium">
+                  {workOrder.customerWorkOrder?.customerInstallationAddress
+                    ?.address || 'No especificada'}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-gray-500">POBLACIÓ</span>
+                <span className="font-medium">
+                  {workOrder.customerWorkOrder?.customerInstallationAddress
+                    ?.city || 'No especificada'}
+                </span>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

@@ -256,7 +256,7 @@ export function DeliveryNoteCreateForm() {
                       ''
                     }  - ${
                       workOrder.customerWorkOrder?.customerInstallationAddress
-                        .city ?? ''
+                        ?.city ?? ''
                     }  `,
                   })}
                 />

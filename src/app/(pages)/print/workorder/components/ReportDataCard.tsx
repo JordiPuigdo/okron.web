@@ -38,22 +38,22 @@ const ReportDataCard: React.FC<ReportDataCardProps> = ({ workOrder }) => {
 
   return (
     <div className="bg-white rounded-lg border border-gray-300 p-6 mb-6">
-      <div className="space-y-4">
-        <div className="flex border-b border-gray-200 py-6">
+      <div className="">
+        <div className="flex border-b border-gray-200 py-2">
           <div className="w-1/4 font-medium text-gray-700">OBJECTE</div>
           <div className="w-3/4 text-gray-600">
             {workOrder.asset?.description || 'No especificat'}
           </div>
         </div>
 
-        <div className="flex border-b border-gray-200 py-6">
+        <div className="flex border-b border-gray-200 py-2">
           <div className="w-1/4 font-medium text-gray-700">AVÍS</div>
           <div className="w-3/4 text-gray-600 whitespace-pre-line">
             {workOrder.description || 'No especificat'}
           </div>
         </div>
 
-        <div className="flex border-b border-gray-200 py-6">
+        <div className="flex border-b border-gray-200 py-2">
           <div className="w-1/4 font-medium text-gray-700">
             DESCRIPCIÓ REPARACIÓ
           </div>
@@ -62,14 +62,14 @@ const ReportDataCard: React.FC<ReportDataCardProps> = ({ workOrder }) => {
           </div>
         </div>
 
-        <div className="flex border-b border-gray-200 py-6">
+        <div className="flex border-b border-gray-200 py-2">
           <div className="w-1/4 font-medium text-gray-700">MATERIAL</div>
           <div className="w-3/4 text-gray-600 whitespace-pre-line">
             {spareParts}
           </div>
         </div>
 
-        <div className="flex border-b border-gray-200 py-6">
+        <div className="flex border-b border-gray-200 py-2">
           <div className="w-1/4 font-medium text-gray-700">HORES TÈCNICS</div>
           <div className="w-3/4 text-gray-600">
             {(() => {
@@ -109,18 +109,18 @@ const ReportDataCard: React.FC<ReportDataCardProps> = ({ workOrder }) => {
           </div>
         </div>
 
-        <div className="flex border-b border-gray-200 py-6">
+        <div className="flex border-b border-gray-200 py-2">
           <div className="w-1/4 font-medium text-gray-700">DATA</div>
           <div className="w-3/4 text-gray-600">
-            {workOrder.startTime
-              ? dayjs(workOrder.startTime).format('DD/MM/YYYY')
+            {workOrder.creationTime
+              ? dayjs(workOrder.creationTime).format('DD/MM/YYYY')
               : 'No especificada'}
           </div>
         </div>
 
         {/* Sección condicional para no finalización */}
         {workOrder.stateWorkOrder === StateWorkOrder.NotFinished && (
-          <div className="flex border-b border-yellow-200 py-6">
+          <div className="flex border-b border-yellow-200 py-2">
             <div className="w-1/4 font-medium text-yellow-700">
               MOTIU DE NO FINALITZACIÓ
             </div>
@@ -131,7 +131,7 @@ const ReportDataCard: React.FC<ReportDataCardProps> = ({ workOrder }) => {
         )}
 
         <div className="flex">
-          <div className="w-1/4 font-medium text-blue-700 py-6">
+          <div className="w-1/4 font-medium text-blue-700 py-2">
             OBSERVACIONS
           </div>
           <div className="w-3/4 text-blue-700 whitespace-pre-line">
