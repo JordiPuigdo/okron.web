@@ -2,6 +2,8 @@
 import { Invoice } from 'app/interfaces/Invoice';
 import dayjs from 'dayjs';
 
+import { CompanyInformationHeader } from '../../components/CompanyInformationHeader';
+
 export const InvoiceHeader = ({
   invoice,
   config,
@@ -9,31 +11,74 @@ export const InvoiceHeader = ({
   invoice: Invoice;
   config: SystemConfiguration;
 }) => {
-  //const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL!;
   const company = config.company;
 
   return (
-    <div>
-      <div className="flex justify-between">
-        <div className="flex">
-          <div className="border p-2 my-6">
-            <p className="relative">Factura</p>
-            <div className="p-4">
-              <p className="font-semibold">{invoice.code}</p>
-            </div>
+    <div className="rounded-lg border  print:border-0 print:p-2 ">
+      {/* Logo and Document Title */}
+      <div className="flex justify-between items-end pb-4">
+        <div className="w-48 h-16 relative">
+          <img
+            src={company.urlLogo}
+            alt={company.name}
+            className="object-contain object-left"
+          />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-gray-200">
+          <div className="text-center p-2 bg-gray-100 rounded-md align-bottom">
+            <p className="text-xs font-medium text-gray-600">Número Factura</p>
+            <p className="text-lg font-bold text-gray-800">{invoice.code}</p>
+          </div>
+          <div className="text-center p-2 bg-gray-100 rounded-md">
+            <p className="text-xs font-medium text-gray-600">Data</p>
+            <p className="text-lg font-bold text-gray-800">
+              {dayjs(invoice.creationDate).format('DD/MM/YYYY')}
+            </p>
           </div>
         </div>
       </div>
-      <div className="flex flex-row justify-between items-start">
-        <div>
-          <p className="font-semibold">{company.name}</p>
-          <p>{company.nif}</p>
-          <p className="font-semibold">{company.address.address}</p>
-          <p>{company.address.city}</p>
-          <p>Tel: {company.phone}</p>
-          <p>{company.email}</p>
+      <CompanyInformationHeader company={company} />
+
+      {/* Client Information */}
+      <div className="flex flex-col border-t-2 border-black border-b-2 ">
+        <div className="flex flex-col flex-grow justify-between">
+          {/* Primera sección: Información básica */}
+          <div className="space-y-2">
+            <p className="font-medium text-gray-900">
+              {invoice.deliveryNotes[0].companyName}
+            </p>
+          </div>
+
+          {/* Segunda sección: Dirección hasta provincia */}
+          <div className="text-sm text-gray-700 space-y-1">
+            <p className="flex">
+              <span className="line-clamp-2">
+                {invoice.deliveryNotes[0].customerAddress.address}
+              </span>
+            </p>
+            <p>
+              {invoice.deliveryNotes[0].customerAddress.postalCode},{' '}
+              {invoice.deliveryNotes[0].customerAddress.city}
+            </p>
+            <p>{invoice.deliveryNotes[0].customerAddress.province}</p>
+          </div>
+
+          {/* Tercera sección: NIF y contacto (alineado al bottom) */}
+          <div className="">
+            <p className="text-sm text-gray-600">
+              {invoice.deliveryNotes[0].customerNif}
+            </p>
+            <p className="text-sm text-gray-600">
+              {invoice.deliveryNotes[0].customerPhone}
+            </p>
+            <p className="text-sm text-gray-600 break-all">
+              {invoice.deliveryNotes[0].customerEmail}
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* Delivery Note Details */}
     </div>
   );
 };

@@ -14,67 +14,9 @@ const CustomerDataCard: React.FC<CustomerDataProps> = ({
   if (!isCRM) return null;
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Datos del Cliente 
-      <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 flex flex-col w-full">
-        <div className="space-y-2 text-gray-600 flex gap-6 justify-between">
-          <div className="flex flex-col mx-4">
-            <div className="flex flex-col">
-              <span className="text-xs text-gray-500">DIRECCIÓ</span>
-              <span className="font-medium">
-                {workOrder.customerWorkOrder?.customerAddress?.address ||
-                  'No especificada'}
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xs text-gray-500">CP</span>
-              <span className="font-medium">
-                {workOrder.customerWorkOrder?.customerAddress?.postalCode ||
-                  'No especificat'}
-              </span>
-            </div>
-
-            <div className="flex flex-col">
-              <span className="text-xs text-gray-500">NIF</span>
-              <span className="font-medium">
-                {workOrder.customerWorkOrder?.customerNif}
-              </span>
-            </div>
-
-            <div className="flex flex-col">
-              <span className="text-xs text-gray-500">CORREU ELECTRÒNIC</span>
-              <span className="font-medium">
-                {workOrder.customerWorkOrder?.customerEmail}
-              </span>
-            </div>
-          </div>
-          <div>
-            <div className="flex flex-col">
-              <span className="text-xs text-gray-500">POBLACIÓ</span>
-              <span className="font-medium">
-                {workOrder.customerWorkOrder?.customerAddress?.city ||
-                  'No especificada'}
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xs text-gray-500">PROVINCIA</span>
-              <span className="font-medium">
-                {workOrder.customerWorkOrder?.customerAddress?.province ||
-                  'No especificada'}
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xs text-gray-500">TELÈFON</span>
-              <span className="font-medium">
-                {workOrder.customerWorkOrder?.customerPhone || '-'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>*/}
-
+    <div className="flex flex-col gap-2">
       {/* Botiga */}
-      <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 flex w-full justify-between">
+      <div className="bg-gray-50 p-2 rounded-lg border border-gray-100 flex w-full justify-between">
         <div className="flex flex-col">
           <span className="text-gray-500">CLIENT</span>
           <span className="font-medium">
@@ -109,7 +51,7 @@ const CustomerDataCard: React.FC<CustomerDataProps> = ({
       </div>
 
       {/* Detalls de l'Ordre */}
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-100  flex w-full justify-between">
+      <div className="bg-blue-50 p-2 rounded-lg border border-blue-100  flex w-full justify-between">
         <div className=" text-gray-600 flex w-full justify-between">
           <div className="flex flex-col">
             <span className="text-xs text-gray-500">NÚM ORDRE</span>

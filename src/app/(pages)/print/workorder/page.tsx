@@ -94,6 +94,7 @@ export default async function WorkOrderPage({
     <div className="px-2 sm:px-4 max-w-[100vw] overflow-x-hidden text-sm">
       <div>
         {orders == undefined && <Loader />}
+        <WorkOrderHeader workOrder={orders} config={config} />
         <HoursOperator workOrder={orders} />
         {orders.workOrderType == WorkOrderType.Preventive && (
           <WorkOrderPreventiveReport workorder={orders} />

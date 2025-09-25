@@ -1,11 +1,9 @@
-'use client';
-
-import { useQueryParams } from 'app/hooks/useFilters';
 import Company from 'app/interfaces/Company';
 import { SystemConfiguration } from 'app/interfaces/Config';
 import WorkOrder, { WorkOrderType } from 'app/interfaces/workOrder';
 import { formatDate } from 'app/utils/utils';
 
+import { CompanyInformationHeader } from '../../components/CompanyInformationHeader';
 import CustomerDataCard from './CustomerDataCard';
 
 export const WorkOrderHeader = ({
@@ -15,15 +13,12 @@ export const WorkOrderHeader = ({
   workOrder: WorkOrder;
   config: SystemConfiguration;
 }) => {
-  const { getQueryParam } = useQueryParams();
-
-  const urlLogo = getQueryParam('urlLogo')?.toString() || '';
   const company = config?.company as unknown as Company;
   return (
     <div className="flex flex-col">
       <div className="flex justify-between items-center md:items-start gap-4 p-2">
-        <div>
-          <img src={urlLogo} className="w-34 h-24" />
+        <div className="w-32">
+          <img src={company.urlLogo} alt={company.name} />
         </div>
         {!config.isCRM && (
           <div className="flex flex-col items-end text-right">
@@ -42,21 +37,8 @@ export const WorkOrderHeader = ({
         )}
       </div>
 
-      {company && (
-        <div className="flex flex-col items-start p-3 ">
-          <p className="text-sm font-semibold">{company.name}</p>
-          <p className="text-sm font-semibold">{company.address.address}</p>
-          <div className="flex gap-2">
-            <p className="text-sm font-semibold">
-              {company.address.postalCode}
-            </p>
-            <p className="text-sm font-semibold">{company.address.city}</p>
-            <p className="text-sm font-semibold">{company.address.province}</p>
-          </div>
-          <p className="text-sm font-semibold">{company.nif}</p>
-          <p className="text-sm font-semibold">Tel: {company.phone}</p>
-          <p className="text-sm font-semibold text-gray-500">{company.email}</p>
-        </div>
+      {company && config.isCRM && (
+        <CompanyInformationHeader company={company} />
       )}
 
       <CustomerDataCard workOrder={workOrder} isCRM={config.isCRM} />
