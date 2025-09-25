@@ -38,6 +38,8 @@ export interface WorkOrder extends BaseModel {
   workOrderCreatedId?: string;
   visibleReport?: boolean;
   customerWorkOrder?: CustomerWorkOrder;
+  customerSign?: string;
+  workerSign?: string;
   refCustomerId?: string;
 }
 
