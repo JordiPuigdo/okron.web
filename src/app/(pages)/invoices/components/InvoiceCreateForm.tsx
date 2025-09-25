@@ -10,6 +10,7 @@ import { Customer } from 'app/interfaces/Customer';
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
 import { InvoiceCreateRequest } from 'app/interfaces/Invoice';
 import { cn } from 'app/lib/utils';
+import { formatEuropeanCurrency } from 'app/utils/utils';
 import ChooseElement from 'components/ChooseElement';
 import { HeaderForm } from 'components/layout/HeaderForm';
 import { ca } from 'date-fns/locale';
@@ -286,9 +287,9 @@ export function InvoiceCreateForm() {
                         id: deliveryNote.id,
                         description: `${deliveryNote.code} - ${new Date(
                           deliveryNote.deliveryNoteDate
-                        ).toLocaleDateString()} - ${deliveryNote.total.toFixed(
-                          2
-                        )}€`,
+                        ).toLocaleDateString()} - ${formatEuropeanCurrency(
+                          deliveryNote.total
+                        )}`,
                       })}
                     />
                     {errors.deliveryNoteId && (
@@ -326,7 +327,7 @@ export function InvoiceCreateForm() {
                   </div>
                   <div>
                     <strong>Total:</strong>{' '}
-                    {selectedDeliveryNote.total.toFixed(2)}€
+                    {formatEuropeanCurrency(selectedDeliveryNote.total)}
                   </div>
                 </div>
               </div>

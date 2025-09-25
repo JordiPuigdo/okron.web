@@ -201,22 +201,16 @@ export function InvoiceDetailForm({
                                 {item.quantity}
                               </td>
                               <td className="p-2 border text-center">
-                                {formatEuropeanCurrency(
-                                  item.unitPrice.toFixed(2)
-                                )}
+                                {formatEuropeanCurrency(item.unitPrice)}
                               </td>
                               <td className="p-2 border text-center">
                                 {item.discountPercentage.toFixed(2)}%
                               </td>
                               <td className="p-2 border text-center">
-                                {formatEuropeanCurrency(
-                                  item.discountAmount.toFixed(2)
-                                )}
+                                {formatEuropeanCurrency(item.discountAmount)}
                               </td>
                               <td className="p-2 border text-center">
-                                {formatEuropeanCurrency(
-                                  item.lineTotal.toFixed(2)
-                                )}
+                                {formatEuropeanCurrency(item.lineTotal)}
                               </td>
                             </tr>
                           ))}
