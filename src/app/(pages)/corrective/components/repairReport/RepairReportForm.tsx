@@ -300,7 +300,7 @@ export function RepairReportForm() {
               placeholder="Buscar Client"
               mapElement={customer => ({
                 id: customer.id,
-                description: `${customer.name} - ${customer.taxId}`,
+                description: `${customer.name} - ${customer.fiscalName} - ${customer.taxId}`,
               })}
             />
             {errors.customerId && (
