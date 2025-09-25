@@ -211,7 +211,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     }
 
     if (operatorLogged?.operatorLoggedType == OperatorType.Quality) {
-      search.stateWorkOrder = StateWorkOrder.PendingToValidate;
+      search.stateWorkOrder = [StateWorkOrder.PendingToValidate];
       search.startDateTime = undefined;
       search.endDateTime = undefined;
     }

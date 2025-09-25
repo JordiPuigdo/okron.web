@@ -153,7 +153,7 @@ export interface SearchWorkOrderFilters {
   endDateTime?: Date;
   operatorId?: string;
   assetId?: string;
-  stateWorkOrder?: StateWorkOrder;
+  stateWorkOrder?: StateWorkOrder[];
   userType: UserType;
   originWorkOrder: OriginWorkOrder;
   showNextWO?: boolean;

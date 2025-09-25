@@ -7,6 +7,8 @@ export const DeliveryNoteBody = ({
 }: {
   deliveryNote: DeliveryNote;
 }) => {
+  console.log(deliveryNote);
+
   return (
     <div className="mt-6 space-y-6">
       {deliveryNote.workOrders.map((workOrder, workOrderIndex) => (
@@ -61,16 +63,16 @@ export const DeliveryNoteBody = ({
                   <td className="p-2 text-sm">{item.description}</td>
                   <td className="p-2 text-center text-sm">{item.quantity}</td>
                   <td className="p-2 text-center text-sm">
-                    {formatEuropeanCurrency(item.unitPrice.toFixed(2))}
+                    {formatEuropeanCurrency(item.unitPrice)}
                   </td>
                   <td className="p-2 text-center text-sm">
                     {item.discountPercentage}%
                   </td>
                   <td className="p-2 text-center text-sm">
-                    {formatEuropeanCurrency(item.discountAmount.toFixed(2))}
+                    {formatEuropeanCurrency(item.discountAmount)}
                   </td>
                   <td className="p-2 text-center text-sm font-medium">
-                    {formatEuropeanCurrency(item.lineTotal.toFixed(2))}
+                    {formatEuropeanCurrency(item.lineTotal)}
                   </td>
                 </tr>
               ))}

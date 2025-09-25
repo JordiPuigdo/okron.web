@@ -9,7 +9,10 @@ import { SvgSpinner } from 'app/icons/icons';
 import { Customer } from 'app/interfaces/Customer';
 import { DeliveryNoteCreateRequest } from 'app/interfaces/DeliveryNote';
 import { UserType } from 'app/interfaces/User';
-import WorkOrder, { OriginWorkOrder } from 'app/interfaces/workOrder';
+import WorkOrder, {
+  OriginWorkOrder,
+  StateWorkOrder,
+} from 'app/interfaces/workOrder';
 import { cn } from 'app/lib/utils';
 import { workOrderService } from 'app/services/workOrderService';
 import ChooseElement from 'components/ChooseElement';
@@ -79,6 +82,7 @@ export function DeliveryNoteCreateForm() {
         originWorkOrder: OriginWorkOrder.Maintenance,
         userType: UserType.Maintenance,
         customerId: selectedCustomer?.id ?? customerId,
+        StateWorkOrder: [StateWorkOrder.NotFinished, StateWorkOrder.Finished],
       };
       const workOrders = await workOrderService.getWorkOrdersWithFilters(
         search
