@@ -219,20 +219,34 @@ const OperatorLine: React.FC<{ operatorData: any }> = ({ operatorData }) => {
 
   if (earliestTravelStart) {
     parts.push(
-      `Inici desplaçament ${dayjs(earliestTravelStart).format('HH:mm')}`
+      `Inici desplaçament ${dayjs(earliestTravelStart)
+        .tz('Europe/Madrid')
+        .format('HH:mm')}`
     );
   }
 
   if (workTime?.startTime) {
-    parts.push(`Inici treball ${dayjs(workTime.startTime).format('HH:mm')}`);
+    parts.push(
+      `Inici treball ${dayjs(workTime.startTime)
+        .tz('Europe/Madrid')
+        .format('HH:mm')}`
+    );
   }
 
   if (workTime?.endTime) {
-    parts.push(`Fi treball ${dayjs(workTime.endTime).format('HH:mm')}`);
+    parts.push(
+      `Fi treball ${dayjs(workTime.endTime)
+        .tz('Europe/Madrid')
+        .format('HH:mm')}`
+    );
   }
 
   if (latestTravelEnd) {
-    parts.push(`Fi desplaçament ${dayjs(latestTravelEnd).format('HH:mm')}`);
+    parts.push(
+      `Fi desplaçament ${dayjs(latestTravelEnd)
+        .tz('Europe/Madrid')
+        .format('HH:mm')}`
+    );
   }
 
   return (
