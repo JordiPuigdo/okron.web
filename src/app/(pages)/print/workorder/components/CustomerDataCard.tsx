@@ -14,8 +14,8 @@ const CustomerDataCard: React.FC<CustomerDataProps> = ({
   if (!isCRM) return null;
 
   return (
-    <div className="flex gap-6">
-      {/* Datos del Cliente */}
+    <div className="flex flex-col gap-6">
+      {/* Datos del Cliente 
       <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 flex flex-col w-full">
         <div className="space-y-2 text-gray-600 flex gap-6 justify-between">
           <div className="flex flex-col mx-4">
@@ -71,48 +71,46 @@ const CustomerDataCard: React.FC<CustomerDataProps> = ({
             </div>
           </div>
         </div>
-      </div>
+      </div>*/}
 
       {/* Botiga */}
-      <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 flex flex-col w-[50%]">
-        <div className="space-y-2 text-gray-600">
-          <div className="flex flex-col">
-            <span className="text-gray-500">CLIENT</span>
-            <span className="font-medium">
-              {workOrder.customerWorkOrder?.customerName || 'No especificada'}
-            </span>
-          </div>
-          {workOrder.customerWorkOrder?.customerInstallationCode && (
-            <>
-              <div className="flex flex-col">
-                <span className="text-gray-500">BOTIGA</span>
-                <span className="font-medium">
-                  {workOrder.customerWorkOrder?.customerInstallationCode ||
-                    'No especificada'}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">DIRECCIÓ</span>
-                <span className="font-medium">
-                  {workOrder.customerWorkOrder?.customerInstallationAddress
-                    ?.address || 'No especificada'}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-gray-500">POBLACIÓ</span>
-                <span className="font-medium">
-                  {workOrder.customerWorkOrder?.customerInstallationAddress
-                    ?.city || 'No especificada'}
-                </span>
-              </div>
-            </>
-          )}
+      <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 flex w-full justify-between">
+        <div className="flex flex-col">
+          <span className="text-gray-500">CLIENT</span>
+          <span className="font-medium">
+            {workOrder.customerWorkOrder?.customerName || 'No especificada'}
+          </span>
         </div>
+        {workOrder.customerWorkOrder?.customerInstallationCode && (
+          <>
+            <div className="flex flex-col">
+              <span className="text-gray-500">BOTIGA</span>
+              <span className="font-medium">
+                {workOrder.customerWorkOrder?.customerInstallationCode ||
+                  'No especificada'}
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-gray-500">DIRECCIÓ</span>
+              <span className="font-medium">
+                {workOrder.customerWorkOrder?.customerInstallationAddress
+                  ?.address || 'No especificada'}
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-gray-500">POBLACIÓ</span>
+              <span className="font-medium">
+                {workOrder.customerWorkOrder?.customerInstallationAddress
+                  ?.city || 'No especificada'}
+              </span>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Detalls de l'Ordre */}
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 flex flex-col w-[50%]">
-        <div className="space-y-3 text-gray-600">
+      <div className="bg-blue-50 p-4 rounded-lg border border-blue-100  flex w-full justify-between">
+        <div className=" text-gray-600 flex w-full justify-between">
           <div className="flex flex-col">
             <span className="text-xs text-gray-500">NÚM ORDRE</span>
             <span className="font-medium">{workOrder.code}</span>
