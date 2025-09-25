@@ -287,8 +287,12 @@ export function InvoiceCreateForm() {
                         id: deliveryNote.id,
                         description: `${deliveryNote.code} - ${new Date(
                           deliveryNote.deliveryNoteDate
-                        ).toLocaleDateString()} - ${formatEuropeanCurrency(
-                          deliveryNote.total
+                        ).toLocaleDateString()} - ${deliveryNote.workOrders
+                          .map(x => x.workOrderRefId)
+                          .join(', ')} - ${deliveryNote.workOrders
+                          .map(x => x.workOrderCode)
+                          .join(', ')} - ${formatEuropeanCurrency(
+                          deliveryNote.subtotal
                         )}`,
                       })}
                     />
@@ -327,7 +331,7 @@ export function InvoiceCreateForm() {
                   </div>
                   <div>
                     <strong>Total:</strong>{' '}
-                    {formatEuropeanCurrency(selectedDeliveryNote.total)}
+                    {formatEuropeanCurrency(selectedDeliveryNote.subtotal)}
                   </div>
                 </div>
               </div>
