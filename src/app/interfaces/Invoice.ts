@@ -1,71 +1,34 @@
-﻿export enum InvoiceStatus {
-  Draft = 0,
-  Pending = 1,
-  Paid = 2,
-  Cancelled = 3,
-  Overdue = 4
+﻿import { BaseModel } from './BaseModel';
+import { DeliveryNote } from './DeliveryNote';
+
+export enum InvoiceStatus {
+  Pending,
+  Invoiced,
 }
 
 export enum InvoiceItemType {
   Labor,
   SparePart,
-  Other
+  Other,
 }
 
-export interface Invoice {
-  id: string;
+export interface Invoice extends BaseModel {
   code: string;
-  invoiceDate: string;
-  dueDate: string;
-  companyName: string;
-  companyAddress: string;
-  companyCity: string;
-  companyPostalCode: string;
-  companyProvince: string | null;
-  externalComments: string | null;
-  subtotal: number;
-  totalTax: number;
-  total: number;
   status: InvoiceStatus;
-  deliveryNoteId: string;
-  items: InvoiceItem[];
-  active: boolean;
-  creationDate: string;
-}
-
-export interface InvoiceItem {
-  id?: string;
-  type: number;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  discountPercentage: number;
-  discountAmount: number;
-  lineTotal: number;
-  deliveryNoteId?: string;
-  sparePartId?: string;
-  operatorId?: string;
-  operatorType?: string | null;
-  active: boolean;
-  creationDate: string;
+  dueDate: Date;
+  deliveryNoteIds: string[];
+  deliveryNotes: DeliveryNote[];
 }
 
 export interface InvoiceCreateRequest {
-  deliveryNoteId: string;
+  deliveryNoteIds: string[];
   invoiceDate: string;
   dueDate: string;
 }
 
 export interface InvoiceUpdateRequest {
   id: string;
-  externalComments?: string;
   status: InvoiceStatus;
-  items: InvoiceItem[];
-  companyName?: string;
-  companyAddress?: string;
-  companyCity?: string;
-  companyPostalCode?: string;
-  companyProvince?: string;
 }
 
 export interface InvoiceSearchFilters {

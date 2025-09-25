@@ -4,16 +4,16 @@ export const InvoiceBody = ({ invoice }: { invoice: Invoice }) => {
   return (
     <table className="w-full border border-gray-300 mt-6">
       <thead>
-      <tr className="bg-gray-100">
-        <th className="p-2 border w-1/2">Descripció</th>
-        <th className="p-2 border w-1/10">Quantitat</th>
-        <th className="p-2 border w-1/10">Preu Unitari</th>
-        <th className="p-2 border w-1/12">% Dte</th>
-        <th className="p-2 border w-1/10">Import</th>
-      </tr>
+        <tr className="bg-gray-100">
+          <th className="p-2 border w-1/2">Descripció</th>
+          <th className="p-2 border w-1/10">Quantitat</th>
+          <th className="p-2 border w-1/10">Preu Unitari</th>
+          <th className="p-2 border w-1/12">% Dte</th>
+          <th className="p-2 border w-1/10">Import</th>
+        </tr>
       </thead>
       <tbody>
-      {invoice.items.map((item, index) => (
+        {/*invoice.items.map((item, index) => (
         <tr key={index} className="border-t">
           <td className="p-2 border">
             {item.description}
@@ -36,7 +36,7 @@ export const InvoiceBody = ({ invoice }: { invoice: Invoice }) => {
             {item.lineTotal.toFixed(2)}€
           </td>
         </tr>
-      ))}
+      ))*/}
       </tbody>
     </table>
   );

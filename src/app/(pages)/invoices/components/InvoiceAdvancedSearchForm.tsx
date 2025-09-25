@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { InvoiceSearchFilters, InvoiceStatus } from 'app/interfaces/Invoice';
+import { translateInvoiceStatus } from 'app/utils/invoiceUtils';
 import { ca } from 'date-fns/locale';
 import { Button } from 'designSystem/Button/Buttons';
 import { Search, X } from 'lucide-react';
@@ -13,10 +14,10 @@ interface InvoiceAdvancedSearchFormProps {
   isLoading?: boolean;
 }
 
-export function InvoiceAdvancedSearchForm({ 
-  onSearch, 
-  onClear, 
-  isLoading = false 
+export function InvoiceAdvancedSearchForm({
+  onSearch,
+  onClear,
+  isLoading = false,
 }: InvoiceAdvancedSearchFormProps) {
   const [filters, setFilters] = useState<InvoiceSearchFilters>({});
 
@@ -30,27 +31,10 @@ export function InvoiceAdvancedSearchForm({
     onClear();
   };
 
-  const translateInvoiceStatus = (status: InvoiceStatus): string => {
-    switch (status) {
-      case InvoiceStatus.Draft:
-        return 'Borrador';
-      case InvoiceStatus.Pending:
-        return 'Pendent';
-      case InvoiceStatus.Paid:
-        return 'Pagada';
-      case InvoiceStatus.Cancelled:
-        return 'Cancel·lada';
-      case InvoiceStatus.Overdue:
-        return 'Vençuda';
-      default:
-        return 'Desconegut';
-    }
-  };
-
   return (
     <div className="bg-white rounded-xl p-6 shadow-lg mb-6">
       <h3 className="text-lg font-semibold mb-4">Cerca Avançada de Factures</h3>
-      
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Company Name */}
@@ -59,7 +43,9 @@ export function InvoiceAdvancedSearchForm({
             <input
               type="text"
               value={filters.companyName || ''}
-              onChange={(e) => setFilters(prev => ({ ...prev, companyName: e.target.value }))}
+              onChange={e =>
+                setFilters(prev => ({ ...prev, companyName: e.target.value }))
+              }
               placeholder="Cerca per nom..."
               className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm"
             />
@@ -71,7 +57,9 @@ export function InvoiceAdvancedSearchForm({
             <input
               type="text"
               value={filters.customerId || ''}
-              onChange={(e) => setFilters(prev => ({ ...prev, customerId: e.target.value }))}
+              onChange={e =>
+                setFilters(prev => ({ ...prev, customerId: e.target.value }))
+              }
               placeholder="ID del client..."
               className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm"
             />
@@ -83,7 +71,9 @@ export function InvoiceAdvancedSearchForm({
             <input
               type="text"
               value={filters.invoiceCode || ''}
-              onChange={(e) => setFilters(prev => ({ ...prev, invoiceCode: e.target.value }))}
+              onChange={e =>
+                setFilters(prev => ({ ...prev, invoiceCode: e.target.value }))
+              }
               placeholder="Codi de la factura..."
               className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm"
             />
@@ -94,10 +84,14 @@ export function InvoiceAdvancedSearchForm({
             <label className="font-medium">Estat</label>
             <select
               value={filters.status !== undefined ? filters.status : ''}
-              onChange={(e) => setFilters(prev => ({ 
-                ...prev, 
-                status: e.target.value ? Number(e.target.value) as InvoiceStatus : undefined 
-              }))}
+              onChange={e =>
+                setFilters(prev => ({
+                  ...prev,
+                  status: e.target.value
+                    ? (Number(e.target.value) as InvoiceStatus)
+                    : undefined,
+                }))
+              }
               className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm"
             >
               <option value="">Tots els estats</option>
@@ -117,7 +111,12 @@ export function InvoiceAdvancedSearchForm({
             <input
               type="text"
               value={filters.deliveryNoteId || ''}
-              onChange={(e) => setFilters(prev => ({ ...prev, deliveryNoteId: e.target.value }))}
+              onChange={e =>
+                setFilters(prev => ({
+                  ...prev,
+                  deliveryNoteId: e.target.value,
+                }))
+              }
               placeholder="ID de l'albarà..."
               className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm"
             />
@@ -127,11 +126,19 @@ export function InvoiceAdvancedSearchForm({
           <div className="space-y-2">
             <label className="font-medium">Té Albarà</label>
             <select
-              value={filters.hasDeliveryNote !== undefined ? String(filters.hasDeliveryNote) : ''}
-              onChange={(e) => setFilters(prev => ({ 
-                ...prev, 
-                hasDeliveryNote: e.target.value ? e.target.value === 'true' : undefined 
-              }))}
+              value={
+                filters.hasDeliveryNote !== undefined
+                  ? String(filters.hasDeliveryNote)
+                  : ''
+              }
+              onChange={e =>
+                setFilters(prev => ({
+                  ...prev,
+                  hasDeliveryNote: e.target.value
+                    ? e.target.value === 'true'
+                    : undefined,
+                }))
+              }
               className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm"
             >
               <option value="">Tots</option>
@@ -150,7 +157,9 @@ export function InvoiceAdvancedSearchForm({
               onChange={(date: Date | null) =>
                 setFilters(prev => ({
                   ...prev,
-                  startDate: date ? date.toISOString().split('T')[0] : undefined,
+                  startDate: date
+                    ? date.toISOString().split('T')[0]
+                    : undefined,
                 }))
               }
               dateFormat="dd/MM/yyyy"
@@ -186,10 +195,14 @@ export function InvoiceAdvancedSearchForm({
               type="number"
               step="0.01"
               value={filters.minAmount || ''}
-              onChange={(e) => setFilters(prev => ({ 
-                ...prev, 
-                minAmount: e.target.value ? Number(e.target.value) : undefined 
-              }))}
+              onChange={e =>
+                setFilters(prev => ({
+                  ...prev,
+                  minAmount: e.target.value
+                    ? Number(e.target.value)
+                    : undefined,
+                }))
+              }
               placeholder="0.00"
               className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm"
             />
@@ -201,10 +214,14 @@ export function InvoiceAdvancedSearchForm({
               type="number"
               step="0.01"
               value={filters.maxAmount || ''}
-              onChange={(e) => setFilters(prev => ({ 
-                ...prev, 
-                maxAmount: e.target.value ? Number(e.target.value) : undefined 
-              }))}
+              onChange={e =>
+                setFilters(prev => ({
+                  ...prev,
+                  maxAmount: e.target.value
+                    ? Number(e.target.value)
+                    : undefined,
+                }))
+              }
               placeholder="0.00"
               className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm"
             />
@@ -222,7 +239,7 @@ export function InvoiceAdvancedSearchForm({
             <Search className="mr-2 h-4 w-4" />
             Cercar
           </Button>
-          
+
           <Button
             type="cancel"
             variant="outline"

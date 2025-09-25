@@ -6,6 +6,9 @@ import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { translateDeliveryNoteStatus } from 'app/utils/deliveryNoteUtils';
 import { formatEuropeanCurrency } from 'app/utils/utils';
+import { CustomerInformationComponent } from 'components/customer/CustomerInformationComponent';
+import { InstallationComponent } from 'components/customer/InstallationComponent';
+import { TotalComponent } from 'components/customer/TotalComponent';
 import { ca } from 'date-fns/locale';
 import dayjs from 'dayjs';
 import { Plus, Save, X } from 'lucide-react';
@@ -236,114 +239,14 @@ export function DeliveryNoteDetailForm({
 
             {/* Customer Installation */}
             {formData.installation?.code && (
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-semibold mb-2">
-                  Instal·lació Client - {formData.installation.code}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <span className="font-medium">Adreça:</span>{' '}
-                    {formData.installation.address.address}
-                  </div>
-                  <div>
-                    <span className="font-medium">Ciutat:</span>{' '}
-                    {formData.installation.address.city}
-                  </div>
-                  <div>
-                    <span className="font-medium">Codi Postal:</span>{' '}
-                    {formData.installation.address.postalCode}
-                  </div>
-                  <div>
-                    <span className="font-medium">Província:</span>{' '}
-                    {formData.installation.address.province}
-                  </div>
-                </div>
-              </div>
+              <InstallationComponent installation={formData.installation} />
             )}
 
             {/* Company Information */}
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-semibold mb-2">Informació de l'Empresa</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="font-medium">Nom:</label>
-                  <input
-                    value={formData.companyName}
-                    onChange={e =>
-                      setFormData(prev => ({
-                        ...prev,
-                        companyName: e.target.value,
-                      }))
-                    }
-                    className="w-full rounded border px-2 py-1"
-                  />
-                </div>
-                <div>
-                  <label className="font-medium">Adreça:</label>
-                  <input
-                    value={formData.customerAddress.address}
-                    onChange={e =>
-                      setFormData(prev => ({
-                        ...prev,
-                        companyAddress: {
-                          ...prev.customerAddress,
-                          address: e.target.value,
-                        },
-                      }))
-                    }
-                    className="w-full rounded border px-2 py-1"
-                  />
-                </div>
-                <div>
-                  <label className="font-medium">Ciutat:</label>
-                  <input
-                    value={formData.customerAddress.city}
-                    onChange={e =>
-                      setFormData(prev => ({
-                        ...prev,
-                        companyAddress: {
-                          ...prev.customerAddress,
-                          city: e.target.value,
-                        },
-                      }))
-                    }
-                    className="w-full rounded border px-2 py-1"
-                  />
-                </div>
-                <div>
-                  <label className="font-medium">Codi Postal:</label>
-                  <input
-                    value={formData.customerAddress.postalCode}
-                    onChange={e =>
-                      setFormData(prev => ({
-                        ...prev,
-                        companyAddress: {
-                          ...prev.customerAddress,
-                          postalCode: e.target.value,
-                        },
-                      }))
-                    }
-                    className="w-full rounded border px-2 py-1"
-                  />
-                </div>
-                <div>
-                  <label className="font-medium">Província:</label>
-                  <input
-                    value={formData.customerAddress.province}
-                    onChange={e =>
-                      setFormData(prev => ({
-                        ...prev,
-                        companyAddress: {
-                          ...prev.customerAddress,
-                          province: e.target.value,
-                        },
-                      }))
-                    }
-                    className="w-full rounded border px-2 py-1"
-                  />
-                </div>
-              </div>
-            </div>
+            <CustomerInformationComponent
+              companyName={formData.companyName}
+              customerAddress={formData.customerAddress}
+            />
 
             {/* Work Orders */}
             {formData.workOrders.map((wo, woIndex) => (
@@ -473,22 +376,11 @@ export function DeliveryNoteDetailForm({
             ))}
 
             {/* Totals */}
-            <div className="flex justify-end">
-              <div className="w-96 space-y-2 p-4 border rounded-lg bg-gray-50">
-                <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span>{formatEuropeanCurrency(formData.subtotal)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>IVA (21%):</span>
-                  <span>{formatEuropeanCurrency(formData.totalTax)}</span>
-                </div>
-                <div className="flex justify-between font-bold text-lg border-t pt-2">
-                  <span>Total:</span>
-                  <span>{formatEuropeanCurrency(formData.total)}</span>
-                </div>
-              </div>
-            </div>
+            <TotalComponent
+              subtotal={formData.subtotal}
+              totalTax={formData.totalTax}
+              total={formData.total}
+            />
 
             {/* External Comments */}
             <div className="space-y-2">

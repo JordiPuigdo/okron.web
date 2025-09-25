@@ -25,7 +25,7 @@ export function InvoiceCreateForm() {
   const router = useRouter();
 
   const [formData, setFormData] = useState<Partial<InvoiceCreateRequest>>({
-    deliveryNoteId: '',
+    deliveryNoteIds: [],
     invoiceDate: new Date().toISOString().split('T')[0],
     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
       .toISOString()
@@ -43,9 +43,9 @@ export function InvoiceCreateForm() {
   const [availableDeliveryNotes, setAvailableDeliveryNotes] = useState<
     DeliveryNote[]
   >([]);
-  const [selectedDeliveryNoteId, setSelectedDeliveryNoteId] = useState<
-    string | undefined
-  >(undefined);
+  const [selectedDeliveryNoteIds, setSelectedDeliveryNoteIds] = useState<
+    string[] | []
+  >([]);
   const [selectedDeliveryNote, setSelectedDeliveryNote] = useState<
     DeliveryNote | undefined
   >(undefined);
@@ -61,7 +61,7 @@ export function InvoiceCreateForm() {
     fetchCustomer(id);
     fetchCustomerDeliveryNotes(id);
     // Reset delivery note selection when customer changes
-    setSelectedDeliveryNoteId(undefined);
+    setSelectedDeliveryNoteIds([]);
     setSelectedDeliveryNote(undefined);
     setFormData(prev => ({
       ...prev,
@@ -95,7 +95,7 @@ export function InvoiceCreateForm() {
     setSelectedCustomer(undefined);
     setSelectedCustomerId(undefined);
     setAvailableDeliveryNotes([]);
-    setSelectedDeliveryNoteId(undefined);
+    setSelectedDeliveryNoteIds([]);
     setSelectedDeliveryNote(undefined);
     setFormData(prev => ({
       ...prev,
@@ -104,10 +104,11 @@ export function InvoiceCreateForm() {
   };
 
   const handleDeliveryNoteSelected = async (deliveryNoteId: string) => {
-    setSelectedDeliveryNoteId(deliveryNoteId);
+    const newDeliveryNoteIds = [...selectedDeliveryNoteIds, deliveryNoteId];
+    setSelectedDeliveryNoteIds(newDeliveryNoteIds);
     setFormData(prev => ({
       ...prev,
-      deliveryNoteId: deliveryNoteId,
+      deliveryNoteIds: newDeliveryNoteIds,
     }));
 
     // Fetch and set the selected delivery note details
@@ -121,7 +122,7 @@ export function InvoiceCreateForm() {
 
   const handleDeleteSelectedDeliveryNote = () => {
     setSelectedDeliveryNote(undefined);
-    setSelectedDeliveryNoteId(undefined);
+    setSelectedDeliveryNoteIds([]);
     setFormData(prev => ({
       ...prev,
       deliveryNoteId: '',
@@ -162,7 +163,7 @@ export function InvoiceCreateForm() {
       newErrors.customerId = 'Cal seleccionar un client';
     }
 
-    if (!formData.deliveryNoteId) {
+    if (!formData.deliveryNoteIds) {
       newErrors.deliveryNoteId = 'Cal seleccionar un albarà';
     }
 
@@ -277,9 +278,7 @@ export function InvoiceCreateForm() {
                   <>
                     <ChooseElement
                       elements={availableDeliveryNotes}
-                      selectedElements={
-                        selectedDeliveryNoteId ? [selectedDeliveryNoteId] : []
-                      }
+                      selectedElements={selectedDeliveryNoteIds}
                       onElementSelected={handleDeliveryNoteSelected}
                       onDeleteElementSelected={handleDeleteSelectedDeliveryNote}
                       placeholder="Buscar Albarà"
