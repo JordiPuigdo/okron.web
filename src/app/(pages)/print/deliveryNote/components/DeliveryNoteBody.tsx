@@ -1,14 +1,11 @@
-import { TranslateFn } from 'app/hooks/useTranslations';
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
 import { formatCurrencyServerSider } from 'app/utils/utils';
 import dayjs from 'dayjs';
 
 export const DeliveryNoteBody = ({
   deliveryNote,
-  t = (key: string) => key,
 }: {
   deliveryNote: DeliveryNote;
-  t?: TranslateFn;
 }) => {
   return (
     <div className="mt-6 space-y-6">
