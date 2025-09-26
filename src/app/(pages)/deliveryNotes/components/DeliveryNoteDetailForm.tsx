@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { translateDeliveryNoteStatus } from 'app/utils/deliveryNoteUtils';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import { CustomerInformationComponent } from 'components/customer/CustomerInformationComponent';
@@ -45,6 +46,7 @@ export function DeliveryNoteDetailForm({
   const [formData, setFormData] = useState<DeliveryNote>(deliveryNote);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { t } = useTranslations();
 
   useEffect(() => {
     setFormData(deliveryNote);
@@ -341,10 +343,10 @@ export function DeliveryNoteDetailForm({
                             />
                           </td>
                           <td className="p-2 border text-center">
-                            {formatEuropeanCurrency(item.discountAmount)}
+                            {formatEuropeanCurrency(item.discountAmount, t)}
                           </td>
                           <td className="p-2 border text-center">
-                            {formatEuropeanCurrency(item.lineTotal)}
+                            {formatEuropeanCurrency(item.lineTotal, t)}
                           </td>
                           <td className="p-2 border text-center">
                             <button

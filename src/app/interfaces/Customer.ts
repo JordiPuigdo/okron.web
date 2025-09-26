@@ -19,6 +19,7 @@ export interface CustomerContact extends BaseModel {
 
 export interface PaymentMethod extends BaseModel {
   description: string;
+  days: number;
 }
 
 export interface Customer extends BaseModel {

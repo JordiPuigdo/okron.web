@@ -111,7 +111,7 @@ const DataTable: React.FC<DataTableProps> = ({
   useEffect(() => {
     setIsLoading(false);
     setPathDetail(() => {
-      return getRoute(entity, false, t);
+      return getRoute(entity, false);
     });
   }, []);
 
@@ -257,7 +257,9 @@ const DataTable: React.FC<DataTableProps> = ({
         </div>
         <div className="p-4 flex flex-row justify-between items-center border-t border-gray-200">
           {data.length > 0 && (
-            <p className="text-sm w-full">{t('table.total.records', { count: totalRecords.toString() })}</p>
+            <p className="text-sm w-full">
+              {t('table.total.records', { count: totalRecords.toString() })}
+            </p>
           )}
           <div className="flex align-bottom items-center w-full">
             <select

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SystemConfiguration } from 'app/interfaces/Config';
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
 
@@ -49,9 +50,12 @@ interface DeliveryNotePageProps {
   searchParams: { id: string };
 }
 
-export default function DeliveryNotePage({ searchParams }: DeliveryNotePageProps) {
+export default function DeliveryNotePage({
+  searchParams,
+}: DeliveryNotePageProps) {
   const [deliveryNote, setDeliveryNote] = useState<DeliveryNote | null>(null);
   const [config, setConfig] = useState<SystemConfiguration | null>(null);
+  const { t } = useTranslations();
 
   useEffect(() => {
     const loadData = async () => {
@@ -80,7 +84,7 @@ export default function DeliveryNotePage({ searchParams }: DeliveryNotePageProps
     <div className="px-4 w-full flex-grow text-sm flex flex-col">
       <div className="flex flex-col flex-grow p-4 bg-white">
         <DeliveryNoteHeader deliveryNote={deliveryNote} config={config} />
-        <DeliveryNoteBody deliveryNote={deliveryNote} />
+        <DeliveryNoteBody deliveryNote={deliveryNote} t={t} />
         <DeliveryNoteFooter deliveryNote={deliveryNote} />
       </div>
     </div>

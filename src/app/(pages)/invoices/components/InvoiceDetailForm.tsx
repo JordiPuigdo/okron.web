@@ -3,6 +3,7 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import { CustomerInformationComponent } from 'components/customer/CustomerInformationComponent';
 import { InstallationComponent } from 'components/customer/InstallationComponent';
@@ -36,6 +37,7 @@ export function InvoiceDetailForm({
   const [formData, setFormData] = useState<Invoice>(invoice);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { t } = useTranslations();
 
   useEffect(() => {
     setFormData(invoice);
@@ -201,16 +203,16 @@ export function InvoiceDetailForm({
                                 {item.quantity}
                               </td>
                               <td className="p-2 border text-center">
-                                {formatEuropeanCurrency(item.unitPrice)}
+                                {formatEuropeanCurrency(item.unitPrice, t)}
                               </td>
                               <td className="p-2 border text-center">
                                 {item.discountPercentage.toFixed(2)}%
                               </td>
                               <td className="p-2 border text-center">
-                                {formatEuropeanCurrency(item.discountAmount)}
+                                {formatEuropeanCurrency(item.discountAmount, t)}
                               </td>
                               <td className="p-2 border text-center">
-                                {formatEuropeanCurrency(item.lineTotal)}
+                                {formatEuropeanCurrency(item.lineTotal, t)}
                               </td>
                             </tr>
                           ))}

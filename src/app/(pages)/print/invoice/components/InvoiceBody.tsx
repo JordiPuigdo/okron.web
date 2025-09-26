@@ -1,11 +1,14 @@
-﻿import { DeliveryNote } from 'app/interfaces/DeliveryNote';
+﻿import { TranslateFn } from 'app/hooks/useTranslations';
+import { DeliveryNote } from 'app/interfaces/DeliveryNote';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import dayjs from 'dayjs';
 
 export const InvoiceBody = ({
   deliveryNotes,
+  t = (key: string) => key,
 }: {
   deliveryNotes: DeliveryNote[];
+  t?: TranslateFn;
 }) => {
   return (
     <div className="mt-6 space-y-6">
@@ -68,16 +71,16 @@ export const InvoiceBody = ({
                         {item.quantity}
                       </td>
                       <td className="p-2 text-center text-sm">
-                        {formatEuropeanCurrency(item.unitPrice)}
+                        {formatEuropeanCurrency(item.unitPrice, t)}
                       </td>
                       <td className="p-2 text-center text-sm">
                         {item.discountPercentage}%
                       </td>
                       <td className="p-2 text-center text-sm">
-                        {formatEuropeanCurrency(item.discountAmount)}
+                        {formatEuropeanCurrency(item.discountAmount, t)}
                       </td>
                       <td className="p-2 text-center text-sm font-medium">
-                        {formatEuropeanCurrency(item.lineTotal)}
+                        {formatEuropeanCurrency(item.lineTotal, t)}
                       </td>
                     </tr>
                   ))}

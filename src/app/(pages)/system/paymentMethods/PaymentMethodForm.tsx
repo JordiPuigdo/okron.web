@@ -23,6 +23,7 @@ export function PaymentMethodForm({
       id: '',
       description: '',
       creationDate: new Date(),
+      days: 0,
       active: true,
     }
   );
@@ -72,7 +73,11 @@ export function PaymentMethodForm({
           disabled={loading}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? t('common.saving') : form.id ? t('common.update') : t('create')}
+          {loading
+            ? t('common.saving')
+            : form.id
+            ? t('common.update')
+            : t('create')}
         </button>
       </div>
     </form>

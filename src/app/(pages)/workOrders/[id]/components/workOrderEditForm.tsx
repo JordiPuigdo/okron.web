@@ -62,7 +62,7 @@ interface TabWO {
 }
 const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
   const { t } = useTranslations();
-  
+
   const getTabLabels = () => ({
     OPERATORTIMES: t('workOrders.operatorTimes'),
     COMMENTS: t('workOrders.comments'),
@@ -189,9 +189,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
 
   async function handleDeleteWordOrder() {
     toggleLoading('DELETE');
-    const isConfirmed = window.confirm(
-      t('confirm.delete.work.order')
-    );
+    const isConfirmed = window.confirm(t('confirm.delete.work.order'));
     if (isConfirmed) {
       await workOrderService.deleteWorkOrder(id);
       setShowSuccessMessage(true);
@@ -213,7 +211,10 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
       setValue('description', responseWorkOrder.description);
       setValue('stateWorkOrder', responseWorkOrder.stateWorkOrder);
       const startTimeDate = new Date(responseWorkOrder.startTime);
-      if (startTimeDate.getFullYear() > 1900 && !isNaN(startTimeDate.getTime())) {
+      if (
+        startTimeDate.getFullYear() > 1900 &&
+        !isNaN(startTimeDate.getTime())
+      ) {
         setValue('startTime', startTimeDate);
       } else {
         setValue('startTime', new Date());
@@ -222,7 +223,10 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
       setValue('visibleReport', responseWorkOrder.visibleReport);
       setValue('refCustomerId', responseWorkOrder.refCustomerId);
       const creationTimeDate = new Date(responseWorkOrder.creationTime);
-      if (creationTimeDate.getFullYear() > 1900 && !isNaN(creationTimeDate.getTime())) {
+      if (
+        creationTimeDate.getFullYear() > 1900 &&
+        !isNaN(creationTimeDate.getTime())
+      ) {
         setValue('creationTime', creationTimeDate);
       } else {
         setValue('creationTime', new Date());
@@ -1036,8 +1040,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                         {
                           differenceBetweenDates(
                             new Date(x.date),
-                            new Date(x.endDate),
-                            t
+                            new Date(x.endDate)
                           ).fullTime
                         }
                       </span>

@@ -5,6 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { useCustomers } from 'app/hooks/useCustomers';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import { Customer } from 'app/interfaces/Customer';
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
@@ -24,7 +25,7 @@ import { InvoiceService } from '../../../services/invoiceService';
 export function InvoiceCreateForm() {
   const { customers, getById } = useCustomers();
   const router = useRouter();
-
+  const { t } = useTranslations();
   const [formData, setFormData] = useState<Partial<InvoiceCreateRequest>>({
     deliveryNoteIds: [],
     invoiceDate: new Date().toISOString().split('T')[0],
@@ -292,7 +293,8 @@ export function InvoiceCreateForm() {
                           .join(', ')} - ${deliveryNote.workOrders
                           .map(x => x.workOrderCode)
                           .join(', ')} - ${formatEuropeanCurrency(
-                          deliveryNote.subtotal
+                          deliveryNote.subtotal,
+                          t
                         )}`,
                       })}
                     />
@@ -331,7 +333,7 @@ export function InvoiceCreateForm() {
                   </div>
                   <div>
                     <strong>Total:</strong>{' '}
-                    {formatEuropeanCurrency(selectedDeliveryNote.subtotal)}
+                    {formatEuropeanCurrency(selectedDeliveryNote.subtotal, t)}
                   </div>
                 </div>
               </div>
