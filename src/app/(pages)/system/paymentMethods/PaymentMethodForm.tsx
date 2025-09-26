@@ -44,7 +44,7 @@ export function PaymentMethodForm({
 
     await onSubmit(trimmedForm);
 
-    setForm(prev => ({ ...prev, description: '' }));
+    setForm(prev => ({ ...prev, description: '', days: 0 }));
   };
 
   return (
@@ -63,6 +63,19 @@ export function PaymentMethodForm({
           value={form.description}
           onChange={handleChange}
           placeholder={t('system.paymentMethods.placeholder')}
+          className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {t('days')}
+        </label>
+        <input
+          type="number"
+          name="days"
+          value={form.days}
+          onChange={handleChange}
+          placeholder={t('days')}
           className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
         />
       </div>

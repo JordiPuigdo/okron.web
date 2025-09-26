@@ -24,6 +24,12 @@ function PaymentMethodComponent() {
       inputType: 'text',
     },
     {
+      header: t('days'),
+      accessor: 'days',
+      editable: true,
+      inputType: 'text',
+    },
+    {
       header: t('active'),
       accessor: 'active',
       editable: true,
