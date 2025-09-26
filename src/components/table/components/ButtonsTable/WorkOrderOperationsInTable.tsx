@@ -92,7 +92,6 @@ const WorkOrderOperationsInTable = React.memo(
     const [showModal, setShowModal] = useState(false);
     const [isLoading, setIsLoading] = useState<string | null>(null);
 
-    // ✅ Memoizar valores derivados
     const hasDefaultReason = useMemo(
       () =>
         workOrder?.downtimeReason != undefined &&
@@ -378,8 +377,9 @@ const WorkOrderOperationsInTable = React.memo(
           href={`${Routes.workOrders}/${workOrder.id}`}
           className="bg-okron-btDetail hover:bg-okron-btnDetailHover rounded flex text-center p-2 w-full justify-center align-middle text-white"
           customStyles="justify-center align-middle"
+          onClick={() => setIsLoading('Detail')}
         >
-          <SvgDetail />
+          {isLoading === 'Detail' ? <SvgSpinner /> : <SvgDetail />}
         </Button>
 
         <WorkOrderOperationsInTableToolTips
