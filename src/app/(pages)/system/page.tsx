@@ -73,7 +73,7 @@ function SystemPage() {
             })}
           </div>
 
-          <div className="space-y-10 my-12">
+          <div className="space-y-10 my-12 ">
             {activeTab === 'rateType' && <RateTypeManager />}
             {activeTab === 'rates' && <RateConfigurationPage />}
             {activeTab === 'payment' && <PaymentMethodComponent />}
