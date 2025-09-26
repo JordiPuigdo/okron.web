@@ -22,7 +22,7 @@ async function getWorkOrders(id: string): Promise<WorkOrder> {
     });
 
     if (!res.ok) {
-      throw new Error('Failed to fetch work orders');
+      throw new Error('Failed to fetch work orders ' + url + ' ' + res.status);
     }
 
     return res.json();
@@ -62,6 +62,7 @@ export default function WorkOrderPage({ searchParams }: WorkOrderPageProps) {
 
   useEffect(() => {
     const loadData = async () => {
+      console.log('params', searchParams);
       const workOrderData = await getWorkOrders(searchParams.id);
       const configData = await getConfig();
       setOrders(workOrderData);
