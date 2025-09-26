@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { get, useFieldArray, useFormContext } from 'react-hook-form';
+import { get, useFormContext } from 'react-hook-form';
 import { usePaymentMethods } from 'app/hooks/usePaymentMethod';
 
 export const CustomerPaymentMethods = () => {
@@ -54,6 +54,22 @@ export const CustomerPaymentMethods = () => {
                   </p>
                 )}
               </div>
+              <div>
+                <label>Dies</label>
+                <input
+                  {...register('paymentMethod.days', {
+                    required: 'La descripció és obligatòria',
+                  })}
+                  className="w-full border rounded p-2"
+                  placeholder="Dies"
+                  disabled
+                />
+                {get(errors, 'paymentMethod.days') && (
+                  <p className="text-red-500 text-sm">
+                    {get(errors, 'paymentMethod.days.message')}
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
@@ -80,14 +96,16 @@ export const CustomerPaymentMethods = () => {
                   key={method.id}
                   className="flex justify-between items-center border-b py-2"
                 >
-                  <div>{method.description}</div>
+                  <div className="w-full">{method.description}</div>
+                  <div className="w-full">{method.days}</div>
                   <button
                     type="button"
-                    className="text-blue-600 hover:underline text-sm"
+                    className="text-blue-600 hover:underline text-sm w-full text-right"
                     onClick={() =>
                       setValue('paymentMethod', {
                         id: method.id,
                         description: method.description,
+                        days: method.days,
                       })
                     }
                   >
