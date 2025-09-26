@@ -1,6 +1,6 @@
 import { TranslateFn } from 'app/hooks/useTranslations';
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
-import { formatEuropeanCurrency } from 'app/utils/utils';
+import { formatCurrencyServerSider } from 'app/utils/utils';
 import dayjs from 'dayjs';
 
 export const DeliveryNoteBody = ({
@@ -64,16 +64,16 @@ export const DeliveryNoteBody = ({
                   <td className="p-2 text-sm">{item.description}</td>
                   <td className="p-2 text-center text-sm">{item.quantity}</td>
                   <td className="p-2 text-center text-sm">
-                    {formatEuropeanCurrency(item.unitPrice, t)}
+                    {formatCurrencyServerSider(item.unitPrice)}
                   </td>
                   <td className="p-2 text-center text-sm">
                     {item.discountPercentage}%
                   </td>
                   <td className="p-2 text-center text-sm">
-                    {formatEuropeanCurrency(item.discountAmount, t)}
+                    {formatCurrencyServerSider(item.discountAmount)}
                   </td>
                   <td className="p-2 text-center text-sm font-medium">
-                    {formatEuropeanCurrency(item.lineTotal, t)}
+                    {formatCurrencyServerSider(item.lineTotal)}
                   </td>
                 </tr>
               ))}
