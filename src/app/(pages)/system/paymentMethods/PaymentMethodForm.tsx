@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { PaymentMethod } from 'app/interfaces/Customer';
 
 type PaymentMethodFormProps = {
@@ -16,6 +17,7 @@ export function PaymentMethodForm({
   onCancel,
   loading,
 }: PaymentMethodFormProps) {
+  const { t } = useTranslations();
   const [form, setForm] = useState<PaymentMethod>(
     initialData ?? {
       id: '',
@@ -52,14 +54,14 @@ export function PaymentMethodForm({
     >
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Descripció
+          {t('description')}
         </label>
         <input
           type="text"
           name="description"
           value={form.description}
           onChange={handleChange}
-          placeholder="Ex: Targeta de crèdit"
+          placeholder={t('system.paymentMethods.placeholder')}
           className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
         />
       </div>
@@ -70,7 +72,7 @@ export function PaymentMethodForm({
           disabled={loading}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? 'Guardant...' : form.id ? 'Actualitzar' : 'Crear'}
+          {loading ? t('common.saving') : form.id ? t('common.update') : t('create')}
         </button>
       </div>
     </form>

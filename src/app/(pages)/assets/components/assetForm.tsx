@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Tooltip } from 'react-tooltip';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import { Asset } from 'app/interfaces/Asset';
 import AssetService from 'app/services/assetService';
@@ -34,6 +35,7 @@ const AssetForm: React.FC<AssetFormProps> = ({
   level,
   onReload,
 }) => {
+  const { t } = useTranslations();
   const { register, handleSubmit, setValue } = useForm();
   const router = useRouter();
   const ROUTES = useRoutes();
@@ -62,7 +64,7 @@ const AssetForm: React.FC<AssetFormProps> = ({
       <div className="flex flex-row w-full">
         <div className="flex flex-col w-full p-2 ">
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Codi:</label>
+            <label className="block text-gray-700 mb-2">{t('code')}:</label>
             <input
               type="text"
               {...register('code', { required: true })}
@@ -73,7 +75,7 @@ const AssetForm: React.FC<AssetFormProps> = ({
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Descripció:</label>
+            <label className="block text-gray-700 mb-2">{t('description')}:</label>
             <input
               type="text"
               {...register('description', { required: true })}
@@ -85,7 +87,7 @@ const AssetForm: React.FC<AssetFormProps> = ({
           </div>
           <div className="mb-4 items-start">
             <label className="block text-gray-700 mb-2">
-              Crea Ordre de treball:
+              {t('create.work.order')}:
             </label>
             <input
               type="checkbox"
@@ -95,7 +97,7 @@ const AssetForm: React.FC<AssetFormProps> = ({
             />
           </div>
           <div className="mb-4 items-start">
-            <label className="block text-gray-700 mb-2">Actiu:</label>
+            <label className="block text-gray-700 mb-2">{t('active')}:</label>
             <input
               type="checkbox"
               defaultChecked={assetData?.active || true}
@@ -110,7 +112,7 @@ const AssetForm: React.FC<AssetFormProps> = ({
               disabled={loading}
               className="flex items-center justify-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out"
             >
-              {loading ? <SvgSpinner /> : id !== '0' ? 'Actualitzar' : 'Afegir'}
+              {loading ? <SvgSpinner /> : id !== '0' ? t('update') : t('add')}
             </button>
             {!id ||
               (id === '0' && (
@@ -122,7 +124,7 @@ const AssetForm: React.FC<AssetFormProps> = ({
                     router.back();
                   }}
                 >
-                  {loading ? <SvgSpinner /> : 'Cancelar'}
+                  {loading ? <SvgSpinner /> : t('cancel')}
                 </button>
               ))}
             {id != '0' && (
@@ -130,13 +132,13 @@ const AssetForm: React.FC<AssetFormProps> = ({
                 href={ROUTES.preventive.preventiveForm + '?assetId=' + id}
                 className="flex items-center justify-center bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-900 transition duration-300 ease-in-out"
               >
-                Crear Revisió
+                {t('create.revision')}
               </Link>
             )}
             {id != '0' && (
               <QRButton
                 data-tooltip-id="QR"
-                data-tooltip-content="Generar QR"
+                data-tooltip-content={t('generate.qr')}
                 assetId={id || ''}
               />
             )}
@@ -145,7 +147,7 @@ const AssetForm: React.FC<AssetFormProps> = ({
         </div>
         {id != '0' && (
           <div className="w-full p-2">
-            Equip Pare
+            {t('parent.equipment')}
             <div>
               <ParentAsset currentId={id} onReload={fetch} />
             </div>
@@ -164,6 +166,7 @@ interface ParentAssetProps {
 }
 
 const ParentAsset: React.FC<ParentAssetProps> = ({ currentId, onReload }) => {
+  const { t } = useTranslations();
   const [assets, setAssets] = useState<ElementList[]>([]);
   const [filteredAssets, setFilteredAssets] = useState<ElementList[]>([]);
   const [selectedId, setSelectedId] = useState<string>('');
@@ -221,7 +224,7 @@ const ParentAsset: React.FC<ParentAssetProps> = ({ currentId, onReload }) => {
     <div className="flex flex-col pt-2 h-full">
       <input
         type="text"
-        placeholder="Buscar equip..."
+        placeholder={t('search.equipment')}
         value={searchTerm}
         onChange={e => setSearchTerm(e.target.value)}
         className="mb-4 p-2 border border-gray-300 rounded w-full"
@@ -250,7 +253,7 @@ const ParentAsset: React.FC<ParentAssetProps> = ({ currentId, onReload }) => {
           disabled={!selectedId}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
         >
-          {isloading ? <SvgSpinner /> : 'Confirmar'}
+          {isloading ? <SvgSpinner /> : t('confirm')}
         </button>
       </div>
     </div>

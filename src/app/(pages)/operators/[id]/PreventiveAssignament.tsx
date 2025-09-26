@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTranslations } from "app/hooks/useTranslations";
 import {
   AssignOperatorToPreventivesRequest,
   Preventive,
@@ -19,6 +20,7 @@ const PreventiveAssignment: React.FC<PreventiveAssignmentProps> = ({
   preventives,
   operatorPreventives,
 }) => {
+  const { t } = useTranslations();
   const [filterAvailable, setFilterAvailable] = useState(false);
   const [selectedAvailable, setSelectedAvailable] = useState<Set<string>>(
     new Set()
@@ -91,7 +93,7 @@ const PreventiveAssignment: React.FC<PreventiveAssignmentProps> = ({
   const assignOperatorToPreventives = async (id?: string) => {
     try {
       if (selectedAvailable.size === 0 && id == undefined) {
-        alert("Has de seleccionar un preventiu per assignar-lo a l'operari");
+        alert(t('must.select.preventive.assign'));
         return;
       }
 
@@ -118,14 +120,14 @@ const PreventiveAssignment: React.FC<PreventiveAssignmentProps> = ({
         setSelectedAvailable(new Set());
         setSelectedAssigned(new Set());
       } else {
-        setErrorMessage("Error assignant preventius");
+        setErrorMessage(t('error.assigning.preventives'));
         setTimeout(() => {
           setErrorMessage(null);
         }, 3000);
       }
     } catch (error) {
       console.error("Error assigning operator to preventives:", error);
-      setErrorMessage("Error assignant preventius");
+      setErrorMessage(t('error.assigning.preventives'));
       setTimeout(() => {
         setErrorMessage(null);
       }, 3000);
@@ -135,7 +137,7 @@ const PreventiveAssignment: React.FC<PreventiveAssignmentProps> = ({
   const unAssignOperatorFromPreventives = async (id?: string) => {
     try {
       if (selectedAssigned.size === 0 && id == undefined) {
-        alert("Has de seleccionar un preventiu assignat a l'operari");
+        alert(t('must.select.assigned.preventive'));
         return;
       }
 
@@ -165,7 +167,7 @@ const PreventiveAssignment: React.FC<PreventiveAssignmentProps> = ({
         setSelectedAvailable(new Set());
         setSelectedAssigned(new Set());
       } else {
-        setErrorMessage("Error desassignant preventius");
+        setErrorMessage(t('error.unassigning.preventives'));
         setTimeout(() => {
           setErrorMessage(null);
         }, 3000);
@@ -183,7 +185,7 @@ const PreventiveAssignment: React.FC<PreventiveAssignmentProps> = ({
     <div className="flex flex-col gap-4 mt-2">
       <div className="flex flex-row gap-4 mt-2">
         <PreventiveOperatorTable
-          title="Preventius"
+          title={t('preventives')}
           preventives={filteredPreventives}
           assignedPreventiveIds={
             new Set(operatorPreventivesAssigneds?.map((p) => p.id) || [])
@@ -192,18 +194,18 @@ const PreventiveAssignment: React.FC<PreventiveAssignmentProps> = ({
           onSelectAll={(selectAll) => handleSelectAll(selectAll, "available")}
           onSelect={(id) => handleSelect(id, "available")}
           onActionClick={assignOperatorToPreventives}
-          actionLabel="Assignar"
+          actionLabel={t('assign')}
           enableFilterPending={true}
         />
         <PreventiveOperatorTable
-          title="Preventius assignats al operari"
+          title={t('preventives.assigned.to.operator')}
           preventives={operatorPreventivesAssigneds}
           assignedPreventiveIds={null}
           selected={selectedAssigned}
           onSelectAll={(selectAll) => handleSelectAll(selectAll, "assigned")}
           onSelect={(id) => handleSelect(id, "assigned")}
           onActionClick={unAssignOperatorFromPreventives}
-          actionLabel="Desasignar"
+          actionLabel={t('unassign')}
         />
       </div>
       {errorMessage !== null && (

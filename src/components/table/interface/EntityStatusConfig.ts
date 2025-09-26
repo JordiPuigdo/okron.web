@@ -3,12 +3,13 @@ interface StatusConfig {
   colors: Record<string, string>;
 }
 
-export const entityStatusConfig: Record<string, StatusConfig> = {
+// Function to get entity status config with translations
+export const getEntityStatusConfig = (t: (key: string) => string): Record<string, StatusConfig> => ({
   taskInstances: {
     names: {
-      PENDING: 'Pendiente',
-      CANCELLED: 'Cancelada',
-      FINISHED: 'Finalizada',
+      PENDING: t('entity.status.pending'),
+      CANCELLED: t('entity.status.cancelled'),
+      FINISHED: t('entity.status.finished'),
     },
     colors: {
       PENDING: 'bg-hg-black500',
@@ -18,9 +19,9 @@ export const entityStatusConfig: Record<string, StatusConfig> = {
   },
   WORKORDER: {
     names: {
-      Preventive: 'Preventiu',
-      Corrective: 'Correctiu',
-      Predictive: 'Predictiu',
+      Preventive: t('entity.status.preventive'),
+      Corrective: t('entity.status.corrective'),
+      Predictive: t('entity.status.predictive'),
     },
     colors: {
       '1': 'bg-okron-preventive',
@@ -31,9 +32,9 @@ export const entityStatusConfig: Record<string, StatusConfig> = {
   },
   WORKORDERSTATE: {
     names: {
-      Preventive: 'En Curs',
-      Corrective: 'En Espera',
-      Predictive: 'Finalitzada',
+      Preventive: t('entity.status.ongoing'),
+      Corrective: t('entity.status.waiting'),
+      Predictive: t('entity.status.finished'),
     },
     colors: {
       '0': 'bg-okron-waiting',
@@ -49,9 +50,9 @@ export const entityStatusConfig: Record<string, StatusConfig> = {
   },
   OPERATOR: {
     names: {
-      Preventive: 'En Curs',
-      Corrective: 'En Espera',
-      Predictive: 'Finalitzada',
+      Preventive: t('entity.status.ongoing'),
+      Corrective: t('entity.status.waiting'),
+      Predictive: t('entity.status.finished'),
     },
     colors: {
       '0': 'bg-indigo-400',
@@ -63,9 +64,9 @@ export const entityStatusConfig: Record<string, StatusConfig> = {
   },
   STOCKMOVEMENT: {
     names: {
-      '0': 'Entrada',
-      '1': 'Consum',
-      '2': 'Transferència',
+      '0': t('entity.status.entry'),
+      '1': t('entity.status.consumption'),
+      '2': t('entity.status.transfer'),
     },
     colors: {
       '0': 'bg-okron-preventive',
@@ -75,10 +76,10 @@ export const entityStatusConfig: Record<string, StatusConfig> = {
   },
   ORDER: {
     names: {
-      '0': 'Pendent',
-      '1': 'En Procés',
-      '2': 'Completat',
-      '3': 'Cancel·lat',
+      '0': t('entity.status.pending'),
+      '1': t('entity.status.in.process'),
+      '2': t('entity.status.completed'),
+      '3': t('entity.status.cancelled'),
     },
     colors: {
       '0': 'bg-okron-waiting',
@@ -89,11 +90,11 @@ export const entityStatusConfig: Record<string, StatusConfig> = {
   },
   INVOICE: {
     names: {
-      '0': 'Borrador',
-      '1': 'Pendent',
-      '2': 'Pagada',
-      '3': "Cancel·lada",
-      '4': "Vençuda"
+      '0': t('entity.status.draft'),
+      '1': t('entity.status.pending'),
+      '2': t('entity.status.paid'),
+      '3': t('entity.status.cancelled'),
+      '4': t('entity.status.overdue')
     },
     colors: {
       '0': 'bg-okron-waiting',
@@ -105,11 +106,11 @@ export const entityStatusConfig: Record<string, StatusConfig> = {
   },
   DELIVERYNOTE: {
     names: {
-      '0': 'Borrador',
-      '1': 'Enviat',
-      '2': 'Pagat',
-      '3': 'Vençut',
-      '4': 'Cancel·lat'
+      '0': t('entity.status.draft'),
+      '1': t('entity.status.sent'),
+      '2': t('entity.status.paid.deliverynote'),
+      '3': t('entity.status.overdue.deliverynote'),
+      '4': t('entity.status.cancelled')
     },
     colors: {
       '0': 'bg-okron-waiting',
@@ -119,4 +120,6 @@ export const entityStatusConfig: Record<string, StatusConfig> = {
       '4': 'bg-okron-error'
     },
   },
-};
+});
+
+// Note: entityStatusConfig has been removed. Use getEntityStatusConfig(t) instead.

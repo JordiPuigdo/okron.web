@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { UpdateAccountRequest } from 'app/interfaces/Account';
 import { AccountService } from 'app/services/accountService';
 import Container from 'components/layout/Container';
@@ -15,6 +16,7 @@ export default function AccountDetailPage({
   params: { id: string };
 }) {
   const id = params.id;
+  const { t } = useTranslations();
   const accountService = new AccountService();
   const [Account, setAccount] = useState<UpdateAccountRequest>();
   const [isLoading, setIsLoading] = useState(false);
@@ -53,26 +55,26 @@ export default function AccountDetailPage({
         />
         {!isLoadingPage && (
           <BaseForm<UpdateAccountRequest>
-            title="Actualitza Compta Comptable"
+            title={t('update.accounting.account')}
             fields={[
               {
                 name: 'code',
-                label: 'Codi',
-                placeholder: 'Introdueix el codi',
-                rules: { required: 'El codi és obligatori' },
+                label: t('code'),
+                placeholder: t('enter.code'),
+                rules: { required: t('code.required') },
               },
               {
                 name: 'description',
-                label: 'Descripció',
-                placeholder: 'Introdueix la descripció',
-                rules: { required: 'La descripció és obligatòria' },
+                label: t('description'),
+                placeholder: t('enter.description'),
+                rules: { required: t('description.required') },
               },
               {
                 name: 'active',
-                label: 'Actiu',
-                placeholder: 'Introdueix la descripció',
+                label: t('active'),
+                placeholder: t('enter.description'),
                 type: 'checkbox',
-                rules: { required: 'La descripció és obligatòria' },
+                rules: { required: t('description.required') },
               },
             ]}
             onSubmit={handleUpdate}

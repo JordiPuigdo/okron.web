@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslations } from "app/hooks/useTranslations";
 
 import { Filters } from "../../interface/interfaceTable";
 import { EntityTable } from "../../interface/tableEntitys";
@@ -26,6 +27,7 @@ export const RenderFilters = ({
   const [filterActive, setFilterActive] = useState(true);
   const [filterSparePartsUnderStock, setFilterSparePartsUnderStock] =
     useState(false);
+  const { t } = useTranslations();
 
   const handleFilterActiveToggle = () => {
     const newActiveState = !filterActive;
@@ -47,7 +49,7 @@ export const RenderFilters = ({
           {(!filters || filters.length === 0) && (
             <input
               type="text"
-              placeholder="Filtrar"
+              placeholder={t('filters.placeholder')}
               className="text-sm bg-blue-gray-100 rounded-lg border border-gray-500"
             />
           )}
@@ -64,7 +66,7 @@ export const RenderFilters = ({
             className="flex items-center hover:cursor-pointer"
             onClick={handleFilterSparePartsUnderStockToggle}
           >
-            <span className="mr-2 text-sm text-right">Recanvis sota stock</span>
+            <span className="mr-2 text-sm text-right">{t('filters.spare.parts.under.stock')}</span>
             <input
               type="checkbox"
               checked={filterSparePartsUnderStock}
@@ -78,7 +80,7 @@ export const RenderFilters = ({
             className="flex items-center hover:cursor-pointer"
             onClick={handleFilterActiveToggle}
           >
-            <span className="mr-2 text-sm text-right">Actius</span>
+            <span className="mr-2 text-sm text-right">{t('filters.active')}</span>
             <input
               type="checkbox"
               checked={filterActive}

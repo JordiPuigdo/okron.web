@@ -1,3 +1,4 @@
+import { useTranslations } from 'app/hooks/useTranslations';
 import { WorkOrderType } from 'app/interfaces/workOrder';
 import { translateWorkOrderType } from 'app/utils/utils';
 
@@ -25,6 +26,9 @@ function getBgColor(type: WorkOrderType) {
 export const WorkOrderTypeCountComponent = ({
   workOrderTypeCount,
 }: WorkOrderTypeCountProps) => {
+
+  const {t} = useTranslations();
+
   return (
     <div className="flex items-center h-full">
       {workOrderTypeCount.map((typeCount, index) => (
@@ -36,7 +40,7 @@ export const WorkOrderTypeCountComponent = ({
         >
           <div className="flex flex-row gap-2">
             <div className="text-sm text-white">
-              {translateWorkOrderType(typeCount.workOrderType)}
+              {translateWorkOrderType(typeCount.workOrderType, t)}
             </div>
             <div className="text-sm font-semibold text-white">
               {typeCount.count}

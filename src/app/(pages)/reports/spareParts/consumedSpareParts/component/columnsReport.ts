@@ -3,44 +3,44 @@ import {
   ColumnFormat,
 } from "components/table/interface/interfaceTable";
 
-export const columnsSparePartConsumedReport: Column[] = [
+export const getColumnsSparePartConsumedReport = (t: any): Column[] => [
   {
-    label: "sparePartId",
+    label: t('spare.part.id'),
     key: "id",
     format: ColumnFormat.TEXT,
   },
   {
-    label: "Codi Recanvi",
+    label: t('spare.part.code'),
     key: "sparePartCode",
     format: ColumnFormat.TEXT,
   },
   {
-    label: "Descripció Recanvi",
+    label: t('spare.part.description'),
     key: "sparePartDescription",
     format: ColumnFormat.TEXT,
   },
   {
-    label: "Quantitat",
+    label: t('quantity'),
     key: "sparePartNumber",
     format: ColumnFormat.NUMBER,
   },
   {
-    label: "Data",
+    label: t('date'),
     key: "date",
     format: ColumnFormat.DATETIME,
   },
   {
-    label: "Codi OT",
+    label: t('work.order.code'),
     key: "workOrderCode",
     format: ColumnFormat.TEXT,
   },
   {
-    label: "Descripció OT",
+    label: t('work.order.description'),
     key: "workOrderDescription",
     format: ColumnFormat.TEXT,
   },
   {
-    label: "Operari",
+    label: t('operator'),
     key: "operator",
     format: ColumnFormat.TEXT,
   },

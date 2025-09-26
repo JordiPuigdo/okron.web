@@ -4,12 +4,15 @@ import { SvgSpinner } from 'app/icons/icons';
 import useRoutes from 'app/utils/useRoutes';
 import Link from 'next/link';
 
+import { useTranslations } from '../app/hooks/useTranslations';
+
 export default function QuickActions() {
   const [open, setOpen] = useState(false);
   const ROUTES = useRoutes();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  const {t} = useTranslations();
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -44,7 +47,7 @@ export default function QuickActions() {
             href={ROUTES.orders.orderPurchase}
             className="flex w-full items-center justify-between "
           >
-            <p>➕ Crear Comanda</p>
+            <p>➕ {t('create.order')}</p>
             {isLoading && <SvgSpinner className="w-6 h-6 " />}
           </Link>
         </div>

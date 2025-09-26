@@ -1,11 +1,14 @@
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 
+import { useTranslations } from '../../../../hooks/useTranslations';
+
 export const DeliveryNoteFooter = ({
   deliveryNote,
 }: {
   deliveryNote: DeliveryNote;
 }) => {
+  const { t } = useTranslations();
   return (
     <div className="w-full max-w-4xl mx-auto pt-2">
       {/* Totals Section */}
@@ -15,7 +18,7 @@ export const DeliveryNoteFooter = ({
           <div className="flex justify-between items-center py-2">
             <span className="font-medium text-gray-700">Base imposable:</span>
             <span className="font-medium text-gray-800">
-              {formatEuropeanCurrency(deliveryNote.subtotal)}
+              {formatEuropeanCurrency(deliveryNote.subtotal, t)}
             </span>
           </div>
 
@@ -23,7 +26,7 @@ export const DeliveryNoteFooter = ({
           <div className="flex justify-between items-center py-2 border-t border-gray-100">
             <span className="text-gray-700">IVA (21%):</span>
             <span className="text-gray-800">
-              {formatEuropeanCurrency(deliveryNote.totalTax)}
+              {formatEuropeanCurrency(deliveryNote.totalTax, t)}
             </span>
           </div>
 
@@ -39,7 +42,7 @@ export const DeliveryNoteFooter = ({
           <div className="flex justify-between items-center py-3 border-t border-gray-300 mt-2">
             <span className="font-bold text-lg text-gray-900">TOTAL:</span>
             <span className="font-bold text-lg text-gray-900">
-              {formatEuropeanCurrency(deliveryNote.total)}
+              {formatEuropeanCurrency(deliveryNote.total, t)}
             </span>
           </div>
         </div>

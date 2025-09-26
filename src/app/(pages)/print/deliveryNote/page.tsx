@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { SystemConfiguration } from 'app/interfaces/Config';
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
 
@@ -43,24 +45,36 @@ async function getConfig() {
   }
 }
 
-export async function generateMetadata({
-  searchParams,
-}: {
+interface DeliveryNotePageProps {
   searchParams: { id: string };
-}) {
-  const deliveryNote = await getDeliveryNote(searchParams.id);
-  return {
-    title: deliveryNote.code || 'Delivery Note',
-  };
 }
 
-export default async function DeliveryNotePage({
-  searchParams,
-}: {
-  searchParams: { id: string };
-}) {
-  const deliveryNote = await getDeliveryNote(searchParams.id);
-  const config = await getConfig();
+export default function DeliveryNotePage({ searchParams }: DeliveryNotePageProps) {
+  const [deliveryNote, setDeliveryNote] = useState<DeliveryNote | null>(null);
+  const [config, setConfig] = useState<SystemConfiguration | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const deliveryNoteData = await getDeliveryNote(searchParams.id);
+      const configData = await getConfig();
+      setDeliveryNote(deliveryNoteData);
+      setConfig(configData);
+    };
+    loadData();
+  }, [searchParams.id]);
+
+  useEffect(() => {
+    if (deliveryNote && config) {
+      const timer = setTimeout(() => {
+        window.print();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [deliveryNote, config]);
+
+  if (!deliveryNote || !config) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="px-4 w-full flex-grow text-sm flex flex-col">
@@ -69,11 +83,6 @@ export default async function DeliveryNotePage({
         <DeliveryNoteBody deliveryNote={deliveryNote} />
         <DeliveryNoteFooter deliveryNote={deliveryNote} />
       </div>
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `window.onload = function() { window.print(); }`,
-        }}
-      />
     </div>
   );
 }

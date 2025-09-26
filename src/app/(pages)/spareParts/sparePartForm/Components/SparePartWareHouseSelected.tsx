@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 
 interface SparePartWareHouseSelectedProps {
@@ -8,6 +9,7 @@ interface SparePartWareHouseSelectedProps {
 const SparePartWareHouseSelected: React.FC<SparePartWareHouseSelectedProps> = ({
   handleAssignWareHouse,
 }) => {
+  const { t } = useTranslations();
   const { warehouses } = useWareHouses(true);
   const [searchText, setSearchText] = useState('');
   const [selectedWareHouseId, setSelectedWareHouseId] = useState<string | null>(
@@ -34,7 +36,7 @@ const SparePartWareHouseSelected: React.FC<SparePartWareHouseSelectedProps> = ({
       <input
         type="text"
         className="w-full p-2 border rounded-md mb-2"
-        placeholder="Buscar magatzems..."
+        placeholder={t('search.warehouses')}
         value={searchText}
         onChange={e => setSearchText(e.target.value)}
         onFocus={() => setSearchText('')}
@@ -48,7 +50,7 @@ const SparePartWareHouseSelected: React.FC<SparePartWareHouseSelectedProps> = ({
             value={selectedWareHouseId || ''}
             size={5}
           >
-            <option value="">Selecciona un magatzem</option>
+            <option value="">{t('select.warehouse')}</option>
             {filteredSpareParts?.map(sp => (
               <option key={sp.id} value={sp.id}>
                 {sp.code} - {sp.description}

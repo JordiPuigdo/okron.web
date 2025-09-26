@@ -1,9 +1,17 @@
-const BUTTONS = ['Costos', 'Recanvis', 'Ordres de treball', 'Compres'];
+import { useTranslations } from 'app/hooks/useTranslations';
+
+const BUTTONS = ['costs', 'spare.parts', 'work.orders', 'purchases'];
 
 export default function ButtonsSections({
   selectedButton,
   handleButtonClick,
 }: any) {
+  const { t } = useTranslations();
+  
+  const getButtonText = (button: string) => {
+    return t(button);
+  };
+  
   return (
     <div className="flex gap-4">
       {BUTTONS.map(button => (
@@ -16,7 +24,7 @@ export default function ButtonsSections({
               : 'text-okron-main border-okron-main'
           }`}
         >
-          {button}
+          {getButtonText(button)}
         </button>
       ))}
     </div>

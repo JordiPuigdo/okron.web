@@ -1,3 +1,4 @@
+import { useTranslations } from "app/hooks/useTranslations";
 import { UserPermission } from "app/interfaces/User";
 
 interface TabWO {
@@ -5,11 +6,11 @@ interface TabWO {
   permission: UserPermission;
 }
 enum Tab {
-  OPERATORTIMES = "Temps Operaris",
-  COMMENTS = "Comentaris",
-  SPAREPARTS = "Recanvis",
-  INSPECTIONPOINTS = "Punts d'Inspecció",
-  EVENTSWORKORDER = "Events",
+  OPERATORTIMES = "OPERATORTIMES",
+  COMMENTS = "COMMENTS",
+  SPAREPARTS = "SPAREPARTS",
+  INSPECTIONPOINTS = "INSPECTIONPOINTS",
+  EVENTSWORKORDER = "EVENTSWORKORDER",
 }
 
 interface TabProps {
@@ -24,6 +25,25 @@ const TabsComponent: React.FC<TabProps> = ({
   handleTabClick,
   userPermission,
 }) => {
+  const { t } = useTranslations();
+  
+  const getTabLabel = (tabKey: string): string => {
+    switch (tabKey) {
+      case 'OPERATORTIMES':
+        return t('workorder.tabs.operator.times');
+      case 'COMMENTS':
+        return t('workorder.tabs.comments');
+      case 'SPAREPARTS':
+        return t('workorder.tabs.spare.parts');
+      case 'INSPECTIONPOINTS':
+        return t('workorder.tabs.inspection.points');
+      case 'EVENTSWORKORDER':
+        return t('workorder.tabs.events');
+      default:
+        return tabKey;
+    }
+  };
+  
   // Filter available tabs based on user's permission
   const filteredTabs = availableTabs.filter(
     (tab) => tab.permission <= userPermission
@@ -39,8 +59,7 @@ const TabsComponent: React.FC<TabProps> = ({
           }`}
           onClick={() => handleTabClick(tab.key as Tab)}
         >
-          {Tab[tab.key as keyof typeof Tab]}{" "}
-          {/* Display tab label based on enum */}
+          {getTabLabel(tab.key)}
         </p>
       ))}
     </div>

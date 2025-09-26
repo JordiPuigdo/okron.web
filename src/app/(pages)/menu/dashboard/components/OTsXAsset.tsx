@@ -1,3 +1,5 @@
+import { useTranslations } from 'app/hooks/useTranslations';
+
 import { AssetChartProps } from '../DashboardMM/DashboardMM';
 
 export default function OTsXAsset({
@@ -5,10 +7,12 @@ export default function OTsXAsset({
 }: {
   chartAssets: AssetChartProps[];
 }) {
+  const { t } = useTranslations();
+  
   return (
     <div>
       <p className="text-2xl mb-4 font-semibold text-left">
-        Top Equips amb més Correctius
+        {t('top.equipment.most.corrective')}
       </p>
 
       <ul className="grid grid-rows-3 gap-4 w-full">
@@ -22,32 +26,32 @@ export default function OTsXAsset({
                 <span className="text-lg font-semibold">{asset.asset}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-md font-semibold mr-3">
-                    {asset.number} Ordres de treball
+                    {asset.number} {t('work.orders')}
                   </span>
                   {index === 0 && (
                     <span className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
-                      1r
+                      {t('first')}
                     </span>
                   )}
                   {index === 1 && (
                     <span className="bg-yellow-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
-                      2n
+                      {t('second')}
                     </span>
                   )}
                   {index === 2 && (
                     <span className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
-                      3r
+                      {t('third')}
                     </span>
                   )}
                 </div>
               </div>
               <div className="flex space-x-2 gap-2">
                 <div className="px-4 py-1 font-semibold rounded-full bg-[#F2DADD] text-[#E14F62]">
-                  {asset.Correctius} Correctius
+                  {asset.Correctius} {t('corrective')}
                 </div>
 
                 <div className="px-4 py-1 font-semibold rounded-full bg-[#D5DFF4] text-[#4E80EE]">
-                  {asset.Preventius} Preventius
+                  {asset.Preventius} {t('preventive')}
                 </div>
               </div>
             </div>

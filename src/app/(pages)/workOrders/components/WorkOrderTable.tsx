@@ -25,6 +25,7 @@ import { EntityTable } from 'components/table/interface/tableEntitys';
 import dayjs from 'dayjs';
 import { Button } from 'designSystem/Button/Buttons';
 
+import { useTranslations } from '../../../hooks/useTranslations';
 import { WorkOrdersFiltersTable } from './WorkOrderFiltersTable/WorkOrdersFiltersTable';
 import { WorkOrderTypeCount } from './WorkOrderFiltersTable/WorkOrderTypeCount';
 
@@ -62,6 +63,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     useSessionStore(state => state);
 
   const { workOrderColumns } = usePermissions();
+  const { t } = useTranslations();
 
   const firstDayOfMonth = new Date(
     new Date().getFullYear(),
@@ -225,7 +227,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     // setFilterWorkOrders(filters);
     const workOrders = await workOrderService.getWorkOrdersWithFilters(search);
     if (workOrders.length == 0 && !firstLoad) {
-      setMessage('No hi ha ordres disponibles amb aquests filtres');
+      setMessage(t('workorder.no.orders.available'));
 
       setTimeout(() => {
         setMessage('');
@@ -244,7 +246,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
 
   const handleDeleteOrder = (orderId: string) => {
     const isConfirmed = window.confirm(
-      `Esteu segurs que voleu eliminar l'ordre de treball?`
+      t('workorders.confirm.delete')
     );
 
     if (isConfirmed) {
@@ -346,7 +348,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
       .then(response => {
         if (response) {
           setResponseMessage({
-            message: 'Ordres actualitzades correctament',
+            message: t('workorders.updated.successfully'),
             isSuccess: true,
           });
           setTimeout(() => {
@@ -360,7 +362,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
         } else {
           setTimeout(() => {
             setResponseMessage({
-              message: 'Error actualitzant ordres',
+              message: t('workorders.error.updating'),
               isSuccess: false,
             });
           }, 3000);
@@ -449,7 +451,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
               {isUpdating ? (
                 <SvgSpinner className="text-white" />
               ) : (
-                <>Finalitzar</>
+                <>{t('finalize')}</>
               )}
             </Button>
             {responseMessage && (

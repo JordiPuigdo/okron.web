@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { UserType } from 'app/interfaces/User';
 
 import AssetHeader from './components/AssetHeaderComponent';
@@ -8,8 +9,8 @@ import SparePartsConsumedsComponent from './components/SparePartsConsumedCompone
 import WorkOrderContainer from './components/WorkOrderAssetContainer';
 
 enum Tab {
-  WORK_ORDERS = 'Ordres de treball',
-  SPARE_PARTS = 'Recanvis',
+  WORK_ORDERS = 'WORK_ORDERS',
+  SPARE_PARTS = 'SPARE_PARTS',
 }
 
 export default function AssetDetailsQRPage({
@@ -17,6 +18,7 @@ export default function AssetDetailsQRPage({
 }: {
   searchParams: { id: string };
 }) {
+  const { t } = useTranslations();
   const [activeTab, setActiveTab] = useState<Tab>(Tab.WORK_ORDERS);
 
   const id = searchParams.id;
@@ -40,7 +42,7 @@ export default function AssetDetailsQRPage({
                   : 'text-gray-500 hover:text-blue-500'
               }`}
             >
-              {tab}
+              {tab === Tab.WORK_ORDERS ? t('work.orders') : t('spare.parts')}
             </button>
           ))}
         </div>
@@ -70,7 +72,7 @@ export default function AssetDetailsQRPage({
 
       <footer className="bg-blue-50 p-3 border-t">
         <div className="max-w-md mx-auto text-center text-xs text-gray-500">
-          Escaneado el {new Date().toLocaleDateString()}
+          {t('scanned.on')} {new Date().toLocaleDateString()}
         </div>
       </footer>
     </div>

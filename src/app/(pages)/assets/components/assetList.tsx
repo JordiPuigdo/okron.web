@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgCreate, SvgMachines, SvgSpinner } from 'app/icons/icons';
 import { Asset } from 'app/interfaces/Asset';
 import AssetService from 'app/services/assetService';
@@ -22,6 +23,7 @@ const AssetListItem: React.FC<Props> = ({
   searchTerm,
   expandedTargetId,
 }) => {
+  const { t } = useTranslations();
   const [expanded, setExpanded] = useState<boolean>(false);
 
   const [loadingState, setLoadingState] = useState<LoadingState>({});
@@ -77,14 +79,14 @@ const AssetListItem: React.FC<Props> = ({
             </button>
           )}
           <div className="flex-grow">
-            <strong>Codi:</strong> {asset.code} | <strong>Descripció:</strong>{' '}
+            <strong>{t('code')}:</strong> {asset.code} | <strong>{t('description')}:</strong>{' '}
             {asset.description} |{' '}
             {asset.brand && (
               <>
-                <strong>Marca:</strong> {asset.brand} |{' '}
+                <strong>{t('brand')}:</strong> {asset.brand} |{' '}
               </>
             )}
-            <strong>Nivell:</strong> {asset.level}
+            <strong>{t('level')}:</strong> {asset.level}
           </div>
           <div className="flex flex-row">
             {asset.level < 7 && (
@@ -98,7 +100,7 @@ const AssetListItem: React.FC<Props> = ({
                   }}
                   className="flex items-center mr-2 bg-okron-btCreate text-white px-2 py-1 rounded hover:bg-okron-btCreateHover"
                 >
-                  Afegir actiu
+                  {t('add.asset')}
                   {loadingState[`${asset.id}_${ButtonTypesTable.Create}`] && (
                     <span className="items-center ml-2 text-white">
                       <SvgSpinner className="w-6 h-6" />
@@ -119,7 +121,7 @@ const AssetListItem: React.FC<Props> = ({
                 }}
                 className="flex items-center mr-2 bg-okron-btEdit text-white px-2 py-1 rounded hover:bg-okron-btEditHover"
               >
-                Editar
+                {t('edit')}
                 {loadingState[`${asset.id}_${ButtonTypesTable.Edit}`] && (
                   <span className="items-center ml-2 text-white">
                     <SvgSpinner className="w-6 h-6" />
@@ -133,7 +135,7 @@ const AssetListItem: React.FC<Props> = ({
                 handleDelete(asset.id);
               }}
             >
-              Eliminar
+              {t('delete')}
               {loadingState[`${asset.id}_${ButtonTypesTable.Delete}`] && (
                 <span className="items-center ml-2 text-white">
                   <SvgSpinner className="w-6 h-6" />
@@ -161,6 +163,7 @@ const AssetListItem: React.FC<Props> = ({
 };
 
 const AssetList: React.FC = () => {
+  const { t } = useTranslations();
   const [assets, setAssets] = useState<Asset[]>([]);
   const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
   const [message, setMessage] = useState<string>('');
@@ -183,7 +186,7 @@ const AssetList: React.FC = () => {
   }, []);
 
   const handleDelete = (id: string) => {
-    const confirm = window.confirm('Segur que voleu eliminar aquest equip?');
+    const confirm = window.confirm(t('confirm.delete.equipment'));
     if (!confirm) return;
     assetService
       .deleteAsset(id)
@@ -194,7 +197,7 @@ const AssetList: React.FC = () => {
       })
       .catch(error => {
         console.error('Error al eliminar activo:', error);
-        setMessage('Error al eliminar activo');
+        setMessage(t('error.deleting.asset'));
         setTimeout(() => {
           setMessage('');
         }, 3000);
@@ -230,15 +233,15 @@ const AssetList: React.FC = () => {
         <div className="w-full flex flex-col gap-2 items">
           <h2 className="text-2xl font-bold text-black flex gap-2">
             <SvgMachines />
-            Actius i Equips
+            {t('assets.equipment')}
           </h2>
-          <span className="text-l">Inici - Llistat d'Actius i Equips</span>
+          <span className="text-l">{t('start')} - {t('assets.equipment.list')}</span>
         </div>
         <div className="w-full flex justify-end items-center">
           <Link href="/assets/0" passHref>
             <Button className="py-4" customStyles="flex gap-2">
               <SvgCreate className="text-white" />
-              Crear Equip Pare
+              {t('create.parent.equipment')}
             </Button>
           </Link>
         </div>
@@ -252,7 +255,7 @@ const AssetList: React.FC = () => {
       <div className="bg-white rounded-sm p-4 m-4 border-2">
         <input
           type="text"
-          placeholder="Buscar per codi o descripció"
+          placeholder={t('search.by.code.description')}
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
           className="flex w-full border border-gray-300 rounded"

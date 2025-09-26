@@ -1,11 +1,13 @@
 'use client';
 
 import { useRates } from 'app/hooks/useRates';
+import { useTranslations } from 'app/hooks/useTranslations';
 
 import { EditableTable } from '../EditableTable';
 import { RateTypeForm } from './RateTypeForm';
 
 export default function RateTypeManager() {
+  const { t } = useTranslations();
   const { rateTypes, createRateType, updateRateType, deleteRateType, loading } =
     useRates();
 
@@ -17,14 +19,14 @@ export default function RateTypeManager() {
     width?: string;
   }[] = [
     {
-      header: 'Códi',
+      header: t('code'),
       accessor: 'code',
       editable: true,
       inputType: 'text',
       width: 'w-32',
     },
     {
-      header: 'Descripció',
+      header: t('description'),
       accessor: 'description',
       editable: true,
       inputType: 'text',
@@ -65,17 +67,17 @@ export default function RateTypeManager() {
   return (
     <div className="space-y-6">
       <div className="bg-white shadow rounded p-6">
-        <h2 className="text-xl font-semibold mb-4">Nou tipus de tarifa</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('system.rateTypes.newType')}</h2>
         <RateTypeForm onSubmit={handleCreate} loading={loading} />
       </div>
 
       <div className="bg-white shadow rounded p-6">
         <h2 className="text-xl font-semibold mb-4">
-          Tipus de Tarifes existents
+          {t('system.rateTypes.existing')}
         </h2>
         {rateTypes.length === 0 ? (
           <p className="text-gray-500 text-sm">
-            No s'han trobat registres creats.
+            {t('system.rateTypes.noRecords')}
           </p>
         ) : (
           <EditableTable

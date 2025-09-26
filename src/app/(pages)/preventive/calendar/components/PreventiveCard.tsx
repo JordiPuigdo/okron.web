@@ -1,5 +1,8 @@
+'use client';
+
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Typography } from '@mui/material';
+import { useTranslations } from 'app/hooks/useTranslations';
 import Link from 'next/link';
 
 const styles = {
@@ -41,6 +44,7 @@ const PreventiveCard = ({
   onMouseLeave?: () => void;
   size?: 'small' | 'medium' | 'large';
 }) => {
+  const { t } = useTranslations();
   const hasWorkOrder = !!item.workOrder;
 
   const AssetBox = () => {
@@ -57,7 +61,7 @@ const PreventiveCard = ({
             minWidth: '42px',
           }}
         >
-          Equip:
+          {t('equipment')}:
         </Typography>
         <Typography
           variant="caption"
@@ -103,7 +107,7 @@ const PreventiveCard = ({
               lineHeight: 1.3,
             }}
           >
-            Preventiu:
+            {t('preventive')}:
           </Typography>
           <Typography
             variant="caption"

@@ -1,4 +1,5 @@
 import { usePermissions } from 'app/hooks/usePermissions';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { StateWorkOrder, WorkOrdersFilters } from 'app/interfaces/workOrder';
 import AutocompleteSearchBar from 'components/selector/AutocompleteSearchBar';
 import { ElementList } from 'components/selector/ElementList';
@@ -38,6 +39,7 @@ export const WorkOrdersFiltersTable = ({
   workOrderTypeCount,
 }: WorkOrdersFiltersTableProps) => {
   const { isCRM } = usePermissions();
+  const { t } = useTranslations();
   function handleCleanFilters() {
     setWorkOrdersFilters({
       workOrderType: [],
@@ -68,8 +70,8 @@ export const WorkOrdersFiltersTable = ({
     return (
       <div className="flex w-full ml-14 bg-white underline font-semibold text-sm text-red-500 justify-end items-end">
         <div className="cursor-pointer" onClick={handleCleanFilters}>
-          <div>Borrar</div>
-          <div>filtres ({numberFilters()})</div>
+          <div>{t('workorder.filters.clear')}</div>
+          <div>{t('workorder.filters.filters')} ({numberFilters()})</div>
         </div>
       </div>
     );
@@ -91,8 +93,8 @@ export const WorkOrdersFiltersTable = ({
     setSearchTerm(term);
   }
   const placeholder = isCRM
-    ? 'Buscar Codi / Descripció / Ref Client / Client / Botiga'
-    : 'Buscar Codi / Descripció';
+    ? t('workorder.search.code.description.crm')
+    : t('workorder.search.code.description');
 
   return (
     <div className="bg-white rounded-xl gap-4 p-2 shadow-md">
@@ -117,7 +119,7 @@ export const WorkOrdersFiltersTable = ({
             <AutocompleteSearchBar
               elements={assets}
               setCurrentId={handleSelectedAssetId}
-              placeholder="Buscar Equips"
+              placeholder={t('workorder.search.equipment')}
             />
           )}
           <input

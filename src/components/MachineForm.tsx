@@ -1,5 +1,8 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { Controller,useForm } from "react-hook-form";
+import { useTranslations } from "app/hooks/useTranslations";
 import Machine from "app/interfaces/machine";
 import Section from "app/interfaces/Section";
 import MachineService from "app/services/machineService";
@@ -16,6 +19,7 @@ const MachineForm: React.FC<MachineFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  const { t } = useTranslations();
   const {
     control,
     handleSubmit,
@@ -68,7 +72,7 @@ const MachineForm: React.FC<MachineFormProps> = ({
       }
       onSubmit(data);
     } catch (error) {
-      console.error("Error updating machine:", error);
+      console.error(t('error.updating.machine'), error);
     }
   };
 
@@ -79,12 +83,12 @@ const MachineForm: React.FC<MachineFormProps> = ({
     >
       {isSubmitSuccessful && (
         <div className="mb-4 text-green-500 text-center">
-          Màquina actualitzada correctament!
+          {t('machine.updated.successfully')}
         </div>
       )}
       <div className="mb-4">
         <label htmlFor="code" className="block font-medium text-gray-700">
-          Codi
+          {t('code')}
         </label>
         <Controller
           name="code"
@@ -103,7 +107,7 @@ const MachineForm: React.FC<MachineFormProps> = ({
           htmlFor="description"
           className="block font-medium text-gray-700"
         >
-          Nom
+          {t('name')}
         </label>
         <Controller
           name="description"
@@ -122,7 +126,7 @@ const MachineForm: React.FC<MachineFormProps> = ({
           htmlFor="serialNumber"
           className="block font-medium text-gray-700"
         >
-          Número de Sèrie
+          {t('serial.number')}
         </label>
         <Controller
           name="serialNumber"
@@ -138,7 +142,7 @@ const MachineForm: React.FC<MachineFormProps> = ({
       </div>
       <div className="mb-4">
         <label htmlFor="company" className="block font-medium text-gray-700">
-          Empresa
+          {t('company')}
         </label>
         <Controller
           name="company"
@@ -154,7 +158,7 @@ const MachineForm: React.FC<MachineFormProps> = ({
       </div>
       <div className="mb-4">
         <label htmlFor="section" className="block font-medium text-gray-700">
-          Secció
+          {t('section')}
         </label>
         <Controller
           name="section"
@@ -183,7 +187,7 @@ const MachineForm: React.FC<MachineFormProps> = ({
       </div>
       <div className="mb-4">
         <label htmlFor="year" className="block font-medium text-gray-700">
-          Any
+          {t('year')}
         </label>
         <Controller
           name="year"
@@ -199,7 +203,7 @@ const MachineForm: React.FC<MachineFormProps> = ({
       </div>
       <div className="mb-4">
         <label htmlFor="hours" className="block font-medium text-gray-700">
-          Hores
+          {t('hours')}
         </label>
         <Controller
           name="hours"
@@ -215,7 +219,7 @@ const MachineForm: React.FC<MachineFormProps> = ({
       </div>
       <div className="mb-4">
         <label htmlFor="active" className="block font-medium text-gray-700">
-          Activa
+          {t('active')}
         </label>
         <Controller
           name="active"
@@ -236,14 +240,14 @@ const MachineForm: React.FC<MachineFormProps> = ({
         disabled={isSubmitting}
         className="bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
       >
-        {isSubmitting ? "Guardant..." : "Guardar"}
+        {isSubmitting ? t('saving') : t('save')}
       </button>
       <button
         type="button"
         onClick={onCancel}
         className="bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-100 ml-1"
       >
-        Cancelar
+        {t('cancel')}
       </button>
     </form>
   );

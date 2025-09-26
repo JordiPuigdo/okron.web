@@ -1,15 +1,20 @@
+'use client';
+
+import { useTranslations } from 'app/hooks/useTranslations';
 import { OrderType } from 'app/interfaces/Order';
 import { HeaderTable } from 'components/layout/HeaderTable';
 
 import { TableDataOrders } from '../../components/TableDataOrders';
 
 export default function PurchaseComponent() {
+  const { t } = useTranslations();
+  
   return (
     <div className="flex flex-col h-full">
       <HeaderTable
-        title="Comanda"
-        subtitle="Inici - Llistat de Comandes"
-        createButton="Crear Comanda"
+        title={t('order')}
+        subtitle={`${t('start')} - ${t('orders.list')}`}
+        createButton={t('create.order')}
         urlCreateButton="/orders/orderForm?isPurchase=true"
       />
       <TableDataOrders

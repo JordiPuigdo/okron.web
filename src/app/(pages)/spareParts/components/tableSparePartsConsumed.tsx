@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import DatePicker from "react-datepicker";
+import { useTranslations } from "app/hooks/useTranslations";
 import {
   SparePartDetailRequest,
   SparePartPerAssetResponse,
@@ -21,6 +22,7 @@ export default function TableSparePartsConsumed({
   sparePartsPerAsset?: SparePartPerAssetResponse[];
   searchPlaceHolder: string;
 }) {
+  const { t } = useTranslations();
   const currentDate = new Date();
   currentDate.setDate(currentDate.getDate() - 15);
 
@@ -62,7 +64,7 @@ export default function TableSparePartsConsumed({
       .getSparePartHistoryByDates(x)
       .then((response) => {
         if (response.length == 0) {
-          setErrorMessage("No hi ha recanvis disponibles amb aquests filtres");
+          setErrorMessage(t('spareParts.noResultsFilter'));
           setTimeout(() => {
             setErrorMessage("");
           }, 3000);
@@ -92,10 +94,10 @@ export default function TableSparePartsConsumed({
   return (
     <div className="overflow-x-auto mt-4 bg-gray-400 p-4 rounded-lg mb-6">
       <div className="mb-4 text-white text-lg font-semibold">
-        Unitats de recanvi consumides
+        {t('spareParts.consumedUnits')}
       </div>
       <div className="flex items-center space-x-4 pb-4">
-        <span className="text-white pr-3">Data Inici:</span>
+        <span className="text-white pr-3">{t('start')}:</span>
         <DatePicker
           id="startDate"
           selected={startDate}
@@ -104,7 +106,7 @@ export default function TableSparePartsConsumed({
           locale={ca}
           className="p-3 border border-gray-300 rounded-md text-lg bg-white text-gray-900"
         />
-        <span className="text-white pr-3">Data Fi:</span>
+        <span className="text-white pr-3">{t('spareParts.endDate')}:</span>
         <DatePicker
           id="endDate"
           selected={endDate}
@@ -118,7 +120,7 @@ export default function TableSparePartsConsumed({
           onClick={filterSpareParts}
           className="bg-blue-500 text-white ml-4 px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300 "
         >
-          Filtrar per dates
+          {t('spareParts.filterByDates')}
         </button>
         <input
           type="text"
@@ -141,31 +143,31 @@ export default function TableSparePartsConsumed({
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              Equip
+              {t('equipment')}
             </th>
             <th
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              Unitats
+              {t('spareParts.units')}
             </th>
             <th
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              Dia
+              {t('spareParts.day')}
             </th>
             <th
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              Operari
+              {t('operator')}
             </th>
             <th
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              Detall Ordre
+              {t('spareParts.orderDetail')}
             </th>
           </tr>
         </thead>
@@ -173,7 +175,7 @@ export default function TableSparePartsConsumed({
           <tr className="bg-gray-100">
             <td className="px-6 py-4 whitespace-nowrap">
               <div className="text-sm text-gray-900 font-semibold">
-                Total Unitats Consumides
+                {t('spareParts.totalConsumedUnits')}
               </div>
             </td>
             <td
@@ -189,7 +191,7 @@ export default function TableSparePartsConsumed({
           disabled={currentPage === 1}
           className="mr-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300 disabled:opacity-50"
         >
-          Anterior
+          {t('previous')}
         </button>
 
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -210,7 +212,7 @@ export default function TableSparePartsConsumed({
           disabled={currentPage === totalPages}
           className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300 disabled:opacity-50"
         >
-          Següent
+          {t('next')}
         </button>
       </div>
     </div>

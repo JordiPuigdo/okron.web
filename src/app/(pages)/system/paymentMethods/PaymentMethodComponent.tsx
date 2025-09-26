@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { usePaymentMethods } from 'app/hooks/usePaymentMethod';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import { PaymentMethod } from 'app/interfaces/Customer';
 
@@ -9,6 +10,7 @@ import { EditableTable } from '../rates/components/EditableTable';
 import { PaymentMethodForm } from './PaymentMethodForm';
 
 function PaymentMethodComponent() {
+  const { t } = useTranslations();
   const { paymentMethods, loading, error, create, update, remove } =
     usePaymentMethods();
   const [editing, setEditing] = useState<PaymentMethod | null>(null);
@@ -16,13 +18,13 @@ function PaymentMethodComponent() {
 
   const columns = [
     {
-      header: 'Descripció',
+      header: t('description'),
       accessor: 'description',
       editable: true,
       inputType: 'text',
     },
     {
-      header: 'Actiu',
+      header: t('active'),
       accessor: 'active',
       editable: true,
       inputType: 'checkbox',
@@ -36,7 +38,7 @@ function PaymentMethodComponent() {
     await update({ id, ...newData } as PaymentMethod);
   };
   const handleDelete = async (id: string) => {
-    if (window.confirm('Segur que vols eliminar aquest mètode de pagament?')) {
+    if (window.confirm(t('system.paymentMethods.confirmDelete'))) {
       await remove(id);
     }
   };
@@ -63,7 +65,7 @@ function PaymentMethodComponent() {
     <div className="space-y-6">
       <div className="bg-white shadow rounded p-6">
         <h2 className="text-xl font-semibold mb-4">
-          Configuració de Mètodes de Pagament
+          {t('system.paymentMethods.configuration')}
         </h2>
         <PaymentMethodForm
           initialData={editing ?? undefined}
@@ -84,7 +86,7 @@ function PaymentMethodComponent() {
       {!loading && (
         <div className="bg-white shadow rounded p-6">
           <h2 className="text-xl font-semibold mb-4">
-            Mètodes de pagament existents
+            {t('system.paymentMethods.existing')}
           </h2>
           <EditableTable
             columns={columns}

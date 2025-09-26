@@ -1,5 +1,6 @@
 'use client';
 import { useProviders } from 'app/hooks/useProviders';
+import { useTranslations } from 'app/hooks/useTranslations';
 import DataTable from 'components/table/DataTable';
 import {
   Column,
@@ -11,15 +12,16 @@ import {
 import { EntityTable } from 'components/table/interface/tableEntitys';
 
 export const TableProvider = () => {
+  const { t } = useTranslations();
   const { providers } = useProviders(true);
 
   return (
     <DataTable
       data={providers ?? []}
-      columns={columnsProviders}
+      columns={getColumnsProviders(t)}
       entity={EntityTable.PROVIDER}
       tableButtons={tableButtons}
-      filters={filters}
+      filters={getFiltersProviders(t)}
     />
   );
 };
@@ -27,62 +29,62 @@ const tableButtons: TableButtons = {
   edit: true,
   detail: true,
 };
-const columnsProviders: Column[] = [
+const getColumnsProviders = (t: any): Column[] => [
   {
-    label: 'ID',
+    label: t('common.id'),
     key: 'id',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'NIE',
+    label: t('nie'),
     key: 'nie',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Nom',
+    label: t('name'),
     key: 'name',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Email',
+    label: t('email'),
     key: 'email',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Ciutat',
+    label: t('city'),
     key: 'city',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Adreça',
+    label: t('address'),
     key: 'address',
     format: ColumnFormat.TEXT,
   },
 ];
 
-const filters: Filters[] = [
+const getFiltersProviders = (t: any): Filters[] => [
   {
-    label: 'Nom',
+    label: t('name'),
     key: 'name',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'NIE',
+    label: t('nie'),
     key: 'nie',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Email',
+    label: t('email'),
     key: 'email',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Ciutat',
+    label: t('city'),
     key: 'city',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Adreça',
+    label: t('address'),
     key: 'address',
     format: FiltersFormat.TEXT,
   },

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import Machine from 'app/interfaces/machine';
 import WorkOrder, {
   AddWorkOrderOperatorTimes,
@@ -11,6 +12,7 @@ import MainLayout from 'components/layout/MainLayout';
 import { useRouter } from 'next/router';
 
 const MachineDetailsPage = () => {
+  const { t } = useTranslations();
   const router = useRouter();
   const { id } = router.query;
   const [machine, setMachine] = useState<Machine | null>();
@@ -72,7 +74,7 @@ const MachineDetailsPage = () => {
   };
 
   if (!machine) {
-    return <p>Carregant detall de màquina...</p>;
+    return <p>{t('loading.machine.detail')}</p>;
   }
 
   return (
@@ -86,12 +88,12 @@ const MachineDetailsPage = () => {
         </div>
         <div className="flex-grow mr-6">
           <h2 className="text-2xl font-semibold mb-4">{machine.description}</h2>
-          <p className="text-gray-600 mb-8">Companyia: {machine.company}</p>
-          <p className="text-gray-600 mb-8">Secció: {machine.section}</p>
+          <p className="text-gray-600 mb-8">{t('company')}: {machine.company}</p>
+          <p className="text-gray-600 mb-8">{t('section')}: {machine.section}</p>
           <p className="text-gray-600 mb-8">
-            Número de Sèrie: {machine.serialNumber}
+            {t('serial.number')}: {machine.serialNumber}
           </p>
-          <p className="text-gray-600 mb-8">Any: {machine.year}</p>
+          <p className="text-gray-600 mb-8">{t('year')}: {machine.year}</p>
         </div>
 
         <div className="flex-grow mr-6">
@@ -110,7 +112,7 @@ const MachineDetailsPage = () => {
                   <h4 className="text-lg font-semibold mb-2">
                     {op.description}
                   </h4>
-                  <p className="text-gray-600 mb-2">Estat:</p>
+                  <p className="text-gray-600 mb-2">{t('state')}:</p>
                 </div>
               ))}
             </div>
@@ -128,16 +130,16 @@ const MachineDetailsPage = () => {
                   onClick={() => startWorkOrder(selectedWorkOrderId)}
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-2 mr-1"
                 >
-                  Inici
+                  {t('start')}
                 </button>
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-2 mr-1">
-                  Pausa
+                  {t('pause')}
                 </button>
                 <button
                   onClick={() => finishWorkOrder(selectedWorkOrderId)}
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 >
-                  Final
+                  {t('end')}
                 </button>
               </div>
               {/*selectedWorkOrderId !== null &&
@@ -158,7 +160,7 @@ const MachineDetailsPage = () => {
                   </div>
                 ))*/}
               <div>
-                <p className="text-xl font-bold mb-4">Recanvis</p>
+                <p className="text-xl font-bold mb-4">{t('spare.parts')}</p>
                 <div>
                   {selectedWorkOrderId !== null &&
                     WorkOrder.find(
@@ -173,7 +175,7 @@ const MachineDetailsPage = () => {
                             {sparePart.sparePart.description}
                           </h4>
                           <h4 className="text-lg font-semibold">
-                            Stock: {sparePart.sparePart.stock}
+                            {t('stock')}: {sparePart.sparePart.stock}
                           </h4>
                         </div>
                       </div>
@@ -183,19 +185,19 @@ const MachineDetailsPage = () => {
 
               <div className="text-center">
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-2 mr-1">
-                  Guardar
+                  {t('save')}
                 </button>
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-2 mr-1">
-                  Recanvis
+                  {t('spare.parts')}
                 </button>
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-2 mr-1">
-                  Notes
+                  {t('notes')}
                 </button>
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-2 mr-1">
-                  Manual
+                  {t('manual')}
                 </button>
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                  Finalitzar
+                  {t('finalize')}
                 </button>
               </div>
             </>
@@ -211,22 +213,22 @@ const MachineDetailsPage = () => {
               }`}
               onClick={() => toggleVisibility('Preventive')}
             >
-              Predictiu
+              {t('predictive')}
             </button>
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold h-full border-2 border-white px-4">
-              Correctiu
+              {t('corrective')}
             </button>
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold h-full border-2 border-white px-4">
-              Preventiu
+              {t('preventive')}
             </button>
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold h-full border-2 border-white px-4">
-              Recanvis
+              {t('spare.parts')}
             </button>
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold h-full border-2 border-white px-4">
-              Manual
+              {t('manual')}
             </button>
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold h-full border-2 border-white px-4">
-              Històric
+              {t('history')}
             </button>
           </div>
         </div>

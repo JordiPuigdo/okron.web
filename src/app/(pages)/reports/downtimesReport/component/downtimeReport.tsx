@@ -26,6 +26,7 @@ import { Button } from 'designSystem/Button/Buttons';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { useTranslations } from '../../../../hooks/useTranslations';
 import {
   calculateDowntimeCount,
   calculateTotalDowntimeMWO,
@@ -60,7 +61,7 @@ const DowntimeReport: React.FC<DowntimeReportProps> = ({
   const [onlyTickets, setOnlyTickets] = useState(true);
   // const [onlyMaintenance, setOnlyMaintenance] = useState(false);
   const router = useRouter();
-
+  const { t } = useTranslations();
   const toggleExpand = (assetCode: string) => {
     setExpandedAssets(prev => {
       const newSet = new Set(prev);
@@ -117,25 +118,25 @@ const DowntimeReport: React.FC<DowntimeReportProps> = ({
                   <span className="text-xl font-bold text-gray-800">
                     {asset.assetCode} - {asset.assetDescription}
                   </span>
-                  <span className="text-sm text-gray-500">Nivell: {level}</span>
+                  <span className="text-sm text-gray-500">{t('level')}: {level}</span>
                 </div>
 
                 <div className="flex flex-wrap gap-4 mt-2">
                   <div className="flex-1 p-2 text-center bg-gray-200 rounded-md">
                     <span className="block text-sm text-gray-600">
-                      Total Tickets
+                      {t('total')} {t('tickets')}
                     </span>
                     <span className="text-lg font-semibold">
                       {downtimeCount}
                     </span>
                   </div>
                   <div className="flex-1 p-2 text-center bg-yellow-200 rounded-md">
-                    <span className="block text-sm text-gray-600">Temps</span>
+                    <span className="block text-sm text-gray-600">{t('time')}</span>
                     <span className="text-lg font-semibold">{totalTime}</span>
                   </div>
                   <div className="flex-1 p-2 text-center bg-red-200 rounded-md">
                     <span className="block text-sm text-gray-600">
-                      Producció
+                      {t('production')}
                     </span>
                     <span className="text-lg font-semibold">
                       {totalTimeProd}
@@ -143,7 +144,7 @@ const DowntimeReport: React.FC<DowntimeReportProps> = ({
                   </div>
                   <div className="flex-1 p-2 text-center bg-blue-200 rounded-md">
                     <span className="block text-sm text-gray-600">
-                      Manteniment
+                      {t('maintenance')}
                     </span>
                     <span className="text-lg font-semibold">
                       {totalTimeMaintenance}
@@ -248,18 +249,18 @@ const DowntimeReport: React.FC<DowntimeReportProps> = ({
           >
             <div className="w-full flex flex-col border-r-2 gap-2">
               <div className="w-full flex gap-1 ">
-                <span className="text-white font-bold">Inici:</span>
+                <span className="text-white font-bold">{t('start')}:</span>
                 <span className="text-white">
                   {formatDate(downtime.startTime)}
                 </span>
-                <span className="text-white font-bold">Final:</span>
+                <span className="text-white font-bold">{t('end')}:</span>
                 <span className="text-white">
                   {formatDate(downtime.endTime)}
                 </span>
               </div>
 
               <div className="flex items-start gap-1">
-                <span className="text-white font-semibold">Total:</span>
+                <span className="text-white font-semibold">{t('total')}:</span>
                 <span className="text-white">
                   {calculateTimeDifference(
                     downtime.startTime,
@@ -272,7 +273,7 @@ const DowntimeReport: React.FC<DowntimeReportProps> = ({
               <div className="flex flex-col gap-2 items-end">
                 <span className="text-white font-semibold">
                   {translateDowntimeReasonType(
-                    downtime.originDownTime as unknown as DowntimesReasonsType
+                    downtime.originDownTime as unknown as DowntimesReasonsType, t
                   )}
                 </span>
                 <div className="flex flex-wrap">
@@ -309,7 +310,7 @@ const DowntimeReport: React.FC<DowntimeReportProps> = ({
             </svg>
           </div>
           <div className="flex w-full text-center justify-center">
-            Report Tickets
+            {t('tickets.report')}
           </div>
         </div>
         <div className="mb-6 ">
@@ -332,15 +333,15 @@ const DowntimeReport: React.FC<DowntimeReportProps> = ({
             />
 
             <Button type="create" onClick={() => reloadData}>
-              Buscar
+              {t('search')}
             </Button>
             <div
               className="flex items-center gap-4 cursor-pointer"
               onClick={() => setOnlyTickets(!onlyTickets)}
             >
               <div className="flex flex-col">
-                <span>Només</span>
-                <span>Tickets</span>
+                <span>{t('only')}</span>
+                <span>{t('tickets')}</span>
               </div>
               <input
                 type="checkbox"
@@ -369,7 +370,7 @@ const DowntimeReport: React.FC<DowntimeReportProps> = ({
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Buscar per equip, codi d'operació o motiu"
+            placeholder={t('search.equipment.operation.reason')}
             className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-200"
           />
         </div>
@@ -382,7 +383,7 @@ const DowntimeReport: React.FC<DowntimeReportProps> = ({
         <>
           {downtimesTicketReport.length === 0 ? (
             <p className="text-center text-gray-500">
-              No hi ha registres amb aquest filtre.
+              {t('no.records.with.filter')}
             </p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-1 gap-6">

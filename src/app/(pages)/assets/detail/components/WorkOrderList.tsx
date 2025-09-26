@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import WorkOrder from 'app/interfaces/workOrder';
 import { translateStateWorkOrder } from 'app/utils/utils';
@@ -13,10 +14,11 @@ const WorkOrderList = ({ workOrders }: WorkOrderListProps) => {
   const now = new Date();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<string | undefined>(undefined);
+  const { t } = useTranslations();
 
   if (workOrders.length === 0) {
     return (
-      <p className="text-gray-500">No se encontraron órdenes de trabajo</p>
+      <p className="text-gray-500">{t('no.work.orders.found')}</p>
     );
   }
 
@@ -27,7 +29,7 @@ const WorkOrderList = ({ workOrders }: WorkOrderListProps) => {
 
   return (
     <div className="space-y-3">
-      <h3 className="font-semibold text-lg">Ordres de treball</h3>
+      <h3 className="font-semibold text-lg">{t('work.orders')}</h3>
       <ul className="divide-y divide-gray-200">
         {workOrders.map(order => (
           <li
@@ -48,7 +50,7 @@ const WorkOrderList = ({ workOrders }: WorkOrderListProps) => {
             </p>
             <div className="flex gap-4">
               <p className="text-sm text-gray-500">
-                {translateStateWorkOrder(order.stateWorkOrder)}
+                {translateStateWorkOrder(order.stateWorkOrder, t)}
               </p>
               <p className="text-sm text-gray-500">
                 {dayjs(order.creationDate).format('DD/MM/YYYY')}

@@ -86,6 +86,21 @@ export const translateWorkOrderEventType = (
   }
 };
 
+export const translateInvoiceStatus = (status: InvoiceStatus, t: (key: string) => string): string => {
+  switch (status) {
+    case InvoiceStatus.Draft:
+      return t('invoice.status.draft');
+    case InvoiceStatus.Paid:
+      return t('invoice.status.paid');
+    case InvoiceStatus.Overdue:
+      return t('invoice.status.overdue');
+    case InvoiceStatus.Cancelled:
+      return t('invoice.status.cancelled');
+    default:
+      return t('invoice.status.unknown');
+  }
+};
+
 export const translateInvoiceItemType = (type: InvoiceItemType): string => {
   switch (type) {
     case InvoiceItemType.Labor:
@@ -96,6 +111,21 @@ export const translateInvoiceItemType = (type: InvoiceItemType): string => {
       return 'Altres';
     default:
       return 'Desconegut';
+  }
+};
+
+export const getInvoiceStatusColor = (status: InvoiceStatus): string => {
+  switch (status) {
+    case InvoiceStatus.Draft:
+      return 'bg-gray-100 text-gray-800';
+    case InvoiceStatus.Paid:
+      return 'bg-green-100 text-green-800';
+    case InvoiceStatus.Overdue:
+      return 'bg-red-100 text-red-800';
+    case InvoiceStatus.Cancelled:
+      return 'bg-yellow-100 text-yellow-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
   }
 };
 

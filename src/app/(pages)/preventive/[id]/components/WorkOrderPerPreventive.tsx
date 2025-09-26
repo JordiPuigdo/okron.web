@@ -14,6 +14,8 @@ import ca from 'date-fns/locale/ca';
 import dayjs from 'dayjs';
 import { Button } from 'designSystem/Button/Buttons';
 
+import { useTranslations } from '../../../../hooks/useTranslations';
+
 interface WorkOrderPerPreventiveProps {
   id: string;
   title?: string;
@@ -29,6 +31,7 @@ export const WorkOrderPerPreventive = ({
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
+  const { t } = useTranslations();
   const Routes = useRoutes();
 
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
@@ -53,7 +56,7 @@ export const WorkOrderPerPreventive = ({
         }
       })
       .catch(error => {
-        console.error('Error fetching work orders:', error);
+        console.error(t('error.fetching.workorders'), error);
       });
   };
   const toggleLoading = (id: string) => {
@@ -83,7 +86,7 @@ export const WorkOrderPerPreventive = ({
       {title && <p className="text-lg font-semibold mb-2">{title}</p>}
       <div className="flex gap-2">
         <div className="flex gap-2 items-center justify-center">
-          <p>Inci:</p>
+          <p>{t('start')}:</p>
           <DatePicker
             id="startDate"
             selected={startDate}
@@ -94,7 +97,7 @@ export const WorkOrderPerPreventive = ({
           />
         </div>
         <div className="flex gap-2 items-center">
-          <p>Final:</p>
+          <p>{t('end')}:</p>
           <DatePicker
             id="endDate"
             selected={endDate}
@@ -110,18 +113,18 @@ export const WorkOrderPerPreventive = ({
             onClick={() => handleSearch()}
             customStyles="flex"
           >
-            {isLoading[id + '_Search'] ? <SvgSpinner /> : 'Buscar'}
+            {isLoading[id + '_Search'] ? <SvgSpinner /> : t('search')}
           </Button>
         </div>
       </div>
       <div className="flex flex-col w-full py-2 border-b">
         <div className="flex bg-gray-100 w-full rounded">
-          <div className="p-2 w-full font-semibold">Codi</div>
-          <div className="p-2 w-full font-semibold">Descripció</div>
-          <div className="p-2 w-full font-semibold">Data</div>
-          <div className="p-2 w-full font-semibold">Estat</div>
+          <div className="p-2 w-full font-semibold">{t('code')}</div>
+          <div className="p-2 w-full font-semibold">{t('description')}</div>
+          <div className="p-2 w-full font-semibold">{t('date')}</div>
+          <div className="p-2 w-full font-semibold">{t('state')}</div>
           <div className="p-2 flex w-full font-semibold justify-center">
-            Detall
+            {t('detail')}
           </div>
         </div>
         <div>
@@ -141,7 +144,7 @@ export const WorkOrderPerPreventive = ({
                   {formatDate(workOrder.creationTime)}
                 </div>
                 <div className="p-2 w-full">
-                  {translateStateWorkOrder(workOrder.stateWorkOrder)}
+                  {translateStateWorkOrder(workOrder.stateWorkOrder, t)}
                 </div>
                 {dayjs(workOrder.startTime).isBefore(now) && (
                   <Button
@@ -176,10 +179,10 @@ export const WorkOrderPerPreventive = ({
           onClick={() => setCurrentPage(currentPage - 1)}
           disabled={currentPage === 1}
         >
-          Anterior
+          {t('previous')}
         </button>
         <span className="text-gray-600">
-          Pàgina {currentPage} de {Math.ceil(workOrders.length / itemsPerPage)}
+          {t('page')} {currentPage} {t('of')} {Math.ceil(workOrders.length / itemsPerPage)}
         </span>
         <button
           className={`px-4 py-2 rounded-md ${
@@ -190,7 +193,7 @@ export const WorkOrderPerPreventive = ({
           onClick={() => setCurrentPage(currentPage + 1)}
           disabled={indexOfLastItem >= workOrders.length}
         >
-          Següent
+          {t('next')}
         </button>
       </div>
     </div>

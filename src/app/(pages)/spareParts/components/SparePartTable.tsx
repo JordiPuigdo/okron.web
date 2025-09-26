@@ -25,6 +25,8 @@ import { EntityTable } from 'components/table/interface/tableEntitys';
 import ca from 'date-fns/locale/ca';
 import { Button } from 'designSystem/Button/Buttons';
 
+import { useTranslations } from '../../../hooks/useTranslations';
+
 interface SparePartTableProps {
   enableFilterAssets?: boolean;
   enableFilters: boolean;
@@ -39,137 +41,137 @@ interface SparePartTableProps {
   timer?: number;
 }
 
-const columns: Column[] = [
+const getColumns = (t: any): Column[] => [
   {
     label: 'ID',
     key: 'id',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Codi',
+    label: t('spareParts.code'),
     key: 'code',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Descripció',
+    label: t('spareParts.description'),
     key: 'description',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Família',
+    label: t('spareParts.family'),
     key: 'family',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Ubicació',
+    label: t('spareParts.location'),
     key: 'ubication',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Ref. Proveïdor',
+    label: t('spareParts.providerRef'),
     key: 'refProviders',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Mín',
+    label: t('spareParts.min'),
     key: 'minium',
     format: ColumnFormat.NUMBER,
     align: ColumnnAlign.RIGHT,
   },
   {
-    label: 'Màx',
+    label: t('spareParts.max'),
     key: 'maximum',
     format: ColumnFormat.NUMBER,
     align: ColumnnAlign.RIGHT,
   },
   {
-    label: 'Stock',
+    label: t('spareParts.stock'),
     key: 'stock',
     format: ColumnFormat.NUMBER,
     align: ColumnnAlign.RIGHT,
   },
 ];
 
-const columnsPerAsset: Column[] = [
+const getColumnsPerAsset = (t: any): Column[] => [
   {
     label: 'ID',
     key: 'id',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Codi OT',
+    label: t('work.order.code'),
     key: 'workOrderCode',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Data Consum',
+    label: t('spareParts.consumptionDate'),
     key: 'dateConsume',
     format: ColumnFormat.DATE,
   },
   {
-    label: 'Descripció OT',
+    label: t('work.order.description'),
     key: 'workOrderDescription',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Operari',
+    label: t('operator'),
     key: 'operatorName',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Codi Recanvi',
+    label: t('spare.part.code'),
     key: 'sparePartCode',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Descripció Recanvi',
+    label: t('spare.part.description'),
     key: 'sparePartDescription',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Quantitat',
+    label: t('quantity'),
     key: 'sparePartQuantity',
     format: ColumnFormat.NUMBER,
   },
 ];
 
-const filtersPerAsset: Filters[] = [
+const getFiltersPerAsset = (t: any): Filters[] => [
   {
     key: 'sparePartCode',
-    label: 'Codi Recanvi',
+    label: t('spare.part.code'),
     format: FiltersFormat.TEXT,
   },
   {
     key: 'sparePartDescription',
-    label: 'Descripció Recanvi',
+    label: t('spare.part.description'),
     format: FiltersFormat.TEXT,
   },
 ];
 
-const filters: Filters[] = [
+const getFilters = (t: any): Filters[] => [
   {
     key: 'code',
-    label: 'Codi',
+    label: t('spareParts.code'),
     format: FiltersFormat.TEXT,
   },
   {
     key: 'description',
-    label: 'Descripció',
+    label: t('spareParts.description'),
     format: FiltersFormat.TEXT,
   },
   {
     key: 'family',
-    label: 'Família',
+    label: t('spareParts.family'),
     format: FiltersFormat.TEXT,
   },
   {
     key: 'ubication',
-    label: 'Ubicació',
+    label: t('spareParts.location'),
     format: FiltersFormat.TEXT,
   },
   {
     key: 'refProviders',
-    label: 'Ref. Proveïdor',
+    label: t('spareParts.providerRef'),
     format: FiltersFormat.TEXT,
   },
 ];
@@ -187,6 +189,7 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
   enableFilterActive = true,
   timer = 0,
 }) => {
+  const { t } = useTranslations();
   const [spareParts, setSpareParts] = useState<SparePart[]>([]);
   const [sparePartsPerAsset, setSparePartsPerAsset] = useState<
     SparePartPerAssetResponse[]
@@ -201,6 +204,11 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string>('');
   const { isCRM } = usePermissions();
+
+  const columns = getColumns(t);
+  const columnsPerAsset = getColumnsPerAsset(t);
+  const filtersPerAsset = getFiltersPerAsset(t);
+  const filters = getFilters(t);
 
   const tableButtons: TableButtons = {
     edit: enableEdit,
@@ -218,12 +226,12 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
             columns.push(
               {
                 key: 'rrp',
-                label: 'Preu',
+                label: t('price'),
                 format: ColumnFormat.PRICE,
                 align: ColumnnAlign.RIGHT,
               },
               {
-                label: 'Pdt.',
+                label: t('pending'),
                 key: 'pendingQuantity',
                 format: ColumnFormat.NUMBER,
                 align: ColumnnAlign.RIGHT,
@@ -232,11 +240,11 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
               },
               {
                 key: 'lastMovementConsume',
-                label: 'Últim Consum',
+                label: t('spareParts.lastConsumption'),
                 format: ColumnFormat.DATETIME,
               },
               {
-                label: 'Actiu',
+                label: t('active'),
                 key: 'active',
                 format: ColumnFormat.BOOLEAN,
               }
@@ -246,13 +254,13 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
           if (!columns.find(x => x.key === 'price')) {
             columns.push(
               {
-                label: 'Preu',
+                label: t('price'),
                 key: 'price',
                 format: ColumnFormat.PRICE,
                 align: ColumnnAlign.RIGHT,
               },
               {
-                label: 'Pdt.',
+                label: t('pending'),
                 key: 'pendingQuantity',
                 format: ColumnFormat.NUMBER,
                 align: ColumnnAlign.RIGHT,
@@ -261,11 +269,11 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
               },
               {
                 key: 'lastMovementConsume',
-                label: 'Últim Consum',
+                label: t('spareParts.lastConsumption'),
                 format: ColumnFormat.DATETIME,
               },
               {
-                label: 'Actiu',
+                label: t('active'),
                 key: 'active',
                 format: ColumnFormat.BOOLEAN,
               }
@@ -296,7 +304,7 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
 
   const handleSparePartActiveChange = async (id: string) => {
     const isConfirmed = window.confirm(
-      'Segur que voleu eliminar aquest recanvi?'
+      t('spareParts.confirmDelete')
     );
     if (isConfirmed) {
       await sparePartService.deleteSparePart(id).then(data => {
@@ -327,7 +335,7 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
       .getSparePartHistoryByDates(x)
       .then(response => {
         if (response.length == 0) {
-          setMessage('No hi ha recanvis disponibles amb aquests filtres');
+          setMessage(t('spareParts.noResultsFilter'));
           setSparePartsPerAsset([]);
 
           setTimeout(() => {
@@ -357,7 +365,7 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
         <div className="flex gap-4 p-2 my-4 items-center">
           <div className="flex items-center">
             <label htmlFor="startDate" className="mr-2">
-              Inici
+              {t('start')}
             </label>
             <DatePicker
               id="startDate"
@@ -370,7 +378,7 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
           </div>
           <div className="flex items-center">
             <label htmlFor="endDate" className="mr-2">
-              Final
+              {t('spareParts.endDate')}
             </label>
             <DatePicker
               id="endDate"
@@ -386,7 +394,7 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
             className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 flex items-center"
             onClick={e => handleSearch()}
           >
-            Buscar
+            {t('search')}
             {isLoading && <SvgSpinner style={{ marginLeft: '0.5rem' }} />}
           </button>
           {message != '' && (
@@ -403,9 +411,9 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
         <div className="w-full flex flex-col gap-2  justify-between">
           <h2 className="text-2xl font-bold text-black flex gap-2 flex-grow">
             <SvgMachines />
-            Recanvis
+            {t('sidebar.spareParts')}
           </h2>
-          <span className="text-l self-start">Inici - Llistat de Recanvis</span>
+          <span className="text-l self-start">{t('spareParts.listTitle')}</span>
         </div>
         <div className="w-full flex flex-col justify-end items-end gap-2 ">
           <Button
@@ -415,7 +423,7 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
             href="/spareParts/sparePartForm"
           >
             <SvgCreate />
-            Crear Recanvi
+            {t('spareParts.createSparePart')}
             {isLoading && <SvgSpinner className="w-6 h-6" />}
           </Button>
         </div>
@@ -428,7 +436,7 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
       {enableCreate && (
         <>
           {loading ? (
-            <p>Carregant dades...</p>
+            <p>{t('loading')}</p>
           ) : (
             <>
               {loginUser != undefined && loginUser?.permission > 0 && (

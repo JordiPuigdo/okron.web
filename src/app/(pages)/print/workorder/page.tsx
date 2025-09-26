@@ -1,3 +1,7 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SystemConfiguration } from 'app/interfaces/Config';
 import WorkOrder, { WorkOrderType } from 'app/interfaces/workOrder';
 import Loader from 'components/Loader/loader';
@@ -47,26 +51,35 @@ async function getConfig() {
   }
 }
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: { id: string };
-}) {
-  const orders = await getWorkOrders(searchParams.id);
-  return {
-    title: orders.code || 'Work Order',
-  };
+interface WorkOrderPageProps {
+  searchParams: { id: string; parentId?: string };
 }
 
-export default async function WorkOrderPage({
-  searchParams,
-}: {
-  searchParams: { id: string; parentId?: string };
-}) {
-  const orders = await getWorkOrders(searchParams.id);
-  const config = await getConfig();
+export default function WorkOrderPage({ searchParams }: WorkOrderPageProps) {
+  const { t } = useTranslations();
+  const [orders, setOrders] = useState<WorkOrder | null>(null);
+  const [config, setConfig] = useState<SystemConfiguration | null>(null);
 
-  if (orders == undefined && config == undefined) return <Loader />;
+  useEffect(() => {
+    const loadData = async () => {
+      const workOrderData = await getWorkOrders(searchParams.id);
+      const configData = await getConfig();
+      setOrders(workOrderData);
+      setConfig(configData);
+    };
+    loadData();
+  }, [searchParams.id]);
+
+  useEffect(() => {
+    if (orders && config) {
+      const timer = setTimeout(() => {
+        window.print();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [orders, config]);
+
+  if (!orders || !config) return <Loader />;
 
   if (config.isCRM) {
     return (
@@ -81,11 +94,6 @@ export default async function WorkOrderPage({
             />
           )}
         </div>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.onload = function() { window.print(); }`,
-          }}
-        />
       </div>
     );
   }
@@ -101,13 +109,8 @@ export default async function WorkOrderPage({
         )}
         <WorkOrderSparePartsReport workorder={orders} />
         <WorkOrderComment workorder={orders} />
-        <div className="flex font-semibold p-10">Firma:</div>
+        <div className="flex font-semibold p-10">{t('signature')}:</div>
       </div>
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `window.onload = function() { window.print(); }`,
-        }}
-      />
     </div>
   );
 }

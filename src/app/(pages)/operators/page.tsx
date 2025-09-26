@@ -18,46 +18,48 @@ import { EntityTable } from 'components/table/interface/tableEntitys';
 import { Button } from 'designSystem/Button/Buttons';
 
 import OperatorForm from '../../../components/OperatorForm';
+import { useTranslations } from '../../hooks/useTranslations';
 
 function OperatorsPage() {
+  const { t } = useTranslations();
   const [operators, setOperators] = useState<Operator[]>([]);
 
-  const columns: Column[] = [
+  const getColumns = (t: any): Column[] => [
     {
-      label: 'ID',
+      label: t('common.id'),
       key: 'id',
       format: ColumnFormat.TEXT,
     },
     {
-      label: 'Codi',
+      label: t('code'),
       key: 'code',
       format: ColumnFormat.TEXT,
     },
     {
-      label: 'Nom',
+      label: t('name'),
       key: 'name',
       format: ColumnFormat.TEXT,
     },
     {
-      label: 'Tipus',
+      label: t('type'),
       key: 'operatorType',
       format: ColumnFormat.OPERATORTYPE,
     },
     {
-      label: 'Actiu',
+      label: t('active'),
       key: 'active',
       format: ColumnFormat.BOOLEAN,
     },
   ];
-  const filters: Filters[] = [
+  const getFilters = (t: any): Filters[] => [
     {
       key: 'code',
-      label: 'Codi',
+      label: t('code'),
       format: FiltersFormat.TEXT,
     },
     {
       key: 'name',
-      label: 'Nom',
+      label: t('name'),
       format: FiltersFormat.TEXT,
     },
   ];
@@ -81,7 +83,7 @@ function OperatorsPage() {
         const data = await operatorService.getOperators();
         setOperators(data);
       } catch (error) {
-        console.error('Error fetching operators:', error);
+        console.error(t('error.fetching.operators'), error);
       }
     }
 
@@ -90,7 +92,7 @@ function OperatorsPage() {
 
   async function deleteOperator(id: string) {
     const isConfirmed = window.confirm(
-      'Segur que voleu eliminar aquest operari?'
+      t('confirm.delete.operator')
     );
     if (isConfirmed) {
       await operatorService.deleteOperator(id);
@@ -109,8 +111,8 @@ function OperatorsPage() {
             data={operators.sort((a, b) =>
               a.code.localeCompare(b.code, undefined, { numeric: true })
             )}
-            filters={filters}
-            columns={columns}
+            filters={getFilters(t)}
+            columns={getColumns(t)}
             tableButtons={tableButtons}
             entity={EntityTable.OPERATOR}
             onDelete={deleteOperator}
@@ -127,7 +129,7 @@ const renderHeader = (operators: Operator[]) => {
   const operatorService = new OperatorService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
-
+  const {t} = useTranslations();
   const [isOperatorCreated, setIsOperatorCreated] = useState<boolean | null>(
     null
   );
@@ -139,13 +141,13 @@ const renderHeader = (operators: Operator[]) => {
 
   async function createOperator(operator: Operator) {
     if (operator.code.length == 0) {
-      alert('El codi no pot estar buit');
+      alert(t('code.cannot.be.empty'));
       return;
     }
     const existingOperator = operators.find(op => op.code === operator.code);
 
     if (existingOperator) {
-      alert(`Operari amb codi ${operator.code} ja existeix.`);
+      alert(t('operator.code.already.exists', { code: operator.code }));
     } else {
       if (operator.operatorType == null)
         operator.operatorType = OperatorType.Maintenance;
@@ -162,9 +164,9 @@ const renderHeader = (operators: Operator[]) => {
         <div className="w-full flex flex-col gap-2 items">
           <h2 className="text-2xl font-bold text-black flex gap-2">
             <SvgMachines />
-            Operaris
+            {t('operators')}
           </h2>
-          <span className="text-l">Inici - Llistat de Operaris</span>
+          <span className="text-l">{t('start')} - {t('operators.list')}</span>
         </div>
         <div className="w-full flex justify-end items-center">
           <Button
@@ -173,7 +175,7 @@ const renderHeader = (operators: Operator[]) => {
             customStyles="flex gap-2"
           >
             {!isFormVisible && <SvgCreate className="text-white" />}
-            {isFormVisible ? 'Tancar' : 'Crear Operari'}
+            {isFormVisible ? t('close') : t('create.operator')}
           </Button>
         </div>
       </div>

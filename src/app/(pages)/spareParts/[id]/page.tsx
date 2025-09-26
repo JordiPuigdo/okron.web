@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { FaHistory } from 'react-icons/fa';
 import { TableDataOrders } from 'app/(pages)/orders/components/TableDataOrders';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { OrderType } from 'app/interfaces/Order';
 import { SparePartDetailResponse } from 'app/interfaces/SparePart';
 import SparePartService from 'app/services/sparePartService';
@@ -12,6 +13,7 @@ import SparePartTable from '../components/SparePartTable';
 import SparePartForm from '../sparePartForm/sparePartForm';
 
 export default function page({ params }: { params: { id: string } }) {
+  const { t } = useTranslations();
   const sparePartService = new SparePartService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
@@ -44,7 +46,7 @@ export default function page({ params }: { params: { id: string } }) {
             <div className="flex items-center mb-4 space-x-2">
               <FaHistory className="text-xl text-gray-700" />
 
-              <h2 className="text-lg font-semibold text-gray-800">Històric</h2>
+              <h2 className="text-lg font-semibold text-gray-800">{t('spareParts.history')}</h2>
             </div>
 
             <div className="flex mb-6 border-2 border-[#6E41B6] rounded-full w-fit overflow-hidden">
@@ -56,7 +58,7 @@ export default function page({ params }: { params: { id: string } }) {
                     : 'bg-white text-[#6E41B6]'
                 }`}
               >
-                Compres
+                {t('spareParts.purchases')}
               </button>
               <button
                 onClick={() => setActiveTab('consums')}
@@ -66,7 +68,7 @@ export default function page({ params }: { params: { id: string } }) {
                     : 'bg-white text-[#6E41B6]'
                 }`}
               >
-                Consums
+                {t('spareParts.consumptions')}
               </button>
             </div>
             <div className="transition-all duration-300 ease-in-out bg-white">

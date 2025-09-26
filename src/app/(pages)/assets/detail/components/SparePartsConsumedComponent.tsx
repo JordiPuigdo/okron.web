@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useSparePartsHook } from 'app/hooks/useSparePartsHook';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import { SparePartsConsumedsReport } from 'app/interfaces/SparePart';
 import dayjs from 'dayjs';
@@ -13,6 +14,7 @@ interface SparePartsConsumedsComponentProps {
 const SparePartsConsumedsComponent = ({
   assetId,
 }: SparePartsConsumedsComponentProps) => {
+  const { t } = useTranslations();
   const [from, setFrom] = useState(() => {
     const date = new Date();
     date.setDate(date.getDate() - 90);
@@ -42,13 +44,13 @@ const SparePartsConsumedsComponent = ({
   if (isError)
     return (
       <div className="text-center text-red-500">
-        Error, contacti administrador.
+        {t('error.contact.admin')}
       </div>
     );
   if (!sparePartsConsumeds?.length)
     return (
       <div className="text-center text-gray-500">
-        No hi ha recanvis utilitzats
+        {t('no.spare.parts.used')}
       </div>
     );
 
@@ -73,12 +75,12 @@ const SparePartsConsumedsComponent = ({
             </div>
 
             <div className="text-sm text-gray-600 mt-1">
-              <span className="font-medium">Quantitat:</span>{' '}
+              <span className="font-medium">{t('common.quantity')}:</span>{' '}
               {item.sparePartNumber}
             </div>
 
             <div className="text-sm text-gray-600 mt-1">
-              <span className="font-medium">Ordre de treball:</span>{' '}
+              <span className="font-medium">{t('work.order')}:</span>{' '}
               {item.workOrderCode} - {item.workOrderDescription}
             </div>
           </div>
