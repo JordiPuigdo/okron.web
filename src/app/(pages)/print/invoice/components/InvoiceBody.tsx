@@ -24,12 +24,12 @@ export const InvoiceBody = ({
                 <div className="flex justify-between items-center">
                   <h3 className="font-bold text-sm">
                     {dayjs(workOrder.workOrderStartTime).format('DD/MM/YYYY')} -{' '}
-                    {workOrder.workOrderCode}
+                    {workOrder.workOrderCode} -
                     {workOrder.workOrderRefId !== null
                       ? ' OT ' + workOrder.workOrderRefId
                       : ''}
                     {deliveryNote.installation?.code
-                      ? ', ' + deliveryNote.installation?.code
+                      ? ' - ' + deliveryNote.installation?.code
                       : ''}
                   </h3>
                 </div>
@@ -56,7 +56,7 @@ export const InvoiceBody = ({
                       Import Dte.
                     </th>
                     <th className="p-2 text-center text-xs font-medium text-gray-600 w-2/12">
-                      Total Línia
+                      Total
                     </th>
                   </tr>
                 </thead>
