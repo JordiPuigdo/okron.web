@@ -2,7 +2,7 @@ import Company from 'app/interfaces/Company';
 
 export const CompanyInformationHeader = ({ company }: { company: Company }) => {
   return (
-    <div className="flex pb-4 p-2">
+    <div className="flex pb-4 p-2 w-full">
       {/* Company Information */}
 
       <div className="flex flex-col flex-grow justify-between ">

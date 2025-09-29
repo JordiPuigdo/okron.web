@@ -10,6 +10,8 @@ import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 
+import { OperatorTimesDisplay } from './OperatorTimesSection';
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -74,9 +76,8 @@ const ReportDataCard: React.FC<ReportDataCardProps> = ({ workOrder }) => {
           </div>
         </div>
 
-        <div className="flex border-b border-gray-200 py-2">
-          <div className="w-1/4 font-medium text-gray-700">HORES TÈCNICS</div>
-          <div className="w-3/4 text-gray-600">
+        <div className="flex py-2 flex-col ">
+          <div className="w-full text-gray-600">
             {(() => {
               const timesByOperator = workOrder.workOrderOperatorTimes?.reduce(
                 (acc, time) => {
@@ -149,110 +150,3 @@ const ReportDataCard: React.FC<ReportDataCardProps> = ({ workOrder }) => {
 };
 
 export default ReportDataCard;
-
-interface OperatorTimesProps {
-  timesByOperator: {
-    [key: string]: {
-      operator: Operator;
-      travelTimes: WorkOrderOperatorTimes[];
-      workTimes: WorkOrderOperatorTimes[];
-    };
-  };
-}
-
-const OperatorTimesDisplay: React.FC<OperatorTimesProps> = ({
-  timesByOperator,
-}) => {
-  if (Object.keys(timesByOperator).length === 0) {
-    return <span>No especificat</span>;
-  }
-
-  return (
-    <div className="space-y-2">
-      {Object.values(timesByOperator).map((operatorData, index) => (
-        <OperatorLine key={index} operatorData={operatorData} />
-      ))}
-    </div>
-  );
-};
-
-// Función utilitaria para obtener la fecha mínima
-const getEarliestDate = (
-  times: WorkOrderOperatorTimes[],
-  field: 'startTime' | 'endTime'
-): Date | null => {
-  if (times.length === 0) return null;
-
-  return times.reduce((earliest: Date | null, current) => {
-    if (!current[field]) return earliest;
-    if (!earliest) return new Date(current[field]!);
-    return new Date(current[field]!) < earliest
-      ? new Date(current[field]!)
-      : earliest;
-  }, null);
-};
-
-// Función utilitaria para obtener la fecha máxima
-const getLatestDate = (
-  times: WorkOrderOperatorTimes[],
-  field: 'startTime' | 'endTime'
-): Date | null => {
-  if (times.length === 0) return null;
-
-  return times.reduce((latest: Date | null, current) => {
-    if (!current[field]) return latest;
-    if (!latest) return new Date(current[field]!);
-    return new Date(current[field]!) > latest
-      ? new Date(current[field]!)
-      : latest;
-  }, null);
-};
-
-const OperatorLine: React.FC<{ operatorData: any }> = ({ operatorData }) => {
-  const { operator, travelTimes, workTimes } = operatorData;
-
-  const earliestTravelStart = getEarliestDate(travelTimes, 'startTime');
-  const latestTravelEnd = getLatestDate(travelTimes, 'endTime');
-  const workTime = workTimes.length > 0 ? workTimes[0] : null;
-
-  const parts: string[] = [];
-
-  if (earliestTravelStart) {
-    parts.push(
-      `Inici desplaçament ${dayjs(earliestTravelStart)
-        .tz('Europe/Madrid')
-        .format('HH:mm')}`
-    );
-  }
-
-  if (workTime?.startTime) {
-    parts.push(
-      `Inici treball ${dayjs(workTime.startTime)
-        .tz('Europe/Madrid')
-        .format('HH:mm')}`
-    );
-  }
-
-  if (workTime?.endTime) {
-    parts.push(
-      `Fi treball ${dayjs(workTime.endTime)
-        .tz('Europe/Madrid')
-        .format('HH:mm')}`
-    );
-  }
-
-  if (latestTravelEnd) {
-    parts.push(
-      `Fi desplaçament ${dayjs(latestTravelEnd)
-        .tz('Europe/Madrid')
-        .format('HH:mm')}`
-    );
-  }
-
-  return (
-    <div className="flex flex-col">
-      <span className="font-medium text-gray-900">{operator.name}:</span>
-      <span className="text-gray-600">{parts.join(' · ')}</span>
-    </div>
-  );
-};
