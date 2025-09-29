@@ -16,13 +16,9 @@ export const WorkOrderHeader = ({
   const company = config?.company as unknown as Company;
   return (
     <div className="flex flex-col">
-      <div className="flex justify-between items-end pb-4">
-        <div className="w-60 h-16 relative">
-          <img
-            src={company.urlLogo}
-            alt={company.name}
-            className="object-contain object-left"
-          />
+      <div className="flex justify-between items-end ">
+        <div className="w-96 relative ">
+          <img src={company.urlLogo} alt={company.name} className="w-96 h-24" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-gray-200">
           <div className="text-center p-2 bg-gray-100 rounded-md align-bottom">
