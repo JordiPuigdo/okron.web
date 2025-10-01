@@ -102,6 +102,7 @@ export function InvoiceDetailForm({
     }
   };
 
+  if (!formData.deliveryNotes) return null;
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto space-y-8">
