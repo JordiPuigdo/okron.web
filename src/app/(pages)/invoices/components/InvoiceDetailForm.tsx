@@ -155,15 +155,17 @@ export function InvoiceDetailForm({
                 </div>
               </div>
             </div>
-            <div className="flex gap-2 justify-between">
-              <CustomerInformationComponent
-                companyName={formData.deliveryNotes[0].companyName}
-                customerAddress={formData.deliveryNotes[0].customerAddress}
-              />
-              <InstallationComponent
-                installation={formData.deliveryNotes[0].installation!}
-              />
-            </div>
+            {formData.deliveryNotes.length >= 0 && (
+              <div className="flex gap-2 justify-between">
+                <CustomerInformationComponent
+                  companyName={formData.deliveryNotes[0].companyName}
+                  customerAddress={formData.deliveryNotes[0].customerAddress}
+                />
+                <InstallationComponent
+                  installation={formData.deliveryNotes[0].installation!}
+                />
+              </div>
+            )}
 
             {/* Delivery Notes */}
             {formData.deliveryNotes.map((dn, dnIndex) => (
