@@ -16,7 +16,7 @@ export const useTranslationStore = create<TranslationState>()(
       translations: {},
       loading: false,
       error: null,
-      currentLang: 'ca',
+      currentLang: process.env.NEXT_PUBLIC_DEFAULT_LANG || 'ca',
       fetchTranslations: async (lang, prefix = '') => {
         set({ loading: true, error: null });
         try {
