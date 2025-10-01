@@ -8,6 +8,7 @@ import { formatEuropeanCurrency } from 'app/utils/utils';
 import { CustomerInformationComponent } from 'components/customer/CustomerInformationComponent';
 import { InstallationComponent } from 'components/customer/InstallationComponent';
 import { TotalComponent } from 'components/customer/TotalComponent';
+import { Input } from 'components/input/Input';
 import dayjs from 'dayjs';
 import { Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -85,6 +86,7 @@ export function InvoiceDetailForm({
     try {
       const updateRequest: InvoiceUpdateRequest = {
         id: formData.id,
+        code: formData.code,
         status: formData.status,
       };
 
@@ -115,9 +117,13 @@ export function InvoiceDetailForm({
             <div className="grid grid-cols-3 gap-6">
               <div className="space-y-2">
                 <label className="font-semibold">Codi</label>
-                <div className="p-2 bg-gray-50 rounded border text-gray-700">
-                  {formData.code}
-                </div>
+                <Input
+                  value={formData.code}
+                  onChange={e =>
+                    setFormData(prev => ({ ...prev, code: e.target.value }))
+                  }
+                  className="w-full"
+                />
               </div>
 
               <div className="space-y-2">
