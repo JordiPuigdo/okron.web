@@ -155,7 +155,7 @@ export function InvoiceDetailForm({
                 </div>
               </div>
             </div>
-            {formData.deliveryNotes.length >= 0 && (
+            {formData.deliveryNotes && formData.deliveryNotes.length >= 0 && (
               <div className="flex gap-2 justify-between">
                 <CustomerInformationComponent
                   companyName={formData.deliveryNotes[0].companyName}
