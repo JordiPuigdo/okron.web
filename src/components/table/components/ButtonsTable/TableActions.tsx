@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgDelete, SvgDetail } from 'app/icons/icons';
-import { LoginUser, UserPermission } from 'app/interfaces/User';
+import { LoginUser, UserPermission, UserType } from 'app/interfaces/User';
 import Link from 'next/link';
 
 import { TableButtons } from '../../interface/interfaceTable';

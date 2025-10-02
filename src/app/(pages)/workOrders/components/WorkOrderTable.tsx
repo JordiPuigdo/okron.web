@@ -56,40 +56,24 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
   assetId,
   enableFinalizeWorkOrdersDayBefore = false,
   operatorId,
-  workOrderType,
-  refresh,
 }) => {
-  const { operatorLogged, loginUser, setFilterWorkOrders, filterWorkOrders } =
-    useSessionStore(state => state);
+  const { operatorLogged, loginUser } = useSessionStore(state => state);
 
   const { workOrderColumns } = usePermissions();
   const { t } = useTranslations();
 
   const firstDayOfMonth = new Date(
     new Date().getFullYear(),
-    new Date().getMonth(),
+    new Date().getMonth() - 1,
     1
   );
-  const [startDate, setStartDate] = useState<Date | null>(
-    filterWorkOrders?.startDateTime
-      ? new Date(filterWorkOrders?.startDateTime)
-      : firstDayOfMonth
-  );
+  const [startDate, setStartDate] = useState<Date | null>(firstDayOfMonth);
   const [endDate, setEndDate] = useState<Date | null>(
-    filterWorkOrders?.endDateTime
-      ? new Date(filterWorkOrders?.endDateTime)
-      : dayjs().startOf('day').toDate()
+    dayjs().startOf('day').toDate()
   );
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<string>('');
   const [workOrders, setWorkOrders] = useState<WorkOrder[] | []>([]);
   const [assets, setAssets] = useState<ElementList[]>([]);
-  const [selectedStateFilter, setSelectedStateFilter] = useState<
-    number | undefined
-  >(undefined);
-  const [selectedTypeFilter, setSelectedTypeFilter] = useState<
-    number | undefined
-  >(undefined);
+
   const [searchTerm, setSearchTerm] = useState('');
   const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
@@ -103,6 +87,8 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
       assetId: '',
       refCustomerId: '',
       customerName: '',
+      isInvoiced: false,
+      hasDeliveryNote: false,
     }
   );
 
@@ -178,20 +164,21 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     if (assetId == undefined) fetchAssets();
     if (operatorId !== undefined) handleSearch();
     fetchWorkOrders();
+
+    if (loginUser?.userType === UserType.CRM && firstLoad) {
+      setWorkOrdersFilters({
+        ...workOrdersFilters,
+        workOrderState: [StateWorkOrder.Finished, StateWorkOrder.NotFinished],
+        isInvoiced: false,
+        hasDeliveryNote: false,
+      });
+    }
     setFirstLoad(false);
   }, []);
 
   const fetchWorkOrders = async () => {
-    setIsLoading(true);
     await searchWorkOrders();
-    setIsLoading(false);
   };
-
-  useEffect(() => {
-    if (refresh) {
-      setSelectedTypeFilter(workOrderType);
-    }
-  }, [refresh, workOrderType]);
 
   const searchWorkOrders = async () => {
     let search: SearchWorkOrderFilters;
@@ -217,37 +204,18 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
       search.startDateTime = undefined;
       search.endDateTime = undefined;
     }
-    // const filters: FilterWorkOrders = {
-    //   startDateTime: startDate!,
-    //   endDateTime: endDate!,
-    //   workOrderType: selectedTypeFilter
-    //     ? selectedTypeFilter
-    //     : filterWorkOrders?.workOrderType,
-    // };
-    // setFilterWorkOrders(filters);
-    const workOrders = await workOrderService.getWorkOrdersWithFilters(search);
-    if (workOrders.length == 0 && !firstLoad) {
-      setMessage(t('workorder.no.orders.available'));
 
-      setTimeout(() => {
-        setMessage('');
-      }, 3000);
-    }
+    const workOrders = await workOrderService.getWorkOrdersWithFilters(search);
 
     setWorkOrders(workOrders);
   };
 
   const handleSearch = async () => {
-    setIsLoading(true);
-
     await searchWorkOrders();
-    setIsLoading(false);
   };
 
   const handleDeleteOrder = (orderId: string) => {
-    const isConfirmed = window.confirm(
-      t('workorders.confirm.delete')
-    );
+    const isConfirmed = window.confirm(t('workorders.confirm.delete'));
 
     if (isConfirmed) {
       workOrderService.deleteWorkOrder(orderId);
@@ -292,21 +260,26 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
       });
     };
 
-    const filters = [
-      searchTermFilter,
-      () =>
-        selectedAssetId === undefined ||
-        selectedAssetId.length === 0 ||
-        order.asset?.id === selectedAssetId,
-      () =>
-        workOrdersFilters?.workOrderState.length === 0 ||
-        workOrdersFilters?.workOrderState.includes(order.stateWorkOrder),
-      () =>
-        workOrdersFilters?.workOrderType.length === 0 ||
-        workOrdersFilters?.workOrderType.includes(order.workOrderType),
-    ];
+    const passesInvoiced =
+      workOrdersFilters?.isInvoiced === undefined ||
+      order.isInvoiced === workOrdersFilters.isInvoiced;
 
-    return filters.every(filter => filter());
+    const passesDelivery =
+      workOrdersFilters?.hasDeliveryNote === undefined ||
+      order.hasDeliveryNote === workOrdersFilters.hasDeliveryNote;
+
+    return (
+      searchTermFilter() &&
+      (selectedAssetId === undefined ||
+        selectedAssetId.length === 0 ||
+        order.asset?.id === selectedAssetId) &&
+      (workOrdersFilters?.workOrderState.length === 0 ||
+        workOrdersFilters?.workOrderState.includes(order.stateWorkOrder)) &&
+      (workOrdersFilters?.workOrderType.length === 0 ||
+        workOrdersFilters?.workOrderType.includes(order.workOrderType)) &&
+      passesInvoiced &&
+      passesDelivery
+    );
   };
 
   const filteredWorkOrders = workOrders.filter(applyFilters);

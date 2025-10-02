@@ -5,6 +5,7 @@ import AutocompleteSearchBar from 'components/selector/AutocompleteSearchBar';
 import { ElementList } from 'components/selector/ElementList';
 
 import FinalizeWorkOrdersDaysBefore from '../FinalizeWorkOrdersDaysBefore';
+import { CRMStatusFilter } from './CRMStatusFilter';
 import { WorkOrderDateFilter } from './WorkOrderDateFilter';
 import { WorkOrderStateFilter } from './WorkOrderStateFilter';
 import {
@@ -49,6 +50,8 @@ export const WorkOrdersFiltersTable = ({
       assetId: '',
       refCustomerId: '',
       customerName: '',
+      isInvoiced: false,
+      hasDeliveryNote: false,
     });
     setSearchTerm('');
     setSelectedAssetId('');
@@ -71,7 +74,9 @@ export const WorkOrdersFiltersTable = ({
       <div className="flex w-full ml-14 bg-white underline font-semibold text-sm text-red-500 justify-end items-end">
         <div className="cursor-pointer" onClick={handleCleanFilters}>
           <div>{t('workorder.filters.clear')}</div>
-          <div>{t('workorder.filters.filters')} ({numberFilters()})</div>
+          <div>
+            {t('workorder.filters.filters')} ({numberFilters()})
+          </div>
         </div>
       </div>
     );
@@ -136,6 +141,12 @@ export const WorkOrdersFiltersTable = ({
           />
           {enableFilterType && (
             <WorkOrderTypeFilter
+              setWorkOrdersFilters={setWorkOrdersFilters}
+              workOrdersFilters={workOrdersFilters}
+            />
+          )}
+          {isCRM && (
+            <CRMStatusFilter
               setWorkOrdersFilters={setWorkOrdersFilters}
               workOrdersFilters={workOrdersFilters}
             />

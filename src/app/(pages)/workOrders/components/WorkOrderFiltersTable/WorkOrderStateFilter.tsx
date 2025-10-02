@@ -40,7 +40,8 @@ export const WorkOrderStateFilter = ({
   };
 
   useEffect(() => {
-    if (workOrdersFilters.workOrderState.length > 0) return;
+    if (workOrdersFilters.workOrderState.length == 0) return;
+
     setSelectedOptions(mapStatesToOptions(workOrdersFilters.workOrderState));
   }, [workOrdersFilters.workOrderState]);
 
