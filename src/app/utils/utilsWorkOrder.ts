@@ -39,6 +39,20 @@ export function getValidStates(userType: UserType) {
   }
 }
 
+export function getDefaultFiltersCRM(): WorkOrdersFilters {
+  return {
+    dateRange: { startDate: null, endDate: null },
+    workOrderType: [],
+    workOrderState: [StateWorkOrder.Finished, StateWorkOrder.NotFinished],
+    searchTerm: '',
+    assetId: '',
+    refCustomerId: '',
+    customerName: '',
+    isInvoiced: false,
+    hasDeliveryNote: false,
+  };
+}
+
 export function getFilters(filters: WorkOrdersFilters): FilterValue {
   const f: FilterValue = {};
   if (filters.workOrderType.length > 0)
@@ -49,24 +63,25 @@ export function getFilters(filters: WorkOrdersFilters): FilterValue {
     f.startDate = dayjs(filters.dateRange.startDate).format('YYYY-MM-DD');
   if (filters.dateRange.endDate)
     f.endDate = dayjs(filters.dateRange.endDate).format('YYYY-MM-DD');
-  if (filters.searchTerm) f.searchTerm = filters.searchTerm;
-  if (filters.assetId) f.assetId = filters.assetId;
-  if (filters.refCustomerId) f.refCustomerId = filters.refCustomerId;
-  if (filters.customerName) f.customerName = filters.customerName;
+  f.searchTerm = filters.searchTerm?.trim() ?? '';
+  f.assetId = filters.assetId ?? '';
+  f.refCustomerId = filters.refCustomerId ?? '';
+  f.customerName = filters.customerName ?? '';
   f.isInvoiced = filters.isInvoiced;
   f.hasDeliveryNote = filters.hasDeliveryNote;
   return f;
 }
-
 export function mapQueryParamsToFilters(
   query: FilterValue,
-  userType?: UserType
+  userType?: UserType,
+  prev?: WorkOrdersFilters
 ): Partial<WorkOrdersFilters> {
   const firstDayOfMonth = new Date(
     new Date().getFullYear(),
     new Date().getMonth() - 1,
     1
   );
+
   return {
     workOrderType: query.workOrderType
       ? query.workOrderType
@@ -74,31 +89,39 @@ export function mapQueryParamsToFilters(
           .split(',')
           .map(Number)
           .filter(n => !isNaN(n))
-      : [],
+      : prev?.workOrderType ?? [],
     workOrderState: query.workOrderState
       ? query.workOrderState
           .toString()
           .split(',')
           .map(Number)
           .filter(n => !isNaN(n))
-      : userType === UserType.CRM
-      ? [StateWorkOrder.Finished, StateWorkOrder.NotFinished]
-      : [],
+      : prev?.workOrderState ??
+        (userType === UserType.CRM
+          ? [StateWorkOrder.Finished, StateWorkOrder.NotFinished]
+          : []),
     dateRange: {
       startDate: query.startDate
         ? dayjs(query.startDate.toString(), 'YYYY-MM-DD').toDate()
-        : firstDayOfMonth,
+        : prev?.dateRange.startDate ?? firstDayOfMonth,
       endDate: query.endDate
         ? dayjs(query.endDate.toString(), 'YYYY-MM-DD').toDate()
-        : dayjs().startOf('day').toDate(),
+        : prev?.dateRange.endDate ?? dayjs().startOf('day').toDate(),
     },
-    searchTerm: query.searchTerm?.toString() || '',
-    assetId: query.assetId?.toString() || '',
-    refCustomerId: query.refCustomerId?.toString() || '',
-    customerName: query.customerName?.toString() || '',
-    isInvoiced: query.isInvoiced === 'true' || query.isInvoiced === true,
+    searchTerm: query.searchTerm?.toString() ?? prev?.searchTerm ?? '',
+    assetId: query.assetId?.toString() ?? prev?.assetId ?? '',
+    refCustomerId: query.refCustomerId?.toString() ?? prev?.refCustomerId ?? '',
+    customerName: query.customerName?.toString() ?? prev?.customerName ?? '',
+    isInvoiced:
+      (query.isInvoiced === 'true' ||
+        query.isInvoiced === true ||
+        prev?.isInvoiced) ??
+      false,
     hasDeliveryNote:
-      query.hasDeliveryNote === 'true' || query.hasDeliveryNote === true,
+      (query.hasDeliveryNote === 'true' ||
+        query.hasDeliveryNote === true ||
+        prev?.hasDeliveryNote) ??
+      false,
   };
 }
 

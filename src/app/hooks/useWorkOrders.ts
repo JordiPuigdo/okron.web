@@ -48,6 +48,7 @@ const fetchWorkOrderById = async (id: string): Promise<WorkOrder> => {
 export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
   const { loginUser, operatorLogged } = useSessionStore(state => state);
   const { updateQueryParams, queryParams } = useQueryParams();
+  const [firstLoad, setFirstLoad] = useState(true);
 
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
 
@@ -70,13 +71,14 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
   }, [filters]);
 
   useEffect(() => {
-    if (queryParams) {
+    if (firstLoad && queryParams) {
       setFilters(prev => ({
         ...prev,
-        ...mapQueryParamsToFilters(queryParams, loginUser?.userType),
+        ...mapQueryParamsToFilters(queryParams, loginUser?.userType, prev), // <-- le paso prev para no resetear fechas
       }));
+      setFirstLoad(false);
     }
-  }, [queryParams, loginUser]);
+  }, [queryParams, loginUser, firstLoad]);
 
   useEffect(() => {
     fetchWorkOrders();
