@@ -96,7 +96,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     if (firstLoad) {
       setFilters(queryParams);
     }
-    searchWorkOrders();
+    fetchWorkOrders();
   }, [workOrdersFilters]);
 
   function setFilters(filters: FilterValue) {
@@ -223,8 +223,6 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     };
 
     if (assetId == undefined) fetchAssets();
-
-    fetchWorkOrders();
 
     setFirstLoad(false);
   }, []);
