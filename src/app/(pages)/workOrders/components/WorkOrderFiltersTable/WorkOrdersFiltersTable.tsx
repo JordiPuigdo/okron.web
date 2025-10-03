@@ -21,7 +21,6 @@ interface WorkOrdersFiltersTableProps {
   enableFilterAssets: boolean;
   setSelectedAssetId: (id: string) => void;
   assets: ElementList[];
-  setSearchTerm: (term: string) => void;
   validStates: StateWorkOrder[];
   enableFilterType: boolean;
   workOrderTypeCount: WorkOrderTypeCount[];
@@ -34,7 +33,6 @@ export const WorkOrdersFiltersTable = ({
   enableFilterAssets = false,
   setSelectedAssetId,
   assets,
-  setSearchTerm,
   validStates,
   enableFilterType,
   workOrderTypeCount,
@@ -53,7 +51,7 @@ export const WorkOrdersFiltersTable = ({
       isInvoiced: false,
       hasDeliveryNote: false,
     });
-    setSearchTerm('');
+
     setSelectedAssetId('');
   }
 
@@ -95,7 +93,6 @@ export const WorkOrdersFiltersTable = ({
       ...workOrdersFilters,
       searchTerm: term,
     });
-    setSearchTerm(term);
   }
   const placeholder = isCRM
     ? t('workorder.search.code.description.crm')
