@@ -63,6 +63,7 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
       customerName: '',
       isInvoiced: false,
       hasDeliveryNote: false,
+      active: true,
     }
   );
 

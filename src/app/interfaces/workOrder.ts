@@ -242,6 +242,7 @@ export interface WorkOrdersFilters {
   customerName: string;
   isInvoiced: boolean;
   hasDeliveryNote: boolean;
+  active: boolean;
 }
 
 export interface CustomerWorkOrder {

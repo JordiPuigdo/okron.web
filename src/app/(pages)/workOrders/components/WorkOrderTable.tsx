@@ -51,6 +51,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
       customerName: '',
       isInvoiced: false,
       hasDeliveryNote: false,
+      active: true,
     });
 
   const tableButtons: TableButtons = {

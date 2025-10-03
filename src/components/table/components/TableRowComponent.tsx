@@ -97,7 +97,9 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
   return (
     <tr
       id={rowData.id}
-      className={`${rowIndex % 2 === 0 ? '' : 'bg-gray-100'}`}
+      className={`${rowIndex % 2 === 0 ? '' : 'bg-gray-100'} ${
+        rowData.active ? '' : 'opacity-50'
+      }`}
     >
       {enableCheckbox && (
         <td className="p-4 hover:cursor-pointer" onClick={handleRowClick}>

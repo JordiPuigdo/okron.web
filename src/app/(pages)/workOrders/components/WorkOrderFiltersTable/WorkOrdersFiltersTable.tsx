@@ -50,6 +50,7 @@ export const WorkOrdersFiltersTable = ({
       customerName: '',
       isInvoiced: false,
       hasDeliveryNote: false,
+      active: true,
     });
 
     setSelectedAssetId('');
@@ -142,6 +143,22 @@ export const WorkOrdersFiltersTable = ({
               workOrdersFilters={workOrdersFilters}
             />
           )}
+          <div>
+            <div className="flex items-center gap-2 cursor-pointer">
+              Actiu
+              <input
+                type="checkbox"
+                checked={workOrdersFilters.active}
+                className="cursor-pointer"
+                onChange={e => {
+                  setWorkOrdersFilters({
+                    ...workOrdersFilters,
+                    active: e.target.checked,
+                  });
+                }}
+              />
+            </div>
+          </div>
           {isCRM && (
             <CRMStatusFilter
               setWorkOrdersFilters={setWorkOrdersFilters}

@@ -50,6 +50,7 @@ export function getDefaultFiltersCRM(): WorkOrdersFilters {
     customerName: '',
     isInvoiced: false,
     hasDeliveryNote: false,
+    active: true,
   };
 }
 
@@ -147,6 +148,9 @@ export function applyFilters(
     );
   });
 
+  const matchesActive =
+    filters.active === undefined || order.active === filters.active;
+
   const matchesInvoiced =
     filters.isInvoiced === undefined || order.isInvoiced === filters.isInvoiced;
   const matchesDelivery =
@@ -161,6 +165,7 @@ export function applyFilters(
     (filters.workOrderType.length === 0 ||
       filters.workOrderType.includes(order.workOrderType)) &&
     matchesInvoiced &&
-    matchesDelivery
+    matchesDelivery &&
+    matchesActive
   );
 }
