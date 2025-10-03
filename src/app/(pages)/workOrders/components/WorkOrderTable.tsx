@@ -96,6 +96,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     if (firstLoad) {
       setFilters(queryParams);
     }
+    searchWorkOrders();
   }, [workOrdersFilters]);
 
   function setFilters(filters: FilterValue) {
