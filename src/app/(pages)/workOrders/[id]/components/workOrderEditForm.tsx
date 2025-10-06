@@ -703,21 +703,20 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                   )}
               </div>
             )}
-            {currentWorkOrder?.active === false && (
-              <div className="w-full flex gap-6 items-center">
-                <label
-                  htmlFor="active"
-                  className="block text-sm font-medium text-gray-700 py-2"
-                >
-                  {t('active')}
-                </label>
-                <input
-                  type="checkbox"
-                  className={`p-3 border text-sm border-gray-300 rounded-md w-[15px]`}
-                  {...register('active')}
-                />
-              </div>
-            )}
+
+            <div className="w-full flex gap-6 items-center">
+              <label
+                htmlFor="active"
+                className="block text-sm font-medium text-gray-700 py-2"
+              >
+                {t('active')}
+              </label>
+              <input
+                type="checkbox"
+                className={`p-3 border text-sm border-gray-300 rounded-md w-[15px]`}
+                {...register('active')}
+              />
+            </div>
 
             {currentWorkOrder?.originWorkOrder ==
               OriginWorkOrder.Production && (
