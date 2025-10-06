@@ -28,6 +28,7 @@ export interface InvoiceCreateRequest {
 
 export interface InvoiceUpdateRequest {
   id: string;
+  code: string;
   status: InvoiceStatus;
 }
 

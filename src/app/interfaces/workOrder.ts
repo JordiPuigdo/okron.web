@@ -41,6 +41,8 @@ export interface WorkOrder extends BaseModel {
   customerSign?: string;
   workerSign?: string;
   refCustomerId?: string;
+  isInvoiced?: boolean;
+  hasDeliveryNote?: boolean;
 }
 
 export default WorkOrder;
@@ -100,6 +102,7 @@ export interface UpdateWorkOrderRequest extends CreateWorkOrderRequest {
   visibleReport?: boolean;
   refCustomerId?: string;
   creationTime?: Date;
+  active: boolean;
 }
 
 export interface CreateWorkOrderRequest {
@@ -238,6 +241,9 @@ export interface WorkOrdersFilters {
   assetId: string;
   refCustomerId: string;
   customerName: string;
+  isInvoiced: boolean;
+  hasDeliveryNote: boolean;
+  active: boolean;
 }
 
 export interface CustomerWorkOrder {

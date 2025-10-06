@@ -39,6 +39,7 @@ import {
   translateStateWorkOrder,
   translateWorkOrderEventType,
 } from 'app/utils/utils';
+import { getValidStates } from 'app/utils/utilsWorkOrder';
 import ChooseElement from 'components/ChooseElement';
 import { CostsObject } from 'components/Costs/CostsObject';
 import CompleteInspectionPoints from 'components/inspectionPoint/CompleteInspectionPoint';
@@ -56,10 +57,7 @@ import WorkOrderButtons from './WorkOrderButtons';
 type WorkOrdeEditFormProps = {
   id: string;
 };
-interface TabWO {
-  key: string;
-  permission: UserPermission;
-}
+
 const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
   const { t } = useTranslations();
 
@@ -441,6 +439,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
         downtimeReason: data.downtimeReason,
         visibleReport: data.visibleReport,
         refCustomerId: data.refCustomerId,
+        active: data.active,
       };
       await workOrderService.updateWorkOrder(updatedWorkOrderData);
 
@@ -543,25 +542,9 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
   };
 
   const isDisabledField =
-    isFinished || currentWorkOrder?.stateWorkOrder == StateWorkOrder.Closed;
+    loginUser?.permission !== UserPermission.Administrator;
 
   const renderForm = () => {
-    const getAvailableStates = () => {
-      if (currentWorkOrder?.workOrderType === WorkOrderType.Ticket) {
-        return [StateWorkOrder.Open, StateWorkOrder.Closed];
-      }
-
-      if (isFinished) {
-        return [currentWorkOrder?.stateWorkOrder];
-      }
-
-      return Object.values(StateWorkOrder).filter(
-        value =>
-          typeof value === 'number' &&
-          value !== StateWorkOrder.Open &&
-          value !== StateWorkOrder.Closed
-      );
-    };
     return (
       <>
         <form
@@ -663,7 +646,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                 onChange={handleStateChange}
                 disabled={!isDisabledField}
               >
-                {getAvailableStates().map(state => (
+                {getValidStates(loginUser?.userType!).map(state => (
                   <option key={state} value={state}>
                     {translateStateWorkOrder(state, t)}
                   </option>
@@ -720,6 +703,21 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                   )}
               </div>
             )}
+
+            <div className="w-full flex gap-6 items-center">
+              <label
+                htmlFor="active"
+                className="block text-sm font-medium text-gray-700 py-2"
+              >
+                {t('active')}
+              </label>
+              <input
+                type="checkbox"
+                className={`p-3 border text-sm border-gray-300 rounded-md w-[15px]`}
+                {...register('active')}
+              />
+            </div>
+
             {currentWorkOrder?.originWorkOrder ==
               OriginWorkOrder.Production && (
               <>

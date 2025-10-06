@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSparePartsHook } from 'app/hooks/useSparePartsHook';
 import {
   SvgCheck,
@@ -371,7 +371,7 @@ const WorkOrderOperationsInTable = React.memo(
               )}
             </Button>
           )}
-
+        <CRMStatusButton item={workOrder} />
         <Button
           type="none"
           href={`${Routes.workOrders}/${workOrder.id}`}
@@ -393,3 +393,28 @@ const WorkOrderOperationsInTable = React.memo(
 WorkOrderOperationsInTable.displayName = 'WorkOrderOperationsInTable';
 
 export default WorkOrderOperationsInTable;
+
+const CRMStatusButton = memo(({ item }: any) => {
+  if (!item) return null;
+  const isInvoiced = item.isInvoiced;
+  const hasDeliveryNote = item.hasDeliveryNote;
+  return (
+    <div className="flex justify-between items-center pr-3">
+      <div className="flex flex-col gap-1.5">
+        <span
+          title="Albaranada"
+          className={hasDeliveryNote ? 'text-base' : 'text-base opacity-30'}
+        >
+          📦
+        </span>
+        <span
+          title="Facturada"
+          className={isInvoiced ? 'text-base' : 'text-base opacity-30'}
+        >
+          💰
+        </span>
+      </div>
+    </div>
+  );
+});
+CRMStatusButton.displayName = 'CRMStatusButton';
