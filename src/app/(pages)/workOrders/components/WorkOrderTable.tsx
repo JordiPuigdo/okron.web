@@ -6,7 +6,7 @@ import { usePermissions } from 'app/hooks/usePermissions';
 import { useWorkOrders } from 'app/hooks/useWorkOrders';
 import { OperatorType } from 'app/interfaces/Operator';
 import { UserType } from 'app/interfaces/User';
-import { WorkOrderType } from 'app/interfaces/workOrder';
+import { StateWorkOrder, WorkOrderType } from 'app/interfaces/workOrder';
 import { useSessionStore } from 'app/stores/globalStore';
 import DataTable from 'components/table/DataTable';
 import { TableButtons } from 'components/table/interface/interfaceTable';
@@ -40,19 +40,27 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
 
   const { operatorLogged, loginUser } = useSessionStore(state => state);
 
-  const { filters, setFilters, filteredWorkOrders, validStates } =
-    useWorkOrders({
-      dateRange: { startDate: null, endDate: null },
-      workOrderType: [],
-      workOrderState: [],
-      searchTerm: '',
-      assetId: assetId || '',
-      refCustomerId: '',
-      customerName: '',
-      isInvoiced: false,
-      hasDeliveryNote: false,
-      active: true,
-    });
+  const {
+    filters,
+    setFilters,
+    filteredWorkOrders,
+    validStates,
+    workOrderTypeCount,
+  } = useWorkOrders({
+    dateRange: { startDate: null, endDate: null },
+    workOrderType: [],
+    workOrderState:
+      loginUser?.userType === UserType.CRM
+        ? [StateWorkOrder.Finished, StateWorkOrder.NotFinished]
+        : [],
+    searchTerm: '',
+    assetId: assetId || '',
+    refCustomerId: '',
+    customerName: '',
+    isInvoiced: false,
+    hasDeliveryNote: false,
+    active: true,
+  });
 
   const tableButtons: TableButtons = {
     edit: enableEdit,
@@ -62,7 +70,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
 
   return (
     <div className="flex flex-col gap-4 h-full">
-      {enableFilters && filters.dateRange.startDate && (
+      {enableFilters && (
         <WorkOrdersFiltersTable
           setWorkOrdersFilters={setFilters}
           workOrdersFilters={filters}
@@ -70,10 +78,8 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
           enableFilterAssets={enableFilterAssets}
           validStates={validStates}
           enableFilterType={loginUser?.userType === UserType.Maintenance}
-          workOrderTypeCount={[]} // ← puedes recalcular con useMemo si lo necesitas
-          setSelectedAssetId={function (id: string): void {
-            throw new Error('Function not implemented.');
-          }}
+          workOrderTypeCount={workOrderTypeCount}
+          setSelectedAssetId={() => {}}
           assets={[]}
         />
       )}
