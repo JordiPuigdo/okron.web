@@ -541,8 +541,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
     );
   };
 
-  const isDisabledField =
-    loginUser?.permission !== UserPermission.Administrator;
+  const isDisabledField = !isAdmin();
 
   const renderForm = () => {
     return (
