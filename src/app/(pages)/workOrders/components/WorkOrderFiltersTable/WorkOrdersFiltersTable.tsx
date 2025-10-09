@@ -39,6 +39,7 @@ export const WorkOrdersFiltersTable = ({
 }: WorkOrdersFiltersTableProps) => {
   const { isCRM } = usePermissions();
   const { t } = useTranslations();
+
   function handleCleanFilters() {
     setWorkOrdersFilters({
       workOrderType: [],

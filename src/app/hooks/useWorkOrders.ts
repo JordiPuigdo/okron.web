@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { WorkOrderTypeCount } from 'app/(pages)/workOrders/components/WorkOrderFiltersTable/WorkOrderTypeCount';
 import { OperatorType } from 'app/interfaces/Operator';
 import { UserType } from 'app/interfaces/User';
 import WorkOrder, {
@@ -49,6 +50,9 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
   const { loginUser, operatorLogged } = useSessionStore(state => state);
   const { updateQueryParams, queryParams } = useQueryParams();
   const [firstLoad, setFirstLoad] = useState(true);
+  const [workOrderTypeCount, setWorkOrderTypeCount] = useState<
+    WorkOrderTypeCount[]
+  >([]);
 
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
 
@@ -120,6 +124,29 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
     return workOrders.filter(order => applyFilters(order, filters));
   }, [workOrders, filters]);
 
+  const computedTypeCounts = useMemo<WorkOrderTypeCount[]>(() => {
+    if (!filteredWorkOrders || filteredWorkOrders.length === 0) return [];
+    const map = new Map<WorkOrderType, number>();
+
+    for (const order of filteredWorkOrders) {
+      // order.workOrderType debería ser del tipo WorkOrderType según tu interfaz.
+      // si por alguna razón es string, hacemos un cast controlado:
+      const t = order.workOrderType as unknown as WorkOrderType | undefined;
+      if (t === undefined) continue;
+      map.set(t, (map.get(t) ?? 0) + 1);
+    }
+
+    // convertimos Map a array con la forma { workOrderType, count }
+    return Array.from(map.entries()).map(([workOrderType, count]) => ({
+      workOrderType,
+      count,
+    }));
+  }, [filteredWorkOrders]);
+
+  useEffect(() => {
+    setWorkOrderTypeCount(computedTypeCounts);
+  }, [computedTypeCounts]);
+
   const validStates = useMemo(
     () => getValidStates(loginUser?.userType!),
     [loginUser]
@@ -166,5 +193,6 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
     setFilters,
     filteredWorkOrders,
     validStates,
+    workOrderTypeCount,
   };
 };
