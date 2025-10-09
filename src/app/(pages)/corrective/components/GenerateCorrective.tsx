@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useOperatorHook } from 'app/hooks/useOperatorsHook';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgMachines, SvgSpinner } from 'app/icons/icons';
 import { Asset } from 'app/interfaces/Asset';
 import { Corrective } from 'app/interfaces/Corrective';
@@ -46,6 +47,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
   originalWorkOrderId,
   originalWorkOrderCode,
 }) => {
+  const { t } = useTranslations();
   const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
   const [selectedOperator, setSelectedOperator] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string>('');
@@ -163,12 +165,12 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
       )
     ) {
       setIsLoading(false);
-      alert('Falten dades per completar');
+      alert(t('missing.data.complete'));
       return;
     }
     if (operatorLogged == undefined) {
       setIsLoading(false);
-      alert('Has de tenir un operari fitxat per fer aquesta acció');
+      alert(t('need.clocked.operator.action'));
       return;
     }
     data.startTime = startDate || new Date();
@@ -223,8 +225,8 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
           <h2 className="text-2xl font-bold text-black flex gap-2">
             <SvgMachines />
             {loginUser?.userType === UserType.Maintenance
-              ? 'Nova Avaria'
-              : 'Nou Tiquet'}
+              ? t('new.breakdown')
+              : t('new.ticket')}
           </h2>
         </div>
       </div>
@@ -247,7 +249,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                 htmlFor="code"
                 className="block text-xl font-medium text-gray-700 mb-2"
               >
-                Núm. Sèrie
+                {t('serial.number')}
               </label>
               <input
                 {...register('code')}
@@ -263,7 +265,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                 htmlFor="description"
                 className="block text-xl font-medium text-gray-700 mb-2"
               >
-                Descripció
+                {t('description')}
               </label>
               <input
                 {...register('description')}
@@ -271,7 +273,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                 id="description"
                 name="description"
                 className="p-3 border border-gray-300 rounded-md w-full"
-                placeholder="Descripció"
+                placeholder={t('description')}
                 onChange={e => setDescriptionCorrective(e.target.value)}
                 value={descriptionCorrective!}
               />
@@ -285,16 +287,16 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                 className="block text-xl font-medium text-gray-700 mb-2"
               >
                 {loginUser?.userType === UserType.Maintenance
-                  ? 'Equip'
-                  : 'Màquina'}
+                  ? t('equipment')
+                  : t('machine')}
               </label>
               <AutocompleteSearchBar
                 elements={assets}
                 setCurrentId={setSelectedId}
                 placeholder={
                   loginUser?.userType === UserType.Maintenance
-                    ? 'Buscar Equip'
-                    : 'Buscar Màquina'
+                    ? t('search.equipment')
+                    : t('search.machine')
                 }
                 selectedId={assetId != undefined ? assetId : null}
               />
@@ -304,7 +306,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                     .filter(x => x.id === selectedId)
                     .map(machine => (
                       <div key={machine.id}>
-                        <p>Equip Seleccionat: {machine.description}</p>
+                        <p>{t('selected.equipment')}: {machine.description}</p>
                       </div>
                     ))}
                   <div>
@@ -315,7 +317,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                         setSelectedDowntimeReasons(undefined);
                       }}
                     >
-                      Eliminar
+                      {t('delete')}
                     </button>
                   </div>
                 </div>
@@ -328,7 +330,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                     htmlFor="stateWorkOrder"
                     className="block text-xl font-medium text-gray-700 mb-2"
                   >
-                    Estat
+                    {t('state')}
                   </label>
                   <select
                     {...register('stateWorkOrder', { valueAsNumber: true })}
@@ -343,10 +345,10 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                     value={stateCorrective}
                   >
                     <option value={StateWorkOrder.OnGoing}>
-                      {translateStateWorkOrder(StateWorkOrder.OnGoing)}
+                      {translateStateWorkOrder(StateWorkOrder.OnGoing, t)}
                     </option>
                     <option value={StateWorkOrder.Waiting}>
-                      {translateStateWorkOrder(StateWorkOrder.Waiting)}
+                      {translateStateWorkOrder(StateWorkOrder.Waiting, t)}
                     </option>
                   </select>
                 </>
@@ -356,7 +358,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                     htmlFor="stateWorkOrder"
                     className="block text-xl font-medium text-gray-700 mb-2"
                   >
-                    Motiu
+                    {t('reason')}
                   </label>
                   <input
                     className="p-3 border border-gray-300 rounded-md w-full"
@@ -381,7 +383,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                   htmlFor="startDate"
                   className="block text-xl font-medium text-gray-700 mb-2"
                 >
-                  Data Inici
+                  {t('start.date')}
                 </label>
                 <DatePicker
                   id="startDate"
@@ -395,7 +397,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
 
               <div className="mb-6">
                 <label className="block text-xl font-medium text-gray-700 mb-2">
-                  Operaris
+                  {t('operators')}
                 </label>
                 {operators !== undefined && operators.length > 0 && (
                   <ChooseElement
@@ -403,7 +405,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                     selectedElements={selectedOperator}
                     onElementSelected={handleSelectedOperator}
                     onDeleteElementSelected={handleDeleteSelectedOperator}
-                    placeholder="Buscar Operaris"
+                    placeholder={t('search.operators')}
                     mapElement={operator => ({
                       id: operator.id,
                       description: operator.name,
@@ -431,10 +433,10 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                   : 'bg-blue-700'
               } text-white font-bold py-2 px-4 rounded mt-6 mb-4 sm:mb-0 sm:mr-2 flex items-center justify-center`}
             >
-              Crear{' '}
+              {t('create')}{' '}
               {loginUser?.userType === UserType.Maintenance
-                ? 'Avaria'
-                : 'Tiquet'}
+                ? t('breakdown')
+                : t('ticket')}
               {isLoading && <SvgSpinner style={{ marginLeft: '0.5rem' }} />}
             </button>
             {assetId == undefined && (
@@ -444,7 +446,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                 onClick={e => router.back()}
                 className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 sm:ml-2"
               >
-                Cancelar
+                {t('cancel')}
               </button>
             )}
           </div>
@@ -453,8 +455,8 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
             <SuccessfulMessage
               title={
                 loginUser?.userType == UserType.Production
-                  ? 'Tiquet Creat ' + code
-                  : 'Averia Creada ' + code
+                  ? t('ticket.created') + ' ' + code
+                  : t('breakdown.created') + ' ' + code
               }
               message={
                 descriptionCorrective !== undefined
@@ -466,8 +468,8 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
 
           {showErrorMessage && (
             <ErrorMessage
-              title={'Error al crear avaría'}
-              message="Contacte amb el teu responsable"
+              title={t('error.creating.breakdown')}
+              message={t('contact.manager')}
             />
           )}
         </form>

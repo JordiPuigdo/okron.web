@@ -23,66 +23,83 @@ dayjs.extend(customParseFormat);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export const translateStateWorkOrder = (state: any): string => {
+export const translateStateWorkOrder = (
+  state: any,
+  t: (key: string) => string
+): string => {
   switch (state) {
     case StateWorkOrder.Waiting:
-      return 'Pendent';
+      return t('workorder.state.waiting');
     case StateWorkOrder.OnGoing:
-      return 'En curs';
+      return t('workorder.state.ongoing');
     case StateWorkOrder.Paused:
-      return 'Pausada';
+      return t('workorder.state.paused');
     case StateWorkOrder.Finished:
-      return 'Finalitzada';
+      return t('workorder.state.finished');
     case StateWorkOrder.PendingToValidate:
-      return 'Pendent Validar';
+      return t('workorder.state.pending.validate');
     case StateWorkOrder.Requested:
-      return 'Sol·licitat';
+      return t('workorder.state.requested');
     case StateWorkOrder.Open:
-      return 'Obert';
+      return t('workorder.state.open');
     case StateWorkOrder.Closed:
-      return 'Tancat';
+      return t('workorder.state.closed');
     case StateWorkOrder.NotFinished:
-      return 'No Finalitzada';
+      return t('workorder.state.not.finished');
     default:
       return '';
   }
 };
 
 export const translateWorkOrderCommentType = (
-  commentType: WorkOrderCommentType
+  commentType: WorkOrderCommentType,
+  t: (key: string) => string
 ): string => {
   switch (commentType) {
     case WorkOrderCommentType.Internal:
-      return 'Obervacions';
+      return t('workorder.comment.internal');
     case WorkOrderCommentType.External:
-      return 'Descripció Reparació';
+      return t('workorder.comment.external');
     case WorkOrderCommentType.NoFinished:
-      return 'No Finalitzada';
+      return t('workorder.comment.no.finished');
     default:
       return '';
   }
 };
 
 export const translateWorkOrderEventType = (
-  eventType: WorkOrderEventType
+  eventType: WorkOrderEventType,
+  t: (key: string) => string
 ): string => {
   switch (eventType) {
-    /*case WorkOrderEventType.Requested:
-      return "Sol·licitud";*/
     case WorkOrderEventType.Waiting:
-      return 'Pendent';
+      return t('workorder.event.waiting');
     case WorkOrderEventType.Started:
-      return 'En curs';
+      return t('workorder.event.started');
     case WorkOrderEventType.Paused:
-      return 'Pausada';
+      return t('workorder.event.paused');
     case WorkOrderEventType.PendingToValidate:
-      return 'Validació Pendent';
+      return t('workorder.event.pending.validate');
     case WorkOrderEventType.Finished:
-      return 'Finalitzada';
+      return t('workorder.event.finished');
     case WorkOrderEventType.Created:
-      return 'Creada';
+      return t('workorder.event.created');
     default:
       return '';
+  }
+};
+
+export const translateInvoiceStatus = (
+  status: InvoiceStatus,
+  t: (key: string) => string
+): string => {
+  switch (status) {
+    case InvoiceStatus.Invoiced:
+      return t('invoice.status.draft');
+    case InvoiceStatus.Pending:
+      return t('invoice.status.paid');
+    default:
+      return t('invoice.status.unknown');
   }
 };
 
@@ -96,6 +113,17 @@ export const translateInvoiceItemType = (type: InvoiceItemType): string => {
       return 'Altres';
     default:
       return 'Desconegut';
+  }
+};
+
+export const getInvoiceStatusColor = (status: InvoiceStatus): string => {
+  switch (status) {
+    case InvoiceStatus.Pending:
+      return 'bg-gray-100 text-gray-800';
+    case InvoiceStatus.Invoiced:
+      return 'bg-green-100 text-green-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
   }
 };
 
@@ -183,18 +211,25 @@ export function formatTimeSpan(timeSpan: string): string {
 
   return `${sign}${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 }
-export const translateWorkOrderType = (
-  workOrderType: WorkOrderType
-): string => {
-  const translations: { [key in WorkOrderType]: string } = {
-    [WorkOrderType.Preventive]: 'Preventiu',
-    [WorkOrderType.Corrective]: 'Correctiu',
-    [WorkOrderType.Predicitve]: '',
-    [WorkOrderType.Ticket]: 'Tiquet',
-  };
 
-  return translations[workOrderType];
+export const translateWorkOrderType = (
+  workOrderType: WorkOrderType,
+  t: (key: string) => string
+): string => {
+  switch (workOrderType) {
+    case WorkOrderType.Preventive:
+      return t('workorder.type.preventive');
+    case WorkOrderType.Corrective:
+      return t('workorder.type.corrective');
+    case WorkOrderType.Ticket:
+      return t('workorder.type.ticket');
+    case WorkOrderType.Predicitve:
+      return '';
+    default:
+      return '';
+  }
 };
+
 export const validateEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const validDomains = [
@@ -268,32 +303,35 @@ export function formatDateQuery(date: Date, startDate: boolean) {
   ).toISOString();
 }
 
-export const translateOperatorType = (operatorType: any): string => {
+export const translateOperatorType = (
+  operatorType: any,
+  t: (key: string) => string
+): string => {
   switch (operatorType) {
     case OperatorType.Maintenance:
-      return 'Manteniment';
+      return t('operator.type.maintenance');
     case OperatorType.Production:
-      return 'Producció';
+      return t('operator.type.production');
     case OperatorType.Quality:
-      return 'Qualitat';
+      return t('operator.type.quality');
     case OperatorType.Repairs:
-      return 'Reparació';
+      return t('operator.type.repairs');
     case OperatorType.Assembly:
-      return 'Muntatge';
+      return t('operator.type.assembly');
     default:
       return '';
   }
 };
 
 export const translateDowntimeReasonType = (
-  type: DowntimesReasonsType
+  type: DowntimesReasonsType,
+  t: (key: string) => string
 ): string => {
   switch (type) {
     case DowntimesReasonsType.Maintanance:
-      return 'Manteniment';
-
+      return t('downtime.reason.maintenance');
     case DowntimesReasonsType.Production:
-      return 'Producció';
+      return t('downtime.reason.production');
     default:
       return '';
   }
@@ -447,31 +485,59 @@ export const getRoute = (entity: EntityTable, isForHeader = false) => {
   }
 };
 
-// Función utilitaria para formatear números en formato europeo
 export const formatEuropeanCurrency = (
-  value: number | string | undefined | null
+  value: number | string | undefined | null,
+  t: (key: string) => string
 ): string => {
-  if (value === undefined || value === null) return 'N/A';
+  if (value === undefined || value === null) return t('common.not.available');
 
-  // Convertir a número
+  // Convert to number
   const numericValue =
     typeof value === 'string'
       ? parseFloat(value.replace(/\./g, '').replace(',', '.'))
       : value;
 
-  if (isNaN(numericValue)) return 'N/A';
+  if (isNaN(numericValue)) return t('common.not.available');
 
-  // Separar la parte entera y decimal
+  // Separate integer and decimal parts
   const parts = numericValue.toFixed(2).split('.');
   const integerPart = parts[0];
   const decimalPart = parts[1];
 
-  // Añadir separador de miles a la parte entera
+  // Add thousands separator to integer part
   const integerWithThousands = integerPart.replace(
     /\B(?=(\d{3})+(?!\d))/g,
     '.'
   );
 
-  // Construir string final con formato europeo
+  // Build final string with European format
+  return `${integerWithThousands},${decimalPart}€`;
+};
+
+export const formatCurrencyServerSider = (
+  value: number | string | undefined | null
+): string => {
+  if (value === undefined || value === null) return '--';
+
+  // Convert to number
+  const numericValue =
+    typeof value === 'string'
+      ? parseFloat(value.replace(/\./g, '').replace(',', '.'))
+      : value;
+
+  if (isNaN(numericValue)) return '--';
+
+  // Separate integer and decimal parts
+  const parts = numericValue.toFixed(2).split('.');
+  const integerPart = parts[0];
+  const decimalPart = parts[1];
+
+  // Add thousands separator to integer part
+  const integerWithThousands = integerPart.replace(
+    /\B(?=(\d{3})+(?!\d))/g,
+    '.'
+  );
+
+  // Build final string with European format
   return `${integerWithThousands},${decimalPart}€`;
 };

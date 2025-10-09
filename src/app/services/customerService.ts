@@ -1,8 +1,4 @@
-import {
-  CreateCustomerRequest,
-  Customer,
-  UpdateCustomerRequest,
-} from 'app/interfaces/Customer';
+import { Customer, UpdateCustomerRequest } from 'app/interfaces/Customer';
 
 export class CustomerService {
   private readonly baseUrl: string;

@@ -13,6 +13,7 @@ import utc from 'dayjs/plugin/utc';
 import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
 
+import { useTranslations } from '../../../../hooks/useTranslations';
 import SparePartBarchart from './component/sparePartBarchart';
 import SparePartsConsumedReportTable from './component/SparePartsConsumedReportTable';
 
@@ -27,6 +28,8 @@ export default function ConsumedSparePartsComponent() {
     return date;
   });
   const [to, setTo] = useState(new Date());
+
+  const { t } = useTranslations();
 
   const { sparePartsConsumeds, isLoading, isError, reloadSparePartsConsumeds } =
     useSparePartsHook().fetchSparePartsConsumedsHook(
@@ -55,7 +58,7 @@ export default function ConsumedSparePartsComponent() {
             </svg>
           </div>
           <div className="flex w-full text-center justify-center">
-            Històric de consums de recanvis
+            {t('spare.parts.consumption.history')}
           </div>
         </div>
         <div className="flex gap-4">
@@ -75,7 +78,7 @@ export default function ConsumedSparePartsComponent() {
           />
 
           <Button type="create" onClick={() => reloadSparePartsConsumeds()}>
-            Buscar
+            {t('search')}
           </Button>
         </div>
       </div>
@@ -84,7 +87,7 @@ export default function ConsumedSparePartsComponent() {
           <SvgSpinner className="items-center justify-center" />
         </div>
       )}
-      {isError && <div>Error loading spare parts consumeds</div>}
+      {isError && <div>{t('error.loading.spare.parts.consumeds')}</div>}
 
       {sparePartsConsumeds && sparePartsConsumeds?.length > 0 && (
         <>

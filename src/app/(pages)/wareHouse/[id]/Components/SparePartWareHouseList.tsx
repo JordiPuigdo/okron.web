@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import SparePart from 'app/interfaces/SparePart';
 import { Button } from 'designSystem/Button/Buttons';
 
@@ -14,6 +15,7 @@ const SparePartsList: React.FC<SparePartsListProps> = ({
   handleAssignSparePart,
   assignButton = true,
 }) => {
+  const { t } = useTranslations();
   const [searchTerm, setSearchTerm] = useState('');
 
   const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -31,7 +33,7 @@ const SparePartsList: React.FC<SparePartsListProps> = ({
       <SearchInputSpareParts
         value={searchTerm}
         onChange={setSearchTerm}
-        placeholder="Cerca recanvis..."
+        placeholder={t('search.spare.parts')}
       />
 
       <div className="overflow-y-auto border rounded-md p-2">
@@ -41,7 +43,7 @@ const SparePartsList: React.FC<SparePartsListProps> = ({
               key={sp.id}
               className="flex items-center justify-between p-2 border-b cursor-pointer hover:bg-gray-100 focus:outline-none focus:ring focus:ring-blue-300 w-full"
               onClick={() => handleAssignSparePart(sp)}
-              aria-label={`Assignar ${sp.code} - ${sp.description}`}
+              aria-label={`${t('assign')} ${sp.code} - ${sp.description}`}
             >
               <span className="flex-grow truncate">
                 {sp.code} - {sp.description}
@@ -58,7 +60,7 @@ const SparePartsList: React.FC<SparePartsListProps> = ({
             </button>
           ))
         ) : (
-          <div className="text-center text-gray-500">No hi ha recanvis.</div>
+          <div className="text-center text-gray-500">{t('no.spare.parts')}</div>
         )}
       </div>
     </div>

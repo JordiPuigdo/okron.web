@@ -214,7 +214,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
             const workOrderTypeChartProps: WorkOrderTypeChartProps = {
               workOrderType: workOrderType,
               value: 1,
-              index: translateWorkOrderType(workOrderType),
+              index: translateWorkOrderType(workOrderType, t),
             };
             workOrderTypeMap.set(workOrderType, workOrderTypeChartProps);
           }
@@ -442,12 +442,12 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
                   customStyles="flex ml-4"
                   onClick={fetchData}
                 >
-                  Buscar
+                  {t('search')}
                 </Button>
               </div>
             </div>
             <div className="flex items-center w-full lg:justify-start px-0 lg:px-6">
-              <span className="text-gray-500 font-semibold">Minuts:</span>
+              <span className="text-gray-500 font-semibold">{t('minutes')}:</span>
               <span className="font-bold ml-2">
                 {Math.round(totalMinutes).toLocaleString().replace(',', '.')}
               </span>
@@ -455,7 +455,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
 
             <div className="flex items-center w-full lg:justify-start px-0 lg:pl-6">
               <span className="text-gray-500 font-semibold">
-                Cost Material:
+                {t('cost.material')}:
               </span>
               <span className="font-bold ml-2">
                 {Math.round(totalCosts).toLocaleString().replace(',', '.')} €
@@ -472,7 +472,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
             >
               <div className="flex w-full items-center justify-center">
                 <p className="text-lg font-semibold text-white">
-                  {translateStateWorkOrder(workOrderType.statWorkOrder)}
+                  {translateStateWorkOrder(workOrderType.statWorkOrder, t)}
                 </p>
               </div>
               <div className="flex w-full items-center justify-around">
@@ -492,7 +492,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
         <div className="flex flex-col lg:flex-row flex-grow gap-4 ">
           <div className="flex flex-col flex-grow border-2 p-2 w-full rounded-xl bg-white">
             <p className="text-lg lg:text-2xl font-semibold p-2 text-left">
-              Costos
+              {t('costs')}
             </p>
             {workOrders.length > 0 ? (
               <WorkOrdersDashboard
@@ -504,7 +504,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
               />
             ) : (
               <span className="font-sm p-3 text-gray-500 text-sm mt-2">
-                No hi ha resultats amb aquests filtres.
+                {t('no.results.filters')}
               </span>
             )}
           </div>
@@ -516,7 +516,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
         <div className="flex flex-col w-full gap-4 items-center">
           <div className="flex flex-col w-full bg-white rounded-xl border-2 p-2">
             <p className="text-lg lg:text-2xl p-2 mb-4 font-semibold text-left">
-              Recanvis sota stock
+              {t('spare.parts.low.stock')}
             </p>
 
             <SparePartTable
@@ -536,7 +536,8 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
           <div className="flex w-full bg-white rounded-xl p-2 border-2">
             <DonutChartComponent
               chartData={workOrderTypeChartData}
-              title={`Correctius vs Preventius (${totalCorrective} / ${totalPreventive})`}
+              title={`${t('corrective')} vs ${t('preventive')} (${totalCorrective} / ${totalPreventive})`}
+              t={t}
             />
           </div>
           <div className="flex w-full bg-white rounded-xl p-2 border-2">
@@ -544,7 +545,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
               category={['Preventius', 'Correctius']}
               chartData={chartData}
               index="operator"
-              title="Ordres de treball per operari"
+              title={t('work.orders.per.operator')}
             />
           </div>
         </div>

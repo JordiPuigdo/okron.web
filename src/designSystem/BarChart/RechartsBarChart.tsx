@@ -11,6 +11,8 @@ import {
   YAxis,
 } from 'recharts';
 
+import { useTranslations } from '../../app/hooks/useTranslations';
+
 interface RechartsBarChartProps {
   chartData: { asset: string; total: number }[];
   title: string;
@@ -24,7 +26,10 @@ const RechartsBarChart: React.FC<RechartsBarChartProps> = ({
   showLegend = false,
   barColor = '#3b82f6', // azul sólido por defecto
 }) => {
-  // Formateador para los tooltips y eje Y
+  const { t } = useTranslations();
+
+  const formatCurrency = (value: number | string | undefined | null) =>
+    formatEuropeanCurrency(value, t);
 
   return (
     <div className="w-full mx-auto p-4">
@@ -42,9 +47,9 @@ const RechartsBarChart: React.FC<RechartsBarChartProps> = ({
             textAnchor="end"
             interval={0}
           />
-          <YAxis tickFormatter={formatEuropeanCurrency} width={90} />
+          <YAxis tickFormatter={formatCurrency} width={90} />
           <Tooltip
-            formatter={(value: number) => formatEuropeanCurrency(value)}
+            formatter={(value: number) => formatEuropeanCurrency(value, t)}
             labelFormatter={(label: string) => `Equip: ${label}`}
           />
           {showLegend && <Legend />}

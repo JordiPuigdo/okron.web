@@ -9,7 +9,7 @@ import useRoutes from 'app/utils/useRoutes';
 import Loader from 'components/Loader/loader';
 import { useRouter } from 'next/navigation';
 
-import AuthenticationComponent from './authentication';
+import { AuthenticationComponent } from './authentication';
 
 export default function AuthenticationPage() {
   const [username, setUserName] = useState('');
@@ -21,7 +21,7 @@ export default function AuthenticationPage() {
   const [errorEmail, setErrorEmail] = useState<string | undefined>('');
   const { setLoginUser } = useSessionStore(state => state);
   const { config } = useConfig();
-  const { fetchTranslations, setLang } = useTranslations();
+  const { fetchTranslations, setLang, t } = useTranslations();
   const authService = new AuthenticationService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
@@ -50,11 +50,11 @@ export default function AuthenticationPage() {
           setLoginUser(data);
           router.push(ROUTES.menu);
         } else {
-          handleErrorMessage('Error Login');
+          handleErrorMessage(t('error.login'));
         }
       })
       .catch((err: any) => {
-        handleErrorMessage('Error Login ' + err.message);
+        handleErrorMessage(t('error.login') + ' ' + err.message);
       });
   };
 

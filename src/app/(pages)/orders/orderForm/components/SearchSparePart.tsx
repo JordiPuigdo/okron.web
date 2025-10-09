@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { OrderItemRequest } from 'app/interfaces/Order';
 import { Provider } from 'app/interfaces/Provider';
 import SparePart from 'app/interfaces/SparePart';
@@ -16,6 +17,7 @@ export default function SearchSparePartOrderPurchase({
   onSelectedSparePart,
   selectedProvider,
 }: SearchSparePartOrderPurchaseProps) {
+  const { t } = useTranslations();
   const [quantity, setQuantity] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [unitPrice, setUnitPrice] = useState('');
@@ -108,10 +110,10 @@ export default function SearchSparePartOrderPurchase({
     <div>
       <div className="border-t pt-4">
         <div className="grid grid-cols-[6fr_1fr_1fr] gap-2 text-left pb-2">
-          <h3 className="text-lg font-semibold">Afegir Recanvis</h3>
+          <h3 className="text-lg font-semibold">{t('order.add.spare.parts')}</h3>
 
-          <h3 className="text-lg font-semibold">Quantitat</h3>
-          <h3 className="text-lg font-semibold">Acció</h3>
+          <h3 className="text-lg font-semibold">{t('quantity')}</h3>
+          <h3 className="text-lg font-semibold">{t('actions')}</h3>
         </div>
 
         <div className="grid grid-cols-[6fr_1fr_1fr] gap-2">
@@ -120,7 +122,7 @@ export default function SearchSparePartOrderPurchase({
               <input
                 type="text"
                 className="w-full p-2 border rounded-md mb-2"
-                placeholder="Buscar recanvis..."
+                placeholder={t('order.search.spare.parts.placeholder')}
                 value={searchText}
                 onChange={e => setSearchText(e.target.value)}
                 onFocus={() => setSearchText('')}
@@ -135,7 +137,7 @@ export default function SearchSparePartOrderPurchase({
                     value={selectedSparePart?.id || ''}
                     size={5}
                   >
-                    <option value="">Selecciona un recanvi</option>
+                    <option value="">{t('order.select.spare.part')}</option>
                     {filteredSpareParts?.map(sp => (
                       <option key={sp.id} value={sp.id}>
                         {sp.code} - {sp.description}
@@ -166,7 +168,7 @@ export default function SearchSparePartOrderPurchase({
             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 w-full mb-2"
             disabled={!selectedProvider}
           >
-            Afegir
+            {t('add')}
           </button>
         </div>
         {selectedSparePart && (

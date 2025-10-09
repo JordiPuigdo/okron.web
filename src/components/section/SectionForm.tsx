@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import Section from 'app/interfaces/Section';
 import SectionService from 'app/services/sectionService';
@@ -12,6 +13,7 @@ interface SectionFormProps {
 }
 
 const SectionForm: React.FC<SectionFormProps> = ({ id }) => {
+  const { t } = useTranslations();
   const sectionService = new SectionService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
@@ -50,13 +52,13 @@ const SectionForm: React.FC<SectionFormProps> = ({ id }) => {
     try {
       if (section) {
         await sectionService.updateSection(data);
-        setMessageNotification('Secció actualitzada');
+        setMessageNotification(t('section.updated'));
         setTimeout(() => {
           router.push(ROUTES.configuration.section);
         }, 2000);
       } else {
         await sectionService.createSection(data.code, data.description);
-        setMessageNotification('Secció creada');
+        setMessageNotification(t('section.created'));
         setTimeout(() => {
           router.push(ROUTES.configuration.section);
         }, 2000);
@@ -70,7 +72,7 @@ const SectionForm: React.FC<SectionFormProps> = ({ id }) => {
     try {
       setLoading(true);
       await sectionService.deleteSection(section!.id);
-      setMessageNotification('Secció eliminada');
+      setMessageNotification(t('section.deleted'));
       setTimeout(() => {
         router.push(ROUTES.configuration.section);
       }, 2000);
@@ -86,7 +88,7 @@ const SectionForm: React.FC<SectionFormProps> = ({ id }) => {
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
       >
         <label className="block text-gray-700 text-sm font-bold mb-2">
-          Codi:
+          {t('code')}:
           <input
             type="text"
             {...register('code')}
@@ -95,7 +97,7 @@ const SectionForm: React.FC<SectionFormProps> = ({ id }) => {
           />
         </label>
         <label className="block text-gray-700 text-sm font-bold mb-2">
-          Descripció:
+          {t('description')}:
           <input
             type="text"
             defaultValue={section?.description || ''}
@@ -109,7 +111,7 @@ const SectionForm: React.FC<SectionFormProps> = ({ id }) => {
             disabled={loading}
             className="bg-blue-500 hover:bg-blue-700 text-white flex items-center font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
-            {section ? 'Actualitzar' : 'Crear'}
+            {section ? t('update') : t('create')}
             {loading && <SvgSpinner />}
           </button>
           {section && (
@@ -119,7 +121,7 @@ const SectionForm: React.FC<SectionFormProps> = ({ id }) => {
               className="bg-red-500 hover:bg-red-700 text-white flex items-center font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               onClick={deleteSection}
             >
-              Eliminar
+              {t('delete')}
               {loading && <SvgSpinner />}
             </button>
           )}
@@ -131,7 +133,7 @@ const SectionForm: React.FC<SectionFormProps> = ({ id }) => {
               router.push(ROUTES.configuration.section);
             }}
           >
-            Cancelar
+            {t('cancel')}
             {loading && <SvgSpinner />}
           </button>
           {messageNotification != undefined && (

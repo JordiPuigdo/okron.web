@@ -51,26 +51,6 @@ const CustomerDataCard: React.FC<CustomerDataProps> = ({
       </div>
 
       {/* Detalls de l'Ordre */}
-      <div className="bg-blue-50 p-2 rounded-lg border border-blue-100  flex w-full justify-between">
-        <div className=" text-gray-600 flex w-full justify-between">
-          <div className="flex flex-col">
-            <span className="text-xs text-gray-500">NÚM ORDRE</span>
-            <span className="font-medium">{workOrder.code}</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xs text-gray-500">DATA</span>
-            <span className="font-medium">
-              {dayjs(workOrder.creationDate).format('DD/MM/YYYY')}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xs text-gray-500">REF. CLIENT</span>
-            <span className="font-bold text-blue-600 text-lg">
-              {workOrder.refCustomerId}
-            </span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

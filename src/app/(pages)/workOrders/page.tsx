@@ -6,15 +6,17 @@ import { useSessionStore } from 'app/stores/globalStore';
 import Container from 'components/layout/Container';
 import MainLayout from 'components/layout/MainLayout';
 
+import { useTranslations } from '../../hooks/useTranslations';
 import WorkOrderTable from './components/WorkOrderTable';
 
 export default function WorkOrdersPage() {
+  const { t } = useTranslations();
   const { loginUser } = useSessionStore(state => state);
   const renderHeader = () => {
     const name =
       loginUser?.userType == UserType.Maintenance
-        ? 'Ordres de treball'
-        : 'Tiquets';
+        ? t('sidebar.workOrders')
+        : t('tickets');
     return (
       <div className="flex p-2 my-2">
         <div className="w-full flex flex-col gap-2 items">
@@ -22,7 +24,7 @@ export default function WorkOrdersPage() {
             <SvgMachines />
             {name}
           </h2>
-          <span className="text-l">Inici - Llistat de {name}</span>
+          <span className="text-l">{t('workOrders.listTitle', { type: name })}</span>
         </div>
       </div>
     );

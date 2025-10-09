@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { Checkbox, ListItemText, MenuItem, Select } from '@mui/material';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { DayOfWeek, Rate } from 'app/interfaces/Rate';
 import TimeInput from 'components/input/TimeInput';
 
-// Ensure the keys match the actual values of DayOfWeek
-// Use the actual DayOfWeek enum/union values as keys
-const dayOfWeekLabels: Record<DayOfWeek, string> = {
-  [DayOfWeek.Monday]: 'Dilluns',
-  [DayOfWeek.Tuesday]: 'Dimarts',
-  [DayOfWeek.Wednesday]: 'Dimecres',
-  [DayOfWeek.Thursday]: 'Dijous',
-  [DayOfWeek.Friday]: 'Divendres',
-  [DayOfWeek.Saturday]: 'Dissabte',
-  [DayOfWeek.Sunday]: 'Diumenge',
-};
+// Function to get translated day labels
+const getDayOfWeekLabels = (t: (key: string) => string): Record<DayOfWeek, string> => ({
+  [DayOfWeek.Monday]: t('system.rates.monday'),
+  [DayOfWeek.Tuesday]: t('system.rates.tuesday'),
+  [DayOfWeek.Wednesday]: t('system.rates.wednesday'),
+  [DayOfWeek.Thursday]: t('system.rates.thursday'),
+  [DayOfWeek.Friday]: t('system.rates.friday'),
+  [DayOfWeek.Saturday]: t('system.rates.saturday'),
+  [DayOfWeek.Sunday]: t('system.rates.sunday'),
+});
 
 type Column<T> = {
   header: string;
@@ -36,6 +36,7 @@ export function EditableTable<T extends { id: string }>({
   onDelete: (id: string) => void;
   loading: boolean;
 }) {
+  const { t } = useTranslations();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<T>>({});
 
@@ -72,6 +73,7 @@ export function EditableTable<T extends { id: string }>({
     setEditForm({});
   };
   const editFormTyped = editForm as Partial<Rate>;
+  const dayOfWeekLabels = getDayOfWeekLabels(t);
 
   return (
     <div className="overflow-x-auto">
@@ -83,7 +85,7 @@ export function EditableTable<T extends { id: string }>({
                 {col.header}
               </th>
             ))}
-            <th className="p-3 text-right">Accions</th>
+            <th className="p-3 text-right">{t('actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -246,14 +248,14 @@ export function EditableTable<T extends { id: string }>({
                         onClick={handleSave}
                         className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 disabled:opacity-50"
                       >
-                        Guardar
+                        {t('save')}
                       </button>
                       <button
                         type="button"
                         onClick={handleCancel}
                         className="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
                       >
-                        Cancelar
+                        {t('cancel')}
                       </button>
                     </>
                   ) : (
@@ -263,7 +265,7 @@ export function EditableTable<T extends { id: string }>({
                         onClick={() => startEditing(row)}
                         className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
                       >
-                        Editar
+                        {t('edit')}
                       </button>
                       <button
                         type="button"
@@ -271,7 +273,7 @@ export function EditableTable<T extends { id: string }>({
                         onClick={() => onDelete(row.id)}
                         className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 disabled:opacity-50"
                       >
-                        Eliminar
+                        {t('delete')}
                       </button>
                     </>
                   )}

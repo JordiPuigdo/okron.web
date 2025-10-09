@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 
 interface PaginationProps {
   currentPage: number;
@@ -13,6 +14,7 @@ const Pagination: React.FC<PaginationProps> = ({
   hasNextPage,
   onPageChange,
 }) => {
+  const { t } = useTranslations();
   return (
     <div className="flex justify-end gap-4 mr-4 items-center text-sm">
       <button
@@ -26,14 +28,14 @@ const Pagination: React.FC<PaginationProps> = ({
             : 'bg-okron-btnPagination  hover:bg-okron-btnPaginationHover'
         } `}
       >
-        Anterior
+        {t('pagination.previous')}
       </button>
       <span className="mr-2 text-center">
-        Pàgina {currentPage}{' '}
+        {t('pagination.page')} {currentPage}{' '}
         {currentPage === totalPages || totalPages === 0 ? (
           <></>
         ) : (
-          <>de {totalPages}</>
+          <>{t('pagination.of')} {totalPages}</>
         )}
       </span>
       <button
@@ -47,7 +49,7 @@ const Pagination: React.FC<PaginationProps> = ({
             : 'bg-okron-btnPagination  hover:bg-okron-btnPaginationHover'
         } `}
       >
-        Següent
+        {t('pagination.next')}
       </button>
     </div>
   );

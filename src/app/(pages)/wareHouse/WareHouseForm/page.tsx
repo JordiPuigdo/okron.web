@@ -1,6 +1,7 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import { SvgSpinner } from 'app/icons/icons';
 import { WareHouseRequest } from 'app/interfaces/WareHouse';
@@ -11,6 +12,7 @@ import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
 
 export default function WareHouseForm() {
+  const { t } = useTranslations();
   const { createWareHouse, warehouses } = useWareHouses(true);
   const router = useRouter();
   const {
@@ -25,7 +27,7 @@ export default function WareHouseForm() {
           x => x.code.toLocaleUpperCase() == data?.code.toLocaleUpperCase()
         )
       ) {
-        alert('El codi ja existeix');
+        alert(t('warehouse.codeExists'));
         return;
       }
       const wareHouse = await createWareHouse(data);
@@ -38,31 +40,31 @@ export default function WareHouseForm() {
   return (
     <MainLayout>
       <Container>
-        <HeaderForm header="Crear Magatzem" isCreate />
+        <HeaderForm header={t('warehouse.createWarehouse')} isCreate />
         <div className="flex flex-row gap-4">
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-4 p-4 bg-white shadow-md rounded-md"
           >
             <div>
-              <label className="block font-medium">Codi Magatzem</label>
+              <label className="block font-medium">{t('warehouse.warehouseCode')}</label>
               <input
-                {...register('code', { required: 'El codi és obligatori' })}
+                {...register('code', { required: t('warehouse.codeRequired') })}
                 className="w-full border rounded p-2"
-                placeholder="Introdueix el codi"
+                placeholder={t('warehouse.enterCode')}
               />
               {errors.code && (
                 <p className="text-red-500 text-sm">{errors.code.message}</p>
               )}
             </div>
             <div>
-              <label className="block font-medium">Descripció</label>
+              <label className="block font-medium">{t('description')}</label>
               <input
                 {...register('description', {
-                  required: 'La descripció és obligatòria',
+                  required: t('warehouse.descriptionRequired'),
                 })}
                 className="w-full border rounded p-2"
-                placeholder="Introdueix la descripció"
+                placeholder={t('warehouse.enterDescription')}
               />
               {errors.description && (
                 <p className="text-red-500 text-sm">
@@ -72,7 +74,7 @@ export default function WareHouseForm() {
             </div>
 
             <div>
-              <label className="block font-medium">Virtual</label>
+              <label className="block font-medium">{t('warehouse.virtual')}</label>
               <input
                 {...register('isVirtual', {})}
                 className="w-full border rounded p-2"
@@ -92,7 +94,7 @@ export default function WareHouseForm() {
                 customStyles="gap-2 flex"
                 disabled={isSubmitting}
               >
-                Crear Magatzem {isSubmitting && <SvgSpinner />}
+                {t('warehouse.createWarehouse')} {isSubmitting && <SvgSpinner />}
               </Button>
               <Button
                 onClick={() => router.back()}
@@ -100,7 +102,7 @@ export default function WareHouseForm() {
                 customStyles="gap-2 flex"
                 disabled={isSubmitting}
               >
-                Cancelar {isSubmitting && <SvgSpinner />}
+                {t('common.cancel')} {isSubmitting && <SvgSpinner />}
               </Button>
             </div>
           </form>

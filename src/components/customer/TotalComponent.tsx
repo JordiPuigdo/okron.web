@@ -1,4 +1,4 @@
-import { formatEuropeanCurrency } from 'app/utils/utils';
+import { formatCurrencyServerSider } from 'app/utils/utils';
 
 interface TotalComponentProps {
   subtotal: number;
@@ -16,15 +16,15 @@ export const TotalComponent = ({
       <div className="w-96 space-y-2 p-4 border rounded-lg bg-gray-50">
         <div className="flex justify-between">
           <span>Subtotal:</span>
-          <span>{formatEuropeanCurrency(subtotal)}</span>
+          <span>{formatCurrencyServerSider(subtotal)}</span>
         </div>
         <div className="flex justify-between">
           <span>IVA (21%):</span>
-          <span>{formatEuropeanCurrency(totalTax)}</span>
+          <span>{formatCurrencyServerSider(totalTax)}</span>
         </div>
         <div className="flex justify-between font-bold text-lg border-t pt-2">
           <span>Total:</span>
-          <span>{formatEuropeanCurrency(total)}</span>
+          <span>{formatCurrencyServerSider(total)}</span>
         </div>
       </div>
     </div>

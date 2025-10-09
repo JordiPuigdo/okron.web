@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Select, { MultiValue } from 'react-select';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { StateWorkOrder, WorkOrdersFilters } from 'app/interfaces/workOrder';
 import { translateStateWorkOrder } from 'app/utils/utils';
 
@@ -14,13 +15,14 @@ export const WorkOrderStateFilter = ({
   setWorkOrdersFilters,
   validStates,
 }: WorkOrdersFiltersStateProps) => {
+  const { t } = useTranslations();
   const [selectedOptions, setSelectedOptions] = useState<
     MultiValue<{ label: string; value: string }>
   >([]);
 
   const mapStatesToOptions = (states: StateWorkOrder[]) =>
     states.map(state => ({
-      label: translateStateWorkOrder(state),
+      label: translateStateWorkOrder(state, t),
       value: state.toString(),
     }));
   const mapOptionsToStates = (
@@ -38,7 +40,8 @@ export const WorkOrderStateFilter = ({
   };
 
   useEffect(() => {
-    if (workOrdersFilters.workOrderState.length > 0) return;
+    if (workOrdersFilters.workOrderState.length == 0) return;
+
     setSelectedOptions(mapStatesToOptions(workOrdersFilters.workOrderState));
   }, [workOrdersFilters.workOrderState]);
 
@@ -52,7 +55,7 @@ export const WorkOrderStateFilter = ({
         className="w-full"
         classNamePrefix="react-select"
         styles={customStyles}
-        placeholder="Estat"
+        placeholder={t('state')}
       />
     </div>
   );

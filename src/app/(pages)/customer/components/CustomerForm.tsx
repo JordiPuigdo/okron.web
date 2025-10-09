@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card } from 'react-bootstrap';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useCustomers } from 'app/hooks/useCustomers';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import {
   CreateCustomerRequest,
@@ -26,15 +27,16 @@ interface CustomerFormProps {
 }
 
 enum CustomerFormTabs {
-  GENERAL = 'General',
-  PAYMENTMETHODS = 'Pagaments',
-  INSTALLATIONS = 'Botigues',
+  GENERAL = 'GENERAL',
+  PAYMENTMETHODS = 'PAYMENTMETHODS',
+  INSTALLATIONS = 'INSTALLATIONS',
 }
 
 export default function CustomerForm({
   initialData,
   onSuccess,
 }: CustomerFormProps) {
+  const { t } = useTranslations();
   const tabs = [
     CustomerFormTabs.GENERAL,
     CustomerFormTabs.PAYMENTMETHODS,
@@ -94,7 +96,7 @@ export default function CustomerForm({
         id: initialData!.id,
       });
       if (response) {
-        setSuccessMessage('Client actualitzat correctament');
+        setSuccessMessage(t('customer.updated.successfully'));
       }
     } else {
       await createCustomer(data);
@@ -137,7 +139,9 @@ export default function CustomerForm({
             `}
                   style={{ color: activeTab === tab ? '#59408F' : undefined }}
                 >
-                  {tab}
+                  {tab === CustomerFormTabs.GENERAL ? t('common.general') : 
+                   tab === CustomerFormTabs.PAYMENTMETHODS ? t('customer.payments') :
+                   t('customer.stores')}
                   {activeTab === tab && (
                     <span
                       className="absolute bottom-0 left-0 right-0 h-1 rounded-t-md"
@@ -152,13 +156,13 @@ export default function CustomerForm({
               <div className="flex gap-6">
                 <div className="flex flex-col w-full gap-4">
                   <div>
-                    <label className="block font-medium">Codi</label>
+                    <label className="block font-medium">{t('common.code')}</label>
                     <input
                       {...register('code', {
-                        required: 'El codi és obligatori',
+                        required: t('validation.code.required'),
                       })}
                       className="w-full border rounded p-2"
-                      placeholder="Codi client"
+                      placeholder={t('customer.code.placeholder')}
                       disabled
                     />
                     {errors.code && (
@@ -169,13 +173,13 @@ export default function CustomerForm({
                   </div>
 
                   <div>
-                    <label className="block font-medium">Nom</label>
+                    <label className="block font-medium">{t('common.name')}</label>
                     <input
                       {...register('name', {
-                        required: 'El nom és obligatori',
+                        required: t('validation.name.required'),
                       })}
                       className="w-full border rounded p-2"
-                      placeholder="Nom client"
+                      placeholder={t('customer.name.placeholder')}
                     />
                     {errors.name && (
                       <p className="text-red-500 text-sm">
@@ -185,7 +189,7 @@ export default function CustomerForm({
                   </div>
 
                   <div>
-                    <label className="block font-medium">Nom Fiscal</label>
+                    <label className="block font-medium">{t('customer.fiscal.name')}</label>
                     <input
                       {...register('fiscalName')}
                       className="w-full border rounded p-2"
@@ -194,11 +198,11 @@ export default function CustomerForm({
                   </div>
 
                   <div>
-                    <label className="block font-medium">NIF/CIF</label>
+                    <label className="block font-medium">{t('customer.tax.id')}</label>
                     <input
                       {...register('taxId')}
                       className="w-full border rounded p-2"
-                      placeholder="NIF o CIF"
+                      placeholder={t('customer.tax.id.placeholder')}
                     />
                   </div>
 
@@ -213,7 +217,7 @@ export default function CustomerForm({
 
                   <div>
                     <label className="block font-medium">
-                      Número de compte
+                      {t('customer.account.number')}
                     </label>
                     <input
                       {...register('accountNumber')}
@@ -222,40 +226,40 @@ export default function CustomerForm({
                     />
                   </div>
                   <div>
-                    <label className="block font-medium">Telèfon</label>
+                    <label className="block font-medium">{t('common.phone')}</label>
                     <input
                       {...register('phoneNumber')}
                       className="w-full border rounded p-2"
-                      placeholder="Telèfon"
+                      placeholder={t('common.phone')}
                     />
                   </div>
                   <div>
-                    <label className="block font-medium">Whatsapp</label>
+                    <label className="block font-medium">{t('customer.whatsapp')}</label>
                     <input
                       {...register('whatsappNumber')}
                       className="w-full border rounded p-2"
-                      placeholder="Whatsapp"
+                      placeholder={t('customer.whatsapp')}
                     />
                   </div>
                   <div>
-                    <label className="block font-medium">Comentaris</label>
+                    <label className="block font-medium">{t('common.comments')}</label>
                     <Textarea
                       {...register('comments')}
                       className="w-full border rounded p-2"
-                      placeholder="Comentaris"
+                      placeholder={t('common.comments')}
                     />
                   </div>
                   <div>
-                    <label className="block font-medium">Kms</label>
+                    <label className="block font-medium">{t('customer.kilometers')}</label>
                     <input
                       {...register('kms')}
                       className="w-full border rounded p-2"
-                      placeholder="Kms"
+                      placeholder={t('customer.kilometers')}
                     />
                   </div>
                   {initialData && initialData?.id.length > 0 && (
                     <div className="flex flex-col">
-                      <label className="block font-medium">Actiu</label>
+                      <label className="block font-medium">{t('common.active')}</label>
                       <input
                         type="checkbox"
                         {...register('active')}
@@ -269,7 +273,7 @@ export default function CustomerForm({
                   {initialData && initialData?.address?.length > 0 && (
                     <div className="mb-4 pt-1">
                       <label className="block font-medium">
-                        Direcció Principal
+                        {t('customer.main.address')}
                       </label>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input
@@ -316,22 +320,22 @@ export default function CustomerForm({
         </FormProvider>
         <div className="lg:col-span-1">
           <Card className="sticky top-20 bg-white rounded-md p-4">
-            <h3 className="text-md font-semibold text-gray-700 mb-2">Resum</h3>
+            <h3 className="text-md font-semibold text-gray-700 mb-2">{t('common.summary')}</h3>
             <ul>
               <li className="flex justify-between gap-6">
-                <span>Direccions:</span>
+                <span>{t('customer.addresses')}:</span>
                 <span className="font-semibold">{addressCount}</span>
               </li>
               <li className="flex justify-between gap-6">
-                <span>Contactes:</span>
+                <span>{t('customer.contacts')}:</span>
                 <span className="font-semibold">{contactsCount}</span>
               </li>
               <li className="flex justify-between gap-6">
-                <span>Tarifes:</span>
+                <span>{t('customer.rates')}:</span>
                 <span className="font-semibold">{ratesCount}</span>
               </li>
               <li className="flex justify-between gap-6">
-                <span>Botigues:</span>
+                <span>{t('customer.stores')}:</span>
                 <span className="font-semibold">{installationsCount}</span>
               </li>
               <li className="flex flex-col justify-between gap-6">
@@ -342,7 +346,7 @@ export default function CustomerForm({
                     disabled={isSubmitting}
                     onClick={handleSubmit(onSubmit)}
                   >
-                    {isEdit ? 'Actualitzar Client' : 'Crear Client'}
+                    {isEdit ? t('customer.update') : t('customer.create')}
                     {isSubmitting && <SvgSpinner />}
                   </Button>
 
@@ -352,7 +356,7 @@ export default function CustomerForm({
                     customStyles="gap-2 flex"
                     disabled={isSubmitting}
                   >
-                    Cancel·lar {isSubmitting && <SvgSpinner />}
+                    {t('common.cancel')} {isSubmitting && <SvgSpinner />}
                   </Button>
                 </div>
                 {error && <p className="text-red-500 text-sm">{error}</p>}

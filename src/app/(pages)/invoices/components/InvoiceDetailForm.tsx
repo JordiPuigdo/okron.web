@@ -3,10 +3,12 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import { CustomerInformationComponent } from 'components/customer/CustomerInformationComponent';
 import { InstallationComponent } from 'components/customer/InstallationComponent';
 import { TotalComponent } from 'components/customer/TotalComponent';
+import { Input } from 'components/input/Input';
 import dayjs from 'dayjs';
 import { Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -36,6 +38,7 @@ export function InvoiceDetailForm({
   const [formData, setFormData] = useState<Invoice>(invoice);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { t } = useTranslations();
 
   useEffect(() => {
     setFormData(invoice);
@@ -83,6 +86,7 @@ export function InvoiceDetailForm({
     try {
       const updateRequest: InvoiceUpdateRequest = {
         id: formData.id,
+        code: formData.code,
         status: formData.status,
       };
 
@@ -98,6 +102,7 @@ export function InvoiceDetailForm({
     }
   };
 
+  if (!formData.deliveryNotes) return null;
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto space-y-8">
@@ -113,9 +118,13 @@ export function InvoiceDetailForm({
             <div className="grid grid-cols-3 gap-6">
               <div className="space-y-2">
                 <label className="font-semibold">Codi</label>
-                <div className="p-2 bg-gray-50 rounded border text-gray-700">
-                  {formData.code}
-                </div>
+                <Input
+                  value={formData.code}
+                  onChange={e =>
+                    setFormData(prev => ({ ...prev, code: e.target.value }))
+                  }
+                  className="w-full"
+                />
               </div>
 
               <div className="space-y-2">
@@ -147,15 +156,17 @@ export function InvoiceDetailForm({
                 </div>
               </div>
             </div>
-            <div className="flex gap-2 justify-between">
-              <CustomerInformationComponent
-                companyName={formData.deliveryNotes[0].companyName}
-                customerAddress={formData.deliveryNotes[0].customerAddress}
-              />
-              <InstallationComponent
-                installation={formData.deliveryNotes[0].installation!}
-              />
-            </div>
+            {formData.deliveryNotes && formData.deliveryNotes.length >= 0 && (
+              <div className="flex gap-2 justify-between">
+                <CustomerInformationComponent
+                  companyName={formData.deliveryNotes[0].companyName}
+                  customerAddress={formData.deliveryNotes[0].customerAddress}
+                />
+                <InstallationComponent
+                  installation={formData.deliveryNotes[0].installation!}
+                />
+              </div>
+            )}
 
             {/* Delivery Notes */}
             {formData.deliveryNotes.map((dn, dnIndex) => (
@@ -201,16 +212,16 @@ export function InvoiceDetailForm({
                                 {item.quantity}
                               </td>
                               <td className="p-2 border text-center">
-                                {formatEuropeanCurrency(item.unitPrice)}
+                                {formatEuropeanCurrency(item.unitPrice, t)}
                               </td>
                               <td className="p-2 border text-center">
                                 {item.discountPercentage.toFixed(2)}%
                               </td>
                               <td className="p-2 border text-center">
-                                {formatEuropeanCurrency(item.discountAmount)}
+                                {formatEuropeanCurrency(item.discountAmount, t)}
                               </td>
                               <td className="p-2 border text-center">
-                                {formatEuropeanCurrency(item.lineTotal)}
+                                {formatEuropeanCurrency(item.lineTotal, t)}
                               </td>
                             </tr>
                           ))}

@@ -17,27 +17,29 @@ import {
 import { EntityTable } from 'components/table/interface/tableEntitys';
 import Link from 'next/link';
 
+import { useTranslations } from '../../hooks/useTranslations';
+
 export default function AuthenticationPage() {
   const sectionService = new SectionService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
   const [sections, setSections] = useState<Section[]>([]);
-
+  const {t} = useTranslations();
   const [isLoading, setIsLoading] = useState(false);
 
-  const columns: Column[] = [
+  const getColumns = (t: any): Column[] => [
     {
       label: 'ID',
       key: 'id',
       format: ColumnFormat.TEXT,
     },
     {
-      label: 'Codi',
+      label: t('code'),
       key: 'code',
       format: ColumnFormat.TEXT,
     },
     {
-      label: 'Descripció',
+      label: t('description'),
       key: 'description',
       format: ColumnFormat.TEXT,
     },
@@ -48,15 +50,15 @@ export default function AuthenticationPage() {
     delete: true,
   };
 
-  const filters: Filters[] = [
+  const getFilters = (t: any): Filters[] => [
     {
       key: 'code',
-      label: 'Codi',
+      label: t('code'),
       format: FiltersFormat.TEXT,
     },
     {
       key: 'description',
-      label: 'Descripció',
+      label: t('description'),
       format: FiltersFormat.TEXT,
     },
   ];
@@ -68,7 +70,7 @@ export default function AuthenticationPage() {
         setSections(sections);
       })
       .catch(error => {
-        console.error('Error fetching sections:', error);
+        console.error(t('error.fetching.sections'), error);
       });
   }, []);
 
@@ -76,12 +78,12 @@ export default function AuthenticationPage() {
     <MainLayout>
       <Container>
         <div className="flex flex-col h-full">
-          {renderHeader()}
+          {renderHeader(t)}
           <DataTable
             data={sections}
             tableButtons={tableButtons}
-            filters={filters}
-            columns={columns}
+            filters={getFilters(t)}
+            columns={getColumns(t)}
             entity={EntityTable.SECTION}
           />
         </div>
@@ -90,15 +92,15 @@ export default function AuthenticationPage() {
   );
 }
 
-const renderHeader = () => {
+const renderHeader = (t:any) => {
   return (
     <div className="flex p-2 my-2">
       <div className="w-full flex flex-col gap-2 items">
         <h2 className="text-2xl font-bold text-black flex gap-2">
           <SvgMachines />
-          Seccions
+          {t('sections')}
         </h2>
-        <span className="text-l">Inici - Llistat de Seccions</span>
+        <span className="text-l">{t('start')} - {t('sections.list')}</span>
       </div>
       <div className="w-full flex justify-end items-center">
         <Link
@@ -108,7 +110,7 @@ const renderHeader = () => {
           className="text-white mb-2 rounded-md bg-okron-btCreate hover:bg-okron-btCreateHover px-4 py-2 flex gap-2"
         >
           <SvgCreate className="text-white" />
-          Crear Secció
+          {t('create.section')}
         </Link>
       </div>
     </div>

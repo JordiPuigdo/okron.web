@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgClose } from 'app/icons/icons';
 import {
   DowntimesReasons,
@@ -61,6 +62,7 @@ const DowntimeReasonsModal: React.FC<DowntimeReasonsModalProps> = ({
   selectedId,
   onSelectedDowntimeReasons,
 }) => {
+  const { t } = useTranslations();
   const downtimeService = new DowntimesService(
     process.env.NEXT_PUBLIC_API_BASE_URL!
   );
@@ -116,7 +118,7 @@ const DowntimeReasonsModal: React.FC<DowntimeReasonsModalProps> = ({
             handleFilterTypeChange(DowntimesReasonsType.Production)
           }
         >
-          Producció
+          {t('production')}
         </div>
         <div
           className={`p-4 w-full max-w-xs text-center font-bold rounded-md cursor-pointer border-2 transition-all
@@ -129,7 +131,7 @@ const DowntimeReasonsModal: React.FC<DowntimeReasonsModalProps> = ({
             handleFilterTypeChange(DowntimesReasonsType.Maintanance)
           }
         >
-          Manteniment
+          {t('maintenance')}
         </div>
       </div>
 
@@ -157,7 +159,7 @@ const DowntimeReasonsModal: React.FC<DowntimeReasonsModalProps> = ({
           disabled={currentPage === 0}
           className="px-6 py-3 bg-gray-300 text-gray-800 font-semibold rounded disabled:opacity-50"
         >
-          Anterior
+          {t('previous')}
         </button>
         <button
           onClick={() =>
@@ -166,7 +168,7 @@ const DowntimeReasonsModal: React.FC<DowntimeReasonsModalProps> = ({
           disabled={currentPage === totalPages - 1}
           className="px-6 py-3 bg-gray-300 text-gray-800 font-semibold rounded disabled:opacity-50"
         >
-          Següent
+          {t('next')}
         </button>
       </div>
     </div>

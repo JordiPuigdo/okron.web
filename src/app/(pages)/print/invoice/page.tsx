@@ -63,12 +63,19 @@ export default async function InvoicePage({
   const config = await getConfig();
 
   return (
-    <div className="px-4 w-full flex-grow text-sm flex flex-col">
-      <div className="flex flex-col flex-grow p-4 bg-white"></div>
-
-      <InvoiceHeader invoice={invoice} config={config} />
-      <InvoiceBody deliveryNotes={invoice.deliveryNotes} />
-      <InvoiceFooter invoice={invoice} />
+    <div className="relative px-4 w-full flex-grow text-sm flex flex-col bg-white">
+      <div className="flex flex-col flex-grow p-4">
+        <InvoiceHeader invoice={invoice} config={config} />
+        <InvoiceBody deliveryNotes={invoice.deliveryNotes} />
+        <InvoiceFooter invoice={invoice} />
+      </div>
+      {/* Texto legal en vertical a la izquierda */}
+      <div className="absolute left-0 top-0 bottom-0 flex items-center">
+        <span className="text-[10px] text-gray-600 [writing-mode:vertical-rl] rotate-180 px-2">
+          KÖLDER REFRIGERACIÓ, SLU - Inscrita en el Registre Mercantil de
+          Barcelona, Volum 48966, Full B 602794, Inscripció 1 - B56446651
+        </span>
+      </div>
       <script
         dangerouslySetInnerHTML={{
           __html: `window.onload = function() { window.print(); }`,

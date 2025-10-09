@@ -1,6 +1,7 @@
 import { memo, useCallback } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgDelete, SvgDetail } from 'app/icons/icons';
-import { LoginUser, UserPermission } from 'app/interfaces/User';
+import { LoginUser, UserPermission, UserType } from 'app/interfaces/User';
 import Link from 'next/link';
 
 import { TableButtons } from '../../interface/interfaceTable';
@@ -15,6 +16,7 @@ interface HeadTableActionsProps {
 
 export const HeadTableActions = memo(
   ({ tableButtons, entity }: HeadTableActionsProps) => {
+    const { t } = useTranslations();
     const showActions =
       tableButtons.delete ||
       tableButtons.detail ||
@@ -25,7 +27,7 @@ export const HeadTableActions = memo(
 
     return (
       <th className="text-center border-b border-blue-gray-100 bg-blue-gray-50">
-        Accions
+        {t('actions')}
       </th>
     );
   }

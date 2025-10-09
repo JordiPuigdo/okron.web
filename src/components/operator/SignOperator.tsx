@@ -5,6 +5,8 @@ import { OperatorLogged } from 'app/interfaces/User';
 import AuthenticationService from 'app/services/authentication';
 import { useSessionStore } from 'app/stores/globalStore';
 
+import { useTranslations } from '../../app/hooks/useTranslations';
+
 export default function SignOperator() {
   const { setOperatorLogged, operatorLogged } = useSessionStore(state => state);
   const [codeOperator, setCodeOperator] = useState('');
@@ -13,7 +15,7 @@ export default function SignOperator() {
   const authService = new AuthenticationService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
-
+  const {t} = useTranslations()
   function signOperator() {
     if (operatorLogged?.codeOperatorLogged) {
       setCodeOperator('');
@@ -55,7 +57,7 @@ export default function SignOperator() {
       <div className="relative flex items-center">
         <input
           type="text"
-          placeholder="Codi Operari"
+          placeholder={t('operator.code')}
           className="w-full pl-10 pr-24 py-2 text-sm rounded-md border border-gray-300 focus:outline-none"
           value={codeOperator}
           onChange={e => setCodeOperator(e.target.value)}
@@ -72,7 +74,7 @@ export default function SignOperator() {
           onClick={signOperator}
           className="absolute right-2 px-4 py-1 bg-okron-main text-white text-sm font-semibold rounded-md hover:bg-okron-hoverButtonMain"
         >
-          {operatorLogged?.codeOperatorLogged ? 'Desfitxar' : 'Fitxar'}
+          {operatorLogged?.codeOperatorLogged ? t('clock.out') : t('clock.in')}
         </button>
       </div>
       {errorSign && (

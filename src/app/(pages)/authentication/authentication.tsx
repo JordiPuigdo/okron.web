@@ -1,3 +1,4 @@
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgLockedIcon } from 'app/icons/designSystem/SvgLockedIcon';
 import { SvgUser } from 'app/icons/designSystem/SvgUser';
 import { SvgSpinner } from 'app/icons/icons';
@@ -13,7 +14,7 @@ interface AuthenticationProps {
   errorEmail?: string;
 }
 
-const AuthenticationComponent: React.FC<AuthenticationProps> = ({
+export const AuthenticationComponent: React.FC<AuthenticationProps> = ({
   username,
   password,
   handleChangeUsername,
@@ -23,6 +24,7 @@ const AuthenticationComponent: React.FC<AuthenticationProps> = ({
   errorMessage,
   errorEmail,
 }) => {
+  const { t } = useTranslations();
   return (
     <div
       className="flex items-center justify-center min-h-screen p-4"
@@ -36,7 +38,7 @@ const AuthenticationComponent: React.FC<AuthenticationProps> = ({
         <div className="mb-8">
           <h1 className="text-5xl font-bold text-gray-800">Okron</h1>
           <p className="text-sm text-gray-600">
-            AI-powered CRM and Maintenance Management in one platform.
+            {t('auth.subtitle')}
           </p>
         </div>
 
@@ -48,7 +50,8 @@ const AuthenticationComponent: React.FC<AuthenticationProps> = ({
             className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:border-indigo-500"
             onChange={handleChangeUsername}
             value={username}
-            aria-label="Username"
+            placeholder={t('username')}
+            aria-label={t('username')}
           />
         </div>
 
@@ -60,7 +63,8 @@ const AuthenticationComponent: React.FC<AuthenticationProps> = ({
             className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:border-indigo-500"
             onChange={handleChangePassword}
             value={password}
-            aria-label="Password"
+            placeholder={t('password')}
+            aria-label={t('password')}
           />
         </div>
 
@@ -71,7 +75,7 @@ const AuthenticationComponent: React.FC<AuthenticationProps> = ({
           {isLoading ? (
             <SvgSpinner className="inline-block w-6 h-6 mr-3 animate-spin" />
           ) : null}
-          Login
+          {t('login')}
         </button>
 
         {errorMessage && (
@@ -81,5 +85,3 @@ const AuthenticationComponent: React.FC<AuthenticationProps> = ({
     </div>
   );
 };
-
-export default AuthenticationComponent;

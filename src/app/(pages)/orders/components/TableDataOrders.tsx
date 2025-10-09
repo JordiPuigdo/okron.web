@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { useEffect, useState } from 'react';
 import { useQueryParams } from 'app/hooks/useFilters';
 import { useOrder } from 'app/hooks/useOrder';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { Account } from 'app/interfaces/Account';
 import { Order, OrderStatus, OrderType } from 'app/interfaces/Order';
 import { AccountService } from 'app/services/accountService';
@@ -48,6 +49,7 @@ export const TableDataOrders = ({
   sparePartId,
   enableFilters = true,
 }: TableDataOrdersProps) => {
+  const { t } = useTranslations();
   const { orders, getOrderWithFilters } = useOrder();
   const [isLoading, setIsLoading] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
@@ -78,13 +80,6 @@ export const TableDataOrders = ({
     accountService.getAll().then(responseAccounts => {
       setAccounts(responseAccounts.filter(x => x.active == true));
     });
-    if (orderType) {
-      filtersOrders.push({
-        label: 'Proveïdor',
-        key: 'providerName',
-        format: FiltersFormat.TEXT,
-      });
-    }
     setIsLoading(false);
     setFirstLoad(false);
   }, []);
@@ -179,7 +174,7 @@ export const TableDataOrders = ({
       dateFilters.endDate &&
       !firstLoad
     ) {
-      setMessage('No hi ha comandes amb aquests filtres');
+      setMessage(t('no.orders.with.filters'));
       setTimeout(() => {
         setMessage('');
       }, 5000);
@@ -249,7 +244,7 @@ export const TableDataOrders = ({
   const filteredOrders = getFilteredOrders();
 
   if (isLoading) {
-    return <div>Carregant...</div>;
+    return <div>{t('loading')}...</div>;
   }
 
   return (
@@ -276,8 +271,8 @@ export const TableDataOrders = ({
                 ) as OrderStatus[]
               }
               filterKey="status"
-              placeholder="Estat"
-              translateFn={translateOrderState}
+              placeholder={t('state')}
+              translateFn={(state: OrderStatus) => translateOrderState(state, t)}
             />
           </div>
           {accounts.length > 0 && (
@@ -287,7 +282,7 @@ export const TableDataOrders = ({
                 setFilters={setFilters}
                 validTypes={accounts.map(x => x.id)}
                 filterKey="account"
-                placeholder="Compta Comptable"
+                placeholder={t('accounting.account')}
                 translateFn={(id: string) => {
                   const account = accounts.find(c => c.id === id);
                   return account
@@ -302,10 +297,10 @@ export const TableDataOrders = ({
       </div>
       <DataTable
         data={filteredOrders}
-        columns={columnsOrders}
+        columns={getColumnsOrders(t)}
         entity={EntityTable.ORDER}
         tableButtons={tableButtons}
-        filters={filtersOrders}
+        filters={getFiltersOrders(t)}
         hideShadow={hideShadow}
         totalCounts
       />
@@ -316,63 +311,63 @@ const tableButtons: TableButtons = {
   edit: true,
   detail: true,
 };
-const columnsOrders: Column[] = [
+const getColumnsOrders = (t: any): Column[] => [
   {
-    label: 'ID',
+    label: t('common.id'),
     key: 'id',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Codi',
+    label: t('code'),
     key: 'orderCode',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Estat',
+    label: t('state'),
     key: 'status',
     format: ColumnFormat.ORDERSTATE,
   },
   {
-    label: 'Proveeïdor',
+    label: t('provider'),
     key: 'providerName',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Comentari',
+    label: t('comment'),
     key: 'comment',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Data',
+    label: t('date'),
     key: 'date',
     format: ColumnFormat.DATE,
   },
   {
-    label: 'Compta Comptable',
+    label: t('accounting.account'),
     key: 'account',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Total',
+    label: t('total'),
     key: 'totalAmountFormatted',
     format: ColumnFormat.TEXT,
     align: ColumnnAlign.RIGHT,
   },
 ];
 
-const filtersOrders: Filters[] = [
+const getFiltersOrders = (t: any): Filters[] => [
   {
-    label: 'Codi',
+    label: t('code'),
     key: 'orderCode',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Proveïdor',
+    label: t('provider'),
     key: 'providerName',
     format: FiltersFormat.TEXT,
   },
   {
-    label: 'Comentari',
+    label: t('comment'),
     key: 'comment',
     format: FiltersFormat.TEXT,
   },

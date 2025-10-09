@@ -8,6 +8,8 @@ import {
   translateOperatorType,
 } from 'app/utils/utils';
 
+import { useTranslations } from '../../../../../hooks/useTranslations';
+
 interface DowntimeRowProps {
   downtime: Downtimes;
   currentWorkOrder: WorkOrder;
@@ -25,6 +27,8 @@ export function DowntimeRow({
     currentWorkOrder.stateWorkOrder !== StateWorkOrder.Closed &&
     loginUser?.userType === UserType.Production;
 
+  const { t } = useTranslations();
+  
   return (
     <tr>
       <td className="p-2 whitespace-nowrap w-1/4">
@@ -52,7 +56,7 @@ export function DowntimeRow({
       </td>
       <td className="p-2 whitespace-nowrap w-1/4">
         {downtime.operator.name} -{' '}
-        {translateOperatorType(downtime.operator.operatorType)}
+        {translateOperatorType(downtime.operator.operatorType, t)}
       </td>
     </tr>
   );

@@ -6,6 +6,7 @@ import DatePicker from 'react-datepicker';
 import { useAssetHook } from 'app/hooks/useAssetHook';
 import { useCustomers } from 'app/hooks/useCustomers';
 import { useOperatorHook } from 'app/hooks/useOperatorsHook';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { useWorkOrders } from 'app/hooks/useWorkOrders';
 import { SvgSpinner } from 'app/icons/icons';
 import { Customer } from 'app/interfaces/Customer';
@@ -42,6 +43,7 @@ export interface RepairReport {
 }
 
 export function RepairReportForm() {
+  const { t } = useTranslations();
   const { loginUser } = useSessionStore(state => state);
   const { operators } = useOperatorHook();
   const { customers, getById } = useCustomers();
@@ -151,23 +153,23 @@ export function RepairReportForm() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.code?.trim()) {
-      newErrors.code = 'El codi es obligatori';
+      newErrors.code = t('validation.code.required');
     }
 
     if (!formData.description?.trim()) {
-      newErrors.description = 'La descripció es obligatoria';
+      newErrors.description = t('validation.description.required');
     }
 
     if (!formData.initialDateTime) {
-      newErrors.initialDateTime = 'La data es obligatoria';
+      newErrors.initialDateTime = t('validation.date.required');
     }
 
     if (!formData.operatorId || formData.operatorId.length === 0) {
-      newErrors.operatorId = 'Falta treballador';
+      newErrors.operatorId = t('validation.operator.required');
     }
 
     if (!formData.customerId) {
-      newErrors.customerId = 'Falta el client';
+      newErrors.customerId = t('validation.customer.required');
     }
 
     setErrors(newErrors);
@@ -188,7 +190,7 @@ export function RepairReportForm() {
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2">
-            <label className="font-semibold">Num Ordre</label>
+            <label className="font-semibold">{t('workorder.number')}</label>
             <Input
               id="code"
               value={formData.code || ''}
@@ -200,7 +202,7 @@ export function RepairReportForm() {
           </div>
 
           <div className="space-y-2">
-            <label className="font-semibold">Referència Client</label>
+            <label className="font-semibold">{t('customer.reference')}</label>
             <Input
               id="refclientId"
               value={formData.refCustomerId || ''}
@@ -213,7 +215,7 @@ export function RepairReportForm() {
             />
           </div>
           <div className="space-y-2 flex flex-col">
-            <label className="font-semibold">Data</label>
+            <label className="font-semibold">{t('common.date')}</label>
             <DatePicker
               id="startDate"
               selected={formData.initialDateTime}
@@ -228,11 +230,11 @@ export function RepairReportForm() {
         </div>
         <div className="space-y-2">
           <label htmlFor="description" className="font-semibold">
-            Descripció
+            {t('common.description')}
           </label>
           <Textarea
             id="description"
-            placeholder="Descriu breument el problema"
+            placeholder={t('workorder.describe.problem')}
             value={formData.description || ''}
             onChange={e =>
               setFormData(prev => ({ ...prev, description: e.target.value }))
@@ -250,13 +252,13 @@ export function RepairReportForm() {
         </div>
         <div className="space-y-2">
           <div className="space-y-2">
-            <label className="font-semibold">Objecte</label>
+            <label className="font-semibold">{t('workorder.equipment')}</label>
             <ChooseElement
               elements={assets ?? []}
               selectedElements={selectedAssets}
               onElementSelected={handleAssetSelected}
               onDeleteElementSelected={handleDeleteSelectedAsset}
-              placeholder="Buscar Equip"
+              placeholder={t('workorder.search.equipment')}
               mapElement={asset => ({
                 id: asset.id,
                 code: asset.code,
@@ -267,7 +269,7 @@ export function RepairReportForm() {
         </div>
         <div className="space-y-6">
           <div className="space-y-2">
-            <label className="font-semibold">Operaris</label>
+            <label className="font-semibold">{t('workorder.operators')}</label>
             <ChooseElement
               elements={
                 operators ? operators.filter(x => x.active == true) : []
@@ -275,7 +277,7 @@ export function RepairReportForm() {
               selectedElements={selectedOperator}
               onElementSelected={handleSelectedOperator}
               onDeleteElementSelected={handleDeleteSelectedOperator}
-              placeholder="Buscar Operaris"
+              placeholder={t('workorder.search.operators')}
               mapElement={operator => ({
                 id: operator.id,
                 description: operator.name,
@@ -289,7 +291,7 @@ export function RepairReportForm() {
           </div>
 
           <div className="space-y-2">
-            <label className="font-semibold">Client</label>
+            <label className="font-semibold">{t('customer.customer')}</label>
             <ChooseElement
               elements={
                 customers ? customers.filter(x => x.active == true) : []
@@ -297,7 +299,7 @@ export function RepairReportForm() {
               selectedElements={selectedCustomerId ? [selectedCustomerId] : []}
               onElementSelected={handleSelectedCustomer}
               onDeleteElementSelected={handleDeleteSelectedCustomer}
-              placeholder="Buscar Client"
+              placeholder={t('customer.search.customer')}
               mapElement={customer => ({
                 id: customer.id,
                 description: `${customer.name} - ${customer.fiscalName} - ${customer.taxId}`,
@@ -314,7 +316,7 @@ export function RepairReportForm() {
             selectedCustomer.installations &&
             selectedCustomer.installations.length > 0 && (
               <div className="space-y-2">
-                <label className="font-semibold">Botigues</label>
+                <label className="font-semibold">{t('customer.stores')}</label>
                 <ChooseElement
                   elements={selectedCustomer.installations}
                   selectedElements={
@@ -329,7 +331,7 @@ export function RepairReportForm() {
                   onDeleteElementSelected={() =>
                     setFormData(prev => ({ ...prev, installationId: '' }))
                   }
-                  placeholder="Buscar Botiga"
+                  placeholder={t('customer.search.store')}
                   mapElement={installation => ({
                     id: installation.id,
                     description: `${installation.code} - ${installation.address.address}`,
@@ -351,7 +353,7 @@ export function RepairReportForm() {
             ) : (
               <Save className="mr-2 h-4 w-4" />
             )}
-            <p>Guardar</p>
+            <p>{t('common.save')}</p>
           </Button>
           <Button
             type="cancel"
@@ -362,7 +364,7 @@ export function RepairReportForm() {
             disabled={isLoading}
           >
             <X className="mr-2 h-4 w-4" />
-            <p>Cancelar</p>
+            <p>{t('common.cancel')}</p>
           </Button>
         </div>
       </form>

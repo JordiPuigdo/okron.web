@@ -1,9 +1,11 @@
 import { usePermissions } from 'app/hooks/usePermissions';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { StateWorkOrder, WorkOrdersFilters } from 'app/interfaces/workOrder';
 import AutocompleteSearchBar from 'components/selector/AutocompleteSearchBar';
 import { ElementList } from 'components/selector/ElementList';
 
 import FinalizeWorkOrdersDaysBefore from '../FinalizeWorkOrdersDaysBefore';
+import { CRMStatusFilter } from './CRMStatusFilter';
 import { WorkOrderDateFilter } from './WorkOrderDateFilter';
 import { WorkOrderStateFilter } from './WorkOrderStateFilter';
 import {
@@ -19,7 +21,6 @@ interface WorkOrdersFiltersTableProps {
   enableFilterAssets: boolean;
   setSelectedAssetId: (id: string) => void;
   assets: ElementList[];
-  setSearchTerm: (term: string) => void;
   validStates: StateWorkOrder[];
   enableFilterType: boolean;
   workOrderTypeCount: WorkOrderTypeCount[];
@@ -32,12 +33,12 @@ export const WorkOrdersFiltersTable = ({
   enableFilterAssets = false,
   setSelectedAssetId,
   assets,
-  setSearchTerm,
   validStates,
   enableFilterType,
   workOrderTypeCount,
 }: WorkOrdersFiltersTableProps) => {
   const { isCRM } = usePermissions();
+  const { t } = useTranslations();
   function handleCleanFilters() {
     setWorkOrdersFilters({
       workOrderType: [],
@@ -47,8 +48,11 @@ export const WorkOrdersFiltersTable = ({
       assetId: '',
       refCustomerId: '',
       customerName: '',
+      isInvoiced: false,
+      hasDeliveryNote: false,
+      active: true,
     });
-    setSearchTerm('');
+
     setSelectedAssetId('');
   }
 
@@ -68,8 +72,10 @@ export const WorkOrdersFiltersTable = ({
     return (
       <div className="flex w-full ml-14 bg-white underline font-semibold text-sm text-red-500 justify-end items-end">
         <div className="cursor-pointer" onClick={handleCleanFilters}>
-          <div>Borrar</div>
-          <div>filtres ({numberFilters()})</div>
+          <div>{t('workorder.filters.clear')}</div>
+          <div>
+            {t('workorder.filters.filters')} ({numberFilters()})
+          </div>
         </div>
       </div>
     );
@@ -88,11 +94,10 @@ export const WorkOrdersFiltersTable = ({
       ...workOrdersFilters,
       searchTerm: term,
     });
-    setSearchTerm(term);
   }
   const placeholder = isCRM
-    ? 'Buscar Codi / Descripció / Ref Client / Client / Botiga'
-    : 'Buscar Codi / Descripció';
+    ? t('workorder.search.code.description.crm')
+    : t('workorder.search.code.description');
 
   return (
     <div className="bg-white rounded-xl gap-4 p-2 shadow-md">
@@ -117,7 +122,7 @@ export const WorkOrdersFiltersTable = ({
             <AutocompleteSearchBar
               elements={assets}
               setCurrentId={handleSelectedAssetId}
-              placeholder="Buscar Equips"
+              placeholder={t('workorder.search.equipment')}
             />
           )}
           <input
@@ -134,6 +139,28 @@ export const WorkOrdersFiltersTable = ({
           />
           {enableFilterType && (
             <WorkOrderTypeFilter
+              setWorkOrdersFilters={setWorkOrdersFilters}
+              workOrdersFilters={workOrdersFilters}
+            />
+          )}
+          <div>
+            <div className="flex items-center gap-2 cursor-pointer">
+              Actiu
+              <input
+                type="checkbox"
+                checked={workOrdersFilters.active}
+                className="cursor-pointer"
+                onChange={e => {
+                  setWorkOrdersFilters({
+                    ...workOrdersFilters,
+                    active: e.target.checked,
+                  });
+                }}
+              />
+            </div>
+          </div>
+          {isCRM && (
+            <CRMStatusFilter
               setWorkOrdersFilters={setWorkOrdersFilters}
               workOrdersFilters={workOrdersFilters}
             />

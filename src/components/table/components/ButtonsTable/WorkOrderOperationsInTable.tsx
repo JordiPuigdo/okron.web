@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSparePartsHook } from 'app/hooks/useSparePartsHook';
 import {
   SvgCheck,
@@ -92,7 +92,6 @@ const WorkOrderOperationsInTable = React.memo(
     const [showModal, setShowModal] = useState(false);
     const [isLoading, setIsLoading] = useState<string | null>(null);
 
-    // ✅ Memoizar valores derivados
     const hasDefaultReason = useMemo(
       () =>
         workOrder?.downtimeReason != undefined &&
@@ -372,14 +371,15 @@ const WorkOrderOperationsInTable = React.memo(
               )}
             </Button>
           )}
-
+        <CRMStatusButton item={workOrder} />
         <Button
           type="none"
           href={`${Routes.workOrders}/${workOrder.id}`}
           className="bg-okron-btDetail hover:bg-okron-btnDetailHover rounded flex text-center p-2 w-full justify-center align-middle text-white"
           customStyles="justify-center align-middle"
+          onClick={() => setIsLoading('Detail')}
         >
-          <SvgDetail />
+          {isLoading === 'Detail' ? <SvgSpinner /> : <SvgDetail />}
         </Button>
 
         <WorkOrderOperationsInTableToolTips
@@ -393,3 +393,28 @@ const WorkOrderOperationsInTable = React.memo(
 WorkOrderOperationsInTable.displayName = 'WorkOrderOperationsInTable';
 
 export default WorkOrderOperationsInTable;
+
+const CRMStatusButton = memo(({ item }: any) => {
+  if (!item) return null;
+  const isInvoiced = item.isInvoiced;
+  const hasDeliveryNote = item.hasDeliveryNote;
+  return (
+    <div className="flex justify-between items-center pr-3">
+      <div className="flex flex-col gap-1.5">
+        <span
+          title="Albaranada"
+          className={hasDeliveryNote ? 'text-base' : 'text-base opacity-30'}
+        >
+          📦
+        </span>
+        <span
+          title="Facturada"
+          className={isInvoiced ? 'text-base' : 'text-base opacity-30'}
+        >
+          💰
+        </span>
+      </div>
+    </div>
+  );
+});
+CRMStatusButton.displayName = 'CRMStatusButton';

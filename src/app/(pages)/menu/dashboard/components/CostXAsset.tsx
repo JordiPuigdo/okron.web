@@ -1,3 +1,4 @@
+import { useTranslations } from 'app/hooks/useTranslations';
 import WorkOrder from 'app/interfaces/workOrder';
 import RechartsBarChart from 'designSystem/BarChart/RechartsBarChart';
 
@@ -6,6 +7,7 @@ interface CostXAssetProps {
 }
 
 const CostXAsset: React.FC<CostXAssetProps> = ({ workOrders }) => {
+  const { t } = useTranslations();
   const assetCostMap = new Map<string, number>();
 
   workOrders.forEach(workOrder => {
@@ -30,7 +32,7 @@ const CostXAsset: React.FC<CostXAssetProps> = ({ workOrders }) => {
   return (
     <RechartsBarChart
       chartData={chartData}
-      title="Cost Material per Equip"
+      title={t('material.cost.per.equipment')}
       showLegend={false}
       barColor="#3b82f6"
     />

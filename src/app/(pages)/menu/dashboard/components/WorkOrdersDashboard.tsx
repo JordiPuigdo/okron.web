@@ -1,3 +1,4 @@
+import { useTranslations } from 'app/hooks/useTranslations';
 import WorkOrder, { WorkOrderType } from 'app/interfaces/workOrder';
 import {
   formatEuropeanCurrency,
@@ -12,6 +13,7 @@ interface WorkOrdersDashboardProps {
 const WorkOrdersDashboard: React.FC<WorkOrdersDashboardProps> = ({
   workOrders,
 }) => {
+  const { t } = useTranslations();
   const calculateTotalTime = (workOrder: WorkOrder) => {
     let totalTime = 0;
 
@@ -65,11 +67,11 @@ const WorkOrdersDashboard: React.FC<WorkOrdersDashboardProps> = ({
         <table className="table-auto w-full border-collapse">
           <thead className="sticky top-0 bg-white z-10">
             <tr className="text-left text-gray-400 text-sm">
-              <th className="p-3">Data</th>
-              <th className="p-3">Tipus</th>
-              <th>Total OTs</th>
-              <th>Minuts</th>
-              <th className="p-3 text-right">Cost</th>
+              <th className="p-3">{t('date')}</th>
+              <th className="p-3">{t('type')}</th>
+              <th>{t('total.work.orders')}</th>
+              <th>{t('minutes')}</th>
+              <th className="p-3 text-right">{t('cost')}</th>
             </tr>
           </thead>
           <tbody className="text-sm ">
@@ -89,12 +91,12 @@ const WorkOrdersDashboard: React.FC<WorkOrdersDashboardProps> = ({
                           : 'text-blue-500'
                       } font-semibold`}
                     >
-                      {translateWorkOrderType(type as unknown as WorkOrderType)}
+                      {translateWorkOrderType(type as unknown as WorkOrderType, t)}
                     </td>
                     <td className="p-3">{data.count}</td>
                     <td className="p-3">{Math.round(data.totalTime)}</td>
                     <td className="p-3 text-right whitespace-nowrap">
-                      {formatEuropeanCurrency(data.totalCost)}
+                      {formatEuropeanCurrency(data.totalCost, t)}
                     </td>
                   </tr>
                 );

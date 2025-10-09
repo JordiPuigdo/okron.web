@@ -5,10 +5,7 @@ const LanguageSelector = () => {
   const { fetchTranslations, currentLang, setLang } = useTranslationStore();
   const [open, setOpen] = useState(false);
 
-  const languages = [
-    { code: 'es', label: 'Español' },
-    { code: 'ca', label: 'Català' },
-  ];
+  const languages = [{ code: 'es', label: 'Español' }];
 
   const handleChangeLang = async (lang: string) => {
     setLang(lang);

@@ -1,5 +1,10 @@
 import { useTranslationStore } from 'app/stores/translationStore';
 
+export type TranslateFn = (
+  key: string,
+  params?: Record<string, string>
+) => string;
+
 export const useTranslations = () => {
   const { translations, loading, error, fetchTranslations, setLang } =
     useTranslationStore();

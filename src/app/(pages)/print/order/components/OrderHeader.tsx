@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'app/hooks/useTranslations';
 import Company from 'app/interfaces/Company';
 import { Order } from 'app/interfaces/Order';
 import dayjs from 'dayjs';
@@ -11,6 +12,7 @@ export const OrderHeader = ({
   order: Order;
   company: Company;
 }) => {
+  const { t } = useTranslations();
   return (
     <div>
       <div className="flex justify-between">
@@ -21,13 +23,13 @@ export const OrderHeader = ({
         />
         <div className="flex">
           <div className="border p-2 my-6">
-            <p className="relative">Comanda</p>
+            <p className="relative">{t('order')}</p>
             <div className="p-4">
               <p className="font-semibold">{order.code}</p>
             </div>
           </div>
           <div className="border p-2 my-6">
-            <p className="relative">Data</p>
+            <p className="relative">{t('date')}</p>
             <div className="p-4">
               <p className="font-semibold">
                 {dayjs(order.date).format('DD/MM/YYYY')}

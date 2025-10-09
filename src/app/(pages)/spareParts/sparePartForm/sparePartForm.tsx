@@ -6,6 +6,7 @@ import ProviderToSparePartRequest, {
   ProviderToSparePartRequestRef,
 } from 'app/(pages)/providers/[id]/Components/ProviderToSparePartRequest';
 import { usePermissions } from 'app/hooks/usePermissions';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import SparePart from 'app/interfaces/SparePart';
 import SparePartService from 'app/services/sparePartService';
@@ -23,6 +24,7 @@ interface SparePartForm {
 }
 
 const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
+  const { t } = useTranslations();
   const { isCRM } = usePermissions();
   const router = useRouter();
   const sparePartService = new SparePartService(
@@ -97,7 +99,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
 
         setSparePart(sparePartLoaded!);
       } catch (error) {
-        setShowErrorMessage('Error al carregar el recanvi');
+        setShowErrorMessage(t('spareParts.errorLoadingSparePart'));
         setTimeout(() => {
           setShowErrorMessage('');
         }, 5000);
@@ -149,7 +151,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
   const onSubmit = async (sparePart: SparePart) => {
     const isValid = validateForm();
     if (!isValid) {
-      alert('Falta informació per a crear el recanvi');
+      alert(t('spareParts.missingInfoToCreate'));
       return;
     }
 
@@ -170,7 +172,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
           }
         })
         .catch(error => {
-          setShowErrorMessage('Error al actualitzar el recanvi');
+          setShowErrorMessage(t('spareParts.errorUpdating'));
           setTimeout(() => {
             setShowErrorMessage('');
           }, 5000);
@@ -187,9 +189,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
           }
         })
         .catch(error => {
-          setShowErrorMessage(
-            'Error al crear el recanvi, comprova que el codi sigui únic, sinó contacta amb informàtica'
-          );
+          setShowErrorMessage(t('spareParts.errorCreating'));
           setTimeout(() => {
             setShowErrorMessage('');
           }, 5000);
@@ -257,7 +257,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
     });
   }
 
-  const headerText = sparePartLoaded ? 'Editar Recanvi' : 'Crear Recanvi';
+  const headerText = sparePartLoaded ? t('spareParts.editSparePart') : t('spareParts.createSparePart');
 
   return (
     <>
@@ -275,12 +275,12 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
             <h2 className="font-semibold mb-2">
               {sparePartLoaded
                 ? sparePartLoaded.code + ' - ' + sparePartLoaded.description
-                : 'Nou Recanvi'}
+                : t('spareParts.newSparePart')}
             </h2>
             <div className="flex flex-row gap-4 items-start w-full">
               <div className="mb-4 w-full">
                 <label className="block text-sm font-medium text-gray-600">
-                  Codi
+                  {t('spareParts.code')}
                 </label>
                 <input
                   {...register('code')}
@@ -295,7 +295,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
             </div>
             <div className="flex-grow mb-4">
               <label className="block text-sm font-medium text-gray-600">
-                Descripció
+                {t('spareParts.description')}
               </label>
               <input
                 {...register('description')}
@@ -311,7 +311,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
             <div className="flex flex-row gap-4 items-start w-full">
               <div className="mb-4 w-full">
                 <label className="block text-sm font-medium text-gray-600">
-                  Ubicació
+                  {t('spareParts.location')}
                 </label>
                 <input
                   {...register('ubication')}
@@ -325,7 +325,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
             <div className="flex flex-row gap-4 items-start w-full">
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-600">
-                  Stock Min
+                  {t('spareParts.minStock')}
                 </label>
                 <input
                   {...register('minium')}
@@ -341,7 +341,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-600">
-                  Stock Max
+                  {t('spareParts.maxStock')}
                 </label>
                 <input
                   {...register('maximum')}
@@ -356,7 +356,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-600">
-                  Stock
+                  {t('spareParts.stock')}
                 </label>
                 <input
                   {...register('stock')}
@@ -368,7 +368,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
             <div className="flex flex-row gap-4 items-start w-full">
               <div className="flex-grow mb-4">
                 <label className="block text-sm font-medium text-gray-600">
-                  Família
+                  {t('spareParts.family')}
                 </label>
                 <input
                   {...register('family')}
@@ -380,7 +380,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-600">
-                  Actiu
+                  {t('active')}
                 </label>
                 <input
                   type="checkbox"
@@ -394,7 +394,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
               {isCRM && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-600">
-                    P.V.P
+                    {t('spareParts.rrp')}
                   </label>
                   <input
                     {...register('rrp')}
@@ -411,7 +411,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
               )}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-600">
-                  Virtual
+                  {t('spareParts.virtual')}
                 </label>
                 <input
                   type="checkbox"
@@ -426,7 +426,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
           </form>
           <div className="flex flex-col flex-grow border rounded-md p-2 md:w-[55%]">
             <div className="flex flex-col flex-grow mb-8">
-              <h2 className="font-semibold mb-2">Selecciona Magatzem</h2>
+              <h2 className="font-semibold mb-2">{t('spareParts.selectWarehouse')}</h2>
               <div>
                 <SparePartWareHouseSelected
                   handleAssignWareHouse={handleAssignWareHouse}
@@ -465,7 +465,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
               </div>
             </div>
             <div className="flex flex-col flex-grow">
-              <h2 className="font-semibold mb-2">Selecciona Proveïdor</h2>
+              <h2 className="font-semibold mb-2">{t('spareParts.selectProvider')}</h2>
               <ProviderToSparePartRequest
                 ref={providerRequestRef}
                 sparePart={sparePart!}
@@ -491,19 +491,19 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"
             onClick={() => onSubmit(sparePart!)}
           >
-            Guardar
+            {t('common.save')}
           </button>
           <button
             type="button"
             onClick={handleBack}
             className="bg-gray-500 text-white ml-4 px-4 py-2 rounded-md hover:bg-gray-600 focus:outline-none focus:ring focus:border-gray-300"
           >
-            Cancelar
+            {t('common.cancel')}
           </button>
 
           {showSuccessMessage && (
             <p className="mt-4 text-green-600">
-              Recanvi actualitzat correctament!
+              {t('spareParts.updatedSuccessfully')}
             </p>
           )}
           {showErrorMessage && (

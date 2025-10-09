@@ -21,6 +21,8 @@ import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 
+import { useTranslations } from '../../app/hooks/useTranslations';
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -56,13 +58,14 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
   const [editedType, setEditedType] = useState<
     WorkOrderOperatorTimeType | undefined
   >(undefined);
+  const {t} = useTranslations();
   const { isAdmin, isCRM } = usePermissions();
   const addWorkOrderTime = async () => {
     setIsLoading(true);
 
     let op = operators.find(x => x.code === codeOperator);
     if (!op && operatorLogged == undefined) {
-      alert('Codi Operari Incorrecte');
+      alert(t('operator.code.incorrect'));
       setIsLoading(false);
       return;
     } else {
@@ -78,7 +81,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
     );
 
     if (last) {
-      alert("Aquest Operari és dins l'ordre de treball");
+      alert(t('operator.already.in.workorder'));
       setIsLoading(false);
       return;
     }
@@ -108,7 +111,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
       })
       .catch(e => {
         setIsLoading(false);
-        setErrorMessage('Error fitxant operari ' + e);
+        setErrorMessage(t('error.operator.clock') + ' ' + e);
       })
       .finally(() => {
         setIsLoading(false);
@@ -120,7 +123,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
     setIsLoading(true);
     let op = operators.find(x => x.code === codeOperator);
     if (!op && operatorLogged == undefined) {
-      alert('Codi Operari Incorrecte');
+      alert(t('operator.code.incorrect'));
       setIsLoading(false);
       return;
     } else {
@@ -134,7 +137,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
     );
 
     if (!last) {
-      alert('Aquest Operari no està fitxat');
+      alert(t('operator.not.clocked.in'));
       setIsLoading(false);
       return;
     }
@@ -170,7 +173,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
       })
       .catch(e => {
         setIsLoading(false);
-        setErrorMessage('Error fitxant operari ' + e);
+        setErrorMessage(t('error.operator.clock') + ' ' + e);
       })
       .finally(() => {
         setIsLoading(false);
@@ -229,12 +232,12 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
     if (enterManualTime) {
       if (manualTime && !enterManualTime) {
         const confirmation = window.confirm(
-          `Tens la data ${manualTime}, vols continuar?`
+          t('confirm.manual.date').replace('{date}', manualTime)
         );
         if (!confirmation) return null;
       }
       if (!validateDateTimeFormat(manualTime!)) {
-        alert('Format incorrecte, dia/mes/any hores/minuts');
+        alert(t('format.incorrect.datetime'));
         return null;
       }
       const [day, month, year, hour, minute] =
@@ -293,7 +296,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
   ) {
     if (editingIndex === index) {
       if (!validateDateTimeFormat(editedStartTime)) {
-        alert('Format incorrecte, dia/mes/any hores/minuts');
+        alert(t('format.incorrect.datetime'));
         return null;
       }
 
@@ -310,7 +313,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
       };
       if (editedEndTime != null) {
         if (editedEndTime != '' && !validateDateTimeFormat(editedEndTime)) {
-          alert('Format incorrecte, dia/mes/any hores/minuts');
+          alert(t('format.incorrect.datetime'));
           return null;
         }
         const newEndTime = createDate(
@@ -326,7 +329,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
         })
         .catch(e => {
           setIsLoading(false);
-          setErrorMessage('Error fitxant operari ' + e);
+          setErrorMessage(t('error.operator.clock') + ' ' + e);
         })
         .finally(() => {
           setIsLoading(false);
@@ -344,7 +347,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
 
   async function deleteWorkOrderOperatorTimes(operatorTimesId: string) {
     const isConfirmed = window.confirm(
-      "Segur que voleu eliminar el registre d'hores d'operari?"
+      t('confirm.delete.operator.record')
     );
     if (!isConfirmed) return;
     const x: DeleteWorkOrderOperatorTimes = {
@@ -362,7 +365,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
       <div className="flex space-x-4 items-center">
         <input
           type="text"
-          placeholder="Codi Operari"
+          placeholder={t('operator.code')}
           value={codeOperator}
           onChange={e => {
             setCodeOperator(e.target.value);
@@ -413,7 +416,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
           }}
           disabled={isFinished}
         >
-          Manual
+          {t('manual')}
         </button>
         {enterManualTime && (
           <>
@@ -436,32 +439,32 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                 scope="col"
                 className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider"
               >
-                Entrada
+                {t('entry')}
               </th>
               <th
                 scope="col"
                 className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider"
               >
-                Sortida
+                {t('exit')}
               </th>
               <th
                 scope="col"
                 className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider"
               >
-                Temps Total
+                {t('total.time')}
               </th>
               <th
                 scope="col"
                 className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider"
               >
-                Operari
+                {t('operator')}
               </th>
               {isCRM && (
                 <th
                   scope="col"
                   className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  Temps
+                  {t('time.type.hour')}
                 </th>
               )}
               {isAdmin() && (
@@ -469,7 +472,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                   scope="col"
                   className="p-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  Accions
+                  {t('actions')}
                 </th>
               )}
             </tr>
@@ -526,9 +529,9 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                 {isCRM && (
                   <td className="p-2 whitespace-nowrap">
                     <div className="text-sm text-gray-900 ">
-                      {time.type === WorkOrderOperatorTimeType.Time && 'Hora'}
+                      {time.type === WorkOrderOperatorTimeType.Time && t('time.type.hour')}
                       {time.type === WorkOrderOperatorTimeType.Travel &&
-                        'Viatge'}
+                        t('time.type.travel')}
                     </div>
                     {editingIndex === index && (
                       <div>
@@ -545,10 +548,10 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                           }
                         >
                           <option value={WorkOrderOperatorTimeType.Time}>
-                            Hora
+                            {t('time.type.hour')}
                           </option>
                           <option value={WorkOrderOperatorTimeType.Travel}>
-                            Viatge
+                            {t('time.type.travel')}
                           </option>
                         </select>
                       </div>
@@ -576,7 +579,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                       }
                       disabled={isFinished}
                     >
-                      {editingIndex === index ? 'Guardar' : 'Editar'}
+                      {editingIndex === index ? t('save') : t('edit')}
                     </button>
                     {editingIndex === index && (
                       <>
@@ -594,7 +597,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                             setEditedType(undefined);
                           }}
                         >
-                          {'Cancelar'}
+                          {t('cancel')}
                         </button>
                         <button
                           type="button"
@@ -611,7 +614,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
                             deleteWorkOrderOperatorTimes(time.id!);
                           }}
                         >
-                          {'Eliminar'}
+                          {t('delete')}
                         </button>
                       </>
                     )}
@@ -624,7 +627,7 @@ const WorkOrderOperatorTimesComponent: React.FC<IWorkOrderOperatorTimes> = ({
             <tr>
               <td colSpan={2}></td>
               <td className=" whitespace-nowrap text-sm text-gray-900 font-bold">
-                Temps Total
+                {t('total.time')}
               </td>
               <td
                 colSpan={isAdmin() ? 3 : 2}

@@ -1,4 +1,7 @@
+'use client';
+
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { Preventive } from 'app/interfaces/Preventive';
 import PreventiveService from 'app/services/preventiveService';
 import DataTable from 'components/table/DataTable';
@@ -18,58 +21,58 @@ interface PreventiveTableProps {
   assetId?: string;
 }
 
-const columns: Column[] = [
+const getColumns = (t: any): Column[] => [
   {
-    label: 'ID',
+    label: t('common.id'),
     key: 'id',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Codi',
+    label: t('code'),
     key: 'code',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Descripció',
+    label: t('description'),
     key: 'description',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Equip',
+    label: t('equipment'),
     key: 'asset.description',
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Última execució',
+    label: t('last.execution'),
     key: 'lastExecution',
     format: ColumnFormat.DATE,
   },
   {
-    label: 'Pròxima execució',
+    label: t('next.execution'),
     key: 'nextExecutionDate',
     format: ColumnFormat.DATE,
   },
   {
-    label: 'Dies',
+    label: t('days'),
     key: 'days',
     format: ColumnFormat.NUMBER,
   },
   {
-    label: 'Actiu',
+    label: t('active'),
     key: 'active',
     format: ColumnFormat.BOOLEAN,
   },
 ];
 
-const filters: Filters[] = [
+const getFilters = (t: any): Filters[] => [
   {
     key: 'code',
-    label: 'Codi',
+    label: t('code'),
     format: FiltersFormat.TEXT,
   },
   {
     key: 'description',
-    label: 'Descripció',
+    label: t('description'),
     format: FiltersFormat.TEXT,
   },
 ];
@@ -80,6 +83,7 @@ const PreventiveTable: React.FC<PreventiveTableProps> = ({
   enableDelete,
   assetId,
 }) => {
+  const { t } = useTranslations();
   const preventiveService = new PreventiveService(
     process.env.NEXT_PUBLIC_API_BASE_URL!
   );
@@ -103,15 +107,9 @@ const PreventiveTable: React.FC<PreventiveTableProps> = ({
             setPreventives(fetchedPreventives);
           });
 
-          if (filters.filter(x => x.key === 'asset.description').length == 0)
-            filters.push({
-              key: 'asset.description',
-              label: 'Equip',
-              format: FiltersFormat.TEXT,
-            });
         }
       } catch (error) {
-        console.error('Error fetching preventives:', error);
+        console.error(t('error.fetching.preventives'), error);
       }
     };
 
@@ -122,7 +120,7 @@ const PreventiveTable: React.FC<PreventiveTableProps> = ({
     try {
       setIsLoading(true);
       const isConfirmed = window.confirm(
-        `Esteu segurs que voleu eliminar el preventiu?`
+        t('confirm.delete.preventive')
       );
       if (!isConfirmed) {
         setIsLoading(false);
@@ -136,15 +134,15 @@ const PreventiveTable: React.FC<PreventiveTableProps> = ({
       );
       setIsLoading(false);
     } catch (error) {
-      console.error('Error deleting preventive:', error);
+      console.error(t('error.deleting.preventive'), error);
     }
   };
 
   return (
     <DataTable
       data={preventives}
-      columns={columns}
-      filters={enableFilters ? filters : undefined}
+      columns={getColumns(t)}
+      filters={enableFilters ? getFilters(t) : undefined}
       tableButtons={tableButtons}
       entity={EntityTable.PREVENTIVE}
       onDelete={handleDelete}

@@ -4,6 +4,7 @@ import {
   useTableFilters,
   useTableState,
 } from 'app/hooks/useTable';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgExportExcel, SvgSpinner } from 'app/icons/icons';
 import { useSessionStore } from 'app/stores/globalStore';
 import { FilterValue } from 'app/types/filters';
@@ -70,6 +71,7 @@ const DataTable: React.FC<DataTableProps> = ({
   const tableFilters = useTableFilters(enableFilterActive);
   const { loginUser } = useSessionStore(state => state);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useTranslations();
 
   const { filteredData, totalRecords, totalPages } = useFilteredData(
     data,
@@ -109,7 +111,7 @@ const DataTable: React.FC<DataTableProps> = ({
   useEffect(() => {
     setIsLoading(false);
     setPathDetail(() => {
-      return getRoute(entity);
+      return getRoute(entity, false);
     });
   }, []);
 
@@ -173,7 +175,7 @@ const DataTable: React.FC<DataTableProps> = ({
             <div className="flex w-full justify-end">
               <div
                 className="p-2 rounded-lg m-2 items-center bg-green-700 text-white hover:bg-green-900 cursor-pointer"
-                title="Exportar a Excel"
+                title={t('table.export.excel')}
                 onClick={() =>
                   exportTableToExcel(data, columns, entity, footerData)
                 }
@@ -255,7 +257,9 @@ const DataTable: React.FC<DataTableProps> = ({
         </div>
         <div className="p-4 flex flex-row justify-between items-center border-t border-gray-200">
           {data.length > 0 && (
-            <p className="text-sm w-full">Total: {totalRecords} registres</p>
+            <p className="text-sm w-full">
+              {t('table.total.records', { count: totalRecords.toString() })}
+            </p>
           )}
           <div className="flex align-bottom items-center w-full">
             <select
@@ -269,7 +273,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 </option>
               ))}
             </select>
-            <p className="ml-2 text-sm">registres per pàgina</p>
+            <p className="ml-2 text-sm">{t('table.records.per.page')}</p>
           </div>
 
           <div className="justify-end items-center w-full">

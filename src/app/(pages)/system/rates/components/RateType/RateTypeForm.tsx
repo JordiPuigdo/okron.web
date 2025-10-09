@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 
 type RateTypeFormData = {
   code: string;
@@ -16,6 +17,7 @@ export function RateTypeForm({
   loading: boolean;
   initialData?: RateTypeFormData;
 }) {
+  const { t } = useTranslations();
   const [form, setForm] = useState<RateTypeFormData>(
     initialData || { code: '', description: '' }
   );
@@ -42,14 +44,14 @@ export function RateTypeForm({
     >
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Códi *
+          {t('code')} *
         </label>
         <input
           type="text"
           name="code"
           value={form.code}
           onChange={handleChange}
-          placeholder="Ej: 00X"
+          placeholder={t('system.rateTypes.codePlaceholder')}
           required
           className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
         />
@@ -57,14 +59,14 @@ export function RateTypeForm({
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Descripció
+          {t('description')}
         </label>
         <input
           type="text"
           name="description"
           value={form.description}
           onChange={handleChange}
-          placeholder="Ej: FESTIU"
+          placeholder={t('system.rateTypes.descriptionPlaceholder')}
           className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
         />
       </div>
@@ -75,7 +77,7 @@ export function RateTypeForm({
           disabled={loading}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? 'Guardant...' : 'Crear'}
+          {loading ? t('common.saving') : t('create')}
         </button>
       </div>
     </form>

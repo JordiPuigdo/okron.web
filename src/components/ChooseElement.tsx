@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import AutocompleteSearchBar from 'components/selector/AutocompleteSearchBar';
 import { ElementList } from 'components/selector/ElementList';
 
@@ -29,6 +30,7 @@ const ChooseElement = <T,>({
   disabled = false,
   className = '',
 }: ChooseElementProps<T>) => {
+  const { t } = useTranslations();
   const [selectedItems, setSelectedItems] = useState<ElementList[]>([]);
   const [filteredElements, setFilteredElements] = useState<ElementList[]>([]);
 
@@ -98,7 +100,7 @@ const ChooseElement = <T,>({
                   onClick={() => handleDeleteElementSelected(item.id)}
                   className="bg-okron-btDelete hover:bg-okron-btDeleteHover text-white rounded-xl py-2 px-4 text-sm"
                 >
-                  Eliminar
+                  {t('delete')}
                 </button>
               )}
             </div>

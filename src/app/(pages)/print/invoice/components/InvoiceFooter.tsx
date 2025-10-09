@@ -1,5 +1,5 @@
 ﻿import { Invoice } from 'app/interfaces/Invoice';
-import { formatEuropeanCurrency } from 'app/utils/utils';
+import { formatCurrencyServerSider } from 'app/utils/utils';
 
 export const InvoiceFooter = ({ invoice }: { invoice: Invoice }) => {
   const totals = invoice.deliveryNotes?.reduce(
@@ -25,19 +25,19 @@ export const InvoiceFooter = ({ invoice }: { invoice: Invoice }) => {
           <div className="flex flex-row justify-between">
             <div className="font-bold">Subtotal:</div>
             <div className="font-bold">
-              {formatEuropeanCurrency(totals?.subtotal || 0)}
+              {formatCurrencyServerSider(totals?.subtotal || 0)}
             </div>
           </div>
           <div className="flex flex-row justify-between">
             <div className="font-bold">IVA (21%):</div>
             <div className="font-bold">
-              {formatEuropeanCurrency(totals?.tax || 0)}
+              {formatCurrencyServerSider(totals?.tax || 0)}
             </div>
           </div>
           <div className="flex flex-row justify-between text-lg border-t pt-2 mt-2">
             <div className="font-bold">Total:</div>
             <div className="font-bold">
-              {formatEuropeanCurrency(totals?.total || 0)}
+              {formatCurrencyServerSider(totals?.total || 0)}
             </div>
           </div>
         </div>

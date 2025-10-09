@@ -6,6 +6,7 @@ import Downtimes from 'app/(pages)/machines/downtimes/downtime';
 import PreventiveTable from 'app/(pages)/preventive/preventiveTable/preventiveTable';
 import SparePartTable from 'app/(pages)/spareParts/components/SparePartTable';
 import WorkOrderTable from 'app/(pages)/workOrders/components/WorkOrderTable';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import {
   Asset,
@@ -28,6 +29,7 @@ export default function AssetDetailsPage({
   params: { id: string; parentId: string };
 }) {
   const id = params.id;
+  const { t } = useTranslations();
   const [loading, setLoading] = useState(false);
   const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
   const [isloading, setIsloading] = useState(true);
@@ -94,12 +96,12 @@ export default function AssetDetailsPage({
         };
         await assetService.updateAsset(id, newData).then(data => {
           if (data) {
-            setMessage('Actualitzat correctament');
+            setMessage(t('updated.successfully'));
             setTimeout(() => {
               history.back();
             }, 2000);
           } else {
-            setErrorMessage("Error actualitzant l'equip");
+            setErrorMessage(t('error.updating.equipment'));
           }
         });
       } else {
@@ -114,16 +116,16 @@ export default function AssetDetailsPage({
           .createAsset(newData)
           .then(data => {
             if (data) {
-              setMessage('Creat correctament');
+              setMessage(t('created.successfully'));
               setTimeout(() => {
                 history.back();
               }, 2000);
             } else {
-              setErrorMessage("Error creant l'equip");
+              setErrorMessage(t('error.creating.equipment'));
             }
           })
           .catch(x => {
-            setErrorMessage('Error : ' + x.message);
+            setErrorMessage(t('error') + ': ' + x.message);
           });
       }
 
@@ -175,11 +177,11 @@ export default function AssetDetailsPage({
                 currentAsset?.path ??
                 (parentAsset?.path
                   ? parentAsset.path + '/' + description
-                  : 'Nou equip') ??
-                'Nou equip'
+                  : t('new.equipment')) ??
+                t('new.equipment')
               }
               isCreate={id === '0'}
-              subtitle={`Equip: ${code} - ${description}`}
+              subtitle={`${t('equipment')}: ${code} - ${description}`}
               entity={EntityTable.ASSET}
             />
             <div className="flex flex-row gap-5">
@@ -223,9 +225,9 @@ export default function AssetDetailsPage({
                 <div>
                   <TabGroup className="bord">
                     <TabList className="mt-4">
-                      <Tab className="font-semibold">Ordres de treball</Tab>
-                      <Tab className="font-semibold">Revisions</Tab>
-                      <Tab className="font-semibold">Recanvis</Tab>
+                      <Tab className="font-semibold">{t('work.orders')}</Tab>
+                      <Tab className="font-semibold">{t('revisions')}</Tab>
+                      <Tab className="font-semibold">{t('spare.parts')}</Tab>
                     </TabList>
                     <TabPanels>
                       <TabPanel>

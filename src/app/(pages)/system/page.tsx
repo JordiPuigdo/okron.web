@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { useSessionStore } from 'app/stores/globalStore';
 import Container from 'components/layout/Container';
 import MainLayout from 'components/layout/MainLayout';
@@ -12,18 +13,19 @@ import RateConfigurationPage from './rates/components/Rate/RateComponent';
 import RateTypeManager from './rates/components/RateType/RateTypeManager';
 
 function SystemPage() {
+  const { t } = useTranslations();
   const isCRM = useSessionStore(state => state.config?.isCRM);
   const [activeTab, setActiveTab] = useState('company');
 
   const labels: Record<string, string> = {
-    company: 'Empresa',
+    company: t('system.company'),
   };
 
   if (isCRM) {
     Object.assign(labels, {
-      rateType: 'Tipus de Tarifes',
-      rates: 'Tarifes',
-      payment: 'Pagament',
+      rateType: t('system.rateTypes'),
+      rates: t('system.rates'),
+      payment: t('system.payment'),
     });
   }
 
@@ -35,7 +37,7 @@ function SystemPage() {
         <div className="p-8">
           <h1 className="text-3xl font-bold flex items-center gap-2 mb-8">
             <SettingsIcon className="w-6 h-6" />
-            Configuració del sistema Okron
+            {t('system.title')}
           </h1>
 
           <div className="flex border-2 border-[#6E41B6] rounded-full overflow-hidden bg-white shadow-sm w-[45%]">
@@ -71,7 +73,7 @@ function SystemPage() {
             })}
           </div>
 
-          <div className="space-y-10 my-12">
+          <div className="space-y-10 my-12 ">
             {activeTab === 'rateType' && <RateTypeManager />}
             {activeTab === 'rates' && <RateConfigurationPage />}
             {activeTab === 'payment' && <PaymentMethodComponent />}

@@ -12,6 +12,8 @@ import { useSessionStore } from 'app/stores/globalStore';
 import { formatDate, translateWorkOrderCommentType } from 'app/utils/utils';
 import { RenderFileComment } from 'components/Comments/RenderFileComment';
 
+import { useTranslations } from '../../app/hooks/useTranslations';
+
 interface IWorkOrderCommentOperator {
   workOrderComments: WorkOrderComment[];
   setWorkOrderComments: React.Dispatch<
@@ -47,6 +49,8 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
     type: WorkOrderCommentType.External,
   });
   const [isEditing, setIsEditing] = useState(false);
+  
+  const {t} = useTranslations(); 
 
   const { operatorLogged } = useSessionStore(state => state);
 
@@ -65,11 +69,11 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
   const handleAddComment = async () => {
     try {
       if (operatorLogged?.idOperatorLogged == undefined) {
-        alert('Has de fitxar un operari per fer aquesta acció');
+        alert(t('error.operator.required.action'));
         return;
       }
       if (newComment.trim().length === 0) {
-        alert('No hi ha cap comentari per afegir');
+        alert(t('error.no.comment.to.add'));
         return;
       }
       setIsLoading(true);
@@ -115,7 +119,7 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
         return;
       }
       if (operatorLogged?.idOperatorLogged == undefined) {
-        alert('Has de fitxar un operari per fer aquesta acció');
+        alert(t('error.operator.required.action'));
         return;
       }
 
@@ -184,13 +188,13 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
       disabled={isFinished}
     >
       <option value={WorkOrderCommentType.External}>
-        {translateWorkOrderCommentType(WorkOrderCommentType.External)}
+        {translateWorkOrderCommentType(WorkOrderCommentType.External, t)}
       </option>
       <option value={WorkOrderCommentType.Internal}>
-        {translateWorkOrderCommentType(WorkOrderCommentType.Internal)}
+        {translateWorkOrderCommentType(WorkOrderCommentType.Internal, t)}
       </option>
       <option value={WorkOrderCommentType.NoFinished}>
-        {translateWorkOrderCommentType(WorkOrderCommentType.NoFinished)}
+        {translateWorkOrderCommentType(WorkOrderCommentType.NoFinished, t)}
       </option>
     </select>
   );
@@ -201,7 +205,7 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
         <div className="flex flex-row gap-2">
           <textarea
             disabled={isFinished}
-            placeholder="Afegir comentari aquí..."
+            placeholder={t('comment.placeholder')}
             value={newComment}
             onChange={e => setNewComment(e.target.value)}
             className="w-full border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:border-indigo-500"
@@ -220,7 +224,7 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
               }`}
               disabled={isFinished || isLoading}
             >
-              Afegir Comentari
+              {t('add.comment')}
               {isLoading && <SvgSpinner className="ml-2" />}
             </button>
           </div>
@@ -231,11 +235,11 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
         <table className="table-auto w-full border-separate border-spacing-y-2">
           <thead>
             <tr className="bg-gray-100 text-gray-600 uppercase text-sm">
-              <th className="p-2 text-left">Operari</th>
-              <th className="p-2 text-left">Comentari</th>
-              <th className="p-2 text-left">Data</th>
-              {isCRM && <th className="p-2 text-left">Tipus</th>}
-              <th className="p-2 text-left">Accions</th>
+              <th className="p-2 text-left">{t('operator')}</th>
+              <th className="p-2 text-left">{t('comment')}</th>
+              <th className="p-2 text-left">{t('date')}</th>
+              {isCRM && <th className="p-2 text-left">{t('type')}</th>}
+              <th className="p-2 text-left">{t('actions')}</th>
             </tr>
           </thead>
           <tbody className="text-gray-700 text-sm">
@@ -298,7 +302,7 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
                       </td>
                       {isCRM && (
                         <td className="p-3 align-top">
-                          {translateWorkOrderCommentType(comment.type)}
+                          {translateWorkOrderCommentType(comment.type, t)}
                         </td>
                       )}
                       <td className="p-3 align-top space-x-2 flex gap-2">
@@ -312,7 +316,7 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
                               ? 'bg-gray-400'
                               : 'bg-green-500 hover:bg-green-600 focus:bg-green-600'
                           } p-2 text-white rounded-md focus:outline-none w-full justify-center flex`}
-                          title="Editar comentari"
+                          title={t('edit.comment')}
                         >
                           <SvgDetail className="w-4 h-4" />
                         </button>
@@ -326,7 +330,7 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
                               ? 'bg-gray-400'
                               : 'bg-red-500 hover:bg-red-600 focus:bg-red-600'
                           } p-2 text-white rounded-md focus:outline-none w-full justify-center flex`}
-                          title="Eliminar comentari"
+                          title={t('delete.comment')}
                         >
                           <SvgDelete className="w-4 h-4" />
                         </button>

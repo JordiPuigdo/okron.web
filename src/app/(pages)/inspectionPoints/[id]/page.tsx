@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useTranslations } from "app/hooks/useTranslations";
 import { SvgSpinner } from "app/icons/icons";
 import InspectionPoint from "app/interfaces/inspectionPoint";
 import InspectionPointService from "app/services/inspectionPointService";
@@ -12,6 +13,7 @@ export default function EditInspectionPoint({
 }: {
   params: { id: string };
 }) {
+  const { t } = useTranslations();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -82,12 +84,12 @@ export default function EditInspectionPoint({
           className="mt-8 bg-white rounded-xl p-4"
         >
           {isLoading ? (
-            <div>Loading...</div>
+            <div>{t('loading')}</div>
           ) : inspectionPoint ? (
             <div className="flex flex-row md:flex-row justify-center gap-8 w-1/2 items-center">
               <div className="flex flex-col flex-grow gap-4">
                 <label className="block text-gray-700 font-medium mb-2 text-lg">
-                  Descripció
+                  {t('description')}
                 </label>
                 <input
                   {...register("description")}
@@ -95,7 +97,7 @@ export default function EditInspectionPoint({
                 />
 
                 <label className="block text-gray-700 font-medium mb-2 text-lg ">
-                  Actiu
+                  {t('active')}
                   <input
                     type="checkbox"
                     {...register("active")}
@@ -124,7 +126,7 @@ export default function EditInspectionPoint({
                   : "bg-blue-700"
               } text-white font-bold py-2 px-4 rounded mt-6 flex items-center justify-center`}
             >
-              Actualitzar Punt d'inspecció
+              {t('update.inspection.point')}
               {isLoading && <SvgSpinner style={{ marginLeft: "0.5rem" }} />}
             </button>
             <button
@@ -132,17 +134,17 @@ export default function EditInspectionPoint({
               onClick={handleCancel}
               className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 flex items-center justify-center"
             >
-              Cancelar
+              {t('cancel')}
             </button>
             {showSuccessMessage && (
               <div className="bg-green-200 text-green-800 p-4 rounded mb-4">
-                Punt Actualitzat Correctament
+                {t('point.updated.successfully')}
               </div>
             )}
 
             {showErrorMessage && (
               <div className="bg-red-200 text-red-800 p-4 rounded mb-4">
-                Error al actualitzar el punt d'inspecció
+                {t('error.updating.inspection.point')}
               </div>
             )}
           </div>

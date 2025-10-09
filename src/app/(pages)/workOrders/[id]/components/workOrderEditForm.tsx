@@ -8,6 +8,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import ModalDowntimeReasons from 'app/(pages)/corrective/components/ModalDowntimeReasons';
 import ModalGenerateCorrective from 'app/(pages)/corrective/components/ModalGenerateCorrective';
 import { usePermissions } from 'app/hooks/usePermissions';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgPrint } from 'app/icons/designSystem/SvgPrint';
 import { SvgSave } from 'app/icons/designSystem/SvgSave';
 import { SvgClose, SvgSpinner } from 'app/icons/icons';
@@ -38,6 +39,7 @@ import {
   translateStateWorkOrder,
   translateWorkOrderEventType,
 } from 'app/utils/utils';
+import { getValidStates } from 'app/utils/utilsWorkOrder';
 import ChooseElement from 'components/ChooseElement';
 import { CostsObject } from 'components/Costs/CostsObject';
 import CompleteInspectionPoints from 'components/inspectionPoint/CompleteInspectionPoint';
@@ -55,20 +57,19 @@ import WorkOrderButtons from './WorkOrderButtons';
 type WorkOrdeEditFormProps = {
   id: string;
 };
-interface TabWO {
-  key: string;
-  permission: UserPermission;
-}
-enum Tab {
-  OPERATORTIMES = 'Temps Operaris',
-  COMMENTS = 'Comentaris',
-  SPAREPARTS = 'Recanvis',
-  INSPECTIONPOINTS = "Punts d'Inspecció",
-  EVENTSWORKORDER = 'Events',
-}
 
 const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
+  const { t } = useTranslations();
+
+  const getTabLabels = () => ({
+    OPERATORTIMES: t('workOrders.operatorTimes'),
+    COMMENTS: t('workOrders.comments'),
+    SPAREPARTS: t('workOrders.spareParts'),
+    INSPECTIONPOINTS: t('workOrders.inspectionPoints'),
+    EVENTSWORKORDER: t('workOrders.events'),
+  });
   const { register, handleSubmit, setValue } = useForm<WorkOrder>({});
+  const tabLabels = getTabLabels();
   const { filterOperatorTypesWorkOrder, workorderHeader, isAdmin, isCRM } =
     usePermissions();
   const router = useRouter();
@@ -118,7 +119,6 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
   const [sparePartCosts, setSparePartCosts] = useState<number>(0);
   const [operatorCosts, setOperatorCosts] = useState<number>(0);
   const Routes = useRoutes();
-  const [activeTab, setActiveTab] = useState<Tab>(Tab.OPERATORTIMES);
   const { operatorLogged } = useSessionStore(state => state);
   const [workOrderTimeExceeded, setWorkOrderTimeExceeded] =
     useState<boolean>(false);
@@ -157,7 +157,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
         }
       })
       .catch(e => {
-        setErrorMessage('Error carregant les dades ' + e.message);
+        setErrorMessage(t('error.loading.data') + ' ' + e.message);
       });
   }
 
@@ -168,7 +168,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
         setAvailableSpareParts(parts);
       })
       .catch(e => {
-        setErrorMessage('Error carregant les dades dels recanvis ' + e.message);
+        setErrorMessage(t('error.loading.spare.parts') + ' ' + e.message);
       });
   }
   async function fetchOperators() {
@@ -181,15 +181,13 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
         }
       })
       .catch(e => {
-        setErrorMessage('Error carregant les dades ' + e.message);
+        setErrorMessage(t('error.loading.data') + ' ' + e.message);
       });
   }
 
   async function handleDeleteWordOrder() {
     toggleLoading('DELETE');
-    const isConfirmed = window.confirm(
-      'Segur que voleu eliminar aquest ordre de treball?'
-    );
+    const isConfirmed = window.confirm(t('confirm.delete.work.order'));
     if (isConfirmed) {
       await workOrderService.deleteWorkOrder(id);
       setShowSuccessMessage(true);
@@ -210,17 +208,37 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
       setValue('code', responseWorkOrder.code);
       setValue('description', responseWorkOrder.description);
       setValue('stateWorkOrder', responseWorkOrder.stateWorkOrder);
-      setValue('startTime', responseWorkOrder.startTime);
+      const startTimeDate = new Date(responseWorkOrder.startTime);
+      if (
+        startTimeDate.getFullYear() > 1900 &&
+        !isNaN(startTimeDate.getTime())
+      ) {
+        setValue('startTime', startTimeDate);
+      } else {
+        setValue('startTime', new Date());
+      }
       setValue('downtimeReason', responseWorkOrder.downtimeReason);
       setValue('visibleReport', responseWorkOrder.visibleReport);
       setValue('refCustomerId', responseWorkOrder.refCustomerId);
-      setValue('creationTime', responseWorkOrder.creationTime);
+      const creationTimeDate = new Date(responseWorkOrder.creationTime);
+      if (
+        creationTimeDate.getFullYear() > 1900 &&
+        !isNaN(creationTimeDate.getTime())
+      ) {
+        setValue('creationTime', creationTimeDate);
+      } else {
+        setValue('creationTime', new Date());
+      }
 
       if (responseWorkOrder.asset) {
         setSelectedAssetId(responseWorkOrder.asset!.id);
       }
       const finalData = new Date(responseWorkOrder.creationTime);
-      setStartDate(finalData);
+      if (finalData.getFullYear() > 1900 && !isNaN(finalData.getTime())) {
+        setStartDate(finalData);
+      } else {
+        setStartDate(new Date());
+      }
 
       const operatorsToAdd = aviableOperators?.filter((operator: any) =>
         responseWorkOrder.operatorId!.includes(operator.id)
@@ -378,7 +396,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
         selectedOperators.length === 0;
 
       if (workOrderHasOperators) {
-        resolve('Falta seleccionar almenys un operari');
+        resolve(t('error.select.operator'));
       }
 
       const hasChangeState =
@@ -386,7 +404,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
         data.stateWorkOrder === StateWorkOrder.PendingToValidate;
 
       if (hasChangeState) {
-        resolve('L’estat de l’ordre no ha canviat correctament');
+        resolve(t('error.state.not.changed'));
       }
 
       // No issues found
@@ -398,7 +416,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
     toggleLoading('SAVE');
     const errorMessage = isValidData(data);
     if ((await errorMessage).length > 0) {
-      alert('Has de seleccionar almenys un operari');
+      alert(t('alert.select.operator'));
       toggleLoading('SAVE');
       return;
     }
@@ -421,6 +439,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
         downtimeReason: data.downtimeReason,
         visibleReport: data.visibleReport,
         refCustomerId: data.refCustomerId,
+        active: data.active,
       };
       await workOrderService.updateWorkOrder(updatedWorkOrderData);
 
@@ -465,7 +484,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
       hasDefaultReason
     ) {
       setValue('stateWorkOrder', currentWorkOrder!.stateWorkOrder);
-      alert("Tens el motiu per defecte, no pots canviar l'estat");
+      alert(t('alert.default.reason'));
     }
   };
 
@@ -495,8 +514,8 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
           <div className="mb-4">
             <span className="text-2xl font-bold text-black mx-auto">
               {currentWorkOrder?.workOrderType == WorkOrderType.Ticket
-                ? 'Ticket'
-                : 'Ordre de Treball'}{' '}
+                ? t('ticket')
+                : t('work.order')}{' '}
               - {currentWorkOrder?.code}
             </span>
           </div>
@@ -523,25 +542,9 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
   };
 
   const isDisabledField =
-    isFinished || currentWorkOrder?.stateWorkOrder == StateWorkOrder.Closed;
+    loginUser?.permission !== UserPermission.Administrator;
 
   const renderForm = () => {
-    const getAvailableStates = () => {
-      if (currentWorkOrder?.workOrderType === WorkOrderType.Ticket) {
-        return [StateWorkOrder.Open, StateWorkOrder.Closed];
-      }
-
-      if (isFinished) {
-        return [currentWorkOrder?.stateWorkOrder];
-      }
-
-      return Object.values(StateWorkOrder).filter(
-        value =>
-          typeof value === 'number' &&
-          value !== StateWorkOrder.Open &&
-          value !== StateWorkOrder.Closed
-      );
-    };
     return (
       <>
         <form
@@ -552,7 +555,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
             <div>
               {workOrderTimeExceeded && (
                 <div className="text-red-500 text-center">
-                  Temps d'execució excedit
+                  {t('workorder.execution.time.exceeded')}
                 </div>
               )}
             </div>
@@ -561,7 +564,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                 htmlFor="description"
                 className="block text-sm font-medium text-gray-700 py-2"
               >
-                Descripció
+                {t('description')}
               </label>
               <input
                 {...register('description')}
@@ -584,7 +587,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                     htmlFor="description"
                     className="block text-sm font-medium text-gray-700 py-2"
                   >
-                    Ref. Client
+                    {t('client.ref')}
                   </label>
                   <input
                     {...register('refCustomerId')}
@@ -605,7 +608,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                     htmlFor="description"
                     className="block text-sm font-medium text-gray-700 py-2"
                   >
-                    Botiga
+                    {t('store')}
                   </label>
                   <div className="flex flex-col gap-2">
                     <p>
@@ -635,7 +638,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                 htmlFor="stateWorkOrder"
                 className="block text-sm font-medium text-gray-700 py-2"
               >
-                Estat
+                {t('state')}
               </label>
               <select
                 {...register('stateWorkOrder', { valueAsNumber: true })}
@@ -643,9 +646,9 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                 onChange={handleStateChange}
                 disabled={!isDisabledField}
               >
-                {getAvailableStates().map(state => (
+                {getValidStates(loginUser?.userType!).map(state => (
                   <option key={state} value={state}>
-                    {translateStateWorkOrder(state)}
+                    {translateStateWorkOrder(state, t)}
                   </option>
                 ))}
               </select>
@@ -655,7 +658,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                 htmlFor="stateWorkOrder"
                 className="block text-sm font-medium text-gray-700 py-2"
               >
-                Data Creació
+                {t('creation.date')}
               </label>
               <DatePicker
                 disabled={isDisabledField}
@@ -673,7 +676,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                   htmlFor="operators"
                   className="block text-sm font-medium text-gray-700 py-2"
                 >
-                  Operaris
+                  {t('operators')}
                 </label>
                 {aviableOperators !== undefined &&
                   aviableOperators?.length > 0 && (
@@ -686,7 +689,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                       }))}
                       onDeleteElementSelected={handleDeleteSelectedOperator}
                       onElementSelected={handleSelectOperator}
-                      placeholder={'Selecciona un Operari'}
+                      placeholder={t('select.operator')}
                       selectedElements={selectedOperators.map(x => x.id)}
                       mapElement={aviableOperators => ({
                         id: aviableOperators.id,
@@ -700,6 +703,21 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                   )}
               </div>
             )}
+
+            <div className="w-full flex gap-6 items-center">
+              <label
+                htmlFor="active"
+                className="block text-sm font-medium text-gray-700 py-2"
+              >
+                {t('active')}
+              </label>
+              <input
+                type="checkbox"
+                className={`p-3 border text-sm border-gray-300 rounded-md w-[15px]`}
+                {...register('active')}
+              />
+            </div>
+
             {currentWorkOrder?.originWorkOrder ==
               OriginWorkOrder.Production && (
               <>
@@ -708,7 +726,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                     htmlFor="operators"
                     className="block text-sm font-medium text-gray-700 py-2"
                   >
-                    Motiu Aturada
+                    {t('downtime.reason')}
                   </label>
                   <input
                     className={`p-3 border text-sm border-gray-300 rounded-md w-full ${
@@ -728,7 +746,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                     htmlFor="operators"
                     className="block text-sm font-medium text-gray-700 py-2"
                   >
-                    Visible Report
+                    {t('visible.report')}
                   </label>
                   <input
                     type="checkbox"
@@ -776,7 +794,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                   {isLoading['SEEACTIVE'] ? (
                     <SvgSpinner className="text-white" />
                   ) : (
-                    'Veure Actiu'
+                    t('see.asset')
                   )}
                 </Button>
                 {currentWorkOrder?.workOrderType == WorkOrderType.Preventive &&
@@ -791,7 +809,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                       {isLoading['SEEPREVENTIVE'] ? (
                         <SvgSpinner className="text-white" />
                       ) : (
-                        'Veure Revisió'
+                        t('see.preventive')
                       )}
                     </Button>
                   )}
@@ -810,7 +828,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                   setShowModal(true);
                 }}
               >
-                Crear Avaria
+                {t('create.corrective')}
               </Button>
             )}
             {currentWorkOrder?.originalWorkOrderId && (
@@ -823,7 +841,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                   className="bg-green-700 hover:bg-green-900 text-white font-semibold p2- rounded-l"
                   customStyles="flex"
                 >
-                  Veure Tiquet
+                  {t('see.ticket')}
                 </Button>
               </Link>
             )}
@@ -837,7 +855,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                   className="bg-green-700 hover:bg-green-900 text-white font-semibold p2- rounded-l"
                   customStyles="flex"
                 >
-                  Veure Avaria
+                  {t('see.corrective')}
                 </Button>
               </Link>
             )}
@@ -871,7 +889,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
     setShowDowntimeReasonsModal(false);
   }
 
-  if (!currentWorkOrder) return <>Carregant Dades</>;
+  if (!currentWorkOrder) return <>{t('loading.data')}</>;
   return (
     <div className="pt-4">
       {renderHeader()}
@@ -978,22 +996,22 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                 className="text-gray-600 font-semibold text-lg w-[20%]"
                 onClick={toggleSortOrder}
               >
-                Data Acció {sortOrder === 'asc' ? '▲' : '▼'}
+                {t('action.date')} {sortOrder === 'asc' ? '▲' : '▼'}
               </div>
               <div className="text-gray-600 font-semibold w-[20%] text-lg">
-                Acció
+                {t('action')}
               </div>
               <div className="text-gray-600 font-semibold w-[20%] text-lg">
-                Operari
+                {t('operator')}
               </div>
               <div
                 className="text-gray-600 font-semibold text-lg w-[20%]"
                 onClick={toggleSortOrder}
               >
-                Final
+                {t('final')}
               </div>
               <div className="text-gray-600 font-semibold w-[20%] text-lg">
-                Total
+                {t('total')}
               </div>
             </div>
             {sortedEvents.map((x, index) => {
@@ -1008,7 +1026,7 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                     {formatDate(x.date)}
                   </div>
                   <div className=" w-[20%]">
-                    {translateWorkOrderEventType(x.workOrderEventType)}
+                    {translateWorkOrderEventType(x.workOrderEventType, t)}
                   </div>
                   <div className="w-[20%]">{x.operator?.name || ''}</div>
                   <div className="text-gray-600 w-[20%]">

@@ -5,6 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { useCustomers } from 'app/hooks/useCustomers';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import { Customer } from 'app/interfaces/Customer';
 import { DeliveryNoteCreateRequest } from 'app/interfaces/DeliveryNote';
@@ -25,6 +26,7 @@ import { useRouter } from 'next/navigation';
 import { DeliveryNoteService } from '../../../services/deliveryNoteService';
 
 export function DeliveryNoteCreateForm() {
+  const { t } = useTranslations();
   const { customers, getById } = useCustomers();
   const router = useRouter();
 
@@ -148,13 +150,13 @@ export function DeliveryNoteCreateForm() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.deliveryNoteDate?.trim()) {
-      newErrors.deliveryNoteDate = 'La data es obligatoria';
+      newErrors.deliveryNoteDate = t('date.required');
     }
     if (!formData.workOrderIds || formData.workOrderIds.length === 0) {
-      newErrors.workOrderIds = 'Cal seleccionar almenys una ordre de treball';
+      newErrors.workOrderIds = t('select.work.order.required');
     }
     if (!formData.customerId) {
-      newErrors.customerId = 'Cal seleccionar un client';
+      newErrors.customerId = t('select.customer.required');
     }
 
     setErrors(newErrors);
@@ -164,7 +166,7 @@ export function DeliveryNoteCreateForm() {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto space-y-8">
-        <HeaderForm header="Crear Albarà" isCreate={true} />
+        <HeaderForm header={t('create.delivery.note')} isCreate={true} />
 
         <div className="bg-white rounded-xl p-6 shadow-lg">
           <form
@@ -183,7 +185,7 @@ export function DeliveryNoteCreateForm() {
             {/* Date Fields */}
             <div className="grid grid-cols-1 gap-6">
               <div className="space-y-2 flex flex-col">
-                <label className="font-semibold">Data</label>
+                <label className="font-semibold">{t('date')}</label>
                 <DatePicker
                   selected={
                     formData.deliveryNoteDate
@@ -214,7 +216,7 @@ export function DeliveryNoteCreateForm() {
 
             {/* Customer Selection */}
             <div className="space-y-2">
-              <label className="font-semibold">Client</label>
+              <label className="font-semibold">{t('customer')}</label>
               <ChooseElement
                 elements={customers ? customers.filter(x => x.active) : []}
                 selectedElements={
@@ -222,7 +224,7 @@ export function DeliveryNoteCreateForm() {
                 }
                 onElementSelected={handleSelectedCustomer}
                 onDeleteElementSelected={handleDeleteSelectedCustomer}
-                placeholder="Buscar Client"
+                placeholder={t('search.customer')}
                 mapElement={customer => ({
                   id: customer.id,
                   description: `${customer.name} - ${customer.taxId}`,
@@ -238,13 +240,13 @@ export function DeliveryNoteCreateForm() {
             {/* Work Orders Selection */}
             {selectedCustomer && availableWorkOrders.length > 0 && (
               <div className="space-y-2">
-                <label className="font-semibold">Ordres de Treball</label>
+                <label className="font-semibold">{t('work.orders')}</label>
                 <ChooseElement
                   elements={availableWorkOrders}
                   selectedElements={selectedWorkOrderIds}
                   onElementSelected={handleWorkOrderSelected}
                   onDeleteElementSelected={handleDeleteWorkOrder}
-                  placeholder="Buscar Ordres de Treball"
+                  placeholder={t('search.work.orders')}
                   mapElement={workOrder => ({
                     id: workOrder.id,
                     description: `${workOrder.code} - ${
@@ -282,7 +284,7 @@ export function DeliveryNoteCreateForm() {
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}
-                <p>Crear Albarà</p>
+                <p>{t('create.delivery.note')}</p>
               </Button>
               <Button
                 type="cancel"
@@ -293,7 +295,7 @@ export function DeliveryNoteCreateForm() {
                 disabled={isLoading}
               >
                 <X className="mr-2 h-4 w-4" />
-                <p>Cancel·lar</p>
+                <p>{t('cancel')}</p>
               </Button>
             </div>
           </form>

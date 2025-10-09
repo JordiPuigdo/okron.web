@@ -1,5 +1,6 @@
 import { memo, useCallback, useMemo } from 'react';
 import { QueryParams, useQueryParams } from 'app/hooks/useFilters';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { FilterValue } from 'app/types/filters';
 
 import { Column, ColumnFormat } from '../interface/interfaceTable';
@@ -41,6 +42,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
   if (rowData.length === 0) return null;
 
   const { queryParams } = useQueryParams();
+  const { t } = useTranslations();
 
   const finalPath = useMemo(() => {
     const entityId = rowData[columns[0]?.key];
@@ -95,7 +97,9 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
   return (
     <tr
       id={rowData.id}
-      className={`${rowIndex % 2 === 0 ? '' : 'bg-gray-100'}`}
+      className={`${rowIndex % 2 === 0 ? '' : 'bg-gray-100'} ${
+        rowData.active ? '' : 'opacity-50'
+      }`}
     >
       {enableCheckbox && (
         <td className="p-4 hover:cursor-pointer" onClick={handleRowClick}>
@@ -112,14 +116,15 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
         const { value, classNametd, className } = formatCellContent(
           column,
           rowData,
-          entity
+          entity,
+          t
         );
 
         const displayValue =
           column.format === ColumnFormat.BOOLEAN
             ? value
-              ? 'Actiu'
-              : 'Inactiu'
+              ? t('active')
+              : t('inactive')
             : value;
 
         return (

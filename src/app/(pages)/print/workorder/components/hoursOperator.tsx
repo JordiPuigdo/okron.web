@@ -1,5 +1,8 @@
+'use client';
 import WorkOrder from 'app/interfaces/workOrder';
 import { formatDate, formatTimeSpan } from 'app/utils/utils';
+
+import { useTranslations } from '../../../../hooks/useTranslations';
 
 export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
   // Calculate total time in seconds
@@ -9,7 +12,7 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
       const [hours, minutes, seconds] = hms.split(':').map(Number);
       return sum + hours * 3600 + minutes * 60 + seconds;
     }, 0) || 0;
-
+  const {t} = useTranslations();
   // Format total time
   const formattedTotal = [
     Math.floor(totalSeconds / 3600)
@@ -27,7 +30,7 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
         <div className="min-w-[640px]">
           <div className="bg-gray-50 flex p-3 text-xs font-semibold text-gray-700">
             <div className="w-[30%] min-w-[160px]">Operari</div>
-            <div className="w-[25%] min-w-[100px]">Inici</div>
+            <div className="w-[25%] min-w-[100px]">{t('start')}</div>
             <div className="w-[25%] min-w-[100px]">Final</div>
             <div className="w-[20%] min-w-[80px] flex justify-end pr-2">
               Durada
