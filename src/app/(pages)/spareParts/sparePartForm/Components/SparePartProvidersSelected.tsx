@@ -22,7 +22,6 @@ export default function SparePartProvidersSelected({
   if (!sparePart) return null;
   const [searchText, setSearchText] = useState('');
 
-  // Filtrado de proveedores asignados al recambio
   const filteredProviders = useMemo(() => {
     const normalizedSearch = searchText.toLowerCase().trim();
 
@@ -49,7 +48,6 @@ export default function SparePartProvidersSelected({
 
   return (
     <div className="flex flex-col flex-grow">
-      {/* 🔍 Buscador */}
       <div className="mb-2">
         <input
           type="text"
@@ -60,7 +58,6 @@ export default function SparePartProvidersSelected({
         />
       </div>
 
-      {/* 🔹 Encabezado */}
       <div className="flex gap-2 justify-between items-center bg-gray-100 p-3 rounded-lg font-semibold text-gray-700 text-sm">
         <div className="flex-[2]">Nom</div>
         <div className="flex-[2]">Referència</div>
@@ -70,7 +67,6 @@ export default function SparePartProvidersSelected({
         <div className="flex-[1]">Accions</div>
       </div>
 
-      {/* 🔹 Lista de proveedores filtrada */}
       <div className="overflow-y-auto max-h-[300px] divide-y divide-gray-200 text-sm">
         {filteredProviders.length > 0 ? (
           filteredProviders.map(x => (
