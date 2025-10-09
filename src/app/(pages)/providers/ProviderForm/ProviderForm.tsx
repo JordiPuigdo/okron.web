@@ -225,8 +225,8 @@ export default function ProviderForm({
           <input
             {...register('active')}
             type="checkbox"
-            checked={providerData?.active}
             onChange={e => setValue('active', e.target.checked ? true : false)}
+            className="hover:cursor-pointer"
           />
         </div>
       )}
