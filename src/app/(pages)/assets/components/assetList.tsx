@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useQueryParams } from 'app/hooks/useFilters';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgCreate, SvgMachines, SvgSpinner } from 'app/icons/icons';
 import { Asset } from 'app/interfaces/Asset';
@@ -79,8 +80,8 @@ const AssetListItem: React.FC<Props> = ({
             </button>
           )}
           <div className="flex-grow">
-            <strong>{t('code')}:</strong> {asset.code} | <strong>{t('description')}:</strong>{' '}
-            {asset.description} |{' '}
+            <strong>{t('code')}:</strong> {asset.code} |{' '}
+            <strong>{t('description')}:</strong> {asset.description} |{' '}
             {asset.brand && (
               <>
                 <strong>{t('brand')}:</strong> {asset.brand} |{' '}
@@ -168,11 +169,17 @@ const AssetList: React.FC = () => {
   const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
   const [message, setMessage] = useState<string>('');
 
-  const searchParams = useSearchParams();
-  const initialSearch = searchParams.get('search') ?? '';
-  const expandedTargetId = searchParams.get('id');
+  const { queryParams, setQueryParams } = useQueryParams();
+
+  const initialSearch = (queryParams.search as string) ?? '';
+  const expandedTargetId = (queryParams.id as string) ?? '';
 
   const [searchTerm, setSearchTerm] = useState<string>(initialSearch);
+
+  useEffect(() => {
+    if (queryParams.search !== undefined && queryParams.search != searchTerm)
+      setSearchTerm(queryParams.search as string);
+  }, [searchTerm]);
 
   useEffect(() => {
     assetService
@@ -235,7 +242,9 @@ const AssetList: React.FC = () => {
             <SvgMachines />
             {t('assets.equipment')}
           </h2>
-          <span className="text-l">{t('start')} - {t('assets.equipment.list')}</span>
+          <span className="text-l">
+            {t('start')} - {t('assets.equipment.list')}
+          </span>
         </div>
         <div className="w-full flex justify-end items-center">
           <Link href="/assets/0" passHref>

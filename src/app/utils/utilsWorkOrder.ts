@@ -77,12 +77,6 @@ export function mapQueryParamsToFilters(
   userType?: UserType,
   prev?: WorkOrdersFilters
 ): Partial<WorkOrdersFilters> {
-  const firstDayOfMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() - 1,
-    1
-  );
-
   return {
     workOrderType: query.workOrderType
       ? query.workOrderType
@@ -104,7 +98,7 @@ export function mapQueryParamsToFilters(
     dateRange: {
       startDate: query.startDate
         ? dayjs(query.startDate.toString(), 'YYYY-MM-DD').toDate()
-        : prev?.dateRange.startDate ?? firstDayOfMonth,
+        : prev?.dateRange.startDate ?? null,
       endDate: query.endDate
         ? dayjs(query.endDate.toString(), 'YYYY-MM-DD').toDate()
         : prev?.dateRange.endDate ?? dayjs().startOf('day').toDate(),
@@ -137,6 +131,8 @@ export function applyFilters(
     return (
       order.description.toLowerCase().includes(t) ||
       order.code.toLowerCase().includes(t) ||
+      order.asset?.description?.toLowerCase().includes(t) ||
+      order.asset?.brand?.toLowerCase().includes(t) ||
       order.customerWorkOrder?.customerName?.toLowerCase().includes(t) ||
       order.refCustomerId?.toLowerCase().includes(t) ||
       order.customerWorkOrder?.customerInstallationAddress?.city

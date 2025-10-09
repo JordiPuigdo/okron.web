@@ -119,13 +119,6 @@ export const WorkOrdersFiltersTable = ({
           <DeleteFilters />
         </div>
         <div className="flex w-full gap-2">
-          {enableFilterAssets && !isCRM && (
-            <AutocompleteSearchBar
-              elements={assets}
-              setCurrentId={handleSelectedAssetId}
-              placeholder={t('workorder.search.equipment')}
-            />
-          )}
           <input
             type="text"
             placeholder={placeholder}

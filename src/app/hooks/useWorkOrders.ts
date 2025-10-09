@@ -79,14 +79,19 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
     if (firstLoad && queryParams) {
       setFilters(prev => ({
         ...prev,
-        ...mapQueryParamsToFilters(queryParams, loginUser?.userType, prev), // <-- le paso prev para no resetear fechas
+        ...mapQueryParamsToFilters(queryParams, loginUser?.userType, prev),
       }));
       setFirstLoad(false);
     }
   }, [queryParams, loginUser, firstLoad]);
 
   useEffect(() => {
-    fetchWorkOrders();
+    if (
+      filters.dateRange.startDate != null &&
+      filters.dateRange.endDate != null
+    ) {
+      fetchWorkOrders();
+    }
   }, [
     filters.dateRange.startDate,
     filters.dateRange.endDate,
@@ -129,14 +134,11 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
     const map = new Map<WorkOrderType, number>();
 
     for (const order of filteredWorkOrders) {
-      // order.workOrderType debería ser del tipo WorkOrderType según tu interfaz.
-      // si por alguna razón es string, hacemos un cast controlado:
       const t = order.workOrderType as unknown as WorkOrderType | undefined;
       if (t === undefined) continue;
       map.set(t, (map.get(t) ?? 0) + 1);
     }
 
-    // convertimos Map a array con la forma { workOrderType, count }
     return Array.from(map.entries()).map(([workOrderType, count]) => ({
       workOrderType,
       count,

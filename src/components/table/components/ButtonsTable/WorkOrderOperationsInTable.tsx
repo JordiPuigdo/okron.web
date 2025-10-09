@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { usePermissions } from 'app/hooks/usePermissions';
 import { useSparePartsHook } from 'app/hooks/useSparePartsHook';
 import {
   SvgCheck,
@@ -86,6 +87,7 @@ const WorkOrderOperationsInTable = React.memo(
   }: WorkOrderOperationsInTableProps) => {
     const Routes = useRoutes();
     const { operatorLogged, loginUser } = useSessionStore();
+    const { isCRM } = usePermissions();
     const { isModalOpen } = useGlobalStore();
 
     const [isPassInspectionPoints, setIsPassInspectionPoints] = useState(false);
@@ -371,7 +373,7 @@ const WorkOrderOperationsInTable = React.memo(
               )}
             </Button>
           )}
-        <CRMStatusButton item={workOrder} />
+        <CRMStatusButton item={workOrder} isCRM={isCRM} />
         <Button
           type="none"
           href={`${Routes.workOrders}/${workOrder.id}`}
@@ -394,8 +396,8 @@ WorkOrderOperationsInTable.displayName = 'WorkOrderOperationsInTable';
 
 export default WorkOrderOperationsInTable;
 
-const CRMStatusButton = memo(({ item }: any) => {
-  if (!item) return null;
+const CRMStatusButton = memo(({ item, isCRM }: any) => {
+  if (!item || !isCRM) return null;
   const isInvoiced = item.isInvoiced;
   const hasDeliveryNote = item.hasDeliveryNote;
   return (

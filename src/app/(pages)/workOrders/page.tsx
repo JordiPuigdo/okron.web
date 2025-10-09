@@ -24,7 +24,9 @@ export default function WorkOrdersPage() {
             <SvgMachines />
             {name}
           </h2>
-          <span className="text-l">{t('workOrders.listTitle', { type: name })}</span>
+          <span className="text-l">
+            {t('workOrders.listTitle', { type: name })}
+          </span>
         </div>
       </div>
     );

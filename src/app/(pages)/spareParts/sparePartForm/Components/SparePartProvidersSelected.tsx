@@ -20,8 +20,9 @@ export default function SparePartProvidersSelected({
   handleUpdateDiscount,
   handleUpdateRefProvider,
 }: SparePartProvidersSelectedProps) {
+  if (!sparePart) return null;
+
   const { t } = useTranslations();
-    if (!sparePart) return null;
   const [searchText, setSearchText] = useState('');
 
   const filteredProviders = useMemo(() => {
@@ -60,7 +61,7 @@ export default function SparePartProvidersSelected({
         />
       </div>
       <div className="flex gap-2 justify-between items-center bg-gray-100 p-3 rounded-lg font-semibold text-gray-700 text-sm">
-     <div className="flex-[2]">{t('providers.name')}</div>
+        <div className="flex-[2]">{t('providers.name')}</div>
         <div className="flex-[2]">{t('providers.reference')}</div>
         <div className="flex-[1]">{t('providers.price')}</div>
         <div className="flex-[1]">{t('providers.discount.percentage')}</div>

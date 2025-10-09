@@ -2,10 +2,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { useCallback, useMemo } from 'react';
 import DatePicker from 'react-datepicker';
+import { Label } from 'components/ui/label';
 import ca from 'date-fns/locale/ca';
 import dayjs from 'dayjs';
-
-import { useTranslations } from '../../app/hooks/useTranslations';
 
 export interface DateFilterProps {
   dateFilters: DateFilters;
@@ -29,8 +28,6 @@ export const DateFilter = ({
 }: DateFilterProps) => {
   const { startDate, endDate } = dateFilters;
 
-  const {t} = useTranslations();
-  
   const handleStartDateChange = useCallback(
     (date: Date | null) => {
       const normalizedDate = date ? dayjs(date).startOf('day').toDate() : null;
@@ -67,12 +64,12 @@ export const DateFilter = ({
   return (
     <div className={`flex flex-col sm:flex-row gap-4 ${className}`}>
       <div className="flex items-center flex-1">
-        <label
+        <Label
+          name="start"
           htmlFor="startDate"
           className={`mr-2 min-w-[40px] ${startTimeClassName}`}
-        >
-          {t('start')}
-        </label>
+        />
+
         <DatePicker
           {...commonDatePickerProps}
           id="startDate"
@@ -83,12 +80,11 @@ export const DateFilter = ({
       </div>
 
       <div className="flex items-center flex-1">
-        <label
+        <Label
           htmlFor="endDate"
           className={`mr-2 min-w-[40px] ${endTimeClassName}`}
-        >
-          Final
-        </label>
+          name="end"
+        />
         <DatePicker
           {...commonDatePickerProps}
           id="endDate"

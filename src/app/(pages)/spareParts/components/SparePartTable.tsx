@@ -90,6 +90,30 @@ const getColumns = (t: any): Column[] => [
     format: ColumnFormat.NUMBER,
     align: ColumnnAlign.RIGHT,
   },
+  {
+    label: t('price'),
+    key: 'price',
+    format: ColumnFormat.PRICE,
+    align: ColumnnAlign.RIGHT,
+  },
+  {
+    label: t('pending'),
+    key: 'pendingQuantity',
+    format: ColumnFormat.NUMBER,
+    align: ColumnnAlign.RIGHT,
+    className:
+      'font-semibold bg-yellow-200 p-2 rounded-xl text-xl  text-center',
+  },
+  {
+    key: 'lastMovementConsume',
+    label: t('spareParts.lastConsumption'),
+    format: ColumnFormat.DATETIME,
+  },
+  {
+    label: t('active'),
+    key: 'active',
+    format: ColumnFormat.BOOLEAN,
+  },
 ];
 
 const getColumnsPerAsset = (t: any): Column[] => [
@@ -250,35 +274,6 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
               }
             );
           }
-        } else {
-          if (!columns.find(x => x.key === 'price')) {
-            columns.push(
-              {
-                label: t('price'),
-                key: 'price',
-                format: ColumnFormat.PRICE,
-                align: ColumnnAlign.RIGHT,
-              },
-              {
-                label: t('pending'),
-                key: 'pendingQuantity',
-                format: ColumnFormat.NUMBER,
-                align: ColumnnAlign.RIGHT,
-                className:
-                  'font-semibold bg-yellow-200 p-2 rounded-xl text-xl  text-center',
-              },
-              {
-                key: 'lastMovementConsume',
-                label: t('spareParts.lastConsumption'),
-                format: ColumnFormat.DATETIME,
-              },
-              {
-                label: t('active'),
-                key: 'active',
-                format: ColumnFormat.BOOLEAN,
-              }
-            );
-          }
         }
         if (timer > 0) {
           setSpareParts(data.filter(sparePart => sparePart.active == true));
@@ -303,9 +298,7 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
   }, []);
 
   const handleSparePartActiveChange = async (id: string) => {
-    const isConfirmed = window.confirm(
-      t('spareParts.confirmDelete')
-    );
+    const isConfirmed = window.confirm(t('spareParts.confirmDelete'));
     if (isConfirmed) {
       await sparePartService.deleteSparePart(id).then(data => {
         setSpareParts(spareParts.filter(sparePart => sparePart.id !== id));

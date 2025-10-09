@@ -1,11 +1,12 @@
 'use client';
+import { useQueryParams } from 'app/hooks/useFilters';
 import { SvgPrint } from 'app/icons/designSystem/SvgPrint';
 import { SvgMachines } from 'app/icons/icons';
 import { useSessionStore } from 'app/stores/globalStore';
 import { getRoute } from 'app/utils/utils';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 interface HeaderFormProps {
   header: string;
@@ -23,35 +24,35 @@ export const HeaderForm = ({
   entity,
 }: HeaderFormProps) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { config } = useSessionStore();
-  const query = new URLSearchParams();
-  const id = searchParams.get('id') ?? '';
+  const { queryParams, getQueryParam } = useQueryParams();
 
   function handleOnClick() {
-    /* debugger;
-    if (entity) {
+    const id = getQueryParam('id');
+    const search = getQueryParam('search');
+
+    if (id && entity == EntityTable.ASSET) {
       let finalRoute = getRoute(entity, true);
 
-      searchParams.forEach((value, key) => {
-        if (key !== 'id' && value) {
-          query.set(key, value);
-        }
-      });
+      // Reemplazamos los placeholders con valores reales
+      finalRoute = finalRoute + '?id=' + id;
+      if (search) finalRoute = finalRoute + '&search=' + search;
 
-      finalRoute += `${query.toString() ? '?' + query.toString() : ''}`;
+      // Si hay otros parámetros en queryParams, los añadimos a la URL
+      const otherParams = '';
+      /* Object.entries(queryParams)
+        .filter(([key]) => key !== 'id' && queryParams[key] !== undefined)
+        .map(([key, value]) => `${key}=${encodeURIComponent(value as string)}`)
+        .join('&');*/
 
-      if (id.length > 0) {
-        finalRoute += `${query.toString().length > 0 ? '&' : '?'}id=${id}`;
-      }
+      const routeWithQuery = otherParams
+        ? `${finalRoute}?${otherParams}`
+        : finalRoute;
 
-      const finalUrl = finalRoute;
-
-      router.push(finalUrl);
+      router.push(routeWithQuery);
     } else {
       router.back();
-    }*/
-    router.back();
+    }
   }
 
   if (isCreate)

@@ -49,7 +49,7 @@ export const WorkOrderTypeFilter = ({
   }, [workOrdersFilters.workOrderType]);
 
   return (
-    <div className="flex items-center w-full bg-red-200">
+    <div className="flex items-center w-full">
       <Select
         isMulti
         options={mapTypesToOptions(validTypes)}

@@ -16,6 +16,12 @@ export const WorkOrderDateFilter = ({
     endDate: workOrdersFilters.dateRange.endDate,
   });
 
+  const firstDayOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth() - 1,
+    1
+  );
+
   useEffect(() => {
     setWorkOrdersFilters({
       ...workOrdersFilters,
@@ -24,6 +30,20 @@ export const WorkOrderDateFilter = ({
         endDate: dateFilters.endDate,
       },
     });
+
+    if (dateFilters.startDate == null) {
+      setWorkOrdersFilters({
+        ...workOrdersFilters,
+        dateRange: {
+          startDate: firstDayOfMonth,
+          endDate: dateFilters.endDate,
+        },
+      });
+      setDateFilters({
+        startDate: firstDayOfMonth,
+        endDate: dateFilters.endDate,
+      });
+    }
   }, [dateFilters]);
 
   return (

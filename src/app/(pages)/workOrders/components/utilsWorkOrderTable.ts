@@ -40,6 +40,11 @@ export const getBaseColumns = (t: any): Column[] => [
     format: ColumnFormat.TEXT,
   },
   {
+    label: t('brand'),
+    key: 'asset.brand',
+    format: ColumnFormat.TEXT,
+  },
+  {
     label: t('workorder.original'),
     key: 'originalWorkOrderCode',
     format: ColumnFormat.TEXT,
