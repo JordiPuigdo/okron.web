@@ -12,7 +12,7 @@ import {
   ProviderService,
 } from 'app/services/providerService';
 import { fetcher } from 'app/utils/utils';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 
 export const useProviders = (
   shouldFetchProviders: boolean = false,
@@ -65,7 +65,11 @@ export const useProviders = (
     try {
       setIsLoadingProvider(true);
       const response = await providerService.update(provider);
-      if (response) setSuccessFull(true);
+      if (response) {
+        setSuccessFull(true);
+        await mutate(process.env.NEXT_PUBLIC_API_BASE_URL + 'provider');
+      }
+
       return response;
     } catch (error) {
       console.error('Error updating provider:', error);

@@ -1,17 +1,21 @@
-import { useState } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import { useProviders } from 'app/hooks/useProviders';
 import { Provider, SparePartProviderRequest } from 'app/interfaces/Provider';
 import SparePart from 'app/interfaces/SparePart';
+
+export interface ProviderToSparePartRequestRef {
+  hasPendingProvider: () => boolean;
+}
 
 interface ProviderToSparePartRequestProps {
   sparePart: SparePart;
   setSparePart: (sparePart: SparePart) => void;
 }
 
-const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
-  sparePart,
-  setSparePart,
-}) => {
+const ProviderToSparePartRequest = forwardRef<
+  ProviderToSparePartRequestRef,
+  ProviderToSparePartRequestProps
+>(({ sparePart, setSparePart }, ref) => {
   const [selectedProvider, setSelectedProvider] = useState<
     Provider | undefined
   >(undefined);
@@ -20,12 +24,18 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
   const { providers } = useProviders(true);
   const [searchText, setSearchText] = useState('');
   const [refProvider, setRefProvider] = useState('');
+
+  useImperativeHandle(ref, () => ({
+    hasPendingProvider: () => selectedProvider !== undefined,
+  }));
+
   const filteredProviders = providers?.filter(
     sp =>
       `${sp.name} - ${sp.phoneNumber}`
         .toLowerCase()
         .includes(searchText.toLowerCase()) &&
-      !sparePart?.providers.some(x => x.providerId === sp.id)
+      !sparePart?.providers.some(x => x.providerId === sp.id) &&
+      sp.active
   );
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -112,8 +122,8 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
         </div>
       )}
       {selectedProvider && (
-        <div className="bg-white rounded-lg border border-gray-200 mt-1">
-          <div className="grid grid-cols-6 gap-2 px-3 py-2 bg-gray-50 text-sm text-gray-600 border-b">
+        <div className="bg-white rounded-lg border border-orange-500 my-1 mb-2">
+          <div className="grid grid-cols-6 gap-2 px-3 py-2 bg-gray-50 text-sm text-gray-600 border-b rounded-lg">
             <span className="col-span-2">Proveïdor</span>
             <span className="col-span-1">Referència</span>
             <span className="col-span-1">Preu</span>
@@ -173,7 +183,7 @@ const ProviderToSparePartRequest: React.FC<ProviderToSparePartRequestProps> = ({
       )}
     </div>
   );
-};
+});
 
 export default ProviderToSparePartRequest;
 

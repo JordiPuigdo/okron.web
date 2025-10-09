@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import ProviderToSparePartRequest from 'app/(pages)/providers/[id]/Components/ProviderToSparePartRequest';
+import ProviderToSparePartRequest, {
+  ProviderToSparePartRequestRef,
+} from 'app/(pages)/providers/[id]/Components/ProviderToSparePartRequest';
 import { usePermissions } from 'app/hooks/usePermissions';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import SparePart from 'app/interfaces/SparePart';
@@ -37,7 +39,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
     defaultValues: {},
   });
   const [sparePart, setSparePart] = useState<SparePart | null>(null);
-
+  const providerRequestRef = useRef<ProviderToSparePartRequestRef>(null);
   const { warehouses } = useWareHouses(true);
 
   function handleAssignWareHouse(wareHouseId: string) {
@@ -150,6 +152,12 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
       alert('Falta informació per a crear el recanvi');
       return;
     }
+
+    if (providerRequestRef.current?.hasPendingProvider()) {
+      alert('No pots guardar si tens un proveïdor a mitges.');
+      return;
+    }
+
     if (sparePartLoaded) {
       await sparePartService
         .updateSparePart(sparePart)
@@ -459,6 +467,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
             <div className="flex flex-col flex-grow">
               <h2 className="font-semibold mb-2">Selecciona Proveïdor</h2>
               <ProviderToSparePartRequest
+                ref={providerRequestRef}
                 sparePart={sparePart!}
                 setSparePart={setSparePart}
               />

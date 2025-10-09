@@ -1,4 +1,5 @@
 'use client';
+import { useEffect } from 'react';
 import { useProviders } from 'app/hooks/useProviders';
 import DataTable from 'components/table/DataTable';
 import {
@@ -11,7 +12,11 @@ import {
 import { EntityTable } from 'components/table/interface/tableEntitys';
 
 export const TableProvider = () => {
-  const { providers } = useProviders(true);
+  const { providers, fetchProviders } = useProviders(true);
+
+  useEffect(() => {
+    fetchProviders();
+  }, []);
 
   return (
     <DataTable
