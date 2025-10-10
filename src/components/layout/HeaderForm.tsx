@@ -34,20 +34,10 @@ export const HeaderForm = ({
     if (id && entity == EntityTable.ASSET) {
       let finalRoute = getRoute(entity, true);
 
-      // Reemplazamos los placeholders con valores reales
       finalRoute = finalRoute + '?id=' + id;
       if (search) finalRoute = finalRoute + '&search=' + search;
 
-      // Si hay otros parámetros en queryParams, los añadimos a la URL
-      const otherParams = '';
-      /* Object.entries(queryParams)
-        .filter(([key]) => key !== 'id' && queryParams[key] !== undefined)
-        .map(([key, value]) => `${key}=${encodeURIComponent(value as string)}`)
-        .join('&');*/
-
-      const routeWithQuery = otherParams
-        ? `${finalRoute}?${otherParams}`
-        : finalRoute;
+      const routeWithQuery = finalRoute;
 
       router.push(routeWithQuery);
     } else {

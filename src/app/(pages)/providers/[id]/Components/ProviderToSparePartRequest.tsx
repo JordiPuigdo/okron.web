@@ -122,8 +122,8 @@ const ProviderToSparePartRequest = forwardRef<
         </div>
       )}
       {selectedProvider && (
-        <div className="bg-white rounded-lg border border-gray-200 mt-1">
-          <div className="grid grid-cols-6 gap-2 px-3 py-2 bg-gray-50 text-sm text-gray-600 border-b">
+        <div className="bg-white rounded-lg border border-orange-500 my-2 mb-2">
+          <div className="grid grid-cols-6 gap-2 px-3 py-2 rounded-lg bg-gray-50 text-sm text-gray-600 border-b">
             <span className="col-span-2">{t('providers.name')}</span>
             <span className="col-span-1">{t('providers.reference')}</span>
             <span className="col-span-1">{t('providers.price')}</span>
