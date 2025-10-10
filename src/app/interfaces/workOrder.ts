@@ -203,8 +203,14 @@ export interface AddCommentToWorkOrderRequest {
   operatorId: string;
   workOrderId: string;
   type: WorkOrderCommentType;
+  files?: UploadableFile[];
+  urls?: string[];
 }
-
+export interface UploadableFile {
+  uri: string;
+  name: string;
+  type: string;
+}
 export interface UpdateStateWorkOrder {
   workOrderId: string;
   state: StateWorkOrder;

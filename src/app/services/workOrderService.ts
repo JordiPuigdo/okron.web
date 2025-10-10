@@ -349,6 +349,14 @@ class WorkOrderService {
     formData.append('operatorId', addCommentToWorkOrder.operatorId);
     formData.append('workOrderId', addCommentToWorkOrder.workOrderId);
     formData.append('type', addCommentToWorkOrder.type.toString());
+    if (
+      addCommentToWorkOrder.urls &&
+      Array.isArray(addCommentToWorkOrder.urls)
+    ) {
+      addCommentToWorkOrder.urls.forEach((url, idx) => {
+        formData.append('urls', url);
+      });
+    }
 
     try {
       const url = `${this.baseUrl}AddCommentToWorkOrder`;

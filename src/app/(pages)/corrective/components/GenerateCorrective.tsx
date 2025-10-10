@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import react from 'react';
 import DatePicker from 'react-datepicker';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useOperatorHook } from 'app/hooks/useOperatorsHook';
@@ -8,6 +8,7 @@ import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgMachines, SvgSpinner } from 'app/icons/icons';
 import { Asset } from 'app/interfaces/Asset';
 import { Corrective } from 'app/interfaces/Corrective';
+import { OperatorType } from 'app/interfaces/Operator';
 import { DowntimesReasons } from 'app/interfaces/Production/Downtimes';
 import { UserType } from 'app/interfaces/User';
 import { StateWorkOrder, WorkOrderType } from 'app/interfaces/workOrder';
@@ -49,57 +50,51 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
 }) => {
   const { t } = useTranslations();
   const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
-  const [selectedOperator, setSelectedOperator] = useState<string[]>([]);
-  const [selectedId, setSelectedId] = useState<string>('');
-  const [selectedDowntimeReasons, setSelectedDowntimeReasons] = useState<
+  const [selectedOperator, setSelectedOperator] = react.useState<string[]>([]);
+  const [selectedId, setSelectedId] = react.useState<string>('');
+  const [selectedDowntimeReasons, setSelectedDowntimeReasons] = react.useState<
     DowntimesReasons | undefined
   >(undefined);
-  const [assets, setAssets] = useState<ElementList[]>([]);
+  const [assets, setAssets] = react.useState<ElementList[]>([]);
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = react.useState(false);
   const { register, handleSubmit, setValue } = useForm<Corrective>();
 
   const router = useRouter();
 
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [startDate, setStartDate] = react.useState<Date | null>(new Date());
+  const [showSuccessMessage, setShowSuccessMessage] = react.useState(false);
+  const [showErrorMessage, setShowErrorMessage] = react.useState(false);
   const { loginUser, operatorLogged } = useSessionStore(state => state);
   const [descriptionCorrective, setDescriptionCorrective] =
-    useState(description);
-  const [stateCorrective, setStateCorrective] = useState<StateWorkOrder>(
+    react.useState(description);
+  const [stateCorrective, setStateCorrective] = react.useState<StateWorkOrder>(
     stateWorkOrder ?? StateWorkOrder.Waiting
   );
   const [showDowntimeReasonsModal, setShowDowntimeReasonsModal] =
-    useState(false);
+    react.useState(false);
   const { operators } = useOperatorHook();
   const { isModalOpen } = useGlobalStore();
-  const [code, setCode] = useState<string>('');
+  const [code, setCode] = react.useState<string>('');
 
   async function fetchFormData() {
     await createCode();
     await fetchAssets();
     if (operatorIds != undefined) {
-      setSelectedOperator(operatorIds);
+      //setSelectedOperator(operatorIds);
     }
   }
 
   async function createCode() {
     await workOrderService
-      .countByWorkOrderType(
+      .generateWorkOrderCode(
         loginUser?.userType == UserType.Production
           ? WorkOrderType.Ticket
           : WorkOrderType.Corrective
       )
-      .then(numberCorrectives => {
-        numberCorrectives = numberCorrectives += 1;
-        const paddedCounter = numberCorrectives
-          ? numberCorrectives.toString().padStart(4, '0')
-          : '0000';
-        let code = loginUser?.userType == UserType.Production ? 'TICK' : 'COR';
-        code = code + paddedCounter;
-        setCode(code);
-        setValue('code', code);
+      .then(newCode => {
+        setCode(newCode);
+        setValue('code', newCode);
       })
       .catch(error => {
         // setErrorMessage('Error Operaris: ' + error);  TODO-ERROR
@@ -139,17 +134,17 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
     }
   }
 
-  useEffect(() => {
+  react.useEffect(() => {
     fetchFormData();
   }, []);
 
-  useEffect(() => {
+  react.useEffect(() => {
     if (loginUser?.userType === UserType.Production && selectedId.length > 0) {
       setShowDowntimeReasonsModal(true);
     }
   }, [selectedId]);
 
-  useEffect(() => {
+  react.useEffect(() => {
     setValue('stateWorkOrder', StateWorkOrder.Waiting);
   }, [setValue]);
 
@@ -209,7 +204,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
     );
   };
 
-  useEffect(() => {
+  react.useEffect(() => {
     setShowDowntimeReasonsModal(isModalOpen);
   }, [isModalOpen]);
 
@@ -306,7 +301,9 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                     .filter(x => x.id === selectedId)
                     .map(machine => (
                       <div key={machine.id}>
-                        <p>{t('selected.equipment')}: {machine.description}</p>
+                        <p>
+                          {t('selected.equipment')}: {machine.description}
+                        </p>
                       </div>
                     ))}
                   <div>
@@ -401,7 +398,11 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
                 </label>
                 {operators !== undefined && operators.length > 0 && (
                   <ChooseElement
-                    elements={operators.filter(x => x.active == true)}
+                    elements={operators.filter(
+                      x =>
+                        x.active == true &&
+                        x.operatorType == OperatorType.Maintenance
+                    )}
                     selectedElements={selectedOperator}
                     onElementSelected={handleSelectedOperator}
                     onDeleteElementSelected={handleDeleteSelectedOperator}

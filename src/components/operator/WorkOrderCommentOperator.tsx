@@ -4,6 +4,7 @@ import { SvgSave } from 'app/icons/designSystem/SvgSave';
 import { SvgClose, SvgDelete, SvgDetail, SvgSpinner } from 'app/icons/icons';
 import {
   AddCommentToWorkOrderRequest,
+  UploadableFile,
   WorkOrderComment,
   WorkOrderCommentType,
 } from 'app/interfaces/workOrder';
@@ -27,6 +28,7 @@ interface EditCommentState {
   id: string | null;
   comment: string;
   type: WorkOrderCommentType;
+  urls: string[];
 }
 
 const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
@@ -47,10 +49,11 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
     id: null,
     comment: '',
     type: WorkOrderCommentType.External,
+    urls: [],
   });
   const [isEditing, setIsEditing] = useState(false);
-  
-  const {t} = useTranslations(); 
+
+  const { t } = useTranslations();
 
   const { operatorLogged } = useSessionStore(state => state);
 
@@ -100,6 +103,7 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
       id: comment.id!,
       comment: comment.comment,
       type: comment.type,
+      urls: comment.urls,
     });
     setIsEditing(true);
   };
@@ -109,6 +113,7 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
       id: null,
       comment: '',
       type: WorkOrderCommentType.External,
+      urls: [],
     });
     setIsEditing(false);
   };
@@ -131,13 +136,12 @@ const WorkOrderOperatorComments: React.FC<IWorkOrderCommentOperator> = ({
         editComment.id
       );
 
-      // Luego creamos el nuevo comentario
-
       const commentToAdd: AddCommentToWorkOrderRequest = {
         comment: editComment.comment,
         operatorId: operatorLogged.idOperatorLogged,
         workOrderId: workOrderId,
         type: editComment.type,
+        urls: editComment.urls,
       };
 
       const updatedComment = await workOrderService.addCommentToWorkOrder(
