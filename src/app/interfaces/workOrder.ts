@@ -234,6 +234,8 @@ export enum WorkOrderEventType {
   PendingToValidate,
   Finished,
   Created,
+  NotFinished,
+  Closed,
 }
 
 export interface WorkOrdersFilters {
