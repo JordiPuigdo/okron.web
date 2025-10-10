@@ -235,7 +235,7 @@ export enum WorkOrderEventType {
   Finished,
   Created,
   NotFinished,
-  Closed,
+  Open,
 }
 
 export interface WorkOrdersFilters {
