@@ -87,7 +87,7 @@ export const translateWorkOrderEventType = (
     case WorkOrderEventType.NotFinished:
       return t('workorder.event.not.finished');
     case WorkOrderEventType.Closed:
-      return t('close');
+      return t('workorder.event.not.closed');
     default:
       return '';
   }
