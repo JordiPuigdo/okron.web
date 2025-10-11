@@ -35,11 +35,15 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
   enableDelete,
   assetId,
   enableFinalizeWorkOrdersDayBefore = false,
+  operatorId,
 }) => {
   const { workOrderColumns } = usePermissions();
 
   const { operatorLogged, loginUser } = useSessionStore(state => state);
 
+  const initStartDate = !enableFilters ? new Date() : null;
+  const initEndDate = !enableFilters ? new Date() : null;
+  console.log(operatorId);
   const {
     filters,
     setFilters,
@@ -47,7 +51,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     validStates,
     workOrderTypeCount,
   } = useWorkOrders({
-    dateRange: { startDate: null, endDate: null },
+    dateRange: { startDate: initStartDate, endDate: initEndDate },
     workOrderType: [],
     workOrderState:
       loginUser?.userType === UserType.CRM
@@ -60,6 +64,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     isInvoiced: false,
     hasDeliveryNote: false,
     active: true,
+    useOperatorLogged: operatorId == undefined ? false : true,
   });
 
   const tableButtons: TableButtons = {

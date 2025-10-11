@@ -1,8 +1,8 @@
-"use client";
-import { useEffect, useState } from "react";
-import WorkOrderTable from "app/(pages)/workOrders/components/WorkOrderTable";
-import { WorkOrderType } from "app/interfaces/workOrder";
-import { useSessionStore } from "app/stores/globalStore";
+'use client';
+
+import WorkOrderTable from 'app/(pages)/workOrders/components/WorkOrderTable';
+import { WorkOrderType } from 'app/interfaces/workOrder';
+import { useSessionStore } from 'app/stores/globalStore';
 
 interface WorkOrderComponentProps {
   workOrderType?: WorkOrderType;
@@ -10,31 +10,18 @@ interface WorkOrderComponentProps {
 export default function WorkOrderComponent({
   workOrderType,
 }: WorkOrderComponentProps) {
-  const { operatorLogged } = useSessionStore((state) => state);
-  const [operatorId, setOperatorId] = useState<string | "">("");
-  const [refresh, setRefresh] = useState(false);
-
-  useEffect(() => {
-    operatorLogged !== undefined
-      ? setOperatorId(operatorLogged.idOperatorLogged)
-      : setOperatorId("");
-  }, [operatorLogged]);
-
-  useEffect(() => {
-    setRefresh(true);
-  }, [workOrderType]);
+  const { operatorLogged } = useSessionStore(state => state);
 
   return (
     <>
-      {operatorId !== "" ? (
+      {operatorLogged ? (
         <WorkOrderTable
           enableDelete={false}
           enableEdit={true}
           enableFilters={false}
-          operatorId={operatorId}
+          operatorId={operatorLogged.idOperatorLogged}
           enableDetail={false}
           workOrderType={workOrderType}
-          refresh={refresh}
         />
       ) : (
         <></>

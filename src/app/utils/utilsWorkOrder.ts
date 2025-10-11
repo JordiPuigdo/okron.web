@@ -51,6 +51,7 @@ export function getDefaultFiltersCRM(): WorkOrdersFilters {
     isInvoiced: false,
     hasDeliveryNote: false,
     active: true,
+    useOperatorLogged: false,
   };
 }
 
@@ -70,6 +71,7 @@ export function getFilters(filters: WorkOrdersFilters): FilterValue {
   f.customerName = filters.customerName ?? '';
   f.isInvoiced = filters.isInvoiced;
   f.hasDeliveryNote = filters.hasDeliveryNote;
+  f.useOperatorLogged = filters.useOperatorLogged;
   return f;
 }
 export function mapQueryParamsToFilters(
@@ -116,6 +118,11 @@ export function mapQueryParamsToFilters(
       (query.hasDeliveryNote === 'true' ||
         query.hasDeliveryNote === true ||
         prev?.hasDeliveryNote) ??
+      false,
+    useOperatorLogged:
+      (query.useOperatorLogged === 'true' ||
+        query.useOperatorLogged === true ||
+        prev?.useOperatorLogged) ??
       false,
   };
 }

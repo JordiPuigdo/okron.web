@@ -13,7 +13,6 @@ import WorkOrder, {
 } from 'app/interfaces/workOrder';
 import OperatorService from 'app/services/operatorService';
 import {
-  formatDate,
   translateStateWorkOrder,
   translateWorkOrderType,
 } from 'app/utils/utils';
@@ -92,7 +91,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     []
   );
   const [selectedButton, setSelectedButton] = useState<string | null>(
-    'Ordres de treball'
+    'work.orders'
   );
 
   const handleButtonClick = (buttonName: string) => {
@@ -447,7 +446,9 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
               </div>
             </div>
             <div className="flex items-center w-full lg:justify-start px-0 lg:px-6">
-              <span className="text-gray-500 font-semibold">{t('minutes')}:</span>
+              <span className="text-gray-500 font-semibold">
+                {t('minutes')}:
+              </span>
               <span className="font-bold ml-2">
                 {Math.round(totalMinutes).toLocaleString().replace(',', '.')}
               </span>
@@ -488,7 +489,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
         selectedButton={selectedButton}
         handleButtonClick={handleButtonClick}
       />
-      {selectedButton === 'Costos' ? (
+      {selectedButton === 'costs' ? (
         <div className="flex flex-col lg:flex-row flex-grow gap-4 ">
           <div className="flex flex-col flex-grow border-2 p-2 w-full rounded-xl bg-white">
             <p className="text-lg lg:text-2xl font-semibold p-2 text-left">
@@ -512,7 +513,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
             <CostXAsset workOrders={workOrders} />
           </div>
         </div>
-      ) : selectedButton === 'Recanvis' ? (
+      ) : selectedButton === 'spare.parts' ? (
         <div className="flex flex-col w-full gap-4 items-center">
           <div className="flex flex-col w-full bg-white rounded-xl border-2 p-2">
             <p className="text-lg lg:text-2xl p-2 mb-4 font-semibold text-left">
@@ -529,14 +530,16 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
             />
           </div>
         </div>
-      ) : selectedButton === 'Compres' ? (
+      ) : selectedButton === 'purchases' ? (
         <OrdersDashboard dateRange={dateFilters} />
       ) : (
         <div className="flex flex-col lg:flex-row flex-grow gap-4">
           <div className="flex w-full bg-white rounded-xl p-2 border-2">
             <DonutChartComponent
               chartData={workOrderTypeChartData}
-              title={`${t('corrective')} vs ${t('preventive')} (${totalCorrective} / ${totalPreventive})`}
+              title={`${t('corrective')} vs ${t(
+                'preventive'
+              )} (${totalCorrective} / ${totalPreventive})`}
               t={t}
             />
           </div>

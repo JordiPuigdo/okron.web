@@ -252,6 +252,7 @@ export interface WorkOrdersFilters {
   isInvoiced: boolean;
   hasDeliveryNote: boolean;
   active: boolean;
+  useOperatorLogged: boolean;
 }
 
 export interface CustomerWorkOrder {

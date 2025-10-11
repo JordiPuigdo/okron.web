@@ -68,6 +68,7 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
       isInvoiced: false,
       hasDeliveryNote: false,
       active: true,
+      useOperatorLogged: false,
     }
   );
 
@@ -100,9 +101,12 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
 
   async function fetchWorkOrders() {
     try {
+      console.log(filters.useOperatorLogged);
       const search: SearchWorkOrderFilters = {
         assetId: '',
-        operatorId: operatorLogged?.idOperatorLogged || '',
+        operatorId: !filters.useOperatorLogged
+          ? ''
+          : operatorLogged?.idOperatorLogged || '',
         startDateTime: filters.dateRange.startDate!,
         endDateTime: filters.dateRange.endDate!,
         originWorkOrder:
