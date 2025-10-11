@@ -52,6 +52,7 @@ export const WorkOrdersFiltersTable = ({
       isInvoiced: false,
       hasDeliveryNote: false,
       active: true,
+      useOperatorLogged: false,
     });
 
     setSelectedAssetId('');
