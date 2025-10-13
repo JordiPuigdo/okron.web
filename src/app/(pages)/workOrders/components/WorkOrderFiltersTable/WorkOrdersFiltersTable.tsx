@@ -1,7 +1,6 @@
 import { usePermissions } from 'app/hooks/usePermissions';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { StateWorkOrder, WorkOrdersFilters } from 'app/interfaces/workOrder';
-import AutocompleteSearchBar from 'components/selector/AutocompleteSearchBar';
 import { ElementList } from 'components/selector/ElementList';
 
 import FinalizeWorkOrdersDaysBefore from '../FinalizeWorkOrdersDaysBefore';

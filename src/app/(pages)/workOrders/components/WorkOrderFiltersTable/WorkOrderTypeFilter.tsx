@@ -44,7 +44,6 @@ export const WorkOrderTypeFilter = ({
   };
 
   useEffect(() => {
-    if (workOrdersFilters.workOrderType.length > 0) return;
     setSelectedOptions(mapTypesToOptions(workOrdersFilters.workOrderType));
   }, [workOrdersFilters.workOrderType]);
 

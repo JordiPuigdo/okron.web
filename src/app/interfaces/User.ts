@@ -31,6 +31,7 @@ export enum UserType {
   Production,
   Warehouse,
   CRM,
+  Quality,
 }
 
 export interface OperatorLogged {

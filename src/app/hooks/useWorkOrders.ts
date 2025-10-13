@@ -11,7 +11,7 @@ import WorkOrder, {
 } from 'app/interfaces/workOrder';
 import { workOrderService } from 'app/services/workOrderService';
 import { useSessionStore } from 'app/stores/globalStore';
-import {
+import getWorkOrderFilterOrigin, {
   applyFilters,
   getFilters,
   getValidStates,
@@ -101,7 +101,6 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
 
   async function fetchWorkOrders() {
     try {
-      console.log(filters.useOperatorLogged);
       const search: SearchWorkOrderFilters = {
         assetId: '',
         operatorId: !filters.useOperatorLogged
@@ -109,18 +108,13 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
           : operatorLogged?.idOperatorLogged || '',
         startDateTime: filters.dateRange.startDate!,
         endDateTime: filters.dateRange.endDate!,
-        originWorkOrder:
-          loginUser?.userType === UserType.Maintenance
-            ? OriginWorkOrder.Maintenance
-            : OriginWorkOrder.Production,
+        originWorkOrder: getWorkOrderFilterOrigin(loginUser!.userType),
         userType: loginUser!.userType,
       };
 
-      if (operatorLogged?.operatorLoggedType === OperatorType.Quality) {
+      /*if (operatorLogged?.operatorLoggedType === OperatorType.Quality) {
         search.stateWorkOrder = [StateWorkOrder.PendingToValidate];
-        search.startDateTime = undefined;
-        search.endDateTime = undefined;
-      }
+      }*/
 
       const data = await workOrderService.getWorkOrdersWithFilters(search);
       setWorkOrders(data);

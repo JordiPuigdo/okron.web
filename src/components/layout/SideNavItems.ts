@@ -30,7 +30,12 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       UserPermission.Worker,
       UserPermission.AdminCRM,
     ],
-    userType: [UserType.Maintenance, UserType.Production, UserType.CRM],
+    userType: [
+      UserType.Maintenance,
+      UserType.Production,
+      UserType.CRM,
+      UserType.Quality,
+    ],
   },
   {
     key: generateKey(),
@@ -85,7 +90,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     path: '/corrective',
     icon: SvgAvarie,
     permission: [UserPermission.Administrator, UserPermission.Worker],
-    userType: [UserType.Production],
+    userType: [UserType.Production, UserType.Quality],
   },
   {
     key: generateKey(),
@@ -105,7 +110,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     path: '/workOrders',
     icon: SvgOrder,
     permission: [UserPermission.Administrator, UserPermission.Worker],
-    userType: [UserType.Production],
+    userType: [UserType.Production, UserType.Quality],
   },
   {
     key: generateKey(),

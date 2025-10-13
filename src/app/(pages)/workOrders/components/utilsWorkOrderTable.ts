@@ -79,6 +79,11 @@ export const getColumnsTicket = (t: any): Column[] => [
     format: ColumnFormat.WORKORDERTYPE,
   },
   {
+    label: t('workorder.creation.date'),
+    key: 'creationTime',
+    format: ColumnFormat.DATETIME,
+  },
+  {
     label: t('workorder.start.date'),
     key: 'startTime',
     format: ColumnFormat.DATETIME,

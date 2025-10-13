@@ -39,7 +39,10 @@ import {
   translateStateWorkOrder,
   translateWorkOrderEventType,
 } from 'app/utils/utils';
-import { getValidStates } from 'app/utils/utilsWorkOrder';
+import {
+  getStatesForWorkOrderType,
+  getValidStates,
+} from 'app/utils/utilsWorkOrder';
 import ChooseElement from 'components/ChooseElement';
 import { CostsObject } from 'components/Costs/CostsObject';
 import CompleteInspectionPoints from 'components/inspectionPoint/CompleteInspectionPoint';
@@ -389,34 +392,36 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
     setIsLoading(prevLoading => ({ ...prevLoading, [id]: !prevLoading[id] }));
   }
 
-  function isValidData(data: WorkOrder): Promise<string> {
-    return new Promise(resolve => {
-      const workOrderHasOperators =
-        currentWorkOrder?.workOrderType !== WorkOrderType.Ticket &&
-        selectedOperators.length === 0;
+  function isValidData(data: WorkOrder): string {
+    const hasOperatorLogged = operatorLogged != undefined;
 
-      if (workOrderHasOperators) {
-        resolve(t('error.select.operator'));
-      }
+    if (!hasOperatorLogged) {
+      return t('error.operator.required.action');
+    }
+    const workOrderHasOperators =
+      currentWorkOrder?.workOrderType !== WorkOrderType.Ticket &&
+      selectedOperators.length === 0;
 
-      const hasChangeState =
-        hasDefaultReason &&
-        data.stateWorkOrder === StateWorkOrder.PendingToValidate;
+    if (workOrderHasOperators) {
+      return t('error.select.operator');
+    }
 
-      if (hasChangeState) {
-        resolve(t('error.state.not.changed'));
-      }
+    const hasChangeState =
+      hasDefaultReason &&
+      data.stateWorkOrder === StateWorkOrder.PendingToValidate;
 
-      // No issues found
-      resolve('');
-    });
+    if (hasChangeState) {
+      return t('error.state.not.changed');
+    }
+
+    return '';
   }
 
   const onSubmit: SubmitHandler<WorkOrder> = async data => {
     toggleLoading('SAVE');
     const errorMessage = isValidData(data);
     if ((await errorMessage).length > 0) {
-      alert(t('alert.select.operator'));
+      alert(errorMessage);
       toggleLoading('SAVE');
       return;
     }
@@ -440,6 +445,8 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
         visibleReport: data.visibleReport,
         refCustomerId: data.refCustomerId,
         active: data.active,
+        userId: loginUser!.agentId,
+        operatorLoggedId: operatorLogged!.idOperatorLogged,
       };
       await workOrderService.updateWorkOrder(updatedWorkOrderData);
 
@@ -645,11 +652,13 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                 onChange={handleStateChange}
                 disabled={isDisabledField}
               >
-                {getValidStates(loginUser?.userType!).map(state => (
-                  <option key={state} value={state}>
-                    {translateStateWorkOrder(state, t)}
-                  </option>
-                ))}
+                {getStatesForWorkOrderType(currentWorkOrder!.workOrderType).map(
+                  state => (
+                    <option key={state} value={state}>
+                      {translateStateWorkOrder(state, t)}
+                    </option>
+                  )
+                )}
               </select>
             </div>
             <div className="">
@@ -943,8 +952,8 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
             : 'flex-col '
         }`}
       >
-        {currentWorkOrder?.originWorkOrder == OriginWorkOrder.Production &&
-          currentWorkOrder.downtimes && (
+        {currentWorkOrder.downtimes &&
+          currentWorkOrder.downtimes.length > 0 && (
             <DowntimesComponent
               downtimes={currentWorkOrder.downtimes}
               workOrderId={currentWorkOrder.id}

@@ -43,7 +43,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
 
   const initStartDate = !enableFilters ? new Date() : null;
   const initEndDate = !enableFilters ? new Date() : null;
-  console.log(operatorId);
+
   const {
     filters,
     setFilters,

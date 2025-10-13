@@ -74,6 +74,7 @@ export enum StateWorkOrder {
 export enum OriginWorkOrder {
   Maintenance,
   Production,
+  Quality,
 }
 
 export interface WorkOrderInspectionPoint {
@@ -103,6 +104,8 @@ export interface UpdateWorkOrderRequest extends CreateWorkOrderRequest {
   refCustomerId?: string;
   creationTime?: Date;
   active: boolean;
+  userId: string;
+  operatorLoggedId: string;
 }
 
 export interface CreateWorkOrderRequest {

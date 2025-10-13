@@ -1,13 +1,24 @@
 import { UserType } from 'app/interfaces/User';
 import WorkOrder, {
+  OriginWorkOrder,
   StateWorkOrder,
   WorkOrdersFilters,
+  WorkOrderType,
 } from 'app/interfaces/workOrder';
 import { FilterValue } from 'app/types/filters';
 import dayjs from 'dayjs';
 
 export function getStatesForProduction() {
   return [StateWorkOrder.Open, StateWorkOrder.Closed];
+}
+
+export function getStatesForQuality() {
+  return [
+    StateWorkOrder.Open,
+    StateWorkOrder.Closed,
+    StateWorkOrder.PendingToValidate,
+    StateWorkOrder.Finished,
+  ];
 }
 
 export function getStatesForCRM() {
@@ -34,9 +45,39 @@ export function getValidStates(userType: UserType) {
     return getStatesForMaintenance();
   } else if (userType === UserType.Production) {
     return getStatesForProduction();
+  } else if (userType === UserType.Quality) {
+    return getStatesForQuality();
   } else {
     return getStatesForCRM();
   }
+}
+
+export function getStatesForWorkOrderType(
+  workOrderType: WorkOrderType
+): StateWorkOrder[] {
+  if (workOrderType === WorkOrderType.Corrective) {
+    return getStatesForCorrective();
+  } else if (workOrderType === WorkOrderType.Preventive) {
+    return getStatesForCorrective();
+  } else if (workOrderType === WorkOrderType.Ticket) {
+    return getStatesForTicket();
+  } else {
+    return getStatesForCRM();
+  }
+}
+
+function getStatesForCorrective(): StateWorkOrder[] {
+  return [
+    StateWorkOrder.Waiting,
+    StateWorkOrder.OnGoing,
+    StateWorkOrder.Paused,
+    StateWorkOrder.Finished,
+    StateWorkOrder.PendingToValidate,
+  ];
+}
+
+function getStatesForTicket(): StateWorkOrder[] {
+  return [StateWorkOrder.Open, StateWorkOrder.Closed];
 }
 
 export function getDefaultFiltersCRM(): WorkOrdersFilters {
@@ -57,10 +98,12 @@ export function getDefaultFiltersCRM(): WorkOrdersFilters {
 
 export function getFilters(filters: WorkOrdersFilters): FilterValue {
   const f: FilterValue = {};
-  if (filters.workOrderType.length > 0)
-    f.workOrderType = filters.workOrderType.join(',');
-  if (filters.workOrderState.length > 0)
-    f.workOrderState = filters.workOrderState.join(',');
+
+  f.workOrderType =
+    filters.workOrderType.length > 0 ? filters.workOrderType.join(',') : null;
+
+  f.workOrderState =
+    filters.workOrderState.length > 0 ? filters.workOrderState.join(',') : null;
   if (filters.dateRange.startDate)
     f.startDate = dayjs(filters.dateRange.startDate).format('YYYY-MM-DD');
   if (filters.dateRange.endDate)
@@ -171,4 +214,16 @@ export function applyFilters(
     matchesDelivery &&
     matchesActive
   );
+}
+
+export default function getWorkOrderFilterOrigin(
+  userType: UserType
+): OriginWorkOrder {
+  if (userType === UserType.Maintenance || userType === UserType.CRM) {
+    return OriginWorkOrder.Maintenance;
+  } else if (userType === UserType.Production) {
+    return OriginWorkOrder.Production;
+  } else {
+    return OriginWorkOrder.Quality;
+  }
 }
