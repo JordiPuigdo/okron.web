@@ -27,7 +27,6 @@ export interface DeliveryNote extends BaseModel {
   customerPhone: string;
   customerEmail: string;
   customerNif: string;
-
   customerAddress: CustomerAddress;
   externalComments: string | null;
   subtotal: number;
@@ -36,6 +35,7 @@ export interface DeliveryNote extends BaseModel {
   status: DeliveryNoteStatus;
   installation?: CustomerInstallations;
   workOrders: DeliveryNoteWorkOrder[];
+  isInvoiced: boolean;
 }
 
 export interface DeliveryNoteWorkOrder {

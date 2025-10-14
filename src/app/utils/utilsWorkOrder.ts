@@ -26,6 +26,7 @@ export function getStatesForCRM() {
     StateWorkOrder.Finished,
     StateWorkOrder.NotFinished,
     StateWorkOrder.Waiting,
+    StateWorkOrder.Invoiced,
   ];
 }
 
@@ -53,9 +54,10 @@ export function getValidStates(userType: UserType) {
 }
 
 export function getStatesForWorkOrderType(
-  workOrderType: WorkOrderType
+  workOrderType: WorkOrderType,
+  isCRM: boolean
 ): StateWorkOrder[] {
-  if (workOrderType === WorkOrderType.Corrective) {
+  if (workOrderType === WorkOrderType.Corrective && !isCRM) {
     return getStatesForCorrective();
   } else if (workOrderType === WorkOrderType.Preventive) {
     return getStatesForCorrective();
@@ -100,10 +102,14 @@ export function getFilters(filters: WorkOrdersFilters): FilterValue {
   const f: FilterValue = {};
 
   f.workOrderType =
-    filters.workOrderType.length > 0 ? filters.workOrderType.join(',') : null;
+    filters.workOrderType.length > 0
+      ? filters.workOrderType.join(',')
+      : 'undefined';
 
   f.workOrderState =
-    filters.workOrderState.length > 0 ? filters.workOrderState.join(',') : null;
+    filters.workOrderState.length > 0
+      ? filters.workOrderState.join(',')
+      : 'undefined';
   if (filters.dateRange.startDate)
     f.startDate = dayjs(filters.dateRange.startDate).format('YYYY-MM-DD');
   if (filters.dateRange.endDate)

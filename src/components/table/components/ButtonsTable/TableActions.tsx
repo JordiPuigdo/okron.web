@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import { TableButtons } from '../../interface/interfaceTable';
 import { EntityTable } from '../../interface/tableEntitys';
+import CRMStatusButton from './CRMStatusButton';
 import { OrdersButtons } from './OrdersButtonts';
 import WorkOrderOperationsInTable from './WorkOrderOperationsInTable';
 
@@ -59,6 +60,12 @@ export const TableButtonsComponent = memo(
     return (
       <td className={`${colorRow} p-4`}>
         <div className="flex flex-row gap-2 justify-center">
+          {entity == EntityTable.DELIVERYNOTE && (
+            <CRMStatusButton
+              item={item}
+              isCRM={loginUser?.userType === UserType.CRM}
+            />
+          )}
           {entity !== EntityTable.WORKORDER && (
             <TableButtonsComponentStandard
               entity={entity}

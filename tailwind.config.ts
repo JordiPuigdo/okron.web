@@ -126,6 +126,7 @@ const config: Config = {
           pendingValidate: '#8d000e',
           requested: '#ff5c6b',
           background: '#f1f5f9',
+          invoiced: '#2C7A7B',
         },
       },
       boxShadow: {

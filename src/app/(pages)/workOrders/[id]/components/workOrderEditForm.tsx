@@ -652,13 +652,14 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                 onChange={handleStateChange}
                 disabled={isDisabledField}
               >
-                {getStatesForWorkOrderType(currentWorkOrder!.workOrderType).map(
-                  state => (
-                    <option key={state} value={state}>
-                      {translateStateWorkOrder(state, t)}
-                    </option>
-                  )
-                )}
+                {getStatesForWorkOrderType(
+                  currentWorkOrder!.workOrderType,
+                  isCRM
+                ).map(state => (
+                  <option key={state} value={state}>
+                    {translateStateWorkOrder(state, t)}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="">
