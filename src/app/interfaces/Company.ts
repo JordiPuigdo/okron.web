@@ -9,5 +9,6 @@ export default interface Company extends BaseModel {
   email: string;
   nif: string;
   phone: string;
+  iban: string;
   address: CustomerAddress;
 }

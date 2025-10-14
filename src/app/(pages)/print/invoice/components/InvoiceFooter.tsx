@@ -1,7 +1,14 @@
-﻿import { Invoice } from 'app/interfaces/Invoice';
+﻿import Company from 'app/interfaces/Company';
+import { Invoice } from 'app/interfaces/Invoice';
 import { formatCurrencyServerSider } from 'app/utils/utils';
 
-export const InvoiceFooter = ({ invoice }: { invoice: Invoice }) => {
+export const InvoiceFooter = ({
+  invoice,
+  company,
+}: {
+  invoice: Invoice;
+  company: Company;
+}) => {
   const totals = invoice.deliveryNotes?.reduce(
     (acc, dn) => {
       acc.subtotal += dn.subtotal || 0;
@@ -15,9 +22,11 @@ export const InvoiceFooter = ({ invoice }: { invoice: Invoice }) => {
   return (
     <div className="flex justify-between w-full p-2 ">
       <div className="flex w-full flex-col gap-2">
-        <div>Forma de pagament: Transferència / Ingrés</div>
-        <div>Número de compte:</div>
-        <div>Venciment: Total a pagar en dies:</div>
+        <div>Forma de pagament: {invoice.paymentMethod.description}</div>
+        <div>Número de compte: {company.iban}</div>
+        {invoice.paymentMethod.days > 0 && (
+          <div>Total a pagar en dies: {invoice.paymentMethod.days}</div>
+        )}
       </div>
 
       <div className="flex  w-full">

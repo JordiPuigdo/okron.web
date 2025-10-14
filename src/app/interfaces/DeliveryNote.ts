@@ -1,5 +1,9 @@
 import { BaseModel } from './BaseModel';
-import { CustomerAddress, CustomerInstallations } from './Customer';
+import {
+  CustomerAddress,
+  CustomerInstallations,
+  PaymentMethod,
+} from './Customer';
 
 export enum DeliveryNoteStatus {
   Draft = 0,
@@ -23,6 +27,7 @@ export interface DeliveryNote extends BaseModel {
   customerPhone: string;
   customerEmail: string;
   customerNif: string;
+
   customerAddress: CustomerAddress;
   externalComments: string | null;
   subtotal: number;
