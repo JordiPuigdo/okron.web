@@ -43,6 +43,7 @@ export interface WorkOrder extends BaseModel {
   refCustomerId?: string;
   isInvoiced?: boolean;
   hasDeliveryNote?: boolean;
+  priority: WorkOrderPriority;
 }
 
 export default WorkOrder;
@@ -75,6 +76,13 @@ export enum OriginWorkOrder {
   Maintenance,
   Production,
   Quality,
+}
+
+export enum WorkOrderPriority {
+  Low = 0,
+  Medium = 1,
+  High = 2,
+  Critical = 3,
 }
 
 export interface WorkOrderInspectionPoint {

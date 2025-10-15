@@ -11,6 +11,7 @@ import { WorkOrderComment } from './components/workorderComment';
 import { WorkOrderHeader } from './components/workorderHeader';
 import { WorkOrderPreventiveReport } from './components/workorderPreventiveReport';
 import { WorkOrderSparePartsReport } from './components/workorderSparePartsReport';
+import { WorkOrderTicketPrint } from './components/WorkOrderTicketPrint';
 
 interface WorkOrderPageProps {
   searchParams: { id: string; parentId?: string };
@@ -25,10 +26,15 @@ export default async function WorkOrderPage({
     return <div className="p-4 text-red-500">Missing work order ID</div>;
   }
 
-  let orders, config: SystemConfiguration;
+  let orders, relatedWorkOrder, config: SystemConfiguration;
 
   try {
     [orders, config] = await Promise.all([getWorkOrders(id), getConfig()]);
+    if (orders.workOrderCreatedId) {
+      [relatedWorkOrder] = await Promise.all([
+        getWorkOrders(orders.workOrderCreatedId),
+      ]);
+    }
   } catch (error) {
     console.error(error);
     return <div className="p-4 text-red-500">Failed to load data</div>;
@@ -50,6 +56,12 @@ export default async function WorkOrderPage({
             />
           )}
         </div>
+      ) : orders.workOrderType == WorkOrderType.Ticket ? (
+        <WorkOrderTicketPrint
+          workOrder={orders}
+          config={config}
+          relatedWorkOrder={relatedWorkOrder}
+        />
       ) : (
         <div>
           <WorkOrderHeader workOrder={orders} config={config} />
