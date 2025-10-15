@@ -162,9 +162,11 @@ export function InvoiceDetailForm({
                   companyName={formData.deliveryNotes[0].companyName}
                   customerAddress={formData.deliveryNotes[0].customerAddress}
                 />
-                <InstallationComponent
-                  installation={formData.deliveryNotes[0].installation!}
-                />
+                {formData.deliveryNotes[0].installation && (
+                  <InstallationComponent
+                    installation={formData.deliveryNotes[0].installation!}
+                  />
+                )}
               </div>
             )}
 

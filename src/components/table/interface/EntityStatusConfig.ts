@@ -4,7 +4,9 @@ interface StatusConfig {
 }
 
 // Function to get entity status config with translations
-export const getEntityStatusConfig = (t: (key: string) => string): Record<string, StatusConfig> => ({
+export const getEntityStatusConfig = (
+  t: (key: string) => string
+): Record<string, StatusConfig> => ({
   taskInstances: {
     names: {
       PENDING: t('entity.status.pending'),
@@ -46,6 +48,7 @@ export const getEntityStatusConfig = (t: (key: string) => string): Record<string
       '6': 'bg-okron-btCreate',
       '7': 'bg-okron-finished',
       '8': 'bg-okron-paused',
+      '9': 'bg-okron-invoiced',
     },
   },
   OPERATOR: {
@@ -94,14 +97,14 @@ export const getEntityStatusConfig = (t: (key: string) => string): Record<string
       '1': t('entity.status.pending'),
       '2': t('entity.status.paid'),
       '3': t('entity.status.cancelled'),
-      '4': t('entity.status.overdue')
+      '4': t('entity.status.overdue'),
     },
     colors: {
       '0': 'bg-okron-waiting',
       '1': 'bg-okron-onGoing',
       '2': 'bg-okron-finished',
       '3': 'bg-okron-finished',
-      '4': 'bg-okron-pendingValidate'
+      '4': 'bg-okron-pendingValidate',
     },
   },
   DELIVERYNOTE: {
@@ -110,14 +113,14 @@ export const getEntityStatusConfig = (t: (key: string) => string): Record<string
       '1': t('entity.status.sent'),
       '2': t('entity.status.paid.deliverynote'),
       '3': t('entity.status.overdue.deliverynote'),
-      '4': t('entity.status.cancelled')
+      '4': t('entity.status.cancelled'),
     },
     colors: {
       '0': 'bg-okron-waiting',
       '1': 'bg-okron-onGoing',
       '2': 'bg-okron-finished',
       '3': 'bg-okron-pendingValidate',
-      '4': 'bg-okron-error'
+      '4': 'bg-okron-error',
     },
   },
 });

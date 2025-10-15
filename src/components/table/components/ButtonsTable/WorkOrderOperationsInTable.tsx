@@ -26,6 +26,7 @@ import ChooseSpareParts from 'components/sparePart/ChooseSpareParts';
 import { Button } from 'designSystem/Button/Buttons';
 import { Modal } from 'designSystem/Modals/Modal';
 
+import CRMStatusButton from './CRMStatusButton';
 import WorkOrderOperationsInTableToolTips from './WorkOrderOperationsInTableToolTips';
 
 interface WorkOrderOperationsInTableProps {
@@ -373,7 +374,7 @@ const WorkOrderOperationsInTable = React.memo(
               )}
             </Button>
           )}
-        <CRMStatusButton item={workOrder} isCRM={isCRM} />
+        <CRMStatusButton item={workOrder} isCRM={isCRM} showHasDeliveryNote />
         <Button
           type="none"
           href={`${Routes.workOrders}/${workOrder.id}`}
@@ -395,28 +396,3 @@ const WorkOrderOperationsInTable = React.memo(
 WorkOrderOperationsInTable.displayName = 'WorkOrderOperationsInTable';
 
 export default WorkOrderOperationsInTable;
-
-const CRMStatusButton = memo(({ item, isCRM }: any) => {
-  if (!item || !isCRM) return null;
-  const isInvoiced = item.isInvoiced;
-  const hasDeliveryNote = item.hasDeliveryNote;
-  return (
-    <div className="flex justify-between items-center pr-3">
-      <div className="flex flex-col gap-1.5">
-        <span
-          title="Albaranada"
-          className={hasDeliveryNote ? 'text-base' : 'text-base opacity-30'}
-        >
-          📦
-        </span>
-        <span
-          title="Facturada"
-          className={isInvoiced ? 'text-base' : 'text-base opacity-30'}
-        >
-          💰
-        </span>
-      </div>
-    </div>
-  );
-});
-CRMStatusButton.displayName = 'CRMStatusButton';

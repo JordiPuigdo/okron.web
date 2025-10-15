@@ -49,6 +49,8 @@ export const TableDataDeliveryNotes = ({
     status: enableFilters ? [0, 1, 2] : [],
   });
 
+  const [showInvoiceds, setShowInvoiceds] = useState(false);
+
   const [message, setMessage] = useState<string>('');
 
   useEffect(() => {
@@ -96,10 +98,22 @@ export const TableDataDeliveryNotes = ({
 
   const getFilteredDeliveryNotes = (): DeliveryNote[] => {
     return deliveryNotes.filter(deliveryNote => {
-      return (
-        filters.status.length === 0 ||
-        filters.status.includes(deliveryNote.status)
-      );
+      if (deliveryNote.isInvoiced !== showInvoiceds) {
+        return false;
+      }
+
+      // Filtro por estado
+      if (
+        filters.status.length > 0 &&
+        !filters.status.includes(deliveryNote.status)
+      ) {
+        return false;
+      }
+
+      // Puedes seguir añadiendo más filtros aquí (ej. fecha, cliente, etc.)
+      // if (filters.client && deliveryNote.clientId !== filters.client) return false;
+
+      return true;
     });
   };
 
@@ -121,12 +135,23 @@ export const TableDataDeliveryNotes = ({
           <span className="font-semibold">{title}</span>
         </>
       )}
-      <div className={`flex ${className}`}>
-        <div className="flex gap-4 w-full">
+      <div className={`flex ${className} `}>
+        <div
+          className="flex gap-4 justify-between w-full"
+          onClick={() => setShowInvoiceds(!showInvoiceds)}
+        >
           <DateFilter
             setDateFilters={setDateFilters}
             dateFilters={dateFilters}
           />
+          <div className="gap-2 flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="cursor-pointer"
+              checked={showInvoiceds}
+            />
+            💰
+          </div>
         </div>
         {message && <span className="text-red-500">{message}</span>}
       </div>

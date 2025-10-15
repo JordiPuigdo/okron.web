@@ -1,5 +1,9 @@
 import { BaseModel } from './BaseModel';
-import { CustomerAddress, CustomerInstallations } from './Customer';
+import {
+  CustomerAddress,
+  CustomerInstallations,
+  PaymentMethod,
+} from './Customer';
 
 export enum DeliveryNoteStatus {
   Draft = 0,
@@ -31,6 +35,7 @@ export interface DeliveryNote extends BaseModel {
   status: DeliveryNoteStatus;
   installation?: CustomerInstallations;
   workOrders: DeliveryNoteWorkOrder[];
+  isInvoiced: boolean;
 }
 
 export interface DeliveryNoteWorkOrder {

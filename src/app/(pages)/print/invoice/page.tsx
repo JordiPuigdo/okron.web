@@ -67,7 +67,7 @@ export default async function InvoicePage({
       <div className="flex flex-col flex-grow p-4">
         <InvoiceHeader invoice={invoice} config={config} />
         <InvoiceBody deliveryNotes={invoice.deliveryNotes} />
-        <InvoiceFooter invoice={invoice} />
+        <InvoiceFooter invoice={invoice} company={config.company} />
       </div>
       {/* Texto legal en vertical a la izquierda */}
       <div className="absolute left-0 top-0 bottom-0 flex items-center">

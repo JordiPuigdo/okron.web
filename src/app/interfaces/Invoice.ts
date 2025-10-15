@@ -1,4 +1,5 @@
 ﻿import { BaseModel } from './BaseModel';
+import { PaymentMethod } from './Customer';
 import { DeliveryNote } from './DeliveryNote';
 
 export enum InvoiceStatus {
@@ -18,6 +19,7 @@ export interface Invoice extends BaseModel {
   dueDate: Date;
   deliveryNoteIds: string[];
   deliveryNotes: DeliveryNote[];
+  paymentMethod: PaymentMethod;
 }
 
 export interface InvoiceCreateRequest {

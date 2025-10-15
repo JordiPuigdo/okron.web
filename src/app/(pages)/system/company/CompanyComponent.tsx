@@ -56,6 +56,16 @@ export default function CompanyComponent() {
         </div>
         <div>
           <input
+            placeholder={t('company.iban')}
+            {...register('iban', { required: true })}
+            className="w-full border border-gray-300 p-2 rounded"
+          />
+          {errors.iban && (
+            <p className="text-red-500 text-sm">{t('company.iban.required')}</p>
+          )}
+        </div>
+        <div>
+          <input
             placeholder={t('company.email.placeholder')}
             {...register('email', {
               required: true,

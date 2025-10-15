@@ -46,6 +46,8 @@ export const translateStateWorkOrder = (
       return t('workorder.state.closed');
     case StateWorkOrder.NotFinished:
       return t('workorder.state.not.finished');
+    case StateWorkOrder.Invoiced:
+      return t('workorder.state.invoiced');
     default:
       return '';
   }

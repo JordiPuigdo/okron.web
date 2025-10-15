@@ -14,8 +14,14 @@ import {
 } from '../interface/interfaceTable';
 import { EntityTable } from '../interface/tableEntitys';
 
-export function onDelete(id: string, entity: EntityTable, t?: (key: string) => string) {
-  const confirm = window.confirm(t ? t('confirm.delete.record') : 'Segur que voleu eliminar aquest registre?');
+export function onDelete(
+  id: string,
+  entity: EntityTable,
+  t?: (key: string) => string
+) {
+  const confirm = window.confirm(
+    t ? t('confirm.delete.record') : 'Segur que voleu eliminar aquest registre?'
+  );
   if (!confirm) return;
 
   switch (entity) {
@@ -146,6 +152,7 @@ export const formatCellContent = (
         currency: 'EUR',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
+        useGrouping: true,
       }).format(numericValue);
     } else {
       value = '0,00€';
@@ -190,7 +197,11 @@ export const formatCellContent = (
   return { value, classNametd, className };
 };
 
-export function getStatusText(statusText: string, entity: string, t?: (key: string) => string): string {
+export function getStatusText(
+  statusText: string,
+  entity: string,
+  t?: (key: string) => string
+): string {
   const lowercaseStatus = statusText;
 
   if (!t) {
@@ -205,13 +216,16 @@ export function getStatusText(statusText: string, entity: string, t?: (key: stri
   return statusText;
 }
 
-export const getStatusClassName = (status: string, entity: string, t?: (key: string) => string): string => {
+export const getStatusClassName = (
+  status: string,
+  entity: string,
+  t?: (key: string) => string
+): string => {
   const uppercaseStatus = status.toString().toUpperCase();
-  
-  // Para los colores, podemos usar una función dummy ya que solo necesitamos la estructura de colores
-  const dummyT = (key: string) => key; // Función dummy para acceder a los colores
+
+  const dummyT = (key: string) => key;
   const config = getEntityStatusConfig(t || dummyT)[entity];
-  
+
   if (config && uppercaseStatus in config.colors) {
     const style = config.colors[uppercaseStatus];
     return ` text-white rounded-full p-1 text-sm flex justify-center text-center  ${style}`;
@@ -252,6 +266,16 @@ export const calculateTotalAmountByEntity = (
     const integerPart2 = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
     return `${integerPart2},${decimalPart}€`;
+  }
+
+  if (entity === EntityTable.DELIVERYNOTE || entity === EntityTable.INVOICE) {
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+      useGrouping: true,
+    }).format(total);
   }
 
   // Para SPAREPART u otras entidades, puedes usar Intl.NumberFormat
