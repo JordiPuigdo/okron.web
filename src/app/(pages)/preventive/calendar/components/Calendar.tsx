@@ -71,7 +71,7 @@ const cardStyles = {
     display: 'flex',
     flexDirection: 'column' as const,
     gap: 1,
-    overflow: 'hidden', // 🔥 evita que crezca
+    overflow: 'hidden',
   },
   seeMore: {
     mt: 'auto',
@@ -234,7 +234,9 @@ export default function PreventiveCalendar() {
                 variant="h6"
                 sx={{ mx: 2, minWidth: 180, textAlign: 'center' }}
               >
-                {capitalizeFirstLetter(currentMonth.locale(currentLang).format('MMMM YYYY'))}
+                {capitalizeFirstLetter(
+                  currentMonth.locale(currentLang).format('MMMM YYYY')
+                )}
               </Typography>
 
               <IconButton
@@ -273,12 +275,12 @@ export default function PreventiveCalendar() {
           >
             {[
               t('calendar.day.monday'),
-              t('calendar.day.tuesday'), 
+              t('calendar.day.tuesday'),
               t('calendar.day.wednesday'),
               t('calendar.day.thursday'),
               t('calendar.day.friday'),
               t('calendar.day.saturday'),
-              t('calendar.day.sunday')
+              t('calendar.day.sunday'),
             ].map((day, index) => (
               <Box key={index} textAlign="center" py={1}>
                 <Typography
@@ -408,7 +410,9 @@ export default function PreventiveCalendar() {
                         >
                           {isExpanded
                             ? t('calendar.show.less')
-                            : `+${preventivesForDay.length - maxShowMore} ${t('calendar.show.more')}`}
+                            : `+${preventivesForDay.length - maxShowMore} ${t(
+                                'calendar.show.more'
+                              )}`}
                         </Typography>
                       )}
                     </Paper>

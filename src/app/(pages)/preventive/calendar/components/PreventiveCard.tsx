@@ -1,9 +1,9 @@
 'use client';
 
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Typography } from '@mui/material';
 import { useTranslations } from 'app/hooks/useTranslations';
-import Link from 'next/link';
+
+import WorkOrderStatus from './WorkOrderStatus';
 
 const styles = {
   preventiveCard: (hasWorkOrder: boolean) => ({
@@ -131,36 +131,7 @@ const PreventiveCard = ({
       </div>
       {/* Código de trabajo si existe */}
       {hasWorkOrder && (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
-          <Link
-            href={`${routes.workOrders}/${item.workOrder?.id}`}
-            passHref
-            legacyBehavior
-          >
-            <Box
-              component="a"
-              onClick={e => e.stopPropagation()}
-              sx={{
-                fontSize: '10px',
-                color: '#1a73e8',
-                fontWeight: 600,
-                display: 'inline-flex',
-                alignItems: 'center',
-                textDecoration: 'none',
-                padding: '2px 6px',
-                borderRadius: '4px',
-                backgroundColor: 'rgba(26, 115, 232, 0.08)',
-                '&:hover': {
-                  color: '#174ea6',
-                  backgroundColor: 'rgba(26, 115, 232, 0.12)',
-                },
-              }}
-            >
-              <OpenInNewIcon sx={{ fontSize: '11px', mr: 0.3 }} />
-              {item.workOrder?.code}
-            </Box>
-          </Link>
-        </Box>
+        <WorkOrderStatus item={item.workOrder} routes={routes} />
       )}
 
       {/*  <Tooltip
