@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
+import { TableDataOrders } from 'app/(pages)/orders/components/TableDataOrders';
 import { useOrder } from 'app/hooks/useOrder';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { OrderType } from 'app/interfaces/Order';
@@ -151,7 +152,8 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
               {formatEuropeanCurrency(totalAmount, t)}
             </div>
             <div className="text-sm text-gray-500">
-              {chartData.length} {chartData.length === 1 ? t('account') : t('accounts')}
+              {chartData.length}{' '}
+              {chartData.length === 1 ? t('account') : t('accounts')}
             </div>
           </div>
         </div>
@@ -221,11 +223,7 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
             margin={{ top: 20, right: 125, left: 25, bottom: 20 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              type="number"
-              tickFormatter={formatCurrency}
-              width={90}
-            />
+            <XAxis type="number" tickFormatter={formatCurrency} width={90} />
             <YAxis
               dataKey="account"
               type="category"
@@ -253,6 +251,17 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+      </div>
+      <div>
+        <TableDataOrders
+          orderType={OrderType.Purchase}
+          selectedProviderId={selectedProvider}
+          enableFilters={false}
+          dateFilterProps={{
+            startDate: dateRange.startDate,
+            endDate: dateRange.endDate,
+          }}
+        />
       </div>
     </div>
   );

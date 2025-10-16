@@ -34,6 +34,7 @@ interface TableDataOrdersProps {
   hideShadow?: boolean;
   sparePartId?: string;
   enableFilters?: boolean;
+  dateFilterProps?: DateFilters;
 }
 
 const DEFAULT_STATUS_FILTERS = [OrderStatus.Pending, OrderStatus.InProgress];
@@ -48,6 +49,7 @@ export const TableDataOrders = ({
   hideShadow = false,
   sparePartId,
   enableFilters = true,
+  dateFilterProps,
 }: TableDataOrdersProps) => {
   const { t } = useTranslations();
   const { orders, getOrderWithFilters } = useOrder();
@@ -55,8 +57,8 @@ export const TableDataOrders = ({
   const [firstLoad, setFirstLoad] = useState(true);
   const { updateQueryParams, queryParams } = useQueryParams();
   const [dateFilters, setDateFilters] = useState<DateFilters>({
-    startDate: DEFAULT_DATE_START,
-    endDate: DEFAULT_DATE_END,
+    startDate: dateFilterProps?.startDate ?? DEFAULT_DATE_START,
+    endDate: dateFilterProps?.endDate ?? DEFAULT_DATE_END,
   });
 
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -83,6 +85,24 @@ export const TableDataOrders = ({
     setIsLoading(false);
     setFirstLoad(false);
   }, []);
+
+  useEffect(() => {
+    if (
+      !dateFilterProps ||
+      (!dateFilterProps?.startDate &&
+        !dateFilterProps?.endDate &&
+        !selectedProviderId)
+    )
+      return;
+    console.log('dateFilterProps', dateFilterProps);
+    getOrderWithFilters({
+      orderType: orderType,
+      from: dateFilterProps!.startDate!,
+      to: dateFilterProps!.endDate!,
+      providerId: selectedProviderId,
+      sparePartId: sparePartId,
+    });
+  }, [selectedProviderId, dateFilterProps]);
 
   useEffect(() => {
     if (!isInitialized) {
@@ -254,47 +274,51 @@ export const TableDataOrders = ({
           <span className="font-semibold">{title}</span>
         </>
       )}
-      <div className={`flex ${className}`}>
-        <div className="flex gap-4 w-full">
-          <DateFilter
-            setDateFilters={setDateFilters}
-            dateFilters={dateFilters}
-          />
-
-          <div className="flex-1">
-            <FilterType<OrderStatus>
-              filters={filters}
-              setFilters={setFilters}
-              validTypes={
-                Object.values(OrderStatus).filter(
-                  value => typeof value === 'number'
-                ) as OrderStatus[]
-              }
-              filterKey="status"
-              placeholder={t('state')}
-              translateFn={(state: OrderStatus) => translateOrderState(state, t)}
+      {enableFilters && (
+        <div className={`flex ${className}`}>
+          <div className="flex gap-4 w-full">
+            <DateFilter
+              setDateFilters={setDateFilters}
+              dateFilters={dateFilters}
             />
-          </div>
-          {accounts.length > 0 && (
+
             <div className="flex-1">
-              <FilterType<string>
+              <FilterType<OrderStatus>
                 filters={filters}
                 setFilters={setFilters}
-                validTypes={accounts.map(x => x.id)}
-                filterKey="account"
-                placeholder={t('accounting.account')}
-                translateFn={(id: string) => {
-                  const account = accounts.find(c => c.id === id);
-                  return account
-                    ? `${account.code} - ${account.description}`
-                    : id;
-                }}
+                validTypes={
+                  Object.values(OrderStatus).filter(
+                    value => typeof value === 'number'
+                  ) as OrderStatus[]
+                }
+                filterKey="status"
+                placeholder={t('state')}
+                translateFn={(state: OrderStatus) =>
+                  translateOrderState(state, t)
+                }
               />
             </div>
-          )}
+            {accounts.length > 0 && (
+              <div className="flex-1">
+                <FilterType<string>
+                  filters={filters}
+                  setFilters={setFilters}
+                  validTypes={accounts.map(x => x.id)}
+                  filterKey="account"
+                  placeholder={t('accounting.account')}
+                  translateFn={(id: string) => {
+                    const account = accounts.find(c => c.id === id);
+                    return account
+                      ? `${account.code} - ${account.description}`
+                      : id;
+                  }}
+                />
+              </div>
+            )}
+          </div>
+          {message && <span className="text-red-500">{message}</span>}
         </div>
-        {message && <span className="text-red-500">{message}</span>}
-      </div>
+      )}
       <DataTable
         data={filteredOrders}
         columns={getColumnsOrders(t)}
