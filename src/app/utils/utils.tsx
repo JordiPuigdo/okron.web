@@ -222,7 +222,9 @@ export const translateWorkOrderType = (
   workOrderType: WorkOrderType,
   t: (key: string) => string
 ): string => {
-  switch (workOrderType) {
+  const type = Number(workOrderType) as WorkOrderType;
+
+  switch (type) {
     case WorkOrderType.Preventive:
       return t('workorder.type.preventive');
     case WorkOrderType.Corrective:
@@ -232,7 +234,7 @@ export const translateWorkOrderType = (
     case WorkOrderType.Predicitve:
       return '';
     default:
-      return '';
+      return 'Incorrecte';
   }
 };
 

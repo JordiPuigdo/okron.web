@@ -91,7 +91,10 @@ const WorkOrdersDashboard: React.FC<WorkOrdersDashboardProps> = ({
                           : 'text-blue-500'
                       } font-semibold`}
                     >
-                      {translateWorkOrderType(type as unknown as WorkOrderType, t)}
+                      {translateWorkOrderType(
+                        type as unknown as WorkOrderType,
+                        t
+                      )}
                     </td>
                     <td className="p-3">{data.count}</td>
                     <td className="p-3">{Math.round(data.totalTime)}</td>

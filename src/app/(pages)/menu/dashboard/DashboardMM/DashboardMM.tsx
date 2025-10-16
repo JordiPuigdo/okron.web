@@ -281,7 +281,8 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     workOrders.forEach(workOrder => {
       totalCosts += calculateTotalCosts(workOrder);
     });
-    setTotalCosts(totalCosts);
+
+    setTotalCosts(parseFloat(totalCosts.toFixed(2)));
   };
 
   const calculateTotalCosts = (workOrder: WorkOrder) => {
@@ -397,6 +398,14 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     .filter(x => x.workOrderType == WorkOrderType.Corrective)
     .reduce((acc, item) => acc + item.value, 0);
 
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('es-ES', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+      useGrouping: false,
+    }).format(value);
+  };
+
   if (isLoading) return <SvgSpinner className="w-full text-white" />;
 
   if (loginUser?.permission !== UserPermission.Administrator) return <></>;
@@ -458,7 +467,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
                 {t('cost.material')}:
               </span>
               <span className="font-bold ml-2">
-                {Math.round(totalCosts).toLocaleString().replace(',', '.')} €
+                {formatCurrency(totalCosts)} €
               </span>
             </div>
           </div>
