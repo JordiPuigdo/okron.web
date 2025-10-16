@@ -288,8 +288,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     let totalCosts = 0;
 
     workOrder.workOrderSpareParts?.forEach(sparePart => {
-      totalCosts += sparePart.quantity * 94.32;
-      //sparePart.sparePart.price;
+      totalCosts += sparePart.quantity * sparePart.sparePart.price;
     });
 
     return totalCosts;
