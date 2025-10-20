@@ -41,7 +41,7 @@ export const DateFilter = ({
 
   const handleEndDateChange = useCallback(
     (date: Date | null) => {
-      const normalizedDate = date ? dayjs(date).startOf('day').toDate() : null;
+      const normalizedDate = date ? dayjs(date).endOf('day').toDate() : null;
       setDateFilters({
         ...dateFilters,
         endDate: normalizedDate,
@@ -90,7 +90,7 @@ export const DateFilter = ({
           id="endDate"
           selected={endDate ?? defaultSelectedDate}
           onChange={handleEndDateChange}
-          startDate={startDate}
+          startDate={endDate}
         />
       </div>
     </div>
