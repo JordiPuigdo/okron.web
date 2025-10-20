@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { WorkOrdersFilters } from 'app/interfaces/workOrder';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
+import dayjs from 'dayjs';
 
 export interface WorkOrdersFiltersTableProps {
   workOrdersFilters: WorkOrdersFilters;
@@ -42,6 +43,15 @@ export const WorkOrderDateFilter = ({
       setDateFilters({
         startDate: firstDayOfMonth,
         endDate: dateFilters.endDate,
+      });
+    }
+    if (dateFilters.endDate == null && dateFilters.startDate != null) {
+      setWorkOrdersFilters({
+        ...workOrdersFilters,
+        dateRange: {
+          startDate: dateFilters.startDate,
+          endDate: dayjs().endOf('day').toDate(),
+        },
       });
     }
   }, [dateFilters]);
