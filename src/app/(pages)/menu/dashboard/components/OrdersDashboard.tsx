@@ -252,17 +252,6 @@ export default function OrdersDashboard({ dateRange }: OrdersDashboardProps) {
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div>
-        <TableDataOrders
-          orderType={OrderType.Purchase}
-          selectedProviderId={selectedProvider}
-          enableFilters={false}
-          dateFilterProps={{
-            startDate: dateRange.startDate,
-            endDate: dateRange.endDate,
-          }}
-        />
-      </div>
     </div>
   );
 }

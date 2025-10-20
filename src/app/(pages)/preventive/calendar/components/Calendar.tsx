@@ -217,7 +217,9 @@ export default function PreventiveCalendar() {
             placeholder={t('calendar.filter.equipment')}
             translateFn={(id: string) => {
               const asset = assets?.find(c => c.id === id);
-              return asset ? `${asset.code} - ${asset.description}` : id;
+              return asset
+                ? `${asset.code} - ${asset.description} - ${asset.brand || ''}`
+                : id;
             }}
           />
           <div>

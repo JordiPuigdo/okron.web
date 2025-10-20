@@ -16,12 +16,12 @@ export const DeliveryNoteBody = ({
             <div className="flex justify-between items-center">
               <h3 className="font-bold text-sm">
                 {dayjs(workOrder.workOrderStartTime).format('DD/MM/YYYY')} -{' '}
-                {workOrder.workOrderCode} -
+                {workOrder.workOrderCode}
                 {workOrder.workOrderRefId !== null
-                  ? ' OT ' + workOrder.workOrderRefId
+                  ? '- OT ' + workOrder.workOrderRefId
                   : ''}
                 {deliveryNote.installation?.code
-                  ? ', ' + deliveryNote.installation?.code
+                  ? ' - ' + deliveryNote.installation?.code
                   : ''}
               </h3>
             </div>

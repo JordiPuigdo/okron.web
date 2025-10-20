@@ -74,6 +74,27 @@ export const WorkOrderTicketPrint = ({
 
   const finishedDate = finishedEvent?.date ?? null;
 
+  const allComments = [
+    ...(workOrder.workOrderComments ?? []),
+    ...(relatedWorkOrder?.workOrderComments ?? []),
+  ];
+  allComments.sort((a, b) => {
+    const dateA = new Date(a.creationDate ?? a.creationDate ?? 0).getTime();
+    const dateB = new Date(b.creationDate ?? b.creationDate ?? 0).getTime();
+    return dateA - dateB; // más antiguo primero
+  });
+  const commentsGroupedByOperator =
+    allComments?.reduce((acc, workOrderComment) => {
+      const operatorId = workOrderComment.operator?.id ?? 'sin-operario';
+      const comment = workOrderComment.comment?.trim();
+
+      if (!comment) return acc; // ignora vacíos
+
+      if (!acc[operatorId]) acc[operatorId] = [];
+      acc[operatorId].push(comment);
+      return acc;
+    }, {} as Record<string, string[]>) || {};
+
   return (
     <div style={styles.page}>
       {/* Header corporatiu */}
@@ -156,7 +177,27 @@ export const WorkOrderTicketPrint = ({
           ).map(([operatorType, records]) => {
             // Agrupem per nom d’operari
             const groupedByOperator = records.reduce((acc, dt) => {
-              const name = dt.operator?.name ?? 'Sense nom';
+              let name = dt.operator?.name ?? 'Sense nom';
+              if (commentsGroupedByOperator) {
+                const commentsJoinedByOperator = commentsGroupedByOperator
+                  ? Object.fromEntries(
+                      Object.entries(commentsGroupedByOperator).map(
+                        ([operatorId, comments]) => [
+                          operatorId,
+                          comments.filter(c => c?.trim()).join(', '),
+                        ]
+                      )
+                    )
+                  : {};
+
+                const operatorComments =
+                  commentsJoinedByOperator[dt.operator.id];
+
+                if (operatorComments) {
+                  name += ` - (${operatorComments})`;
+                }
+              }
+
               if (!acc[name]) acc[name] = [];
               acc[name].push(dt);
               return acc;
