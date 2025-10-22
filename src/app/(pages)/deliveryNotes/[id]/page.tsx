@@ -3,7 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
-import { DeliveryNote, DeliveryNoteUpdateRequest } from 'app/interfaces/DeliveryNote';
+import {
+  DeliveryNote,
+  DeliveryNoteUpdateRequest,
+} from 'app/interfaces/DeliveryNote';
 import Container from 'components/layout/Container';
 import MainLayout from 'components/layout/MainLayout';
 
@@ -14,7 +17,9 @@ interface DeliveryNoteDetailPageProps {
   params: { id: string };
 }
 
-export default function DeliveryNoteDetailPage({ params }: DeliveryNoteDetailPageProps) {
+export default function DeliveryNoteDetailPage({
+  params,
+}: DeliveryNoteDetailPageProps) {
   const { t } = useTranslations();
   const [deliveryNote, setDeliveryNote] = useState<DeliveryNote | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,15 +44,24 @@ export default function DeliveryNoteDetailPage({ params }: DeliveryNoteDetailPag
 
   const handleUpdate = async (updateRequest: DeliveryNoteUpdateRequest) => {
     try {
-      const updatedDeliveryNote = await deliveryNoteService.update(updateRequest);
+      const updatedDeliveryNote = await deliveryNoteService.update(
+        updateRequest
+      );
       setDeliveryNote(updatedDeliveryNote);
-
     } catch (error) {
       console.error('Error updating delivery note:', error);
       throw error;
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      await deliveryNoteService.delete(id);
+    } catch (error) {
+      console.error('Error deleting delivery note:', error);
+      throw error;
+    }
+  };
 
   if (isLoading) {
     return (
@@ -76,7 +90,11 @@ export default function DeliveryNoteDetailPage({ params }: DeliveryNoteDetailPag
   return (
     <MainLayout>
       <Container>
-        <DeliveryNoteDetailForm deliveryNote={deliveryNote} onUpdate={handleUpdate} />
+        <DeliveryNoteDetailForm
+          deliveryNote={deliveryNote}
+          onUpdate={handleUpdate}
+          onDelete={handleDelete}
+        />
       </Container>
     </MainLayout>
   );

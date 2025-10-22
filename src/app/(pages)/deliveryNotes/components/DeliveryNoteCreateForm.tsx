@@ -85,6 +85,7 @@ export function DeliveryNoteCreateForm() {
         userType: UserType.Maintenance,
         customerId: selectedCustomer?.id ?? customerId,
         StateWorkOrder: [StateWorkOrder.NotFinished, StateWorkOrder.Finished],
+        hasDeliveryNote: false,
       };
       const workOrders = await workOrderService.getWorkOrdersWithFilters(
         search

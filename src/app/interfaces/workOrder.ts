@@ -173,6 +173,7 @@ export interface SearchWorkOrderFilters {
   userType: UserType;
   originWorkOrder: OriginWorkOrder;
   showNextWO?: boolean;
+  hasDeliveryNote?: boolean;
 }
 
 export enum WorkOrderType {

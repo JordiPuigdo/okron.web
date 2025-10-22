@@ -179,11 +179,6 @@ const columnsInvoices: Column[] = [
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Estat',
-    key: 'status',
-    format: ColumnFormat.INVOICESTATUS,
-  },
-  {
     label: 'Total',
     key: 'total',
     format: ColumnFormat.PRICE,

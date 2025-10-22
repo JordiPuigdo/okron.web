@@ -34,11 +34,13 @@ import { EditableCell } from '../../machines/downtimes/components/EditingCell';
 interface DeliveryNoteDetailFormProps {
   deliveryNote: DeliveryNote;
   onUpdate: (deliveryNote: DeliveryNoteUpdateRequest) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
 }
 
 export function DeliveryNoteDetailForm({
   deliveryNote,
   onUpdate,
+  onDelete,
 }: DeliveryNoteDetailFormProps) {
   const router = useRouter();
   const ROUTES = useRoutes();
@@ -418,6 +420,16 @@ export function DeliveryNoteDetailForm({
                   <Save className="mr-2 h-4 w-4" />
                 )}
                 <p>Actualitzar</p>
+              </Button>
+              <Button
+                type="delete"
+                variant="outline"
+                onClick={() => onDelete(formData.id)}
+                className="flex-1"
+                customStyles="flex justify-center"
+              >
+                <X className="mr-2 h-4 w-4" />
+                <p>Eliminar</p>
               </Button>
               <Button
                 type="cancel"

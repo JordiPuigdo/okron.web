@@ -196,7 +196,8 @@ export function applyFilters(
         .includes(t) ||
       order.customerWorkOrder?.customerInstallationCode
         ?.toLowerCase()
-        .includes(t)
+        .includes(t) ||
+      order.operatorsNames?.toLowerCase().includes(t)
     );
   });
 
