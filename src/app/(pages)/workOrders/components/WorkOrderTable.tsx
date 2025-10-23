@@ -44,6 +44,23 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
   const initStartDate = !enableFilters ? new Date() : null;
   const initEndDate = !enableFilters ? new Date() : null;
 
+  const isCRM = loginUser?.userType === UserType.CRM;
+
+  const getDefaultStatesWokOrder = () => {
+    if (!isCRM) return [];
+    if (isCRM && operatorLogged !== undefined && operatorId !== undefined) {
+      return [
+        StateWorkOrder.Waiting,
+        StateWorkOrder.Finished,
+        StateWorkOrder.NotFinished,
+      ];
+    }
+    if (isCRM) {
+      return [StateWorkOrder.Finished, StateWorkOrder.NotFinished];
+    }
+    return [];
+  };
+
   const {
     filters,
     setFilters,
@@ -53,10 +70,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
   } = useWorkOrders({
     dateRange: { startDate: initStartDate, endDate: initEndDate },
     workOrderType: [],
-    workOrderState:
-      loginUser?.userType === UserType.CRM
-        ? [StateWorkOrder.Finished, StateWorkOrder.NotFinished]
-        : [],
+    workOrderState: getDefaultStatesWokOrder(),
     searchTerm: '',
     assetId: assetId || '',
     refCustomerId: '',

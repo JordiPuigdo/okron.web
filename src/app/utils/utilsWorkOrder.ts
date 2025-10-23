@@ -1,3 +1,4 @@
+import Operator from 'app/interfaces/Operator';
 import { UserType } from 'app/interfaces/User';
 import WorkOrder, {
   OriginWorkOrder,
@@ -82,22 +83,6 @@ function getStatesForTicket(): StateWorkOrder[] {
   return [StateWorkOrder.Open, StateWorkOrder.Closed];
 }
 
-export function getDefaultFiltersCRM(): WorkOrdersFilters {
-  return {
-    dateRange: { startDate: null, endDate: null },
-    workOrderType: [],
-    workOrderState: [StateWorkOrder.Finished, StateWorkOrder.NotFinished],
-    searchTerm: '',
-    assetId: '',
-    refCustomerId: '',
-    customerName: '',
-    isInvoiced: false,
-    hasDeliveryNote: false,
-    active: true,
-    useOperatorLogged: false,
-  };
-}
-
 export function getFilters(filters: WorkOrdersFilters): FilterValue {
   const f: FilterValue = {};
 
@@ -126,7 +111,8 @@ export function getFilters(filters: WorkOrdersFilters): FilterValue {
 export function mapQueryParamsToFilters(
   query: FilterValue,
   userType?: UserType,
-  prev?: WorkOrdersFilters
+  prev?: WorkOrdersFilters,
+  operatorLogged?: Operator | undefined
 ): Partial<WorkOrdersFilters> {
   return {
     workOrderType: query.workOrderType
@@ -142,10 +128,7 @@ export function mapQueryParamsToFilters(
           .split(',')
           .map(Number)
           .filter(n => !isNaN(n))
-      : prev?.workOrderState ??
-        (userType === UserType.CRM
-          ? [StateWorkOrder.Finished, StateWorkOrder.NotFinished]
-          : []),
+      : prev?.workOrderState ?? [],
     dateRange: {
       startDate: query.startDate
         ? dayjs(query.startDate.toString(), 'YYYY-MM-DD').toDate()
@@ -176,6 +159,26 @@ export function mapQueryParamsToFilters(
   };
 }
 
+const getDefaultWorkOrderStates = (
+  isCRM: boolean,
+  operatorLogged: Operator | undefined
+) => {
+  if (!isCRM) return [];
+  console.log(operatorLogged);
+  if (isCRM && operatorLogged !== undefined) {
+    return [
+      StateWorkOrder.Waiting,
+      StateWorkOrder.Finished,
+      StateWorkOrder.NotFinished,
+    ];
+  }
+  if (isCRM) {
+    return [StateWorkOrder.Finished, StateWorkOrder.NotFinished];
+  }
+
+  return [];
+};
+
 export function applyFilters(
   order: WorkOrder,
   filters: WorkOrdersFilters
@@ -203,12 +206,13 @@ export function applyFilters(
 
   const matchesActive =
     filters.active === undefined || order.active === filters.active;
-
   const matchesInvoiced =
     filters.isInvoiced === undefined || order.isInvoiced === filters.isInvoiced;
   const matchesDelivery =
     filters.hasDeliveryNote === undefined ||
     order.hasDeliveryNote === filters.hasDeliveryNote;
+
+  console.log(filters.workOrderState);
 
   return (
     matchesSearch &&
