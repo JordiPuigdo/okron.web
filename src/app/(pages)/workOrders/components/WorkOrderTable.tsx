@@ -41,45 +41,13 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
 
   const { operatorLogged, loginUser } = useSessionStore(state => state);
 
-  const initStartDate = !enableFilters ? new Date() : null;
-  const initEndDate = !enableFilters ? new Date() : null;
-
-  const isCRM = loginUser?.userType === UserType.CRM;
-
-  const getDefaultStatesWokOrder = () => {
-    if (!isCRM) return [];
-    if (isCRM && operatorLogged !== undefined && operatorId !== undefined) {
-      return [
-        StateWorkOrder.Waiting,
-        StateWorkOrder.Finished,
-        StateWorkOrder.NotFinished,
-      ];
-    }
-    if (isCRM) {
-      return [StateWorkOrder.Finished, StateWorkOrder.NotFinished];
-    }
-    return [];
-  };
-
   const {
     filters,
     setFilters,
     filteredWorkOrders,
     validStates,
     workOrderTypeCount,
-  } = useWorkOrders({
-    dateRange: { startDate: initStartDate, endDate: initEndDate },
-    workOrderType: [],
-    workOrderState: getDefaultStatesWokOrder(),
-    searchTerm: '',
-    assetId: assetId || '',
-    refCustomerId: '',
-    customerName: '',
-    isInvoiced: false,
-    hasDeliveryNote: false,
-    active: true,
-    useOperatorLogged: operatorId == undefined ? false : true,
-  });
+  } = useWorkOrders(operatorId);
 
   const tableButtons: TableButtons = {
     edit: enableEdit,
@@ -89,7 +57,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
 
   return (
     <div className="flex flex-col gap-4 h-full">
-      {enableFilters && (
+      {enableFilters && filters && (
         <WorkOrdersFiltersTable
           setWorkOrdersFilters={setFilters}
           workOrdersFilters={filters}

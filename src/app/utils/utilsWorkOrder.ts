@@ -1,5 +1,5 @@
-import Operator from 'app/interfaces/Operator';
-import { UserType } from 'app/interfaces/User';
+import Operator, { OperatorType } from 'app/interfaces/Operator';
+import { LoginUser, OperatorLogged, UserType } from 'app/interfaces/User';
 import WorkOrder, {
   OriginWorkOrder,
   StateWorkOrder,
@@ -83,6 +83,10 @@ function getStatesForTicket(): StateWorkOrder[] {
   return [StateWorkOrder.Open, StateWorkOrder.Closed];
 }
 
+const firstDayTwoMonthsAgo = dayjs()
+  .subtract(1, 'month')
+  .startOf('month')
+  .toDate();
 export function getFilters(filters: WorkOrdersFilters): FilterValue {
   const f: FilterValue = {};
 
@@ -110,10 +114,10 @@ export function getFilters(filters: WorkOrdersFilters): FilterValue {
 }
 export function mapQueryParamsToFilters(
   query: FilterValue,
-  userType?: UserType,
-  prev?: WorkOrdersFilters,
-  operatorLogged?: Operator | undefined
-): Partial<WorkOrdersFilters> {
+  isCRM: boolean,
+  operatorLogged: boolean,
+  prev?: WorkOrdersFilters
+): WorkOrdersFilters {
   return {
     workOrderType: query.workOrderType
       ? query.workOrderType
@@ -128,14 +132,11 @@ export function mapQueryParamsToFilters(
           .split(',')
           .map(Number)
           .filter(n => !isNaN(n))
-      : prev?.workOrderState ?? [],
+      : prev?.workOrderState ??
+        getDefaultWorkOrderStates(isCRM, operatorLogged),
     dateRange: {
-      startDate: query.startDate
-        ? dayjs(query.startDate.toString(), 'YYYY-MM-DD').toDate()
-        : prev?.dateRange.startDate ?? null,
-      endDate: query.endDate
-        ? dayjs(query.endDate.toString(), 'YYYY-MM-DD').toDate()
-        : prev?.dateRange.endDate ?? dayjs().startOf('day').toDate(),
+      startDate: getStartDate(query, prev, operatorLogged),
+      endDate: getEndDate(query, prev),
     },
     searchTerm: query.searchTerm?.toString() ?? prev?.searchTerm ?? '',
     assetId: query.assetId?.toString() ?? prev?.assetId ?? '',
@@ -155,29 +156,55 @@ export function mapQueryParamsToFilters(
       (query.useOperatorLogged === 'true' ||
         query.useOperatorLogged === true ||
         prev?.useOperatorLogged) ??
-      false,
+      operatorLogged,
+    active: prev?.active ?? true,
   };
 }
 
-const getDefaultWorkOrderStates = (
-  isCRM: boolean,
-  operatorLogged: Operator | undefined
-) => {
-  if (!isCRM) return [];
-  console.log(operatorLogged);
-  if (isCRM && operatorLogged !== undefined) {
-    return [
-      StateWorkOrder.Waiting,
-      StateWorkOrder.Finished,
-      StateWorkOrder.NotFinished,
-    ];
+export function getUserType(
+  operatorLogged: OperatorLogged | undefined,
+  loginUser?: LoginUser
+): UserType {
+  const operatorType = operatorLogged?.operatorLoggedType;
+
+  if (operatorType === OperatorType.Quality) return UserType.Quality;
+  if (operatorType === OperatorType.Production) return UserType.Production;
+  if (operatorType === OperatorType.Maintenance) return UserType.Maintenance;
+
+  if (loginUser) loginUser?.userType;
+  return UserType.Maintenance;
+}
+
+function getStartDate(
+  value: FilterValue,
+  prev: WorkOrdersFilters | undefined,
+  operatorLogged: boolean
+): Date | null {
+  if (operatorLogged) return null;
+  if (value.startDate) {
+    return dayjs(value.startDate.toString(), 'YYYY-MM-DD')
+      .startOf('day')
+      .toDate();
   }
-  if (isCRM) {
-    return [StateWorkOrder.Finished, StateWorkOrder.NotFinished];
+  if (prev?.dateRange.startDate) {
+    return dayjs(prev.dateRange.startDate).startOf('day').toDate();
   }
 
-  return [];
-};
+  return dayjs(firstDayTwoMonthsAgo).startOf('day').toDate();
+}
+
+function getEndDate(
+  value: FilterValue,
+  prev: WorkOrdersFilters | undefined
+): Date | null {
+  if (value.endDate) {
+    return dayjs(value.endDate.toString(), 'YYYY-MM-DD').endOf('day').toDate();
+  }
+  if (prev?.dateRange.endDate) {
+    return dayjs(prev.dateRange.endDate).endOf('day').toDate();
+  }
+  return dayjs().endOf('day').toDate();
+}
 
 export function applyFilters(
   order: WorkOrder,
@@ -192,6 +219,7 @@ export function applyFilters(
       order.code.toLowerCase().includes(t) ||
       order.asset?.description?.toLowerCase().includes(t) ||
       order.asset?.brand?.toLowerCase().includes(t) ||
+      order.originalWorkOrderCode?.toLowerCase().includes(t) ||
       order.customerWorkOrder?.customerName?.toLowerCase().includes(t) ||
       order.refCustomerId?.toLowerCase().includes(t) ||
       order.customerWorkOrder?.customerInstallationAddress?.city
@@ -211,8 +239,6 @@ export function applyFilters(
   const matchesDelivery =
     filters.hasDeliveryNote === undefined ||
     order.hasDeliveryNote === filters.hasDeliveryNote;
-
-  console.log(filters.workOrderState);
 
   return (
     matchesSearch &&
@@ -238,3 +264,20 @@ export default function getWorkOrderFilterOrigin(
     return OriginWorkOrder.Quality;
   }
 }
+
+const getDefaultWorkOrderStates = (isCRM: boolean, operatorLogged: boolean) => {
+  if (!isCRM) return [];
+
+  if (isCRM && operatorLogged) {
+    return [
+      StateWorkOrder.Waiting,
+      StateWorkOrder.Finished,
+      StateWorkOrder.NotFinished,
+    ];
+  }
+  if (isCRM) {
+    return [StateWorkOrder.Finished, StateWorkOrder.NotFinished];
+  }
+
+  return [];
+};

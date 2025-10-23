@@ -44,6 +44,7 @@ export interface WorkOrder extends BaseModel {
   isInvoiced?: boolean;
   hasDeliveryNote?: boolean;
   priority: WorkOrderPriority;
+  originalWorkOrderCode?: string;
 }
 
 export default WorkOrder;

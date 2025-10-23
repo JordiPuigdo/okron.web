@@ -29,9 +29,7 @@ export const WorkOrdersFiltersTable = ({
   workOrdersFilters,
   setWorkOrdersFilters,
   enableFinalizeWorkOrdersDayBefore = false,
-  enableFilterAssets = false,
   setSelectedAssetId,
-  assets,
   validStates,
   enableFilterType,
   workOrderTypeCount,
@@ -80,14 +78,6 @@ export const WorkOrdersFiltersTable = ({
         </div>
       </div>
     );
-  }
-
-  function handleSelectedAssetId(id: string) {
-    setWorkOrdersFilters({
-      ...workOrdersFilters,
-      assetId: id,
-    });
-    setSelectedAssetId(id);
   }
 
   function handleSearchTerm(term: string) {
