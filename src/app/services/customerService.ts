@@ -22,13 +22,18 @@ export class CustomerService {
   }
 
   async create(data: any): Promise<Customer> {
-    const res = await fetch(this.baseUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error('Error creating customer');
-    return data as Customer;
+    try {
+      const res = await fetch(this.baseUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) throw new Error('Error creating customer');
+      return data as Customer;
+    } catch (err) {
+      throw new Error('Error creant client');
+    }
   }
 
   async update(data: UpdateCustomerRequest): Promise<boolean> {

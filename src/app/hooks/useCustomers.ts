@@ -56,9 +56,11 @@ export function useCustomers() {
     setError(null);
     try {
       const newCustomer = await customerService.create(dataNew);
+      if (newCustomer == undefined) throw new Error('Error creant client');
       setCustomers(prev => [...prev, newCustomer]);
     } catch (err: any) {
       setError(err.message);
+      throw err;
     } finally {
       setLoading(false);
     }

@@ -65,9 +65,7 @@ export default function CustomerInstallationItem({
         <div>
           <label>Direcció</label>
           <input
-            {...register(`installations.${index}.address.address`, {
-              required: "L'adreça és obligatòria",
-            })}
+            {...register(`installations.${index}.address.address`, {})}
             className="w-full border rounded p-2"
             placeholder="Direcció"
           />

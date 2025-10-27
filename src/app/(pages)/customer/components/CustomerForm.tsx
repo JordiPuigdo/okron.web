@@ -90,22 +90,29 @@ export default function CustomerForm({
   }, [initialData, setValue]);
 
   const onSubmit = async (data: CreateCustomerRequest) => {
-    if (isEdit) {
-      const response = await updateCustomer({
-        ...(data as UpdateCustomerRequest),
-        id: initialData!.id,
-      });
-      if (response) {
-        setSuccessMessage(t('customer.updated.successfully'));
+    try {
+      data.kms = data.kms || 0;
+      if (isEdit) {
+        const response = await updateCustomer({
+          ...(data as UpdateCustomerRequest),
+          id: initialData!.id,
+        });
+        if (response) {
+          setSuccessMessage(t('customer.updated.successfully'));
+        }
+      } else {
+        await createCustomer(data);
       }
-    } else {
-      await createCustomer(data);
+    } catch (err) {
+      return;
+    } finally {
+      if (!error) {
+        setTimeout(() => {
+          setSuccessMessage(undefined);
+        }, 3000);
+        if (onSuccess) onSuccess();
+      }
     }
-
-    setTimeout(() => {
-      setSuccessMessage(undefined);
-    }, 3000);
-    if (onSuccess) onSuccess();
   };
 
   return (
@@ -139,9 +146,11 @@ export default function CustomerForm({
             `}
                   style={{ color: activeTab === tab ? '#59408F' : undefined }}
                 >
-                  {tab === CustomerFormTabs.GENERAL ? t('common.general') : 
-                   tab === CustomerFormTabs.PAYMENTMETHODS ? t('customer.payments') :
-                   t('customer.stores')}
+                  {tab === CustomerFormTabs.GENERAL
+                    ? t('common.general')
+                    : tab === CustomerFormTabs.PAYMENTMETHODS
+                    ? t('customer.payments')
+                    : t('customer.stores')}
                   {activeTab === tab && (
                     <span
                       className="absolute bottom-0 left-0 right-0 h-1 rounded-t-md"
@@ -156,7 +165,9 @@ export default function CustomerForm({
               <div className="flex gap-6">
                 <div className="flex flex-col w-full gap-4">
                   <div>
-                    <label className="block font-medium">{t('common.code')}</label>
+                    <label className="block font-medium">
+                      {t('common.code')}
+                    </label>
                     <input
                       {...register('code', {
                         required: t('validation.code.required'),
@@ -173,7 +184,9 @@ export default function CustomerForm({
                   </div>
 
                   <div>
-                    <label className="block font-medium">{t('common.name')}</label>
+                    <label className="block font-medium">
+                      {t('common.name')}
+                    </label>
                     <input
                       {...register('name', {
                         required: t('validation.name.required'),
@@ -189,7 +202,9 @@ export default function CustomerForm({
                   </div>
 
                   <div>
-                    <label className="block font-medium">{t('customer.fiscal.name')}</label>
+                    <label className="block font-medium">
+                      {t('customer.fiscal.name')}
+                    </label>
                     <input
                       {...register('fiscalName')}
                       className="w-full border rounded p-2"
@@ -198,7 +213,9 @@ export default function CustomerForm({
                   </div>
 
                   <div>
-                    <label className="block font-medium">{t('customer.tax.id')}</label>
+                    <label className="block font-medium">
+                      {t('customer.tax.id')}
+                    </label>
                     <input
                       {...register('taxId')}
                       className="w-full border rounded p-2"
@@ -226,7 +243,9 @@ export default function CustomerForm({
                     />
                   </div>
                   <div>
-                    <label className="block font-medium">{t('common.phone')}</label>
+                    <label className="block font-medium">
+                      {t('common.phone')}
+                    </label>
                     <input
                       {...register('phoneNumber')}
                       className="w-full border rounded p-2"
@@ -234,7 +253,9 @@ export default function CustomerForm({
                     />
                   </div>
                   <div>
-                    <label className="block font-medium">{t('customer.whatsapp')}</label>
+                    <label className="block font-medium">
+                      {t('customer.whatsapp')}
+                    </label>
                     <input
                       {...register('whatsappNumber')}
                       className="w-full border rounded p-2"
@@ -242,7 +263,9 @@ export default function CustomerForm({
                     />
                   </div>
                   <div>
-                    <label className="block font-medium">{t('common.comments')}</label>
+                    <label className="block font-medium">
+                      {t('common.comments')}
+                    </label>
                     <Textarea
                       {...register('comments')}
                       className="w-full border rounded p-2"
@@ -250,16 +273,21 @@ export default function CustomerForm({
                     />
                   </div>
                   <div>
-                    <label className="block font-medium">{t('customer.kilometers')}</label>
+                    <label className="block font-medium">
+                      {t('customer.kilometers')}
+                    </label>
                     <input
                       {...register('kms')}
                       className="w-full border rounded p-2"
                       placeholder={t('customer.kilometers')}
+                      defaultValue={0}
                     />
                   </div>
                   {initialData && initialData?.id.length > 0 && (
                     <div className="flex flex-col">
-                      <label className="block font-medium">{t('common.active')}</label>
+                      <label className="block font-medium">
+                        {t('common.active')}
+                      </label>
                       <input
                         type="checkbox"
                         {...register('active')}
@@ -320,7 +348,9 @@ export default function CustomerForm({
         </FormProvider>
         <div className="lg:col-span-1">
           <Card className="sticky top-20 bg-white rounded-md p-4">
-            <h3 className="text-md font-semibold text-gray-700 mb-2">{t('common.summary')}</h3>
+            <h3 className="text-md font-semibold text-gray-700 mb-2">
+              {t('common.summary')}
+            </h3>
             <ul>
               <li className="flex justify-between gap-6">
                 <span>{t('customer.addresses')}:</span>
