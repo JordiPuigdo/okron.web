@@ -170,6 +170,8 @@ export function getUserType(
   if (operatorType === OperatorType.Quality) return UserType.Quality;
   if (operatorType === OperatorType.Production) return UserType.Production;
   if (operatorType === OperatorType.Maintenance) return UserType.Maintenance;
+  if (operatorType === OperatorType.Assembly) return UserType.CRM;
+  if (operatorType === OperatorType.Repairs) return UserType.CRM;
 
   if (loginUser) loginUser?.userType;
   return UserType.Maintenance;
