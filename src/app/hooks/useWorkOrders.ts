@@ -1,11 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { WorkOrderTypeCount } from 'app/(pages)/workOrders/components/WorkOrderFiltersTable/WorkOrderTypeCount';
-import { OperatorType } from 'app/interfaces/Operator';
 import { UserType } from 'app/interfaces/User';
 import WorkOrder, {
-  OriginWorkOrder,
   SearchWorkOrderFilters,
-  StateWorkOrder,
   WorkOrdersFilters,
   WorkOrderType,
 } from 'app/interfaces/workOrder';
@@ -14,6 +11,7 @@ import { useSessionStore } from 'app/stores/globalStore';
 import getWorkOrderFilterOrigin, {
   applyFilters,
   getFilters,
+  getUserType,
   getValidStates,
   mapQueryParamsToFilters,
 } from 'app/utils/utilsWorkOrder';
@@ -46,7 +44,7 @@ const fetchWorkOrderById = async (id: string): Promise<WorkOrder> => {
   }
 };
 
-export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
+export const useWorkOrders = (operatorId?: string) => {
   const { loginUser, operatorLogged } = useSessionStore(state => state);
   const { updateQueryParams, queryParams } = useQueryParams();
   const [firstLoad, setFirstLoad] = useState(true);
@@ -56,50 +54,57 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
 
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
 
-  const [filters, setFilters] = useState<WorkOrdersFilters>(
-    initialFilters || {
-      dateRange: { startDate: null, endDate: null },
-      workOrderType: [],
-      workOrderState: [],
-      searchTerm: '',
-      assetId: '',
-      refCustomerId: '',
-      customerName: '',
-      isInvoiced: false,
-      hasDeliveryNote: false,
-      active: true,
-      useOperatorLogged: false,
-    }
+  const [filters, setFilters] = useState<WorkOrdersFilters | undefined>(
+    undefined
   );
 
   useEffect(() => {
+    if (!filters) return;
     updateQueryParams(getFilters(filters));
   }, [filters]);
 
   useEffect(() => {
     if (firstLoad && queryParams) {
-      setFilters(prev => ({
-        ...prev,
-        ...mapQueryParamsToFilters(queryParams, loginUser?.userType, prev),
-      }));
-      setFirstLoad(false);
+      if (!filters) {
+        const queryParamsFilters = mapQueryParamsToFilters(
+          queryParams,
+          loginUser!.userType === UserType.CRM,
+          operatorId !== undefined,
+          undefined
+        );
+        setFilters(queryParamsFilters);
+      } else {
+        setFilters(prev => ({
+          ...prev,
+          ...mapQueryParamsToFilters(
+            queryParams,
+            loginUser!.userType === UserType.CRM,
+            operatorId !== undefined,
+            prev
+          ),
+        }));
+      }
     }
+    setFirstLoad(false);
   }, [queryParams, loginUser, firstLoad]);
 
   useEffect(() => {
+    if (!filters) return;
     if (
-      filters.dateRange.startDate != null &&
-      filters.dateRange.endDate != null
+      (filters.dateRange.startDate != null &&
+        filters.dateRange.endDate != null) ||
+      operatorLogged?.idOperatorLogged
     ) {
       fetchWorkOrders();
     }
   }, [
-    filters.dateRange.startDate,
-    filters.dateRange.endDate,
+    filters?.dateRange.startDate,
+    filters?.dateRange.endDate,
     operatorLogged?.idOperatorLogged,
   ]);
 
   async function fetchWorkOrders() {
+    if (!filters) return;
     try {
       const search: SearchWorkOrderFilters = {
         assetId: '',
@@ -109,12 +114,8 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
         startDateTime: filters.dateRange.startDate!,
         endDateTime: filters.dateRange.endDate!,
         originWorkOrder: getWorkOrderFilterOrigin(loginUser!.userType),
-        userType: loginUser!.userType,
+        userType: getUserType(operatorLogged, loginUser),
       };
-
-      /*if (operatorLogged?.operatorLoggedType === OperatorType.Quality) {
-        search.stateWorkOrder = [StateWorkOrder.PendingToValidate];
-      }*/
 
       const data = await workOrderService.getWorkOrdersWithFilters(search);
       setWorkOrders(data);
@@ -124,6 +125,7 @@ export const useWorkOrders = (initialFilters?: WorkOrdersFilters) => {
   }
 
   const filteredWorkOrders = useMemo(() => {
+    if (!filters) return [];
     return workOrders.filter(order => applyFilters(order, filters));
   }, [workOrders, filters]);
 
