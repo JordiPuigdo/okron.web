@@ -257,7 +257,9 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
     });
   }
 
-  const headerText = sparePartLoaded ? t('spareParts.editSparePart') : t('spareParts.createSparePart');
+  const headerText = sparePartLoaded
+    ? t('spareParts.editSparePart')
+    : t('spareParts.createSparePart');
 
   return (
     <>
@@ -361,7 +363,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                 <input
                   {...register('stock')}
                   className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-                  disabled={true}
+                  disabled={sparePartLoaded !== undefined}
                 />
               </div>
             </div>
@@ -426,7 +428,9 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
           </form>
           <div className="flex flex-col flex-grow border rounded-md p-2 md:w-[55%]">
             <div className="flex flex-col flex-grow mb-8">
-              <h2 className="font-semibold mb-2">{t('spareParts.selectWarehouse')}</h2>
+              <h2 className="font-semibold mb-2">
+                {t('spareParts.selectWarehouse')}
+              </h2>
               <div>
                 <SparePartWareHouseSelected
                   handleAssignWareHouse={handleAssignWareHouse}
@@ -465,7 +469,9 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
               </div>
             </div>
             <div className="flex flex-col flex-grow">
-              <h2 className="font-semibold mb-2">{t('spareParts.selectProvider')}</h2>
+              <h2 className="font-semibold mb-2">
+                {t('spareParts.selectProvider')}
+              </h2>
               <ProviderToSparePartRequest
                 ref={providerRequestRef}
                 sparePart={sparePart!}
