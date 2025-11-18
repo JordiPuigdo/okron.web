@@ -70,11 +70,17 @@ export const getEntityStatusConfig = (
       '0': t('entity.status.entry'),
       '1': t('entity.status.consumption'),
       '2': t('entity.status.transfer'),
+      '3': t('entity.status.adjustment'),
+      '4': t('entity.status.stockLoss'),
+      '5': t('entity.status.stockReturn'),
     },
     colors: {
       '0': 'bg-okron-preventive',
       '1': 'bg-okron-corrective',
       '2': 'bg-okron-btDetail',
+      '3': 'bg-okron-btDetail',
+      '4': 'bg-okron-corrective',
+      '5': 'bg-okron-corrective',
     },
   },
   ORDER: {

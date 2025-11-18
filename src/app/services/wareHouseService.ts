@@ -10,6 +10,7 @@ import {
   WareHouseRequest,
   WareHouseSparePartRequest,
   WareHouseStockAvailability,
+  WareHouseStockRequest,
 } from 'app/interfaces/WareHouse';
 
 export interface IWareHouseService {
@@ -29,6 +30,9 @@ export interface IWareHouseService {
     filters: StockMovementFilters
   ): Promise<StockMovement[]>;
   stockAvailability(): Promise<WareHouseStockAvailability[]>;
+  warehouseStockRequest(
+    wareHouseStockRequest: WareHouseStockRequest
+  ): Promise<boolean>;
 }
 
 export class WareHouseService implements IWareHouseService {
@@ -207,6 +211,32 @@ export class WareHouseService implements IWareHouseService {
       return await response.json();
     } catch (error) {
       console.error('Error fetching stock movements:', error);
+      throw error;
+    }
+  }
+
+  async warehouseStockRequest(
+    wareHouseStockRequest: WareHouseStockRequest
+  ): Promise<boolean> {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}warehouse/warehouseStockRequest`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(wareHouseStockRequest),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(
+          `Failed to create warehouse stock: ${response.statusText}`
+        );
+      }
+      return true;
+    } catch (error) {
+      console.error('Error creating warehouse stock:', error);
       throw error;
     }
   }

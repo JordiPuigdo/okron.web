@@ -10,6 +10,7 @@ type ButtonTypes =
   | 'detail'
   | 'save'
   | 'others'
+  | 'transfer'
   | 'none';
 type ButtonSizes = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -126,6 +127,8 @@ const ButtonBody = ({
       'bg-okron-btDelete text-white px-4 py-2 rounded-md hover:bg-okron-btDeleteHover focus:outline-none focus:ring focus:border-blue-300',
     cancel:
       'bg-okron-btnCancel text-white px-4 py-2 rounded-md hover:bg-okron-btnCancelHover focus:outline-none focus:ring focus:border-blue-300',
+    transfer:
+      'bg-okron-invoiced/90 text-white px-4 py-2 rounded-md hover:bg-okron-invoiced focus:outline-none focus:ring ',
     others:
       'bg-orange-500 text-white p-2 rounded-md hover:bg-orange-600 items-center gap-2',
     detail:

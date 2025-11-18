@@ -5,6 +5,7 @@ import {
   WareHouse,
   WareHouseRequest,
   WareHouseSparePartRequest,
+  WareHouseStockRequest,
 } from 'app/interfaces/WareHouse';
 import {
   IWareHouseService,
@@ -158,6 +159,20 @@ export const useWareHouses = (
     }
   };
 
+  const warehouseStockRequest = async (
+    wareHouseStockRequest: WareHouseStockRequest
+  ) => {
+    try {
+      const response = await wareHouseService.warehouseStockRequest(
+        wareHouseStockRequest
+      );
+      return response;
+    } catch (error) {
+      console.error('Error creating warehouse stock:', error);
+      throw error;
+    }
+  };
+
   return {
     warehouses: warehouses || [],
     createWareHouse,
@@ -171,5 +186,6 @@ export const useWareHouses = (
     getStockAvailability,
     isLoadingWareHouse,
     isWareHouseSuccessFull,
+    warehouseStockRequest,
   };
 };

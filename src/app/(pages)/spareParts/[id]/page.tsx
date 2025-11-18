@@ -39,14 +39,19 @@ export default function page({ params }: { params: { id: string } }) {
   return (
     <MainLayout>
       <Container>
-        <SparePartForm sparePartLoaded={sparePart?.sparePart} />
+        <SparePartForm
+          sparePartLoaded={sparePart?.sparePart}
+          refresh={() => fetchSparePart()}
+        />
 
         {sparePart?.sparePart.id && (
           <div className="p-4 flex-grow rounded-md shadow-md bg-white">
             <div className="flex items-center mb-4 space-x-2">
               <FaHistory className="text-xl text-gray-700" />
 
-              <h2 className="text-lg font-semibold text-gray-800">{t('spareParts.history')}</h2>
+              <h2 className="text-lg font-semibold text-gray-800">
+                {t('spareParts.history')}
+              </h2>
             </div>
 
             <div className="flex mb-6 border-2 border-[#6E41B6] rounded-full w-fit overflow-hidden">

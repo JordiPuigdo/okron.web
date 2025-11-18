@@ -142,7 +142,7 @@ TableButtonsComponentStandard.displayName = 'TableButtonsComponentStandard';
 const EditButton = memo(({ pathDetail }: { pathDetail: string }) => (
   <Link href={pathDetail}>
     <p className="flex items-center font-medium text-white rounded-xl bg-okron-btEdit hover:bg-okron-btEditHover">
-      <SvgDetail className="p-2" />
+      <SvgDetail className="p-2 w-12 h-12" />
     </p>
   </Link>
 ));
@@ -156,10 +156,10 @@ const DeleteButton = memo(
 
     return (
       <div
-        className="flex items-center text-white rounded-xl bg-okron-btDelete hover:bg-okron-btDeleteHover hover:cursor-pointer"
+        className="flex items-center font-medium text-white rounded-xl bg-okron-btDelete hover:bg-okron-btDeleteHover hover:cursor-pointer"
         onClick={handleDelete}
       >
-        <SvgDelete className="p-2" />
+        <SvgDelete className="p-2 w-12 h-12" />
       </div>
     );
   }

@@ -321,7 +321,7 @@ export const TableDataOrders = ({
       )}
       <DataTable
         data={filteredOrders}
-        columns={getColumnsOrders(t)}
+        columns={getColumnsOrders(t, sparePartId ?? '')}
         entity={EntityTable.ORDER}
         tableButtons={tableButtons}
         filters={getFiltersOrders(t)}
@@ -335,49 +335,63 @@ const tableButtons: TableButtons = {
   edit: true,
   detail: true,
 };
-const getColumnsOrders = (t: any): Column[] => [
-  {
-    label: t('common.id'),
-    key: 'id',
-    format: ColumnFormat.TEXT,
-  },
-  {
-    label: t('code'),
-    key: 'orderCode',
-    format: ColumnFormat.TEXT,
-  },
-  {
-    label: t('state'),
-    key: 'status',
-    format: ColumnFormat.ORDERSTATE,
-  },
-  {
-    label: t('provider'),
-    key: 'providerName',
-    format: ColumnFormat.TEXT,
-  },
-  {
-    label: t('comment'),
-    key: 'comment',
-    format: ColumnFormat.TEXT,
-  },
-  {
-    label: t('date'),
-    key: 'date',
-    format: ColumnFormat.DATE,
-  },
-  {
-    label: t('accounting.account'),
-    key: 'account',
-    format: ColumnFormat.TEXT,
-  },
-  {
-    label: t('total'),
-    key: 'totalAmountFormatted',
-    format: ColumnFormat.TEXT,
-    align: ColumnnAlign.RIGHT,
-  },
-];
+
+const getColumnsOrders = (t: any, id: string): Column[] => {
+  const columns = [
+    {
+      label: t('common.id'),
+      key: 'id',
+      format: ColumnFormat.TEXT,
+    },
+    {
+      label: t('code'),
+      key: 'orderCode',
+      format: ColumnFormat.TEXT,
+    },
+    {
+      label: t('state'),
+      key: 'status',
+      format: ColumnFormat.ORDERSTATE,
+    },
+    {
+      label: t('provider'),
+      key: 'providerName',
+      format: ColumnFormat.TEXT,
+    },
+    {
+      label: t('comment'),
+      key: 'comment',
+      format: ColumnFormat.TEXT,
+    },
+    {
+      label: t('date'),
+      key: 'date',
+      format: ColumnFormat.DATE,
+    },
+    {
+      label: t('accounting.account'),
+      key: 'account',
+      format: ColumnFormat.TEXT,
+    },
+    {
+      label: t('total'),
+      key: 'totalAmountFormatted',
+      format: ColumnFormat.TEXT,
+      align: ColumnnAlign.RIGHT,
+    },
+  ];
+
+  if (id) {
+    columns.push({
+      label: t('order.quantity.received'),
+      key: 'quantityReceived',
+      format: ColumnFormat.NUMBER,
+      align: ColumnnAlign.RIGHT,
+    });
+  }
+
+  return columns;
+};
 
 const getFiltersOrders = (t: any): Filters[] => [
   {

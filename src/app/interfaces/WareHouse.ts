@@ -1,5 +1,6 @@
 import { BaseModel } from './BaseModel';
 import SparePart from './SparePart';
+import { StockMovementType } from './StockMovement';
 
 export interface WareHouseDetail extends WareHouse {
   totalStock: number;
@@ -53,4 +54,16 @@ export interface StockAvailability {
   warehouseId: string;
   warehouse: string;
   stock: number;
+}
+
+export interface WareHouseStockRequest {
+  wareHouseId: string;
+  sparePartId: string;
+  providerId: string;
+  quantity: number;
+  price: number;
+  operatorId: string;
+  stockMovementType: StockMovementType;
+  sparePartCode: string;
+  wareHouseTargetId: string;
 }

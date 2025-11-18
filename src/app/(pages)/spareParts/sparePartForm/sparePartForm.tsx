@@ -10,6 +10,7 @@ import { useTranslations } from 'app/hooks/useTranslations';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import SparePart from 'app/interfaces/SparePart';
 import SparePartService from 'app/services/sparePartService';
+import { useSessionStore } from 'app/stores/globalStore';
 import { HeaderForm } from 'components/layout/HeaderForm';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 import { Button } from 'designSystem/Button/Buttons';
@@ -18,18 +19,25 @@ import { useRouter } from 'next/navigation';
 import DocumentationSparePart from './Components/DocumentationSparePart';
 import SparePartProvidersSelected from './Components/SparePartProvidersSelected';
 import SparePartWareHouseSelected from './Components/SparePartWareHouseSelected';
+import { StockManage } from './Components/StockManage';
 
 interface SparePartForm {
   sparePartLoaded: SparePart | undefined;
+  refresh: () => void;
 }
 
-const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
+const SparePartForm: React.FC<SparePartForm> = ({
+  sparePartLoaded,
+  refresh,
+}) => {
   const { t } = useTranslations();
   const { isCRM } = usePermissions();
   const router = useRouter();
   const sparePartService = new SparePartService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
+
+  const { operatorLogged } = useSessionStore(state => state);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState('');
   const {
@@ -110,7 +118,7 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
     } else {
       if (sparePart == null) createSparePart();
     }
-  }, [SparePartForm, setValue]);
+  }, [SparePartForm, setValue, sparePartLoaded]);
 
   function createSparePart() {
     const newSparePart: SparePart = {
@@ -367,6 +375,13 @@ const SparePartForm: React.FC<SparePartForm> = ({ sparePartLoaded }) => {
                 />
               </div>
             </div>
+            {sparePartLoaded !== undefined && (
+              <StockManage
+                sparePart={sparePartLoaded}
+                operatorLoggedId={operatorLogged?.idOperatorLogged ?? ''}
+                refresh={refresh}
+              />
+            )}
             <div className="flex flex-row gap-4 items-start w-full">
               <div className="flex-grow mb-4">
                 <label className="block text-sm font-medium text-gray-600">
