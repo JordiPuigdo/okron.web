@@ -23,7 +23,7 @@ import { StockManage } from './Components/StockManage';
 
 interface SparePartForm {
   sparePartLoaded: SparePart | undefined;
-  refresh: () => void;
+  refresh?: () => void;
 }
 
 const SparePartForm: React.FC<SparePartForm> = ({
@@ -379,7 +379,7 @@ const SparePartForm: React.FC<SparePartForm> = ({
               <StockManage
                 sparePart={sparePartLoaded}
                 operatorLoggedId={operatorLogged?.idOperatorLogged ?? ''}
-                refresh={refresh}
+                refresh={() => refresh?.()}
               />
             )}
             <div className="flex flex-row gap-4 items-start w-full">
