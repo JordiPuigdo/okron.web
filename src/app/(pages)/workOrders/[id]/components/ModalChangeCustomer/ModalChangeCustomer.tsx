@@ -100,7 +100,11 @@ export const ModalChangeCustomer = ({
   }, [open, currentCustomerId, currentInstallationId]);
 
   const filteredCustomers = useMemo(
-    () => filterCustomers(customers as Customer[], search),
+    () =>
+      filterCustomers(
+        customers.filter(x => x.active == true) as Customer[],
+        search
+      ),
     [customers, search]
   );
 
