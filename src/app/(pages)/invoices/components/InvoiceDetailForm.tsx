@@ -8,7 +8,7 @@ import { formatEuropeanCurrency } from 'app/utils/utils';
 import { CustomerInformationComponent } from 'components/customer/CustomerInformationComponent';
 import { InstallationComponent } from 'components/customer/InstallationComponent';
 import { TotalComponent } from 'components/customer/TotalComponent';
-import { Input } from 'components/input/Input';
+import { Input } from 'components/ui/input';
 import dayjs from 'dayjs';
 import { Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';

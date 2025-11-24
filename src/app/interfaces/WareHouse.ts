@@ -1,5 +1,5 @@
 import { BaseModel } from './BaseModel';
-import SparePart from './SparePart';
+import SparePart, { QuantityMode } from './SparePart';
 import { StockMovementType } from './StockMovement';
 
 export interface WareHouseDetail extends WareHouse {
@@ -46,6 +46,7 @@ export interface WareHouseStockAvailability {
   sparePartId: string;
   sparePartCode: string;
   sparePartName: string;
+  quantityMode: QuantityMode;
   isVirtual: boolean;
   warehouseStock: StockAvailability[];
 }

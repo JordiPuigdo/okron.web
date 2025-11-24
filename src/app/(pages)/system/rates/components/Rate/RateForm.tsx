@@ -8,8 +8,8 @@ import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgArrowDown } from 'app/icons/icons';
 import { DayOfWeek, Rate, RateType } from 'app/interfaces/Rate';
 import { formatTime } from 'app/utils/utils';
-import { Input } from 'components/input/Input';
 import TimeInput from 'components/input/TimeInput';
+import { Input } from 'components/ui/input';
 import { Button } from 'designSystem/Button/Buttons';
 import { CheckIcon } from 'lucide-react';
 
@@ -21,7 +21,7 @@ interface Props {
 
 export function RateForm({ rateTypes, onSubmit, isSubmit = true }: Props) {
   const { t } = useTranslations();
-  
+
   const dayOfWeekOptions = [
     { value: DayOfWeek.Monday, label: t('system.rates.monday') },
     { value: DayOfWeek.Tuesday, label: t('system.rates.tuesday') },

@@ -7,6 +7,7 @@ import { useWareHouses } from 'app/hooks/useWareHouses';
 import { SvgConsumeSparePart, SvgRestoreSparePart } from 'app/icons/icons';
 import SparePart, {
   ConsumeSparePart,
+  QuantityMode,
   RestoreSparePart,
 } from 'app/interfaces/SparePart';
 import { WareHouseStockAvailability } from 'app/interfaces/WareHouse';
@@ -15,6 +16,7 @@ import SparePartService from 'app/services/sparePartService';
 import { workOrderService } from 'app/services/workOrderService';
 import { useGlobalStore, useSessionStore } from 'app/stores/globalStore';
 import { formatDate } from 'app/utils/utils';
+import { Input } from 'components/ui/input';
 import Link from 'next/link';
 
 interface ChooseSparePartsProps {
@@ -83,14 +85,25 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
       return false;
     }
 
+    const currentUnits = unitsPerSparePart[sparePart.sparePartId] || 0;
+
+    if (currentUnits <= 0) {
+      alert(t('error.negative.quantity'));
+      return false;
+    }
+
     if (sparePart.warehouseStock.length > 1) {
       setShowModalWareHouse(sparePart);
       return true;
     }
-    const currentUnits = unitsPerSparePart[sparePart.sparePartId] || 0;
 
     if (sparePart.warehouseStock[0].stock <= 0) {
       alert(t('error.no.units.available'));
+      return false;
+    }
+
+    if (currentUnits > sparePart.warehouseStock[0].stock) {
+      alert(t('error.insufficient.stock'));
       return false;
     }
 
@@ -292,21 +305,20 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
                       ))}
                     </td>
                     <td className="p-2 whitespace-nowrap">
-                      <input
+                      <Input
+                        mode="number"
                         disabled={isFinished}
-                        type="number"
-                        className="p-2 border border-gray-300 rounded-md w-20"
-                        onKeyPress={e => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                          }
-                        }}
-                        value={unitsPerSparePart[sparePart.sparePartId] || ''}
-                        onChange={e => {
-                          const value = parseInt(e.target.value, 10);
-                          setUnitsPerSparePart(prevUnits => ({
-                            ...prevUnits,
-                            [sparePart.sparePartId]: value,
+                        className="w-20"
+                        allowDecimals={
+                          sparePart.quantityMode == QuantityMode.AllowDecimals
+                            ? true
+                            : false
+                        }
+                        value={unitsPerSparePart[sparePart.sparePartId] ?? null}
+                        onValueChange={value => {
+                          setUnitsPerSparePart(prev => ({
+                            ...prev,
+                            [sparePart.sparePartId]: value ?? 0,
                           }));
                         }}
                       />
@@ -376,7 +388,9 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
                   </Link>
                 </p>
                 <p>{' - '}</p>
-                <p className="font-bold">{t('spareParts.units')} {t('consumed')}: </p>
+                <p className="font-bold">
+                  {t('spareParts.units')} {t('consumed')}:{' '}
+                </p>
                 {selectedPart.quantity}
                 <button
                   disabled={isFinished}

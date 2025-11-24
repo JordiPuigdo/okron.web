@@ -19,8 +19,8 @@ import { cn } from 'app/lib/utils';
 import { useSessionStore } from 'app/stores/globalStore';
 import useRoutes from 'app/utils/useRoutes';
 import ChooseElement from 'components/ChooseElement';
-import { Input } from 'components/input/Input';
 import { Textarea } from 'components/textarea';
+import { Input } from 'components/ui/input';
 import { ca } from 'date-fns/locale';
 import { Button } from 'designSystem/Button/Buttons';
 import { Save, X } from 'lucide-react';
@@ -170,6 +170,14 @@ export function RepairReportForm() {
 
     if (!formData.customerId) {
       newErrors.customerId = t('validation.customer.required');
+    }
+
+    if (
+      selectedCustomer?.installations &&
+      selectedCustomer.installations.length > 0 &&
+      !formData.installationId
+    ) {
+      newErrors.installationId = t('validation.installation.required');
     }
 
     setErrors(newErrors);
@@ -337,6 +345,11 @@ export function RepairReportForm() {
                     description: `${installation.code} - ${installation.address.address}`,
                   })}
                 />
+                {errors.installationId && (
+                  <p className="text-destructive text-sm text-red-500">
+                    {errors.installationId}
+                  </p>
+                )}
               </div>
             )}
         </div>

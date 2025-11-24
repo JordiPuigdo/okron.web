@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Order } from 'app/interfaces/Order';
 import useRoutes from 'app/utils/useRoutes';
-import { Input } from 'components/input/Input';
+import { Input } from 'components/ui/input';
 import dayjs from 'dayjs';
 import { CircleArrowUp, Plus, PlusCircle, Search, Truck } from 'lucide-react';
 import Link from 'next/link';

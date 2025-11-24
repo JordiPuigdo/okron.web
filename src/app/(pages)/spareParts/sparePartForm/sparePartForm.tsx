@@ -8,7 +8,7 @@ import ProviderToSparePartRequest, {
 import { usePermissions } from 'app/hooks/usePermissions';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { useWareHouses } from 'app/hooks/useWareHouses';
-import SparePart from 'app/interfaces/SparePart';
+import SparePart, { QuantityMode } from 'app/interfaces/SparePart';
 import SparePartService from 'app/services/sparePartService';
 import { useSessionStore } from 'app/stores/globalStore';
 import { HeaderForm } from 'components/layout/HeaderForm';
@@ -143,6 +143,7 @@ const SparePartForm: React.FC<SparePartForm> = ({
       providers: [],
       rrp: 0,
       isVirtual: false,
+      quantityMode: QuantityMode.IntegerOnly,
     };
     setSparePart(newSparePart);
   }

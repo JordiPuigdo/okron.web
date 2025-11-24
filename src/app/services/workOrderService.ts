@@ -12,6 +12,7 @@ import WorkOrder, {
   SaveInspectionResultPointRequest,
   SearchWorkOrderFilters,
   UpdateStateWorkOrder,
+  UpdateWorkOrderCustomerRequest,
   UpdateWorkOrderOperatorTimes,
   WorkOrderComment,
   WorkOrderType,
@@ -338,6 +339,30 @@ class WorkOrderService {
       return true;
     } catch (error) {
       console.error('Error updating WorkOrder:', error);
+      throw error;
+    }
+  }
+
+  async updateWorkOrderCustomer(
+    updateWorkOrderCustomer: UpdateWorkOrderCustomerRequest
+  ): Promise<boolean> {
+    try {
+      const url = `${this.baseUrl}workorder/UpdateCustomerWorkOrder`;
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateWorkOrderCustomer),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update work order customer');
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error updating work order customer:', error);
       throw error;
     }
   }

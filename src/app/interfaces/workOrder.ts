@@ -117,6 +117,12 @@ export interface UpdateWorkOrderRequest extends CreateWorkOrderRequest {
   operatorLoggedId: string;
 }
 
+export interface UpdateWorkOrderCustomerRequest {
+  workOrderId: string;
+  customerId: string;
+  customerInstallationId: string;
+}
+
 export interface CreateWorkOrderRequest {
   id?: string;
   code?: string;
@@ -275,7 +281,7 @@ export interface CustomerWorkOrder {
   customerEmail: string;
   customerPhone: string;
   customerAddress: CustomerAddress;
-  customerInstallaionId: string;
+  customerInstallationId: string;
   customerInstallationCode: string;
   customerInstallationAddress: CustomerAddress;
 }

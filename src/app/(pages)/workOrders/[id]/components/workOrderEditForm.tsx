@@ -39,10 +39,7 @@ import {
   translateStateWorkOrder,
   translateWorkOrderEventType,
 } from 'app/utils/utils';
-import {
-  getStatesForWorkOrderType,
-  getValidStates,
-} from 'app/utils/utilsWorkOrder';
+import { getStatesForWorkOrderType } from 'app/utils/utilsWorkOrder';
 import ChooseElement from 'components/ChooseElement';
 import { CostsObject } from 'components/Costs/CostsObject';
 import CompleteInspectionPoints from 'components/inspectionPoint/CompleteInspectionPoint';
@@ -55,6 +52,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import DowntimesComponent from './Downtimes/Downtimes';
+import { ModalChangeCustomer } from './ModalChangeCustomer/ModalChangeCustomer';
 import WorkOrderButtons from './WorkOrderButtons';
 
 type WorkOrdeEditFormProps = {
@@ -128,7 +126,9 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
   const [showDowntimeReasonsModal, setShowDowntimeReasonsModal] =
     useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [isUpdatingCustomer, setIsUpdatingCustomer] = useState(false);
   const { config } = useSessionStore();
+  const [showChangeCustomerModal, setShowChangeCustomerModal] = useState(false);
 
   const [selectedAssetId, setSelectedAssetId] = useState<string | undefined>(
     undefined
@@ -479,6 +479,37 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
     setValue('operatorId', updatedOperators.map(x => x.id).concat(','));
   }
 
+  const handleCustomerChanged = async (
+    customerId: string,
+    installationId: string
+  ) => {
+    if (!currentWorkOrder) return;
+    if (
+      customerId === currentWorkOrder.customerWorkOrder?.customerId &&
+      installationId ===
+        currentWorkOrder.customerWorkOrder?.customerInstallationId
+    )
+      return;
+
+    setIsUpdatingCustomer(true);
+    try {
+      await workOrderService.updateWorkOrderCustomer({
+        workOrderId: currentWorkOrder.id,
+        customerId,
+        customerInstallationId: installationId,
+      });
+      await fetchWorkOrder();
+      setShowSuccessMessage(true);
+      setShowErrorMessage(false);
+      setShowChangeCustomerModal(false);
+    } catch (error) {
+      setShowErrorMessage(true);
+      setErrorMessage(t('workOrders.errorUpdatingWork'));
+    } finally {
+      setIsUpdatingCustomer(false);
+    }
+  };
+
   const hasDefaultReason =
     currentWorkOrder?.downtimeReason != undefined &&
     currentWorkOrder.downtimeReason.machineId == '';
@@ -589,24 +620,32 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
             {isCRM && (
               <>
                 <div className="w-full">
-                  <label
-                    htmlFor="description"
-                    className="block text-sm font-medium text-gray-700 py-2"
-                  >
-                    {t('client.ref')}
-                  </label>
+                  <div className="flex items-center justify-between py-2">
+                    <label
+                      htmlFor="refCustomerId"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      {t('client.ref')}
+                    </label>
+                    <Button
+                      type="change"
+                      onClick={() => setShowChangeCustomerModal(true)}
+                      disabled={isUpdatingCustomer}
+                    >
+                      {isUpdatingCustomer ? (
+                        <SvgSpinner className="text-white w-3 h-3 animate-spin" />
+                      ) : (
+                        t('change.customer')
+                      )}
+                    </Button>
+                  </div>
                   <input
                     {...register('refCustomerId')}
                     type="text"
                     id="refCustomerId"
                     name="refCustomerId"
                     className="p-3 border text-sm border-gray-300 rounded-md w-full"
-                    disabled={isDisabledField}
-                    onKeyPress={e => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                      }
-                    }}
+                    disabled
                   />
                 </div>
                 <div className="w-full">
@@ -1068,6 +1107,18 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
           operatorIds={currentWorkOrder?.operatorId}
           originalWorkOrderId={currentWorkOrder.id}
           originalWorkOrderCode={currentWorkOrder.code}
+        />
+      )}
+
+      {showChangeCustomerModal && (
+        <ModalChangeCustomer
+          open={showChangeCustomerModal}
+          currentCustomerId={currentWorkOrder.customerWorkOrder?.customerId}
+          currentInstallationId={
+            currentWorkOrder.customerWorkOrder?.customerInstallationId
+          }
+          onClose={() => setShowChangeCustomerModal(false)}
+          onCustomerChanged={handleCustomerChanged}
         />
       )}
     </div>

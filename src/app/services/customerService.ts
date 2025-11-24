@@ -1,4 +1,8 @@
-import { Customer, UpdateCustomerRequest } from 'app/interfaces/Customer';
+import {
+  Customer,
+  CustomerInstallations,
+  UpdateCustomerRequest,
+} from 'app/interfaces/Customer';
 
 export class CustomerService {
   private readonly baseUrl: string;
@@ -55,5 +59,13 @@ export class CustomerService {
     const res = await fetch(`${this.baseUrl}/code`);
     if (!res.ok) throw new Error('Error getting customer code');
     return res.text();
+  }
+
+  async getInstallationsByCustomerId(
+    id: string
+  ): Promise<CustomerInstallations[]> {
+    const res = await fetch(`${this.baseUrl}/installations/${id}`);
+    if (!res.ok) throw new Error('Error fetching customer installations');
+    return res.json();
   }
 }

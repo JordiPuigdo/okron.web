@@ -11,6 +11,7 @@ type ButtonTypes =
   | 'save'
   | 'others'
   | 'transfer'
+  | 'change'
   | 'none';
 type ButtonSizes = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -133,6 +134,8 @@ const ButtonBody = ({
       'bg-orange-500 text-white p-2 rounded-md hover:bg-orange-600 items-center gap-2',
     detail:
       'text-center text-white bg-okron-btDetail hover:bg-okron-btnDetailHover',
+    change:
+      'bg-blue-700 hover:bg-blue-900 text-white text-xs  rounded-md flex items-center justify-center',
     sm: 'items-center text-xs font-medium h-[32px] px-4',
     md: 'items-center font-medium h-[40px] px-4',
     lg: 'items-center text-md font-semibold h-[48px] px-6',

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   CreateCustomerRequest,
   Customer,
+  CustomerInstallations,
   UpdateCustomerRequest,
 } from 'app/interfaces/Customer';
 import { CustomerService } from 'app/services/customerService';
@@ -58,9 +59,13 @@ export function useCustomers() {
       const newCustomer = await customerService.create(dataNew);
       if (newCustomer == undefined) throw new Error('Error creant client');
       setCustomers(prev => [...prev, newCustomer]);
-    } catch (err: any) {
-      setError(err.message);
-      throw err;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+        throw err;
+      }
+      setError('An unknown error occurred');
+      throw new Error('An unknown error occurred');
     } finally {
       setLoading(false);
     }
@@ -92,8 +97,12 @@ export function useCustomers() {
         return true;
       }
       //setCustomers(prev => prev.map(c => (c.id === updated.id ? updated : c)));
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
       return false;
     } finally {
       setLoading(false);
@@ -107,8 +116,12 @@ export function useCustomers() {
     try {
       await customerService.remove(id);
       setCustomers(prev => prev.filter(c => c.id !== id));
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -118,10 +131,29 @@ export function useCustomers() {
     try {
       const code = await customerService.getCode();
       return code;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getInstallationsByCustomerId = async (
+    id: string
+  ): Promise<CustomerInstallations[]> => {
+    try {
+      return await customerService.getInstallationsByCustomerId(id);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
+      return [];
     }
   };
 
@@ -135,5 +167,6 @@ export function useCustomers() {
     deleteCustomer,
     getById,
     getNewCustomerCode,
+    getInstallationsByCustomerId,
   };
 }

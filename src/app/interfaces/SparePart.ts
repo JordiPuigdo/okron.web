@@ -24,6 +24,12 @@ interface SparePart {
   warehouses: WarehousesSparePart[];
   isVirtual: boolean;
   rrp: number;
+  quantityMode: QuantityMode;
+}
+
+export enum QuantityMode {
+  IntegerOnly,
+  AllowDecimals,
 }
 
 export interface ProviderSpareParts {
