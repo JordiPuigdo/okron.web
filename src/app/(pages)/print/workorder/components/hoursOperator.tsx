@@ -37,7 +37,23 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
   }, []);
 
   useEffect(() => {
-    if (!workOrder.creationTime) return;
+    if (!workOrder.creationTime || !workOrder.id) return;
+
+    const storageKey = `hoursOperatorValidation-${workOrder.id}`;
+    const storedRecord = localStorage.getItem(storageKey);
+
+    if (storedRecord) {
+      try {
+        const parsed = JSON.parse(storedRecord);
+        setValidationRecord({
+          operatorLabel: parsed.operatorLabel,
+          timestamp: new Date(parsed.timestamp),
+        });
+        return;
+      } catch (error) {
+        console.error('Error parsing stored validation record', error);
+      }
+    }
 
     const validationNames = ['MIREIA', 'MERTIXELL', 'MARIÓ'];
     const operatorLabel = `VALIDAT PER ${
@@ -55,8 +71,16 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
       .minute(randomMinute)
       .toDate();
 
-    setValidationRecord({ operatorLabel, timestamp });
-  }, [workOrder.creationTime]);
+    const newRecord = { operatorLabel, timestamp };
+    setValidationRecord(newRecord);
+    localStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        operatorLabel,
+        timestamp: timestamp.toISOString(),
+      })
+    );
+  }, [workOrder.creationTime, workOrder.id]);
 
   return (
     <div className="flex flex-col p-4 no-break">
