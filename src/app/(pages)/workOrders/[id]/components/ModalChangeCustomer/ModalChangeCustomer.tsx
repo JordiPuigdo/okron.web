@@ -157,7 +157,7 @@ export const ModalChangeCustomer = ({
 
   return (
     <Dialog open={open} onOpenChange={value => !value && handleClose()}>
-      <DialogContent className="bg-white max-w-2xl h-[84vh] flex flex-col overflow-hidden">
+      <DialogContent className="bg-white max-w-2xl h-[84vh] flex flex-col overflow-y-auto">
         <DialogHeader>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <DialogTitle className="text-xl font-semibold">
@@ -172,7 +172,7 @@ export const ModalChangeCustomer = ({
           </div>
         </DialogHeader>
 
-        <div className="mt-4 flex flex-col gap-4 flex-1 overflow-hidden">
+        <div className="mt-4 flex flex-col gap-4 flex-1 pr-2">
           <CustomerSection
             customers={sortedCustomers}
             loading={loading}
