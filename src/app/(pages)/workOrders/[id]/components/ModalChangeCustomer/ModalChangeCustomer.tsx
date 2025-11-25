@@ -157,7 +157,7 @@ export const ModalChangeCustomer = ({
 
   return (
     <Dialog open={open} onOpenChange={value => !value && handleClose()}>
-      <DialogContent className="bg-white max-w-3xl h-[58vh] flex flex-col">
+      <DialogContent className="bg-white max-w-2xl h-[84vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <DialogTitle className="text-xl font-semibold">

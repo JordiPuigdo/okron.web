@@ -31,7 +31,7 @@ export const CustomerSection = ({
         onChange={event => onSearchChange(event.target.value)}
       />
 
-      <div className="border rounded-md h-72 flex flex-col">
+      <div className="border rounded-md h-60 flex flex-col">
         <div className="flex-1 overflow-y-auto divide-y">
           {loading && (
             <div className="flex items-center justify-center py-6 gap-2 text-sm text-gray-500">

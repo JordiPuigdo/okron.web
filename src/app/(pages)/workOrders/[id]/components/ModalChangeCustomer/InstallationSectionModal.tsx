@@ -34,7 +34,7 @@ export const InstallationsSection = ({
   t,
 }: InstallationsSectionProps) => {
   return (
-    <section className="border rounded-md p-3 space-y-3 h-72 flex flex-col">
+    <section className="border rounded-md p-3 space-y-3 h-64 flex flex-col">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between flex-none">
         <p className="text-sm font-semibold">
           {t('installations')} ({installations.length}/{totalInstallations})
