@@ -16,21 +16,40 @@ export const WorkOrderHeader = ({
   const company = config?.company as unknown as Company;
   return (
     <div className="flex flex-col">
-      <div className="flex justify-between items-end ">
-        <div className="w-96 relative ">
-          <img src={company.urlLogo} alt={company.name} className="w-96 h-24" />
+      <div className="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm">
+        {/* Logo */}
+        <div className="flex-shrink-0">
+          <img
+            src={company.urlLogo}
+            alt={company.name}
+            className="h-20 w-auto object-contain"
+          />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-gray-200">
-          <div className="text-center p-2 bg-gray-100 rounded-md align-bottom">
-            <p className="text-xs font-medium text-gray-600">Número d'Ordre</p>
-            <p className="text-lg font-bold text-gray-800">{workOrder.code}</p>
+
+        {/* Cards */}
+        <div className="flex flex-wrap gap-4 ml-4">
+          <div className="px-4 py-2 bg-gray-100 rounded-lg text-center min-w-[140px]">
+            <p className="text-xs text-gray-500 font-medium">Número d'Ordre</p>
+            <p className="text-xl font-bold text-gray-800 leading-tight">
+              {workOrder.code}
+            </p>
           </div>
-          <div className="text-center p-2 bg-gray-100 rounded-md">
-            <p className="text-xs font-medium text-gray-600">Data</p>
-            <p className="text-lg font-bold text-gray-800">
+
+          <div className="px-4 py-2 bg-gray-100 rounded-lg text-center min-w-[140px]">
+            <p className="text-xs text-gray-500 font-medium">Data</p>
+            <p className="text-xl font-bold text-gray-800 leading-tight">
               {dayjs(workOrder.creationTime).format('DD/MM/YYYY')}
             </p>
           </div>
+
+          {!config.isCRM && (
+            <div className="px-4 py-2 bg-gray-100 rounded-lg text-center min-w-[180px]">
+              <p className="text-xs text-gray-500 font-medium">Equip</p>
+              <p className="text-xl font-bold text-gray-800 leading-tight">
+                {workOrder.asset?.description ?? ''}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
