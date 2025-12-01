@@ -136,15 +136,15 @@ export const TableDataDeliveryNotes = ({
         </>
       )}
       <div className={`flex ${className} `}>
-        <div
-          className="flex gap-4 justify-between w-full"
-          onClick={() => setShowInvoiceds(!showInvoiceds)}
-        >
+        <div className="flex gap-4 justify-between w-full">
           <DateFilter
             setDateFilters={setDateFilters}
             dateFilters={dateFilters}
           />
-          <div className="gap-2 flex items-center cursor-pointer">
+          <div
+            className="gap-2 flex items-center cursor-pointer"
+            onClick={() => setShowInvoiceds(!showInvoiceds)}
+          >
             <input
               type="checkbox"
               className="cursor-pointer"
