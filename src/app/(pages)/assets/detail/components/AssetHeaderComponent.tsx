@@ -25,6 +25,7 @@ const AssetHeader = ({ assetId }: AssetHeaderProps) => {
       setCurrentAsset(asset);
       setLoading(false);
     } catch (error) {
+      console.error('Error fetching asset:', error);
       setLoading(false);
     }
   };

@@ -169,7 +169,7 @@ const AssetList: React.FC = () => {
   const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
   const [message, setMessage] = useState<string>('');
 
-  const { queryParams, setQueryParams } = useQueryParams();
+  const { queryParams } = useQueryParams();
 
   const initialSearch = (queryParams.search as string) ?? '';
   const expandedTargetId = (queryParams.id as string) ?? '';
