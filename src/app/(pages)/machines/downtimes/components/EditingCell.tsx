@@ -10,7 +10,14 @@ export const EditableCell: React.FC<{
   onUpdate: (newDescription: string) => void;
   canEdit?: boolean;
   type?: 'text' | 'date';
-}> = ({ value, onUpdate, canEdit = true, type = 'text' }) => {
+  placeholder?: string;
+}> = ({
+  value,
+  onUpdate,
+  canEdit = true,
+  type = 'text',
+  placeholder = 'Fes clic per editar',
+}) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [newDescription, setNewDescription] = useState<string>(value);
 
@@ -47,6 +54,7 @@ export const EditableCell: React.FC<{
           onChange={e => setNewDescription(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
+          autoFocus
           className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
         />
       )}
@@ -67,9 +75,9 @@ export const EditableCell: React.FC<{
   ) : (
     <span
       onClick={() => setIsEditing(true)}
-      className="cursor-pointer text-blue-500 hover:underline"
+      className="cursor-pointer text-blue-500 hover:underline min-h-[1.5rem] inline-block"
     >
-      {type === 'date' ? dayjs(value).format('DD/MM/YYYY') : value}
+      {value || <span className="text-gray-400 italic">{placeholder}</span>}
     </span>
   );
 };
