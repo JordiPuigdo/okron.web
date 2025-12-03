@@ -69,8 +69,8 @@ export const TableDataInvoices = ({
   const fetchInvoices = async () => {
     try {
       const search = {
-        startDateTime: dateFilters.startDate!,
-        endDateTime: dateFilters.endDate!,
+        startDate: dateFilters.startDate!,
+        endDate: dateFilters.endDate!,
       };
       const invoices = await invoiceService.getAll(search);
       setInvoices(invoices);
