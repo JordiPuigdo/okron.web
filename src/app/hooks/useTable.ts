@@ -3,11 +3,15 @@ import { sortData } from 'components/table/utils/TableUtils';
 
 export const useTableState = (
   initialData: any[],
-  defaultItemsPerPage: number
+  defaultItemsPerPage: number,
+  initialSortColumn?: string,
+  initialSortOrder?: 'ASC' | 'DESC'
 ) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortColumn, setSortColumn] = useState('');
-  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('ASC');
+  const [sortColumn, setSortColumn] = useState(initialSortColumn || '');
+  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>(
+    initialSortOrder || 'ASC'
+  );
   const [itemsPerPage, setItemsPerPage] = useState(defaultItemsPerPage);
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
