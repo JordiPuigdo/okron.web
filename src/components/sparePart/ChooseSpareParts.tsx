@@ -97,12 +97,15 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
       return true;
     }
 
-    if (sparePart.warehouseStock[0].stock <= 0) {
+    if (sparePart.warehouseStock[0].stock <= 0 && !sparePart.isVirtual) {
       alert(t('error.no.units.available'));
       return false;
     }
 
-    if (currentUnits > sparePart.warehouseStock[0].stock) {
+    if (
+      currentUnits > sparePart.warehouseStock[0].stock &&
+      !sparePart.isVirtual
+    ) {
       alert(t('error.insufficient.stock'));
       return false;
     }
