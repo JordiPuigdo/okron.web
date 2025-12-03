@@ -32,15 +32,19 @@ export const TableDataInvoices = ({
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
-  const defaultDateStartDate = new Date(new Date().getFullYear(), 0, 1);
-  const defaultDate = new Date();
+
+  // Fecha por defecto: último mes
+  const defaultDateEndDate = new Date();
+  const defaultDateStartDate = new Date();
+  defaultDateStartDate.setMonth(defaultDateStartDate.getMonth() - 1);
+
   const invoiceService = new InvoiceService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
 
   const [dateFilters, setDateFilters] = useState<DateFilters>({
     startDate: defaultDateStartDate,
-    endDate: defaultDate,
+    endDate: defaultDateEndDate,
   });
 
   const [filters, setFilters] = useState<{ [key: string]: any[] }>({
@@ -57,19 +61,16 @@ export const TableDataInvoices = ({
   }, []);
 
   useEffect(() => {
-    if (dateFilters.startDate && dateFilters.endDate) {
+    if (dateFilters.startDate && dateFilters.endDate && !firstLoad) {
       fetchInvoices();
     }
   }, [dateFilters, filters]);
 
   const fetchInvoices = async () => {
     try {
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setMonth(startDate.getMonth() - 1);
       const search = {
-        startDateTime: startDate!,
-        endDateTime: endDate!,
+        startDateTime: dateFilters.startDate!,
+        endDateTime: dateFilters.endDate!,
       };
       const invoices = await invoiceService.getAll(search);
       setInvoices(invoices);

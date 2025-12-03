@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useQueryParams } from 'app/hooks/useFilters';
 import {
   useFilteredData,
   useTableFilters,
@@ -67,11 +68,23 @@ const DataTable: React.FC<DataTableProps> = ({
   totalCalculated,
 }: DataTableProps) => {
   const [pathDetail, setPathDetail] = useState<string>('');
-  const tableState = useTableState(data, itemsPerPageOptions[1]);
   const tableFilters = useTableFilters(enableFilterActive);
   const { loginUser } = useSessionStore(state => state);
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslations();
+  const { queryParams, updateQueryParams } = useQueryParams();
+
+  const initialSortColumn = queryParams.sortColumn?.toString() || '';
+  const initialSortOrder = (queryParams.sortOrder?.toString() || 'ASC') as
+    | 'ASC'
+    | 'DESC';
+
+  const tableState = useTableState(
+    data,
+    itemsPerPageOptions[1],
+    initialSortColumn,
+    initialSortOrder
+  );
 
   const { filteredData, totalRecords, totalPages } = useFilteredData(
     data,
@@ -123,6 +136,11 @@ const DataTable: React.FC<DataTableProps> = ({
         : 'ASC';
     tableState.setSortColumn(columnKey);
     tableState.setSortOrder(order);
+
+    updateQueryParams({
+      sortColumn: columnKey,
+      sortOrder: order,
+    });
   };
 
   const handleItemsPerPageChange = (value: number) => {
