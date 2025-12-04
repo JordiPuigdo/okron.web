@@ -488,6 +488,10 @@ export const getRoute = (entity: EntityTable, isForHeader = false) => {
       return ROUTES.customer;
     case EntityTable.DELIVERYNOTE:
       return ROUTES.deliveryNote.list;
+    case EntityTable.HOLIDAY:
+      return ROUTES.holidays;
+    case EntityTable.VACATIONAPPROVAL:
+      return ROUTES.vacationApprovals;
     default:
       return 'error';
   }

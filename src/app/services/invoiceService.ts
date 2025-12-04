@@ -18,10 +18,18 @@ export class InvoiceService {
     const queryParams = new URLSearchParams();
 
     if (filters?.startDate) {
-      queryParams.append('startDate', filters.startDate.toISOString());
+      const startDate = new Date(filters.startDate);
+      const formattedStart = `${startDate.getFullYear()}-${String(
+        startDate.getMonth() + 1
+      ).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+      queryParams.append('startDate', formattedStart);
     }
     if (filters?.endDate) {
-      queryParams.append('endDate', filters.endDate.toISOString());
+      const endDate = new Date(filters.endDate);
+      const formattedEnd = `${endDate.getFullYear()}-${String(
+        endDate.getMonth() + 1
+      ).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
+      queryParams.append('endDate', formattedEnd);
     }
     if (filters?.customerId) {
       queryParams.append('customerId', filters.customerId);

@@ -4,12 +4,15 @@ import { BaseSyntheticEvent, useEffect, useState } from 'react';
 import { SvgMachines } from 'app/icons/icons';
 import Operator, { OperatorType } from 'app/interfaces/Operator';
 import { Preventive } from 'app/interfaces/Preventive';
+import { UserType } from 'app/interfaces/User';
 import OperatorService from 'app/services/operatorService';
 import PreventiveService from 'app/services/preventiveService';
+import { useSessionStore } from 'app/stores/globalStore';
 import Container from 'components/layout/Container';
 import MainLayout from 'components/layout/MainLayout';
 import OperatorForm from 'components/OperatorForm';
 
+import { OperatorVacations } from '../components/OperatorVacations';
 import PreventiveAssignment from './PreventiveAssignament';
 
 export default function EditOperatorPage({
@@ -17,6 +20,7 @@ export default function EditOperatorPage({
 }: {
   params: { id: string };
 }) {
+  const { loginUser } = useSessionStore();
   const operatorService = new OperatorService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
@@ -123,6 +127,8 @@ export default function EditOperatorPage({
     );
   };
 
+  const isCRM = loginUser?.userType === UserType.CRM;
+
   return (
     <MainLayout>
       <Container>
@@ -142,12 +148,17 @@ export default function EditOperatorPage({
             onUpdatedSuccesfully={isUpdateSuccessful}
           />
         )}
-        {!isLoading && (
+        {!isLoading && !isCRM && (
           <PreventiveAssignment
             operatorId={params.id}
             preventives={preventives}
             operatorPreventives={operatorPreventives}
           />
+        )}
+        {!isLoading && operatorData && isCRM && (
+          <div className="mt-6">
+            <OperatorVacations operatorId={params.id} isAdminView={true} />
+          </div>
         )}
       </Container>
     </MainLayout>

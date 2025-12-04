@@ -1,3 +1,4 @@
+import { SvgCalendar } from 'app/icons/designSystem/SvgCalendar';
 import { SvgDatabase } from 'app/icons/designSystem/SvgDatabase';
 import { SvgInvoice } from 'app/icons/designSystem/SvgInvoice';
 import { SvgPackage } from 'app/icons/designSystem/SvgPackage';
@@ -229,6 +230,14 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         icon: SvgMenu,
         permission: [UserPermission.Administrator, UserPermission.AdminCRM],
         userType: [UserType.Maintenance, UserType.Warehouse, UserType.CRM],
+      },
+      {
+        key: generateKey(),
+        titleKey: 'sidebar.holidays',
+        path: '/holidays',
+        icon: SvgCalendar,
+        permission: [UserPermission.Administrator, UserPermission.AdminCRM],
+        userType: [UserType.Maintenance, UserType.CRM],
       },
       /*{
         key: generateKey(),

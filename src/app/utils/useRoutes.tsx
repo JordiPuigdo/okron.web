@@ -19,6 +19,8 @@ const useRoutes = () => {
       warehouse: '/wareHouse',
       provider: '/providers',
     },
+    holidays: '/holidays',
+    vacationApprovals: '/vacationApprovals',
     orders: {
       order: '/orders',
       orderPurchase: '/orders/orderForm?isPurchase=true',

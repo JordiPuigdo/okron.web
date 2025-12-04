@@ -155,6 +155,31 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
           )}
         />
       </div>
+
+      <div className="mb-4">
+        <label
+          htmlFor="annualVacationDays"
+          className="block text-sm font-medium text-gray-700"
+        >
+          {t('annual.vacation.days')}
+        </label>
+        <Controller
+          name="annualVacationDays"
+          control={control}
+          defaultValue={operator ? operator.annualVacationDays : 22}
+          render={({ field }) => (
+            <input
+              {...field}
+              type="number"
+              min="0"
+              max="365"
+              placeholder={t('annual.vacation.days')}
+              className="border rounded-md w-full px-3 py-2 mt-1 text-gray-700 focus:outline-none focus:border-indigo-500"
+            />
+          )}
+        />
+      </div>
+
       <div className="flex items-center space-x-4">
         <button
           type="submit"

@@ -5,8 +5,10 @@
 // import { User } from 'path/to/interfaces';
 
 export type User = {
-  id: number
-  name: string
-}
+  id: number;
+  name: string;
+};
 
 export * from './DeliveryNote';
+export * from './Holiday';
+export * from './Vacation';

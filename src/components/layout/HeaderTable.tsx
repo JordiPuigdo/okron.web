@@ -9,6 +9,7 @@ export interface HeaderTableProps {
   subtitle: string;
   createButton: string;
   urlCreateButton: string;
+  onCreate?(): void;
 }
 
 export const HeaderTable = ({
@@ -16,8 +17,18 @@ export const HeaderTable = ({
   subtitle,
   createButton,
   urlCreateButton,
+  onCreate,
 }: HeaderTableProps) => {
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleClick = () => {
+    if (!onCreate) {
+      setIsLoading(true);
+      return;
+    }
+    onCreate();
+  };
+
   return (
     <div className="flex p-2 my-2">
       <div className="w-full flex flex-col gap-2  justify-between">
@@ -30,7 +41,7 @@ export const HeaderTable = ({
       <div className="w-full flex flex-col justify-end items-end gap-2 ">
         <Button
           type="create"
-          onClick={() => setIsLoading(true)}
+          onClick={onCreate ? handleClick : undefined}
           customStyles="gap-2 flex"
           href={urlCreateButton}
         >
