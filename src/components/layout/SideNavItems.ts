@@ -236,8 +236,8 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         titleKey: 'sidebar.holidays',
         path: '/holidays',
         icon: SvgCalendar,
-        permission: [UserPermission.Administrator, UserPermission.AdminCRM],
-        userType: [UserType.Maintenance, UserType.CRM],
+        permission: [UserPermission.AdminCRM],
+        userType: [UserType.CRM],
       },
       /*{
         key: generateKey(),
