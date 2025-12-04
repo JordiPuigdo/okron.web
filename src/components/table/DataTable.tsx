@@ -38,6 +38,7 @@ interface DataTableProps {
   hideExport?: boolean;
   totalCalculated?: number | string;
   filtersToApply?: FilterValue;
+  isLoading?: boolean;
 }
 
 export enum ButtonTypesTable {
@@ -66,11 +67,13 @@ const DataTable: React.FC<DataTableProps> = ({
   hideShadow = false,
   hideExport = false,
   totalCalculated,
+  isLoading: isLoadingProp,
 }: DataTableProps) => {
   const [pathDetail, setPathDetail] = useState<string>('');
   const tableFilters = useTableFilters(enableFilterActive);
   const { loginUser } = useSessionStore(state => state);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingInternal, setIsLoadingInternal] = useState(true);
+  const isLoading = isLoadingProp !== undefined ? isLoadingProp : isLoadingInternal;
   const { t } = useTranslations();
   const { queryParams, updateQueryParams } = useQueryParams();
 
@@ -122,7 +125,7 @@ const DataTable: React.FC<DataTableProps> = ({
   const isAllSelected =
     data.length > 0 && tableState.selectedRows.size === data.length;
   useEffect(() => {
-    setIsLoading(false);
+    setIsLoadingInternal(false);
     setPathDetail(() => {
       return getRoute(entity, false);
     });

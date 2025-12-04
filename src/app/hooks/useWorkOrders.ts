@@ -48,6 +48,7 @@ export const useWorkOrders = (operatorId?: string) => {
   const { loginUser, operatorLogged } = useSessionStore(state => state);
   const { updateQueryParams, queryParams } = useQueryParams();
   const [firstLoad, setFirstLoad] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [workOrderTypeCount, setWorkOrderTypeCount] = useState<
     WorkOrderTypeCount[]
   >([]);
@@ -105,6 +106,7 @@ export const useWorkOrders = (operatorId?: string) => {
 
   async function fetchWorkOrders() {
     if (!filters) return;
+    setIsLoading(true);
     try {
       const search: SearchWorkOrderFilters = {
         assetId: '',
@@ -121,6 +123,8 @@ export const useWorkOrders = (operatorId?: string) => {
       setWorkOrders(data);
     } catch (e) {
       console.error('Error fetching work orders', e);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -196,5 +200,6 @@ export const useWorkOrders = (operatorId?: string) => {
     filteredWorkOrders,
     validStates,
     workOrderTypeCount,
+    isLoading,
   };
 };

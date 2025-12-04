@@ -47,6 +47,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     filteredWorkOrders,
     validStates,
     workOrderTypeCount,
+    isLoading,
   } = useWorkOrders(operatorId);
 
   const tableButtons: TableButtons = {
@@ -80,6 +81,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
           enableCheckbox={
             operatorLogged?.operatorLoggedType === OperatorType.Quality
           }
+          isLoading={isLoading}
         />
       )}
     </div>
