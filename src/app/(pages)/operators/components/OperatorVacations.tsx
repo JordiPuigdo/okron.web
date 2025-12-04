@@ -87,7 +87,7 @@ export const OperatorVacations = ({
       </div>
 
       <Modal
-        isOpen={isModalOpen}
+        isVisible={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={t('vacation.newRequest')}
       >
