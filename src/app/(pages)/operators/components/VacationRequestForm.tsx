@@ -118,19 +118,18 @@ export const VacationRequestForm = ({
 
       <div className="flex gap-2 justify-end">
         {onCancel && (
-          <Button
-            text={t('common.cancel')}
-            onClick={onCancel}
-            type="button"
-            className="secondary"
-          />
+          <Button onClick={onCancel} type="cancel" className="secondary">
+            {t('common.cancel')}
+          </Button>
         )}
         <Button
-          text={t('vacation.request')}
-          type="submit"
+          type="create"
+          isSubmitting
           disabled={isLoading}
           className="primary"
-        />
+        >
+          {t('vacation.request')}
+        </Button>
       </div>
     </form>
   );
