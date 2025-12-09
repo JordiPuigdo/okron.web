@@ -138,17 +138,17 @@ export const getColumnsCRM = (t: any): Column[] => [
   },
   {
     label: t('customer.customer'),
-    key: 'customerWorkOrder.customerName',
+    key: 'customerName',
     format: ColumnFormat.TEXT,
   },
   {
     label: t('customer.store'),
-    key: 'customerWorkOrder.customerInstallationAddress.city',
+    key: 'customerInstallationCity',
     format: ColumnFormat.TEXT,
   },
   {
     label: t('common.code'),
-    key: 'customerWorkOrder.customerInstallationCode',
+    key: 'customerInstallationCode',
     format: ColumnFormat.TEXT,
   },
   {
