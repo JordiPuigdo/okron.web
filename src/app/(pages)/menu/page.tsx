@@ -9,14 +9,12 @@ export default function MenuPage() {
   return (
     <MainLayout>
       <Container>
-        <LoginChecker>
-          <div className="flex flex-col w-full">
-            <HeaderMenu />
-            <div>
-              <DashboardPage />
-            </div>
+        <div className="flex flex-col w-full">
+          <HeaderMenu />
+          <div>
+            <DashboardPage />
           </div>
-        </LoginChecker>
+        </div>
       </Container>
     </MainLayout>
   );
