@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
+import { useInvoices } from 'app/hooks/useInvoices';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { translateDeliveryNoteStatus } from 'app/utils/deliveryNoteUtils';
 import { formatEuropeanCurrency } from 'app/utils/utils';
@@ -12,7 +13,7 @@ import { InstallationComponent } from 'components/customer/InstallationComponent
 import { TotalComponent } from 'components/customer/TotalComponent';
 import { ca } from 'date-fns/locale';
 import dayjs from 'dayjs';
-import { Plus, Save, X } from 'lucide-react';
+import { FileText, Plus, Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { HeaderForm } from '../../../../components/layout/HeaderForm';
@@ -49,6 +50,7 @@ export function DeliveryNoteDetailForm({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { t } = useTranslations();
+  const { createInvoice } = useInvoices();
 
   useEffect(() => {
     setFormData(deliveryNote);
@@ -204,6 +206,37 @@ export function DeliveryNoteDetailForm({
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleCreateInvoice = async () => {
+    if (isLoading) return;
+    if (formData.isInvoiced) {
+      alert('Aquest albarà ja està facturat');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const today = new Date();
+      const dueDate = new Date(today);
+      dueDate.setDate(dueDate.getDate() + 30); // 30 dies de venciment per defecte
+
+      const invoiceData = {
+        deliveryNoteIds: [formData.id],
+        invoiceDate: today.toISOString().split('T')[0],
+        dueDate: dueDate.toISOString().split('T')[0],
+      };
+
+      const newInvoice = await createInvoice(invoiceData);
+
+      // Redirigir a la factura creada
+      router.push(`${ROUTES.invoices?.detail}/${newInvoice.id}`);
+    } catch (error) {
+      console.error('Error creating invoice:', error);
+      alert('Error al crear la factura');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -473,6 +506,17 @@ export function DeliveryNoteDetailForm({
                   <Save className="mr-2 h-4 w-4" />
                 )}
                 <p>Actualitzar</p>
+              </Button>
+              <Button
+                type="create"
+                variant="outline"
+                onClick={handleCreateInvoice}
+                className="flex-1"
+                customStyles="flex justify-center"
+                disabled={isLoading || formData.isInvoiced}
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                <p>{formData.isInvoiced ? 'Ja Facturat' : 'Crear Factura'}</p>
               </Button>
               <Button
                 type="delete"
