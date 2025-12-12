@@ -1,9 +1,5 @@
 import { BaseModel } from './BaseModel';
-import {
-  CustomerAddress,
-  CustomerInstallations,
-  PaymentMethod,
-} from './Customer';
+import { CustomerAddress, CustomerInstallations } from './Customer';
 
 export enum DeliveryNoteStatus {
   Draft = 0,
@@ -23,46 +19,53 @@ export enum DeliveryNoteItemType {
 export interface DeliveryNote extends BaseModel {
   code: string;
   deliveryNoteDate: string;
-  companyName: string;
-  customerPhone: string;
-  customerEmail: string;
-  customerNif: string;
+  companyName?: string;
+  customerId?: string;
+  customerNif?: string;
+  customerEmail?: string;
+  customerPhone?: string;
   customerAddress: CustomerAddress;
-  externalComments: string | null;
+  externalComments?: string;
   subtotal: number;
   totalTax: number;
   total: number;
   status: DeliveryNoteStatus;
   installation?: CustomerInstallations;
   workOrders: DeliveryNoteWorkOrder[];
+  refCustomerIds: string;
+  workOrderCodes: string;
   isInvoiced: boolean;
+  taxBreakdowns: TaxBreakdown[];
 }
 
 export interface DeliveryNoteWorkOrder {
   workOrderId: string;
   workOrderCode: string;
-  workOrderDescription: string;
-  workOrderRefId: string;
   workOrderStartTime: Date;
+  workOrderRefId?: string;
   concept: string;
   items: DeliveryNoteItem[];
 }
 
 export interface DeliveryNoteItem {
   id?: string;
-  type: number;
+  type: DeliveryNoteItemType;
   description: string;
   quantity: number;
   unitPrice: number;
   discountPercentage: number;
   discountAmount: number;
   lineTotal: number;
+  taxPercentage: number;
   workOrderId?: string;
   sparePartId?: string;
   operatorId?: string;
-  operatorType?: string | null;
-  active: boolean;
-  creationDate: string;
+}
+
+export interface TaxBreakdown {
+  taxPercentage: number;
+  taxableBase: number;
+  taxAmount: number;
 }
 
 export interface DeliveryNoteCreateRequest {

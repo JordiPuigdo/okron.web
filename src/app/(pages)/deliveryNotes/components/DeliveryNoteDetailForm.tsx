@@ -63,9 +63,7 @@ export function DeliveryNoteDetailForm({
       discountPercentage: 0,
       discountAmount: 0,
       lineTotal: 0,
-      active: true,
-      id: '',
-      creationDate: new Date().toISOString(),
+      taxPercentage: 21,
       type: DeliveryNoteItemType.Labor,
     };
 
@@ -79,24 +77,34 @@ export function DeliveryNoteDetailForm({
     workOrderIndex: number,
     itemIndex: number,
     field: keyof DeliveryNoteItem,
-    value: any
+    value: string | number | DeliveryNoteItemType
   ) => {
     const updatedWorkOrders = [...formData.workOrders];
     const item = updatedWorkOrders[workOrderIndex].items[itemIndex];
-    updatedWorkOrders[workOrderIndex].items[itemIndex] = {
+
+    // Actualizar el campo
+    const updatedItem = {
       ...item,
       [field]: value,
     };
 
+    updatedWorkOrders[workOrderIndex].items[itemIndex] = updatedItem;
+
+    // Recalcular línea si cambian campos que afectan el total
     if (
       field === 'quantity' ||
       field === 'unitPrice' ||
-      field === 'discountPercentage'
+      field === 'discountPercentage' ||
+      field === 'taxPercentage'
     ) {
-      const subtotalBeforeDiscount = item.quantity * item.unitPrice;
-      item.discountAmount =
-        subtotalBeforeDiscount * (item.discountPercentage / 100);
-      item.lineTotal = subtotalBeforeDiscount - item.discountAmount;
+      const subtotalBeforeDiscount =
+        updatedItem.quantity * updatedItem.unitPrice;
+      updatedItem.discountAmount =
+        subtotalBeforeDiscount * (updatedItem.discountPercentage / 100);
+      updatedItem.lineTotal =
+        subtotalBeforeDiscount - updatedItem.discountAmount;
+
+      updatedWorkOrders[workOrderIndex].items[itemIndex] = updatedItem;
     }
 
     recalculateTotals(updatedWorkOrders);
@@ -117,13 +125,41 @@ export function DeliveryNoteDetailForm({
   const recalculateTotals = (updatedWorkOrders: DeliveryNoteWorkOrder[]) => {
     let subtotal = 0;
     let totalTax = 0;
+    const taxMap = new Map<
+      number,
+      { taxableBase: number; taxAmount: number }
+    >();
 
     updatedWorkOrders.forEach(wo => {
-      const woSubtotal = wo.items.reduce((sum, i) => sum + i.lineTotal, 0);
-      subtotal += woSubtotal;
+      wo.items.forEach(item => {
+        const lineTotal = item.lineTotal;
+        const taxPercentage = item.taxPercentage || 21;
+        const taxAmount = lineTotal * (taxPercentage / 100);
+
+        subtotal += lineTotal;
+        totalTax += taxAmount;
+
+        // Agrupar por porcentaje de IVA
+        const current = taxMap.get(taxPercentage) || {
+          taxableBase: 0,
+          taxAmount: 0,
+        };
+        taxMap.set(taxPercentage, {
+          taxableBase: current.taxableBase + lineTotal,
+          taxAmount: current.taxAmount + taxAmount,
+        });
+      });
     });
 
-    totalTax = subtotal * 0.21;
+    // Convertir el Map a array de TaxBreakdown
+    const taxBreakdowns = Array.from(taxMap.entries()).map(
+      ([taxPercentage, values]) => ({
+        taxPercentage,
+        taxableBase: values.taxableBase,
+        taxAmount: values.taxAmount,
+      })
+    );
+
     const total = subtotal + totalTax;
 
     setFormData(prev => ({
@@ -132,6 +168,7 @@ export function DeliveryNoteDetailForm({
       subtotal,
       totalTax,
       total,
+      taxBreakdowns,
     }));
   };
 
@@ -248,7 +285,7 @@ export function DeliveryNoteDetailForm({
 
             {/* Company Information */}
             <CustomerInformationComponent
-              companyName={formData.companyName}
+              companyName={formData.companyName || ''}
               customerAddress={formData.customerAddress}
             />
 
@@ -282,6 +319,7 @@ export function DeliveryNoteDetailForm({
                         <th className="p-2 border text-center">% Dte.</th>
                         <th className="p-2 border text-center">Import Dte.</th>
                         <th className="p-2 border text-center">Total Línia</th>
+                        <th className="p-2 border text-center">% IVA</th>
                         <th className="p-2 border text-center">Accions</th>
                       </tr>
                     </thead>
@@ -351,6 +389,20 @@ export function DeliveryNoteDetailForm({
                             {formatEuropeanCurrency(item.lineTotal, t)}
                           </td>
                           <td className="p-2 border text-center">
+                            <EditableCell
+                              value={item.taxPercentage?.toString() ?? '21'}
+                              onUpdate={value =>
+                                handleItemUpdate(
+                                  woIndex,
+                                  itemIndex,
+                                  'taxPercentage',
+                                  Number(value)
+                                )
+                              }
+                              canEdit={true}
+                            />
+                          </td>
+                          <td className="p-2 border text-center">
                             <button
                               type="button"
                               onClick={() =>
@@ -384,6 +436,7 @@ export function DeliveryNoteDetailForm({
               subtotal={formData.subtotal}
               totalTax={formData.totalTax}
               total={formData.total}
+              taxBreakdowns={formData.taxBreakdowns}
             />
 
             {/* External Comments */}

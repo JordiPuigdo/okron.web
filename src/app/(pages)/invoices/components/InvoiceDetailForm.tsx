@@ -159,7 +159,7 @@ export function InvoiceDetailForm({
             {formData.deliveryNotes && formData.deliveryNotes.length >= 0 && (
               <div className="flex gap-2 justify-between">
                 <CustomerInformationComponent
-                  companyName={formData.deliveryNotes[0].companyName}
+                  companyName={formData.deliveryNotes[0].companyName ?? ''}
                   customerAddress={formData.deliveryNotes[0].customerAddress}
                 />
                 {formData.deliveryNotes[0].installation && (
