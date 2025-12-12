@@ -6,7 +6,7 @@ import { usePermissions } from 'app/hooks/usePermissions';
 import { useWorkOrders } from 'app/hooks/useWorkOrders';
 import { OperatorType } from 'app/interfaces/Operator';
 import { UserType } from 'app/interfaces/User';
-import { StateWorkOrder, WorkOrderType } from 'app/interfaces/workOrder';
+import { WorkOrderType } from 'app/interfaces/workOrder';
 import { useSessionStore } from 'app/stores/globalStore';
 import DataTable from 'components/table/DataTable';
 import { TableButtons } from 'components/table/interface/interfaceTable';
@@ -33,7 +33,6 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
   enableDetail = false,
   enableEdit,
   enableDelete,
-  assetId,
   enableFinalizeWorkOrdersDayBefore = false,
   operatorId,
 }) => {

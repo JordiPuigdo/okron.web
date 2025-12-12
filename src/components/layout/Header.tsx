@@ -7,6 +7,7 @@ import useRoutes from 'app/utils/useRoutes';
 import LanguageSelector from 'components/LanguageSelector';
 import SignOperator from 'components/operator/SignOperator';
 import QuickActions from 'components/QuickActions';
+import { TimeTrackingQuickAction } from 'components/timeTracking/TimeTrackingQuickAction';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -61,6 +62,9 @@ const Header: React.FC = () => {
             operatorLogged?.codeOperatorLogged +
               ' - ' +
               operatorLogged?.nameOperatorLogged}
+        </div>
+        <div>
+          <TimeTrackingQuickAction />
         </div>
         <div>
           {loginUser?.permission == UserPermission.Administrator &&

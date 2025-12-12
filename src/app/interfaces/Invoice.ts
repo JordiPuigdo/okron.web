@@ -23,9 +23,9 @@ export interface Invoice extends BaseModel {
 }
 
 export interface InvoiceCreateRequest {
-  deliveryNoteIds: string[];
-  invoiceDate: string;
-  dueDate: string;
+  DeliveryNoteIds: string[];
+  InvoiceDate: string;
+  DueDate: string;
 }
 
 export interface InvoiceUpdateRequest {

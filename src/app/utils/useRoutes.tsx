@@ -29,7 +29,7 @@ const useRoutes = () => {
     invoices: {
       list: '/invoices',
       create: '/invoices/create',
-      detail: (id: string) => `/invoices/${id}`,
+      detail: '/invoices/',
       edit: (id: string) => `/invoices/${id}/edit`,
     },
     deliveryNote: {

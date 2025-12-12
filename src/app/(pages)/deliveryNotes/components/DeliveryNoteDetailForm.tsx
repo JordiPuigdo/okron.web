@@ -222,15 +222,15 @@ export function DeliveryNoteDetailForm({
       dueDate.setDate(dueDate.getDate() + 30); // 30 dies de venciment per defecte
 
       const invoiceData = {
-        deliveryNoteIds: [formData.id],
-        invoiceDate: today.toISOString().split('T')[0],
-        dueDate: dueDate.toISOString().split('T')[0],
+        DeliveryNoteIds: [formData.id],
+        InvoiceDate: today.toISOString(),
+        DueDate: dueDate.toISOString(),
       };
 
       const newInvoice = await createInvoice(invoiceData);
 
       // Redirigir a la factura creada
-      router.push(`${ROUTES.invoices?.detail}/${newInvoice.id}`);
+      router.push(`${ROUTES.invoices?.detail}${newInvoice.id}`);
     } catch (error) {
       console.error('Error creating invoice:', error);
       alert('Error al crear la factura');
