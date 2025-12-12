@@ -1,14 +1,15 @@
 'use client';
 
+import 'react-datepicker/dist/react-datepicker.css';
+
 import { useEffect, useState } from 'react';
+import DatePicker from 'react-datepicker';
 import { useTimeTracking } from 'app/hooks/useTimeTracking';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import { useSessionStore } from 'app/stores/globalStore';
-import { Clock, LogIn, LogOut, Edit3 } from 'lucide-react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 import ca from 'date-fns/locale/ca';
+import { Clock, Edit3, LogIn, LogOut } from 'lucide-react';
 
 /**
  * Componente rápido de fichaje para el header
@@ -198,7 +199,7 @@ export const TimeTrackingQuickAction = () => {
               </label>
               <DatePicker
                 selected={manualDateTime}
-                onChange={(date) => setManualDateTime(date || new Date())}
+                onChange={date => setManualDateTime(date || new Date())}
                 showTimeSelect
                 timeFormat="HH:mm"
                 timeIntervals={15}
