@@ -2,31 +2,69 @@
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { useOperatorHook } from 'app/hooks/useOperatorsHook';
 import { useTimeTracking } from 'app/hooks/useTimeTracking';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
+import { TimeTracking } from 'app/interfaces/TimeTracking';
 import ca from 'date-fns/locale/ca';
 import { Button } from 'designSystem/Button/Buttons';
 import { X } from 'lucide-react';
 
-interface CreateTimeTrackingModalProps {
+interface TimeTrackingModalProps {
+  timeTracking?: TimeTracking; // Si está presente, modo edición
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export const CreateTimeTrackingModal = ({
+export const TimeTrackingModal = ({
+  timeTracking,
   onClose,
   onSuccess,
-}: CreateTimeTrackingModalProps) => {
-  const { createTimeTracking, isLoading } = useTimeTracking();
+}: TimeTrackingModalProps) => {
+  const { createTimeTracking, updateTimeTracking, isLoading } =
+    useTimeTracking();
   const { operators } = useOperatorHook();
+  const { t } = useTranslations();
 
-  const [operatorId, setOperatorId] = useState<string>('');
-  const [startDateTime, setStartDateTime] = useState<Date>(new Date());
-  const [endDateTime, setEndDateTime] = useState<Date | null>(null);
-  const [comments, setComments] = useState<string>('');
+  const isEditMode = !!timeTracking;
+
+  const [operatorId, setOperatorId] = useState<string>(
+    timeTracking?.operatorId || ''
+  );
+  const [startDateTime, setStartDateTime] = useState<Date>(
+    timeTracking?.startDateTime
+      ? new Date(timeTracking.startDateTime)
+      : new Date()
+  );
+  const [endDateTime, setEndDateTime] = useState<Date | null>(
+    timeTracking?.endDateTime ? new Date(timeTracking.endDateTime) : null
+  );
+  const [comments, setComments] = useState<string>(
+    timeTracking?.comments || ''
+  );
+
+  // Verificar si la fecha seleccionada es hoy
+  const isStartDateToday = () => {
+    const today = new Date();
+    return (
+      startDateTime.getDate() === today.getDate() &&
+      startDateTime.getMonth() === today.getMonth() &&
+      startDateTime.getFullYear() === today.getFullYear()
+    );
+  };
+
+  const isEndDateToday = () => {
+    if (!endDateTime) return false;
+    const today = new Date();
+    return (
+      endDateTime.getDate() === today.getDate() &&
+      endDateTime.getMonth() === today.getMonth() &&
+      endDateTime.getFullYear() === today.getFullYear()
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,12 +74,22 @@ export const CreateTimeTrackingModal = ({
       return;
     }
 
-    const result = await createTimeTracking({
-      operatorId,
-      startDateTime,
-      endDateTime: endDateTime || undefined,
-      comments: comments || undefined,
-    });
+    let result;
+    if (isEditMode && timeTracking) {
+      result = await updateTimeTracking(timeTracking.id, {
+        id: timeTracking.id,
+        startDateTime,
+        endDateTime: endDateTime || undefined,
+        comments: comments || undefined,
+      });
+    } else {
+      result = await createTimeTracking({
+        operatorId,
+        startDateTime,
+        endDateTime: endDateTime || undefined,
+        comments: comments || undefined,
+      });
+    }
 
     if (result) {
       onSuccess();
@@ -54,7 +102,7 @@ export const CreateTimeTrackingModal = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900">
-            Crear Fichaje Manual
+            {isEditMode ? t('editClockInOut') : t('manualClockInOut')}
           </h2>
           <button
             onClick={onClose}
@@ -69,27 +117,33 @@ export const CreateTimeTrackingModal = ({
           {/* Operario */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Operario <span className="text-red-500">*</span>
+              {t('operator')} <span className="text-red-500">*</span>
             </label>
-            <select
-              value={operatorId}
-              onChange={e => setOperatorId(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Selecciona un operario</option>
-              {operators?.map(op => (
-                <option key={op.id} value={op.id}>
-                  {op.code} - {op.name}
-                </option>
-              ))}
-            </select>
+            {isEditMode ? (
+              <div className="w-full px-3 py-2 border border-gray-200 rounded-md bg-gray-50 text-gray-700">
+                {timeTracking?.operatorName}
+              </div>
+            ) : (
+              <select
+                value={operatorId}
+                onChange={e => setOperatorId(e.target.value)}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Selecciona un operario</option>
+                {operators?.map(op => (
+                  <option key={op.id} value={op.id}>
+                    {op.code} - {op.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Fecha y Hora de Entrada */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Fecha y Hora de Entrada <span className="text-red-500">*</span>
+              {t('entry')} <span className="text-red-500">*</span>
             </label>
             <DatePicker
               selected={startDateTime}
@@ -99,9 +153,15 @@ export const CreateTimeTrackingModal = ({
               timeIntervals={15}
               dateFormat="dd/MM/yyyy HH:mm"
               locale={ca}
-              maxDate={new Date()}
-              maxTime={new Date()}
-              minTime={new Date(new Date().setHours(0, 0, 0, 0))}
+              maxDate={isEditMode ? undefined : new Date()}
+              maxTime={
+                isEditMode || !isStartDateToday() ? undefined : new Date()
+              }
+              minTime={
+                isEditMode || !isStartDateToday()
+                  ? undefined
+                  : new Date(new Date().setHours(0, 0, 0, 0))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               wrapperClassName="w-full"
             />
@@ -110,7 +170,7 @@ export const CreateTimeTrackingModal = ({
           {/* Fecha y Hora de Salida */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Fecha y Hora de Salida (Opcional)
+              {t('exit')} (Opcional)
             </label>
             <DatePicker
               selected={endDateTime}
@@ -120,28 +180,29 @@ export const CreateTimeTrackingModal = ({
               timeIntervals={15}
               dateFormat="dd/MM/yyyy HH:mm"
               locale={ca}
-              maxDate={new Date()}
+              maxDate={isEditMode ? undefined : new Date()}
+              maxTime={isEditMode || !isEndDateToday() ? undefined : new Date()}
               minDate={startDateTime}
-              placeholderText="Dejar vacío si está abierto"
+              placeholderText={t('leaveEmptyIfOpen')}
               isClearable
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               wrapperClassName="w-full"
             />
             <p className="mt-1 text-xs text-gray-500">
-              Si se deja vacío, el fichaje quedará abierto
+              {t('ifLeftEmptyOpenClockInOut')}
             </p>
           </div>
 
           {/* Comentarios */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Comentarios (Opcional)
+              {t('comments')} (Opcional)
             </label>
             <textarea
               value={comments}
               onChange={e => setComments(e.target.value)}
               rows={3}
-              placeholder="Añade notas o comentarios sobre este fichaje..."
+              placeholder={t('commentsPlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             />
           </div>
@@ -149,16 +210,18 @@ export const CreateTimeTrackingModal = ({
           {/* Botones */}
           <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
             <Button onClick={onClose} variant="secondary" disabled={isLoading}>
-              Cancelar
+              {t('cancel')}
             </Button>
             <Button isSubmit disabled={isLoading}>
               {isLoading ? (
                 <>
                   <SvgSpinner className="h-4 w-4 mr-2" />
-                  Creando...
+                  {isEditMode ? t('updating') : t('creating')}
                 </>
+              ) : isEditMode ? (
+                t('update')
               ) : (
-                'Crear Fichaje'
+                t('create')
               )}
             </Button>
           </div>
@@ -167,3 +230,6 @@ export const CreateTimeTrackingModal = ({
     </div>
   );
 };
+
+// Export alias para compatibilidad
+export const CreateTimeTrackingModal = TimeTrackingModal;

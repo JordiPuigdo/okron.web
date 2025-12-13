@@ -7,12 +7,14 @@ import {
   calculateWorkedHours,
   TimeTracking,
 } from 'app/interfaces/TimeTracking';
-import { Clock, User } from 'lucide-react';
+import dayjs from 'dayjs';
+import { Clock, Edit2, User } from 'lucide-react';
 
 interface TimeTrackingListProps {
   timeTrackings: TimeTracking[];
   isLoading: boolean;
   onRefresh: () => void;
+  onEdit: (timeTracking: TimeTracking) => void;
 }
 
 interface GroupedTimeTrackings {
@@ -27,6 +29,7 @@ export const TimeTrackingList = ({
   timeTrackings,
   isLoading,
   onRefresh,
+  onEdit,
 }: TimeTrackingListProps) => {
   const { t } = useTranslations();
   // Agrupar fichajes por operario
@@ -145,7 +148,9 @@ export const TimeTrackingList = ({
                             {t('entry')}
                           </div>
                           <div className="text-sm font-semibold text-gray-900">
-                            {formatTime(tracking.startDateTime)}
+                            {dayjs(tracking.startDateTime)
+                              .local()
+                              .format('DD-MM-YYYY HH:mm')}
                           </div>
                         </div>
                       </div>
@@ -173,27 +178,40 @@ export const TimeTrackingList = ({
                                 {t('onGoing')}
                               </span>
                             ) : (
-                              formatTime(tracking.endDateTime!)
+                              dayjs(tracking.endDateTime!)
+                                .local()
+                                .format('DD-MM-YYYY HH:mm')
                             )}
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Horas Trabajadas */}
-                    <div className="text-right">
-                      <div className="text-xs text-gray-500">
-                        {t('workedHours')}
+                    <div className="flex items-center gap-4">
+                      {/* Horas Trabajadas */}
+                      <div className="text-right">
+                        <div className="text-xs text-gray-500">
+                          {t('workedHours')}
+                        </div>
+                        <div className="text-lg font-bold text-gray-900">
+                          {isOpen ? (
+                            <span className="text-yellow-600">
+                              {t('onGoing')}
+                            </span>
+                          ) : (
+                            formatHours(workedHours)
+                          )}
+                        </div>
                       </div>
-                      <div className="text-lg font-bold text-gray-900">
-                        {isOpen ? (
-                          <span className="text-yellow-600">
-                            {t('onGoing')}
-                          </span>
-                        ) : (
-                          formatHours(workedHours)
-                        )}
-                      </div>
+
+                      {/* Botón Editar */}
+                      <button
+                        onClick={() => onEdit(tracking)}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title={t('edit')}
+                      >
+                        <Edit2 className="h-5 w-5" />
+                      </button>
                     </div>
                   </div>
 

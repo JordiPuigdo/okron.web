@@ -7,19 +7,22 @@ import DatePicker from 'react-datepicker';
 import { useOperatorHook } from 'app/hooks/useOperatorsHook';
 import { useTimeTracking } from 'app/hooks/useTimeTracking';
 import { useTranslations } from 'app/hooks/useTranslations';
+import { TimeTracking } from 'app/interfaces/TimeTracking';
 import Container from 'components/layout/Container';
 import { HeaderTable } from 'components/layout/HeaderTable';
 import MainLayout from 'components/layout/MainLayout';
 import ca from 'date-fns/locale/ca';
 
-import { CreateTimeTrackingModal } from './components/CreateTimeTrackingModal';
+import { TimeTrackingModal } from './components/CreateTimeTrackingModal';
 import { TimeTrackingList } from './components/TimeTrackingList';
 
 export default function ClockInOutPage() {
   const { t } = useTranslations();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedOperatorId, setSelectedOperatorId] = useState<string>('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingTimeTracking, setEditingTimeTracking] =
+    useState<TimeTracking | null>(null);
   const [isSearching, setIsSearching] = useState(false);
 
   const { searchTimeTrackings, timeTrackings, isLoading } = useTimeTracking();
@@ -45,6 +48,26 @@ export default function ClockInOutPage() {
     handleSearch();
   }, [handleSearch]);
 
+  const handleCreate = () => {
+    setEditingTimeTracking(null);
+    setShowModal(true);
+  };
+
+  const handleEdit = (timeTracking: TimeTracking) => {
+    setEditingTimeTracking(timeTracking);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingTimeTracking(null);
+  };
+
+  const handleSuccess = () => {
+    handleCloseModal();
+    handleSearch();
+  };
+
   return (
     <MainLayout>
       <Container>
@@ -53,7 +76,7 @@ export default function ClockInOutPage() {
             title={t('clockInOut.title')}
             subtitle={t('clockInOut.subtitle')}
             createButton={t('clockInOut.createTimeTracking')}
-            onCreate={() => setShowCreateModal(true)}
+            onCreate={handleCreate}
           />
 
           {/* Filtros */}
@@ -101,16 +124,15 @@ export default function ClockInOutPage() {
             timeTrackings={timeTrackings}
             isLoading={isLoading || isSearching}
             onRefresh={handleSearch}
+            onEdit={handleEdit}
           />
 
-          {/* Modal de Crear Fichaje */}
-          {showCreateModal && (
-            <CreateTimeTrackingModal
-              onClose={() => setShowCreateModal(false)}
-              onSuccess={() => {
-                setShowCreateModal(false);
-                handleSearch();
-              }}
+          {/* Modal de Crear/Editar Fichaje */}
+          {showModal && (
+            <TimeTrackingModal
+              timeTracking={editingTimeTracking || undefined}
+              onClose={handleCloseModal}
+              onSuccess={handleSuccess}
             />
           )}
         </div>
