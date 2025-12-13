@@ -73,7 +73,8 @@ const DataTable: React.FC<DataTableProps> = ({
   const tableFilters = useTableFilters(enableFilterActive);
   const { loginUser } = useSessionStore(state => state);
   const [isLoadingInternal, setIsLoadingInternal] = useState(true);
-  const isLoading = isLoadingProp !== undefined ? isLoadingProp : isLoadingInternal;
+  const isLoading =
+    isLoadingProp !== undefined ? isLoadingProp : isLoadingInternal;
   const { t } = useTranslations();
   const { queryParams, updateQueryParams } = useQueryParams();
 

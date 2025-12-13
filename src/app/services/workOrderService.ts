@@ -250,6 +250,40 @@ class WorkOrderService {
     }
   }
 
+  /**
+   * Obtiene un listado optimizado de WorkOrders usando el endpoint ligero
+   * @param searchWorkOrderFilters - Filtros de búsqueda
+   * @returns Promise con array de WorkOrderListDto optimizados
+   */
+  async getWorkOrdersList(
+    searchWorkOrderFilters: SearchWorkOrderFilters
+  ): Promise<WorkOrder[]> {
+    try {
+      const url = `${this.baseUrl}GetWorkOrderList`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(searchWorkOrderFilters),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch WorkOrders list');
+      }
+
+      if (response.status === 204) {
+        return [];
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching WorkOrders list:', error);
+      throw error;
+    }
+  }
+
   async deleteWorkOrder(id: string): Promise<boolean> {
     try {
       const url = `${this.baseUrl}workorder/${id}`;

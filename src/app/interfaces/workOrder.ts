@@ -183,6 +183,23 @@ export interface SearchWorkOrderFilters {
   hasDeliveryNote?: boolean;
 }
 
+/**
+ * DTO ultra-ligero para listados optimizados de WorkOrders
+ */
+export interface WorkOrderListDto {
+  id: string;
+  code: string;
+  description: string;
+  workOrderType: WorkOrderType;
+  creationTime: Date;
+  startTime: Date;
+  stateWorkOrder: StateWorkOrder;
+  refCustomerId: string;
+  customerName?: string;
+  customerInstallationCode?: string;
+  operatorsNames?: string;
+}
+
 export enum WorkOrderType {
   Corrective = 0,
   Preventive = 1,

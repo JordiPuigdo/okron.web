@@ -99,19 +99,19 @@ export const VacationSummaryTab = () => {
   const groupedByOperator = summary
     .filter(item => selectedStatus === '' || item.status === selectedStatus)
     .reduce((acc, item) => {
-    if (!acc[item.operatorId]) {
-      acc[item.operatorId] = {
-        operatorName: item.operatorName,
-        requests: [],
-        totalDays: 0,
-      };
-    }
-    acc[item.operatorId].requests.push(item);
-    if (item.status === VacationStatus.Approved) {
-      acc[item.operatorId].totalDays += item.workingDays;
-    }
-    return acc;
-  }, {} as Record<string, { operatorName: string; requests: VacationRequestSummary[]; totalDays: number }>);
+      if (!acc[item.operatorId]) {
+        acc[item.operatorId] = {
+          operatorName: item.operatorName,
+          requests: [],
+          totalDays: 0,
+        };
+      }
+      acc[item.operatorId].requests.push(item);
+      if (item.status === VacationStatus.Approved) {
+        acc[item.operatorId].totalDays += item.workingDays;
+      }
+      return acc;
+    }, {} as Record<string, { operatorName: string; requests: VacationRequestSummary[]; totalDays: number }>);
 
   return (
     <div className="space-y-6">
@@ -151,14 +151,28 @@ export const VacationSummaryTab = () => {
             </label>
             <select
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value === '' ? '' : Number(e.target.value) as VacationStatus)}
+              onChange={e =>
+                setSelectedStatus(
+                  e.target.value === ''
+                    ? ''
+                    : (Number(e.target.value) as VacationStatus)
+                )
+              }
               className="w-full p-3 border border-gray-300 rounded-lg"
             >
               <option value="">{t('all')}</option>
-              <option value={VacationStatus.Pending}>{t('vacation.status.pending')}</option>
-              <option value={VacationStatus.Approved}>{t('vacation.status.approved')}</option>
-              <option value={VacationStatus.Rejected}>{t('vacation.status.rejected')}</option>
-              <option value={VacationStatus.Cancelled}>{t('vacation.status.cancelled')}</option>
+              <option value={VacationStatus.Pending}>
+                {t('vacation.status.pending')}
+              </option>
+              <option value={VacationStatus.Approved}>
+                {t('vacation.status.approved')}
+              </option>
+              <option value={VacationStatus.Rejected}>
+                {t('vacation.status.rejected')}
+              </option>
+              <option value={VacationStatus.Cancelled}>
+                {t('vacation.status.cancelled')}
+              </option>
             </select>
           </div>
           <div>

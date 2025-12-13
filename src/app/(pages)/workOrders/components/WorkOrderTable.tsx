@@ -3,7 +3,7 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { usePermissions } from 'app/hooks/usePermissions';
-import { useWorkOrders } from 'app/hooks/useWorkOrders';
+import { useWorkOrdersList } from 'app/hooks/useWorkOrdersList';
 import { OperatorType } from 'app/interfaces/Operator';
 import { UserType } from 'app/interfaces/User';
 import { WorkOrderType } from 'app/interfaces/workOrder';
@@ -47,7 +47,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     validStates,
     workOrderTypeCount,
     isLoading,
-  } = useWorkOrders(operatorId);
+  } = useWorkOrdersList(operatorId);
 
   const tableButtons: TableButtons = {
     edit: enableEdit,
