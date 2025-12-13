@@ -33,7 +33,7 @@ export const useTranslationStore = create<TranslationState>()(
     }),
     {
       name: 'translation-store',
-      version: 1.114,
+      version: 1.12,
       partialize: state => ({
         translations: state.translations,
         currentLang: state.currentLang,

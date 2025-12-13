@@ -1,4 +1,5 @@
 import { SvgCalendar } from 'app/icons/designSystem/SvgCalendar';
+import { SvgClock } from 'app/icons/designSystem/SvgClock';
 import { SvgDatabase } from 'app/icons/designSystem/SvgDatabase';
 import { SvgInvoice } from 'app/icons/designSystem/SvgInvoice';
 import { SvgPackage } from 'app/icons/designSystem/SvgPackage';
@@ -192,6 +193,14 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     path: '/invoices',
     permission: [UserPermission.AdminCRM, UserPermission.AdminCRM],
     userType: [UserType.CRM],
+  },
+  {
+    key: generateKey(),
+    titleKey: 'sidebar.clockInOut',
+    path: '/clockInOut',
+    icon: SvgClock,
+    permission: [UserPermission.AdminCRM, UserPermission.Administrator],
+    userType: [UserType.CRM, UserType.Maintenance],
   },
   {
     key: generateKey(),

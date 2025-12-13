@@ -7,8 +7,8 @@ import { Button } from 'designSystem/Button/Buttons';
 export interface HeaderTableProps {
   title: string;
   subtitle: string;
-  createButton: string;
-  urlCreateButton: string;
+  createButton?: string;
+  urlCreateButton?: string;
   onCreate?(): void;
 }
 

@@ -65,6 +65,12 @@ export const useTimeTracking = (operatorId?: string) => {
     setIsLoading(true);
     setError(null);
     try {
+      if (filters.operatorId == null && operatorId != null) {
+        setTimeTrackings(
+          timeTrackings.filter(tt => tt.operatorId === operatorId)
+        );
+        return timeTrackings.filter(tt => tt.operatorId === operatorId);
+      }
       const data = await timeTrackingService.search(filters);
       setTimeTrackings(data);
       return data;
