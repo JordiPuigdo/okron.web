@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
+import { TaxBreakdown } from 'app/interfaces/DeliveryNote';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import { CustomerInformationComponent } from 'components/customer/CustomerInformationComponent';
 import { InstallationComponent } from 'components/customer/InstallationComponent';
@@ -56,8 +57,53 @@ export function InvoiceDetailForm({
   };
 
   // Totals based on all delivery notes and their work orders items
-  const { subtotal, totalTax, total } = useMemo(() => {
+  const { subtotal, totalTax, total, taxBreakdowns } = useMemo(() => {
     if (!formData.deliveryNotes) return {};
+
+    // Agrupar taxBreakdowns de todos los delivery notes por porcentaje
+    const taxBreakdownsMap = new Map<number, TaxBreakdown>();
+
+    formData.deliveryNotes.forEach(dn => {
+      if (dn.taxBreakdowns && dn.taxBreakdowns.length > 0) {
+        dn.taxBreakdowns.forEach(breakdown => {
+          const existing = taxBreakdownsMap.get(breakdown.taxPercentage);
+          if (existing) {
+            existing.taxableBase += breakdown.taxableBase;
+            existing.taxAmount += breakdown.taxAmount;
+          } else {
+            taxBreakdownsMap.set(breakdown.taxPercentage, {
+              taxPercentage: breakdown.taxPercentage,
+              taxableBase: breakdown.taxableBase,
+              taxAmount: breakdown.taxAmount,
+            });
+          }
+        });
+      }
+    });
+
+    const aggregatedTaxBreakdowns = Array.from(taxBreakdownsMap.values()).sort(
+      (a, b) => a.taxPercentage - b.taxPercentage
+    );
+
+    // Calcular totales desde los taxBreakdowns si existen
+    if (aggregatedTaxBreakdowns.length > 0) {
+      const subtotalCalc = aggregatedTaxBreakdowns.reduce(
+        (sum, tb) => sum + tb.taxableBase,
+        0
+      );
+      const taxCalc = aggregatedTaxBreakdowns.reduce(
+        (sum, tb) => sum + tb.taxAmount,
+        0
+      );
+      return {
+        subtotal: subtotalCalc,
+        totalTax: taxCalc,
+        total: subtotalCalc + taxCalc,
+        taxBreakdowns: aggregatedTaxBreakdowns,
+      };
+    }
+
+    // Fallback al cálculo antiguo si no hay taxBreakdowns
     const subtotalCalc = formData.deliveryNotes.reduce((sumDN, dn) => {
       const dnSum = dn.workOrders.reduce((sumWO, wo) => {
         const woSum = wo.items.reduce(
@@ -74,6 +120,7 @@ export function InvoiceDetailForm({
       subtotal: subtotalCalc,
       totalTax: tax,
       total: subtotalCalc + tax,
+      taxBreakdowns: undefined,
     };
   }, [formData.deliveryNotes]);
 
@@ -240,6 +287,7 @@ export function InvoiceDetailForm({
               subtotal={subtotal || 0}
               totalTax={totalTax || 0}
               total={total || 0}
+              taxBreakdowns={taxBreakdowns}
             />
 
             {/* Action Buttons */}
