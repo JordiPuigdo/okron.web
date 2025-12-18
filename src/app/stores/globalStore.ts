@@ -54,6 +54,17 @@ export const useSessionStore = create(
       name: 'session-storage',
       version: parseInt(process.env.NEXT_PUBLIC_BUILD_VERSION || '1', 10),
       storage: createJSONStorage(() => sessionStorage),
+      migrate: () => {
+        // Al cambiar de versión, devolver estado inicial vacío
+        return {
+          loginUser: undefined,
+          operatorLogged: undefined,
+          filterWorkOrders: undefined,
+          filterSpareParts: undefined,
+          isMenuOpen: false,
+          config: undefined,
+        };
+      },
     }
   )
 );
