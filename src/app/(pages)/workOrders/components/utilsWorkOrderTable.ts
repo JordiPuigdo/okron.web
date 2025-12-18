@@ -36,12 +36,12 @@ export const getBaseColumns = (t: any): Column[] => [
   },
   {
     label: t('workorder.equipment'),
-    key: 'asset.description',
+    key: 'assetDescription',
     format: ColumnFormat.TEXT,
   },
   {
     label: t('brand'),
-    key: 'asset.brand',
+    key: 'assetBrand',
     format: ColumnFormat.TEXT,
   },
   {
