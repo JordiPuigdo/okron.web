@@ -31,6 +31,7 @@ interface WorkOrdersChartProps {
   operator: string;
   Correctius: number;
   Preventius: number;
+  Tickets: number;
 }
 
 export interface AssetChartProps {
@@ -205,18 +206,16 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
           updatedWorkOrderTypes[index].value++;
         }
 
-        if (workOrder.workOrderType != WorkOrderType.Ticket) {
-          const workOrderType = workOrder.workOrderType;
-          if (workOrderTypeMap.has(workOrderType)) {
-            workOrderTypeMap.get(workOrderType)!.value++;
-          } else {
-            const workOrderTypeChartProps: WorkOrderTypeChartProps = {
-              workOrderType: workOrderType,
-              value: 1,
-              index: translateWorkOrderType(workOrderType, t),
-            };
-            workOrderTypeMap.set(workOrderType, workOrderTypeChartProps);
-          }
+        const workOrderType = workOrder.workOrderType;
+        if (workOrderTypeMap.has(workOrderType)) {
+          workOrderTypeMap.get(workOrderType)!.value++;
+        } else {
+          const workOrderTypeChartProps: WorkOrderTypeChartProps = {
+            workOrderType: workOrderType,
+            value: 1,
+            index: translateWorkOrderType(workOrderType, t),
+          };
+          workOrderTypeMap.set(workOrderType, workOrderTypeChartProps);
         }
 
         const operatorId = workOrder.operatorId?.map(op => op) || [];
@@ -229,6 +228,8 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
               existingOperator.Preventius++;
             } else if (workOrder.workOrderType === WorkOrderType.Corrective) {
               existingOperator.Correctius++;
+            } else if (workOrder.workOrderType === WorkOrderType.Ticket) {
+              existingOperator.Tickets++;
             }
           } else {
             const newOperatorEntry: WorkOrdersChartProps = {
@@ -238,6 +239,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
                 workOrder.workOrderType === WorkOrderType.Preventive ? 1 : 0,
               Correctius:
                 workOrder.workOrderType === WorkOrderType.Corrective ? 1 : 0,
+              Tickets: workOrder.workOrderType === WorkOrderType.Ticket ? 1 : 0,
             };
             operatorMap.set(operatorName, newOperatorEntry);
           }
@@ -397,6 +399,9 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
   const totalCorrective = workOrderTypeChartData
     .filter(x => x.workOrderType == WorkOrderType.Corrective)
     .reduce((acc, item) => acc + item.value, 0);
+  const totalTickets = workOrderTypeChartData
+    .filter(x => x.workOrderType == WorkOrderType.Ticket)
+    .reduce((acc, item) => acc + item.value, 0);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-ES', {
@@ -545,15 +550,14 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
           <div className="flex w-full bg-white rounded-xl p-2 border-2">
             <DonutChartComponent
               chartData={workOrderTypeChartData}
-              title={`${t('corrective')} vs ${t(
-                'preventive'
-              )} (${totalCorrective} / ${totalPreventive})`}
+              title={`${t('corrective')} / ${t('preventive')} 
+               (${totalCorrective} / ${totalPreventive})`}
               t={t}
             />
           </div>
           <div className="flex w-full bg-white rounded-xl p-2 border-2">
             <BarChartComponent
-              category={['Preventius', 'Correctius']}
+              category={['Preventius', 'Correctius', 'Tickets']}
               chartData={chartData}
               index="operator"
               title={t('work.orders.per.operator')}

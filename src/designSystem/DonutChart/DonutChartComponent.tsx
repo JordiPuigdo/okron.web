@@ -6,13 +6,13 @@ import DonutChart from './DonutChart';
 export interface DonutChartComponentProps {
   chartData: any[];
   title: string;
-  t: (key: string) => string
+  t: (key: string) => string;
 }
 
 export const DonutChartComponent = ({
   chartData,
   title,
-  t
+  t,
 }: DonutChartComponentProps) => (
   <div className="w-full flex flex-col p-4">
     <p className="text-2xl font-semibold text-left">{title}</p>
@@ -22,14 +22,17 @@ export const DonutChartComponent = ({
           <DonutChart chartData={chartData} />
         </div>
         <div className="flex flex-col items-end w-full space-y-2">
-          {chartData.map(item => (
+          {chartData
+            .filter(item => item.workOrderType !== WorkOrderType.Ticket)
+            .map(item => (
             <div key={item.name} className="flex items-center space-x-2">
               <span
                 className={`inline-block w-2 h-2 rounded-full ${
                   item.workOrderType === WorkOrderType.Preventive
                     ? 'bg-blue-500'
-                    : item.workOrderType === WorkOrderType.Corrective &&
-                      'bg-red-500'
+                    : item.workOrderType === WorkOrderType.Corrective
+                    ? 'bg-red-500'
+                    : ''
                 }`}
               ></span>
               <span className="font-sm text-gray-500 text-sm">

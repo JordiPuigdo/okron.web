@@ -28,7 +28,7 @@ export function BarChartComponent({
         data={chartData}
         index={index}
         categories={category}
-        colors={['blue', 'rose']}
+        colors={['blue', 'rose', 'green']}
         valueFormatter={dataFormatter}
         yAxisWidth={yAxisWidth} // Wider Y-axis
         showAnimation={true} // Smooth animation
