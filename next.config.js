@@ -2,6 +2,9 @@
 
 const nextConfig = {
   productionBrowserSourceMaps: true,
+  env: {
+    NEXT_PUBLIC_BUILD_VERSION: Date.now().toString(),
+  },
   images: {
     minimumCacheTTL: 60,
     remotePatterns: [

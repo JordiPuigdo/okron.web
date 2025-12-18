@@ -8,9 +8,10 @@ import { TableDataHolidays } from '../components/TableDataHolidays';
 interface Props {
   onCreate: () => void;
   onEdit: (holiday: any) => void;
+  onRefreshRef?: (refresh: () => void) => void;
 }
 
-export function HolidaysTab({ onCreate, onEdit }: Props) {
+export function HolidaysTab({ onCreate, onEdit, onRefreshRef }: Props) {
   const { t } = useTranslations();
 
   return (
@@ -23,7 +24,11 @@ export function HolidaysTab({ onCreate, onEdit }: Props) {
         onCreate={onCreate}
       />
 
-      <TableDataHolidays onCreate={onCreate} />
+      <TableDataHolidays
+        onCreate={onCreate}
+        onEdit={onEdit}
+        onRefreshRef={onRefreshRef}
+      />
     </div>
   );
 }

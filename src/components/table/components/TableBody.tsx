@@ -18,6 +18,7 @@ interface TableBodyProps {
   loginUser: any;
   pathDetail: string;
   onDelete?: (id: string) => void;
+  onEdit?: (item: any) => void;
   totalCounts: boolean;
   totalQuantity: number | string;
   filtersApplied: FilterValue;
@@ -36,6 +37,7 @@ export const TableBodyComponent: React.FC<TableBodyProps> = ({
   loginUser,
   pathDetail,
   onDelete,
+  onEdit,
   totalCounts,
   totalQuantity,
   filtersApplied,
@@ -56,6 +58,7 @@ export const TableBodyComponent: React.FC<TableBodyProps> = ({
         loginUser={loginUser}
         pathDetail={pathDetail}
         onDelete={onDelete}
+        onEdit={onEdit}
         filtersApplied={filtersApplied}
       />
     ))}

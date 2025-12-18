@@ -51,10 +51,23 @@ export class HolidayService {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to create holiday');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || errorData.title || 'Failed to create holiday'
+      );
     }
 
-    return response.json();
+    // El backend puede devolver texto o JSON
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return response.json();
+    }
+
+    // Si devuelve texto, retornamos el holiday creado con los datos enviados
+    return {
+      id: '', // El ID se obtendrá al refrescar la tabla
+      ...holidayData,
+    } as Holiday;
   }
 
   async update(holidayData: HolidayUpdateRequest): Promise<Holiday> {
@@ -67,10 +80,20 @@ export class HolidayService {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to update holiday');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || errorData.title || 'Failed to update holiday'
+      );
     }
 
-    return response.json();
+    // El backend puede devolver texto o JSON
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return response.json();
+    }
+
+    // Si devuelve texto, retornamos el holiday con los datos actualizados
+    return holidayData as Holiday;
   }
 
   async delete(id: string): Promise<void> {

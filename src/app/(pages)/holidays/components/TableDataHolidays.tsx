@@ -20,6 +20,8 @@ interface TableDataHolidaysProps {
   hideShadow?: boolean;
   onDelete?: (id: string) => void;
   onCreate?: () => void;
+  onEdit?: (holiday: Holiday) => void;
+  onRefreshRef?: (refresh: () => void) => void;
 }
 
 export const TableDataHolidays = ({
@@ -28,6 +30,8 @@ export const TableDataHolidays = ({
   hideShadow = false,
   onDelete,
   onCreate,
+  onEdit,
+  onRefreshRef,
 }: TableDataHolidaysProps) => {
   const { t } = useTranslations();
   const { holidays, fetchHolidaysByYear, deleteHoliday } = useHolidays();
@@ -38,6 +42,13 @@ export const TableDataHolidays = ({
   useEffect(() => {
     fetchHolidaysByYear(selectedYear);
   }, [selectedYear]);
+
+  // Exponer función de refresh al padre
+  useEffect(() => {
+    if (onRefreshRef) {
+      onRefreshRef(() => fetchHolidaysByYear(selectedYear));
+    }
+  }, [onRefreshRef, selectedYear]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -87,6 +98,7 @@ export const TableDataHolidays = ({
         tableButtons={tableButtons}
         filters={filtersHolidays}
         onDelete={handleDelete}
+        onEdit={onEdit}
         hideShadow={hideShadow}
       />
     </div>

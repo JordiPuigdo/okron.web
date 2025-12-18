@@ -52,7 +52,9 @@ export const useHolidays = () => {
       setHolidays([...holidays, newHoliday]);
       return newHoliday;
     } catch (err) {
-      setError('Error creating holiday');
+      const errorMessage =
+        err instanceof Error ? err.message : 'Error creating holiday';
+      setError(errorMessage);
       console.error('Error creating holiday:', err);
       throw err;
     } finally {
@@ -70,7 +72,9 @@ export const useHolidays = () => {
       );
       return updatedHoliday;
     } catch (err) {
-      setError('Error updating holiday');
+      const errorMessage =
+        err instanceof Error ? err.message : 'Error updating holiday';
+      setError(errorMessage);
       console.error('Error updating holiday:', err);
       throw err;
     } finally {

@@ -13,12 +13,14 @@ interface HolidayFormProps {
   holiday?: Holiday;
   onSubmit: (data: HolidayCreateRequest) => Promise<void>;
   onCancel: () => void;
+  error?: string | null;
 }
 
 export const HolidayForm = ({
   holiday,
   onSubmit,
   onCancel,
+  error,
 }: HolidayFormProps) => {
   const { t } = useTranslations();
   const [formData, setFormData] = useState<HolidayCreateRequest>({
@@ -74,6 +76,13 @@ export const HolidayForm = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Error Alert */}
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
+      )}
+
       <div>
         <label className="block text-sm font-medium mb-1">
           {t('holidays.form.name')}

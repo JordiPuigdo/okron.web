@@ -52,7 +52,7 @@ export const useSessionStore = create(
     }),
     {
       name: 'session-storage',
-      version: 4,
+      version: parseInt(process.env.NEXT_PUBLIC_BUILD_VERSION || '1', 10),
       storage: createJSONStorage(() => sessionStorage),
     }
   )

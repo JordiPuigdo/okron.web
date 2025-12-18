@@ -44,6 +44,7 @@ interface TableButtonsComponentProps {
   loginUser: LoginUser;
   pathDetail: string;
   onDelete?: (id: string) => void;
+  onEdit?: (item: any) => void;
 }
 
 export const TableButtonsComponent = memo(
@@ -54,6 +55,7 @@ export const TableButtonsComponent = memo(
     loginUser,
     pathDetail,
     onDelete,
+    onEdit,
   }: TableButtonsComponentProps) => {
     const colorRow = item.colorRow || '';
 
@@ -74,6 +76,7 @@ export const TableButtonsComponent = memo(
               pathDetail={pathDetail}
               tableButtons={tableButtons}
               onDelete={onDelete}
+              onEdit={onEdit}
             />
           )}
           {entity === EntityTable.WORKORDER && (
@@ -102,6 +105,7 @@ interface TableButtonsComponentStandardProps {
   loginUser: LoginUser;
   pathDetail: string;
   onDelete?: (id: string) => void;
+  onEdit?: (item: any) => void;
 }
 
 const validPermissions = [
@@ -117,6 +121,7 @@ export const TableButtonsComponentStandard = memo(
     loginUser,
     pathDetail,
     onDelete,
+    onEdit,
   }: TableButtonsComponentStandardProps) => {
     const canEdit = validPermissions.includes(loginUser?.permission!);
 
@@ -129,7 +134,9 @@ export const TableButtonsComponentStandard = memo(
 
     return (
       <>
-        {showEdit && <EditButton pathDetail={pathDetail} />}
+        {showEdit && (
+          <EditButton pathDetail={pathDetail} item={item} onEdit={onEdit} />
+        )}
         {showDelete && <DeleteButton item={item} onDelete={onDelete} />}
       </>
     );
@@ -139,13 +146,40 @@ export const TableButtonsComponentStandard = memo(
 TableButtonsComponentStandard.displayName = 'TableButtonsComponentStandard';
 
 // Componentes separados para mejor rendimiento
-const EditButton = memo(({ pathDetail }: { pathDetail: string }) => (
-  <Link href={pathDetail}>
-    <p className="flex items-center font-medium text-white rounded-xl bg-okron-btEdit hover:bg-okron-btEditHover">
-      <SvgDetail className="p-2 w-12 h-12" />
-    </p>
-  </Link>
-));
+interface EditButtonProps {
+  pathDetail: string;
+  item: any;
+  onEdit?: (item: any) => void;
+}
+
+const EditButton = memo(({ pathDetail, item, onEdit }: EditButtonProps) => {
+  const handleClick = useCallback(() => {
+    if (onEdit) {
+      onEdit(item);
+    }
+  }, [onEdit, item]);
+
+  // Si hay onEdit, renderizar botón con onClick
+  if (onEdit) {
+    return (
+      <button
+        onClick={handleClick}
+        className="flex items-center font-medium text-white rounded-xl bg-okron-btEdit hover:bg-okron-btEditHover"
+      >
+        <SvgDetail className="p-2 w-12 h-12" />
+      </button>
+    );
+  }
+
+  // Si no hay onEdit, navegar a URL
+  return (
+    <Link href={pathDetail}>
+      <p className="flex items-center font-medium text-white rounded-xl bg-okron-btEdit hover:bg-okron-btEditHover">
+        <SvgDetail className="p-2 w-12 h-12" />
+      </p>
+    </Link>
+  );
+});
 EditButton.displayName = 'EditButton';
 
 const DeleteButton = memo(

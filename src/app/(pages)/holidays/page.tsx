@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useHolidays } from 'app/hooks/useHolidays';
 import { useTranslations } from 'app/hooks/useTranslations';
 import {
@@ -29,24 +29,34 @@ export default function HolidaysPage() {
   const { createHoliday, updateHoliday } = useHolidays();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingHoliday, setEditingHoliday] = useState<any>(null);
+  const [modalError, setModalError] = useState<string | null>(null);
+  const refreshTableRef = useRef<(() => void) | null>(null);
+
+  const handleRefreshRef = useCallback((refresh: () => void) => {
+    refreshTableRef.current = refresh;
+  }, []);
 
   // Cerrar modal cuando se cambia de tab
   useEffect(() => {
     setIsModalOpen(false);
     setEditingHoliday(null);
+    setModalError(null);
   }, [activeTab]);
 
   const handleOpenCreate = () => {
     setEditingHoliday(null);
+    setModalError(null);
     setIsModalOpen(true);
   };
 
   const handleOpenEdit = (holiday: any) => {
     setEditingHoliday(holiday);
+    setModalError(null);
     setIsModalOpen(true);
   };
 
   const handleSubmitHoliday = async (data: HolidayCreateRequest) => {
+    setModalError(null);
     try {
       if (editingHoliday) {
         await updateHoliday({
@@ -57,7 +67,14 @@ export default function HolidaysPage() {
         await createHoliday(data);
       }
       setIsModalOpen(false);
+      // Refrescar la tabla
+      if (refreshTableRef.current) {
+        refreshTableRef.current();
+      }
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error saving holiday';
+      setModalError(errorMessage);
       console.error('Error saving holiday:', error);
     }
   };
@@ -103,7 +120,11 @@ export default function HolidaysPage() {
 
         {/* Tab Content */}
         {activeTab === 'Holidays' && (
-          <HolidaysTab onCreate={handleOpenCreate} onEdit={handleOpenEdit} />
+          <HolidaysTab
+            onCreate={handleOpenCreate}
+            onEdit={handleOpenEdit}
+            onRefreshRef={handleRefreshRef}
+          />
         )}
 
         {activeTab === 'VacationApprovals' && <VacationApprovalsTab />}
@@ -118,13 +139,21 @@ export default function HolidaysPage() {
           width="w-full"
           className="max-w-lg mx-auto border-4 border-blue-950 p-4"
           avoidClosing={true}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            setIsModalOpen(false);
+            setModalError(null);
+          }}
           title={editingHoliday ? t('holidays.edit') : t('holidays.create')}
         >
           <HolidayForm
+            key={editingHoliday?.id || 'new'}
             holiday={editingHoliday}
             onSubmit={handleSubmitHoliday}
-            onCancel={() => setIsModalOpen(false)}
+            onCancel={() => {
+              setIsModalOpen(false);
+              setModalError(null);
+            }}
+            error={modalError}
           />
         </Modal>
       </Container>
