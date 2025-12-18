@@ -54,16 +54,18 @@ export const useSessionStore = create(
       name: 'session-storage',
       version: parseInt(process.env.NEXT_PUBLIC_BUILD_VERSION || '1', 10),
       storage: createJSONStorage(() => sessionStorage),
-      migrate: () => {
+      migrate: (persistedState, version) => {
         // Al cambiar de versión, devolver estado inicial vacío
+        // Zustand combinará esto con las funciones del store
         return {
+          ...(persistedState as SessionStore),
           loginUser: undefined,
           operatorLogged: undefined,
           filterWorkOrders: undefined,
           filterSpareParts: undefined,
           isMenuOpen: false,
           config: undefined,
-        };
+        } as SessionStore & SessionActions;
       },
     }
   )
