@@ -38,6 +38,13 @@ export const useTranslationStore = create<TranslationState>()(
         translations: state.translations,
         currentLang: state.currentLang,
       }),
+      migrate: () => {
+        // Al cambiar de versión, devolver estado inicial vacío
+        return {
+          translations: {},
+          currentLang: process.env.NEXT_PUBLIC_DEFAULT_LANG || 'ca',
+        };
+      },
     }
   )
 );
