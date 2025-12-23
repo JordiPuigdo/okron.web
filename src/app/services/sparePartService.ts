@@ -216,6 +216,21 @@ class SparePartService {
       throw error;
     }
   }
+
+  async getSparePartById(id: string): Promise<SparePart> {
+    try {
+      const url = `${this.baseUrl}sparePart/${id}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch spare part: ${response.statusText}`);
+      }
+      const sparePart: SparePartDetailResponse = await response.json();
+      return sparePart.sparePart;
+    } catch (error) {
+      console.error('Error fetching spare part by id:', error);
+      throw error;
+    }
+  }
 }
 
 export default SparePartService;

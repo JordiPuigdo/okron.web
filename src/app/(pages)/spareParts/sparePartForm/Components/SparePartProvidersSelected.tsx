@@ -38,15 +38,18 @@ export default function SparePartProvidersSelected({
   }, [searchText, sparePart?.providers]);
 
   function handleCheckIsDefault(providerId: string) {
-    const provider = sparePart.providers.find(
-      x => x.isDefault && x.providerId !== providerId
+    const currentProvider = sparePart.providers.find(
+      x => x.providerId === providerId
     );
-    if (provider) {
-      alert(t('providers.only.one.default'));
-      return;
-    } else {
+
+    // Si el proveedor actual ya es default, simplemente lo desmarca
+    if (currentProvider?.isDefault) {
       handleUpdateIsDefault(providerId);
+      return;
     }
+
+    // Si no es default, lo marca (la lógica de desmarcar otros está en el padre)
+    handleUpdateIsDefault(providerId);
   }
 
   return (

@@ -6,6 +6,7 @@ import {
   PurchaseProposal,
   PurchaseProposalItem,
 } from 'app/interfaces/PurchaseProposal';
+import SparePartDetailModal from 'components/sparePart/SparePartDetailModal';
 import { Button } from 'designSystem/Button/Buttons';
 
 export default function LowStockPurchase() {
@@ -18,19 +19,26 @@ export default function LowStockPurchase() {
   const [purchaseProposal, setPurchaseProposal] = useState<PurchaseProposal[]>(
     []
   );
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [selectedSparePartId, setSelectedSparePartId] = useState<string | null>(
+    null
+  );
+  const [showSparePartModal, setShowSparePartModal] = useState(false);
+
+  const loadOrders = async () => {
+    setLoading(true);
+    try {
+      const orders = await fetchLowStockOrders();
+      setLowStockOrders(orders);
+    } catch (err) {
+      setError(t('error.loading.orders'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadOrders = async () => {
-      try {
-        const orders = await fetchLowStockOrders();
-        setLowStockOrders(orders);
-      } catch (err) {
-        setError(t('error.loading.orders'));
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadOrders();
   }, []);
 
@@ -162,8 +170,25 @@ export default function LowStockPurchase() {
       );
   };
 
-  const onCreate = () => {
-    createLowStockOrders(purchaseProposal);
+  const onCreate = async () => {
+    setCreating(true);
+    setSuccessMessage(null);
+    setError(null);
+    try {
+      const result = await createLowStockOrders(purchaseProposal);
+      console.log('Order creation result:', result);
+      setSelectedOrders(new Set());
+      setPurchaseProposal([]);
+      setSelectAll(false);
+      await loadOrders();
+      setSuccessMessage(t('order.created.successfully'));
+      setTimeout(() => setSuccessMessage(null), 5000);
+    } catch (err) {
+      console.error('Error creating order:', err);
+      setError(t('error.creating.order'));
+    } finally {
+      setCreating(false);
+    }
   };
 
   return (
@@ -209,6 +234,33 @@ export default function LowStockPurchase() {
         </div>
       </div>
 
+      {successMessage && (
+        <div className="mx-4 mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className="font-medium">{successMessage}</span>
+          </div>
+          <button
+            onClick={() => setSuccessMessage(null)}
+            className="text-green-700 hover:text-green-900"
+          >
+            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-1">
         <div className="flex flex-col w-full p-4">
           {filteredOrders.map((order, index) => {
@@ -229,7 +281,7 @@ export default function LowStockPurchase() {
                   </h2>
                 </div>
                 <div className="flex flex-col w-full bg-gray-50 p-4 rounded-lg">
-                  <div className="grid grid-cols-10 gap-4 font-semibold text-gray-500 border-b border-gray-200">
+                  <div className="grid grid-cols-11 gap-4 font-semibold text-gray-500 border-b border-gray-200">
                     <span className="col-span-4 flex w-full text-left">
                       {t('spare.parts')}
                     </span>
@@ -248,7 +300,12 @@ export default function LowStockPurchase() {
                     <span className="col-span-1 flex w-full text-left">
                       {t('pending')}
                     </span>
-                    <span className="col-span-1 text-right mr-6">{t('price')}</span>
+                    <span className="col-span-1 text-right mr-6">
+                      {t('price')}
+                    </span>
+                    <span className="col-span-1 text-center">
+                      {t('actions')}
+                    </span>
                   </div>
                   {order.items.map((item, index) => {
                     const exists = existsItem(
@@ -259,7 +316,7 @@ export default function LowStockPurchase() {
                     return (
                       <div
                         key={index}
-                        className={`grid grid-cols-10 gap-4 py-2 ${
+                        className={`grid grid-cols-11 gap-4 py-2 ${
                           Number(item.unitPrice) <= 0
                             ? 'border-red-500 border-2 rounded'
                             : ' border-gray-200 last:border-b-0  border-b'
@@ -302,6 +359,38 @@ export default function LowStockPurchase() {
                         <span className="col-span-1 text-gray-600 text-right mr-6">
                           {item.unitPrice} €
                         </span>
+                        <div className="col-span-1 flex justify-center">
+                          <button
+                            type="button"
+                            onClick={e => {
+                              e.stopPropagation();
+                              setSelectedSparePartId(item.sparePartId);
+                              setShowSparePartModal(true);
+                            }}
+                            className="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                            title={t('view.detail')}
+                          >
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -345,12 +434,24 @@ export default function LowStockPurchase() {
             >
               {t('cancel')}
             </Button>
-            <Button disabled={purchaseProposal.length === 0} onClick={onCreate}>
-              {t('generate.order')}
+            <Button
+              disabled={purchaseProposal.length === 0 || creating}
+              onClick={onCreate}
+            >
+              {creating ? t('creating') + '...' : t('generate.order')}
             </Button>
           </div>
         </div>
       </div>
+
+      <SparePartDetailModal
+        sparePartId={selectedSparePartId}
+        isVisible={showSparePartModal}
+        onClose={() => {
+          setShowSparePartModal(false);
+          setSelectedSparePartId(null);
+        }}
+      />
     </div>
   );
 }

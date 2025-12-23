@@ -38,6 +38,7 @@ interface GenerateCorrectiveProps {
   showReasons?: boolean;
   originalWorkOrderId?: string;
   originalWorkOrderCode?: string;
+  onCancel?: () => void;
 }
 const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
   assetId,
@@ -47,6 +48,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
   showReasons = true,
   originalWorkOrderId,
   originalWorkOrderCode,
+  onCancel,
 }) => {
   const { t } = useTranslations();
   const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
@@ -444,7 +446,7 @@ const GenerateCorrective: React.FC<GenerateCorrectiveProps> = ({
               <button
                 type="button"
                 disabled={isLoading}
-                onClick={e => router.back()}
+                onClick={e => (onCancel ? onCancel() : router.back())}
                 className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6 sm:ml-2"
               >
                 {t('cancel')}

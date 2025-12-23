@@ -9,6 +9,16 @@ const sparePartService = new SparePartService(
   process.env.NEXT_PUBLIC_API_BASE_URL!
 );
 
+const fetchSparePartById = async (id: string): Promise<SparePart> => {
+  try {
+    const response = await sparePartService.getSparePartById(id);
+    return response;
+  } catch (error) {
+    console.error('Error fetching spare part by id:', error);
+    throw error;
+  }
+};
+
 const fetchAllSpareParts = async (): Promise<SparePart[]> => {
   try {
     const response = await sparePartService.getSpareParts();
@@ -94,11 +104,16 @@ export const useSparePartsHook = (shouldFetchSpareParts = false) => {
     };
   };
 
+  const getSparePartById = async (id: string): Promise<SparePart> => {
+    return fetchSparePartById(id);
+  };
+
   return {
     spareParts,
     sparePartsError,
     fetchSpareParts,
     fetchSparePart,
     fetchSparePartsConsumedsHook,
+    getSparePartById,
   };
 };

@@ -235,13 +235,30 @@ const SparePartForm: React.FC<SparePartForm> = ({
   function handleUpdateIsDefault(providerId: string) {
     setSparePart(prevSparePart => {
       if (!prevSparePart) return prevSparePart;
+
+      const currentProvider = prevSparePart.providers.find(
+        p => p.providerId === providerId
+      );
+
+      // Si el proveedor actual ya es default, simplemente lo desmarca
+      if (currentProvider?.isDefault) {
+        return {
+          ...prevSparePart,
+          providers: prevSparePart.providers.map(provider =>
+            provider.providerId === providerId
+              ? { ...provider, isDefault: false }
+              : provider
+          ),
+        };
+      }
+
+      // Si no es default, lo marca y desmarca cualquier otro
       return {
         ...prevSparePart,
-        providers: prevSparePart.providers.map(provider =>
-          provider.providerId === providerId
-            ? { ...provider, isDefault: !provider.isDefault }
-            : provider
-        ),
+        providers: prevSparePart.providers.map(provider => ({
+          ...provider,
+          isDefault: provider.providerId === providerId,
+        })),
       };
     });
   }

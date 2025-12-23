@@ -19,9 +19,11 @@ import { HeaderForm } from 'components/layout/HeaderForm';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { Modal2, ModalBackground } from 'designSystem/Modals/Modal';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import GenerateCorrective from '../../../corrective/components/GenerateCorrective';
 import { BodyOrderForm } from './BodyOrderForm';
 import DeliveryOrders from './DeliveryOrders';
 import HeaderOrderForm from './HeaderOrderForm';
@@ -82,6 +84,7 @@ export default function OrderForm({
   >(undefined);
   const [message, setMessage] = useState<string | undefined>(undefined);
   const [isSuccess, setIsSuccess] = useState<boolean | undefined>(undefined);
+  const [showWorkOrderModal, setShowWorkOrderModal] = useState(false);
   const ROUTES = useRoutes();
 
   const fetchCode = async () => {
@@ -146,7 +149,11 @@ export default function OrderForm({
       }
 
       setMessage(
-        `${orderRequest == null ? t('order.created.successfully') : t('order.updated.successfully')}`
+        `${
+          orderRequest == null
+            ? t('order.created.successfully')
+            : t('order.updated.successfully')
+        }`
       );
       setIsSuccess(true);
     } catch (error) {
@@ -409,6 +416,17 @@ export default function OrderForm({
                   {t('order.create.delivery.note')}
                 </Link>
               )}
+            {order.type == OrderType.Delivery &&
+              orderRequest?.id !== undefined &&
+              order.items.length > 0 && (
+                <button
+                  onClick={() => setShowWorkOrderModal(true)}
+                  className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+                  type="button"
+                >
+                  {t('create.work.order')}
+                </button>
+              )}
           </div>
           {message && (
             <div
@@ -421,6 +439,55 @@ export default function OrderForm({
           )}
         </div>
       </div>
+
+      {/* Modal para crear orden de trabajo */}
+      <ModalBackground
+        isVisible={showWorkOrderModal}
+        onClick={() => setShowWorkOrderModal(false)}
+      >
+        <div></div>
+      </ModalBackground>
+      {showWorkOrderModal && (
+        <Modal2
+          isVisible={showWorkOrderModal}
+          setIsVisible={setShowWorkOrderModal}
+          type="center"
+          width="w-3/4 max-w-4xl"
+          height="max-h-[90vh]"
+          className="p-6 overflow-y-auto border border-gray-300 shadow-xl"
+          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">{t('create.work.order')}</h2>
+            <button
+              onClick={() => setShowWorkOrderModal(false)}
+              className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+            >
+              ×
+            </button>
+          </div>
+          <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+            <h3 className="font-semibold mb-2">{t('spare.parts.received')}</h3>
+            <ul className="text-sm text-gray-600 space-y-1">
+              {order.items.map((item, index) => (
+                <li key={index} className="flex justify-between">
+                  <span>{item.sparePartName}</span>
+                  <span className="font-medium">
+                    {item.quantity} {t('units')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <GenerateCorrective
+            description={`${t('spare.parts.from.order')} ${
+              order.code
+            }: ${order.items.map(i => i.sparePartName).join(', ')}`}
+            showReasons={false}
+            onCancel={() => setShowWorkOrderModal(false)}
+          />
+        </Modal2>
+      )}
     </div>
   );
 }
