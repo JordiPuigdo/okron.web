@@ -217,17 +217,25 @@ export function applyFilters(
     if (!term) return true;
     const t = term.toLowerCase();
     return (
-      order.description.toLowerCase().includes(t) ||
-      order.code.toLowerCase().includes(t) ||
+      order.description?.toLowerCase().includes(t) ||
+      order.code?.toLowerCase().includes(t) ||
+      // Campos nuevos (respuesta plana)
+      order.assetDescription?.toLowerCase().includes(t) ||
+      order.assetBrand?.toLowerCase().includes(t) ||
+      order.customerName?.toLowerCase().includes(t) ||
+      order.customerInstallationCode?.toLowerCase().includes(t) ||
+      order.customerInstallationCity?.toLowerCase().includes(t) ||
+      // Campos antiguos (respuesta anidada) para compatibilidad
       order.asset?.description?.toLowerCase().includes(t) ||
       order.asset?.brand?.toLowerCase().includes(t) ||
+      order.customerWorkOrder?.customerInstallationCode
+        ?.toLowerCase()
+        .includes(t) ||
+      order.customer?.toLowerCase().includes(t) ||
       order.originalWorkOrderCode?.toLowerCase().includes(t) ||
       order.customerWorkOrder?.customerName?.toLowerCase().includes(t) ||
       order.refCustomerId?.toLowerCase().includes(t) ||
       order.customerWorkOrder?.customerInstallationAddress?.city
-        ?.toLowerCase()
-        .includes(t) ||
-      order.customerWorkOrder?.customerInstallationCode
         ?.toLowerCase()
         .includes(t) ||
       order.operatorsNames?.toLowerCase().includes(t)

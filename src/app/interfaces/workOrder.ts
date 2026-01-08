@@ -45,6 +45,13 @@ export interface WorkOrder extends BaseModel {
   hasDeliveryNote?: boolean;
   priority: WorkOrderPriority;
   originalWorkOrderCode?: string;
+  customer?: string;
+  // Campos planos de la respuesta CRM
+  customerName?: string;
+  customerInstallationCode?: string;
+  customerInstallationCity?: string;
+  assetBrand?: string;
+  assetDescription?: string;
 }
 
 export default WorkOrder;
