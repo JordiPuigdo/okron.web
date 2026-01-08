@@ -645,7 +645,6 @@ const WorkOrderEditForm: React.FC<WorkOrdeEditFormProps> = ({ id }) => {
                     id="refCustomerId"
                     name="refCustomerId"
                     className="p-3 border text-sm border-gray-300 rounded-md w-full"
-                    disabled
                   />
                 </div>
                 <div className="w-full">
