@@ -24,7 +24,7 @@ export interface VacationBalance {
   operatorId: string;
   availableDays: number;
   usedDays: number;
-  totalDays: number;
+
   pendingDays?: number;
 }
 

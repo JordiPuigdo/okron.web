@@ -40,14 +40,13 @@ export class VacationService {
       const availableData = await availableResponse.json();
       const usedData = await usedResponse.json();
 
-      const availableDays = availableData.availableDays || 22;
+      const availableDays = availableData.availableDays || 0;
       const usedDays = usedData.usedDays || 0;
 
       return {
         operatorId,
         availableDays,
         usedDays,
-        totalDays: 22,
       };
     } catch (error) {
       console.error('Error fetching vacation balance:', error);
@@ -165,16 +164,31 @@ export class VacationService {
         throw new Error('Failed to create vacation request');
       }
 
-      const data = await response.json();
+      // La API puede devolver texto o JSON
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        return {
+          ...data,
+          startDate: new Date(data.startDate),
+          endDate: new Date(data.endDate),
+          totalDays: this.calculateVacationDays(
+            new Date(data.startDate),
+            new Date(data.endDate)
+          ),
+        };
+      }
+
+      // Si devuelve texto, retornamos el request con los datos enviados
       return {
-        ...data,
-        startDate: new Date(data.startDate),
-        endDate: new Date(data.endDate),
-        totalDays: this.calculateVacationDays(
-          new Date(data.startDate),
-          new Date(data.endDate)
-        ),
-      };
+        id: '',
+        operatorId: dto.operatorId,
+        startDate: dto.startDate,
+        endDate: dto.endDate,
+        reason: dto.reason || '',
+        status: VacationStatus.Pending,
+        totalDays: this.calculateVacationDays(dto.startDate, dto.endDate),
+      } as VacationRequest;
     } catch (error) {
       console.error('Error creating vacation request:', error);
       throw error;
@@ -376,10 +390,6 @@ export class VacationService {
     const errors: string[] = [];
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-
-    if (dto.startDate < now) {
-      errors.push('La fecha de inicio no puede ser anterior a hoy');
-    }
 
     if (dto.endDate < dto.startDate) {
       errors.push('La fecha de fin debe ser posterior a la fecha de inicio');

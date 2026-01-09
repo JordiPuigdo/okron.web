@@ -1,17 +1,22 @@
 'use client';
 
 import { useTranslations } from 'app/hooks/useTranslations';
+import Operator from 'app/interfaces/Operator';
 import { VacationBalance as VacationBalanceType } from 'app/interfaces/Vacation';
 
 interface VacationBalanceProps {
   balance: VacationBalanceType;
+  operator: Operator;
 }
 
-export const VacationBalance = ({ balance }: VacationBalanceProps) => {
+export const VacationBalance = ({
+  balance,
+  operator,
+}: VacationBalanceProps) => {
   const { t } = useTranslations();
+  const totalDays = operator.annualVacationDays || 22;
 
-  const remainingDays = balance.availableDays - balance.usedDays;
-  const usedPercentage = (balance.usedDays / balance.totalDays) * 100;
+  const usedPercentage = (balance.usedDays / totalDays) * 100;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -19,15 +24,13 @@ export const VacationBalance = ({ balance }: VacationBalanceProps) => {
 
       <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="text-center p-4 bg-blue-50 rounded-lg">
-          <div className="text-3xl font-bold text-blue-600">
-            {balance.totalDays}
-          </div>
+          <div className="text-3xl font-bold text-blue-600">{totalDays}</div>
           <div className="text-sm text-gray-600">{t('vacation.total')}</div>
         </div>
 
         <div className="text-center p-4 bg-green-50 rounded-lg">
           <div className="text-3xl font-bold text-green-600">
-            {remainingDays}
+            {balance.availableDays}
           </div>
           <div className="text-sm text-gray-600">{t('vacation.available')}</div>
         </div>

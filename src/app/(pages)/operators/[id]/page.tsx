@@ -157,7 +157,11 @@ export default function EditOperatorPage({
         )}
         {!isLoading && operatorData && isCRM && (
           <div className="mt-6">
-            <OperatorVacations operatorId={params.id} isAdminView={true} />
+            <OperatorVacations
+              operatorId={params.id}
+              isAdminView={true}
+              operator={operatorData}
+            />
           </div>
         )}
       </Container>

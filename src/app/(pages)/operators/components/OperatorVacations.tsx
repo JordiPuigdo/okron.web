@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { useVacations } from 'app/hooks/useVacations';
+import Operator from 'app/interfaces/Operator';
 import { useSessionStore } from 'app/stores/globalStore';
 import { Button } from 'designSystem/Button/Buttons';
 import { Modal } from 'designSystem/Modals/Modal';
@@ -13,11 +14,13 @@ import { VacationRequestsList } from './VacationRequestsList';
 
 interface OperatorVacationsProps {
   operatorId: string;
+  operator: Operator;
   isAdminView?: boolean;
 }
 
 export const OperatorVacations = ({
   operatorId,
+  operator,
   isAdminView = false,
 }: OperatorVacationsProps) => {
   const { t } = useTranslations();
@@ -72,7 +75,9 @@ export const OperatorVacations = ({
         </Button>
       </div>
 
-      {vacationBalance && <VacationBalance balance={vacationBalance} />}
+      {vacationBalance && (
+        <VacationBalance balance={vacationBalance} operator={operator} />
+      )}
 
       <div className="bg-white rounded-lg shadow-md p-6">
         <h3 className="text-lg font-semibold mb-4">
