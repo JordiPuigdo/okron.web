@@ -9,6 +9,7 @@ export type User = {
   name: string;
 };
 
+export * from './Budget';
 export * from './DeliveryNote';
 export * from './Holiday';
 export * from './Vacation';

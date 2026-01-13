@@ -5,6 +5,8 @@ import { TableDataDeliveryNotes } from 'app/(pages)/deliveryNotes/components/Tab
 import { useTranslations } from 'app/hooks/useTranslations';
 import { HeaderTable } from 'components/layout/HeaderTable';
 
+import { BudgetCreateModal } from './BudgetCreateModal';
+import { TableDataBudgets } from './TableDataBudgets';
 import { TableDataInvoices } from './TableDataInvoices';
 
 // Componentes que se muestran en las pestañas
@@ -41,28 +43,75 @@ function DeliveryNotes() {
   );
 }
 
-type TabKey = 'Invoices' | 'DeliveryNotes';
+function Budgets({
+  onOpenCreateModal,
+}: {
+  onOpenCreateModal: () => void;
+}) {
+  const { t } = useTranslations();
+  
+  return (
+    <>
+      <HeaderTable
+        title={t('budgets')}
+        subtitle={`${t('start')} - ${t('budgets.list')}`}
+        createButton={t('create.budget')}
+        onCreate={onOpenCreateModal}
+      />
+      <TableDataBudgets className="bg-white p-4 rounded-xl shadow-md" />
+    </>
+  );
+}
+
+type TabKey = 'Invoices' | 'DeliveryNotes' | 'Budgets';
 
 const labels: Record<TabKey, string> = {
+  Budgets: 'invoices.tabs.budgets',
   DeliveryNotes: 'invoices.tabs.deliveryNotes',
   Invoices: 'invoices.tabs.invoices',
 };
 
-const components: Record<TabKey, JSX.Element> = {
-  Invoices: <Invoices />,
-  DeliveryNotes: <DeliveryNotes />,
-};
-
-const tabs: TabKey[] = ['DeliveryNotes', 'Invoices'];
+const tabs: TabKey[] = ['Budgets', 'DeliveryNotes', 'Invoices'];
 
 export default function InvoiceTabPage() {
-  const [activeTab, setActiveTab] = useState<TabKey>('DeliveryNotes');
+  const [activeTab, setActiveTab] = useState<TabKey>('Budgets');
+  const [isCreateBudgetModalOpen, setIsCreateBudgetModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const { t } = useTranslations();
+
+  const handleBudgetCreated = () => {
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'Invoices':
+        return <Invoices />;
+      case 'DeliveryNotes':
+        return <DeliveryNotes />;
+      case 'Budgets':
+        return (
+          <Budgets
+            key={refreshKey}
+            onOpenCreateModal={() => setIsCreateBudgetModalOpen(true)}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="p-2 mt-4">
+      {/* Modal de crear presupuesto */}
+      <BudgetCreateModal
+        isOpen={isCreateBudgetModalOpen}
+        onClose={() => setIsCreateBudgetModalOpen(false)}
+        onSuccess={handleBudgetCreated}
+      />
+
       {/* Botones de Tabs */}
-      <div className="flex border-2 border-[#6E41B6] rounded-full overflow-hidden bg-white shadow-sm w-[30%]">
+      <div className="flex border-2 border-[#6E41B6] rounded-full overflow-hidden bg-white shadow-sm w-[45%]">
         {tabs.map((tab, idx) => {
           const active = activeTab === tab;
           return (
@@ -93,7 +142,7 @@ export default function InvoiceTabPage() {
         })}
       </div>
 
-      {components[activeTab]}
+      {renderTabContent()}
     </div>
   );
 }
