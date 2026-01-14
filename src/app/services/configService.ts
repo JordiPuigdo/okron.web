@@ -66,6 +66,25 @@ class ConfigService {
       throw error;
     }
   }
+
+  async getLanguages(): Promise<string[]> {
+    try {
+      const url = `${this.baseUrl}config/Languages`;
+      const response = await fetch(url, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        console.error('Failed to get languages');
+        throw new Error('Failed to get languages');
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error('Error getting languages:', error);
+      throw error;
+    }
+  }
 }
 
 export default ConfigService;

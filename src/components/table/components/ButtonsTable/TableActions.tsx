@@ -2,6 +2,7 @@ import { memo, useCallback } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgDelete, SvgDetail } from 'app/icons/icons';
 import { LoginUser, UserPermission, UserType } from 'app/interfaces/User';
+import { Eye } from 'lucide-react';
 import Link from 'next/link';
 
 import { TableButtons } from '../../interface/interfaceTable';
@@ -22,6 +23,7 @@ export const HeadTableActions = memo(
       tableButtons.delete ||
       tableButtons.detail ||
       tableButtons.edit ||
+      tableButtons.preview ||
       entity === EntityTable.WORKORDER;
 
     if (!showActions) return null;
@@ -45,6 +47,7 @@ interface TableButtonsComponentProps {
   pathDetail: string;
   onDelete?: (id: string) => void;
   onEdit?: (item: any) => void;
+  onPreview?: (item: any) => void;
 }
 
 export const TableButtonsComponent = memo(
@@ -56,12 +59,21 @@ export const TableButtonsComponent = memo(
     pathDetail,
     onDelete,
     onEdit,
+    onPreview,
   }: TableButtonsComponentProps) => {
     const colorRow = item.colorRow || '';
+
+    const handlePreview = useCallback(() => {
+      onPreview?.(item);
+    }, [onPreview, item]);
 
     return (
       <td className={`${colorRow} p-4`}>
         <div className="flex flex-row gap-2 justify-center">
+          {/* Preview Button */}
+          {tableButtons.preview && onPreview && (
+            <PreviewButton onClick={handlePreview} />
+          )}
           {entity == EntityTable.DELIVERYNOTE && (
             <CRMStatusButton
               item={item}
@@ -199,3 +211,21 @@ const DeleteButton = memo(
   }
 );
 DeleteButton.displayName = 'DeleteButton';
+
+/**
+ * Botón de vista previa para abrir el SlidePanel.
+ * Muestra un icono de ojo con estilo consistente con los demás botones.
+ */
+const PreviewButton = memo(({ onClick }: { onClick: () => void }) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center justify-center w-12 h-12 font-medium text-white rounded-xl bg-[#6E41B6] hover:bg-[#5a3596] transition-colors"
+      title="Vista prèvia"
+    >
+      <Eye className="w-6 h-6" />
+    </button>
+  );
+});
+PreviewButton.displayName = 'PreviewButton';

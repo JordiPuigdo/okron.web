@@ -188,6 +188,7 @@ export interface SearchWorkOrderFilters {
   originWorkOrder: OriginWorkOrder;
   showNextWO?: boolean;
   hasDeliveryNote?: boolean;
+  customerId?: string;
 }
 
 /**

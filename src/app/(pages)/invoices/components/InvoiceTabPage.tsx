@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TableDataDeliveryNotes } from 'app/(pages)/deliveryNotes/components/TableDataDeliveryNotes';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { HeaderTable } from 'components/layout/HeaderTable';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { BudgetCreateModal } from './BudgetCreateModal';
 import { TableDataBudgets } from './TableDataBudgets';
@@ -12,7 +13,7 @@ import { TableDataInvoices } from './TableDataInvoices';
 // Componentes que se muestran en las pestañas
 function Invoices() {
   const { t } = useTranslations();
-  
+
   return (
     <>
       <HeaderTable
@@ -28,7 +29,7 @@ function Invoices() {
 
 function DeliveryNotes() {
   const { t } = useTranslations();
-  
+
   return (
     <>
       {' '}
@@ -43,19 +44,15 @@ function DeliveryNotes() {
   );
 }
 
-function Budgets({
-  onOpenCreateModal,
-}: {
-  onOpenCreateModal: () => void;
-}) {
+function Budgets({ onOpenCreateModal }: { onOpenCreateModal: () => void }) {
   const { t } = useTranslations();
-  
+
   return (
     <>
       <HeaderTable
         title={t('budgets')}
         subtitle={`${t('start')} - ${t('budgets.list')}`}
-        createButton={t('create.budget')}
+        createButton={t('budget.actions.createBudget')}
         onCreate={onOpenCreateModal}
       />
       <TableDataBudgets className="bg-white p-4 rounded-xl shadow-md" />
@@ -66,7 +63,7 @@ function Budgets({
 type TabKey = 'Invoices' | 'DeliveryNotes' | 'Budgets';
 
 const labels: Record<TabKey, string> = {
-  Budgets: 'invoices.tabs.budgets',
+  Budgets: 'budgets',
   DeliveryNotes: 'invoices.tabs.deliveryNotes',
   Invoices: 'invoices.tabs.invoices',
 };
@@ -74,10 +71,39 @@ const labels: Record<TabKey, string> = {
 const tabs: TabKey[] = ['Budgets', 'DeliveryNotes', 'Invoices'];
 
 export default function InvoiceTabPage() {
-  const [activeTab, setActiveTab] = useState<TabKey>('Budgets');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabFromUrl = searchParams.get('tab') as TabKey | null;
+
+  const [activeTab, setActiveTab] = useState<TabKey>(
+    tabFromUrl && tabs.includes(tabFromUrl) ? tabFromUrl : 'Budgets'
+  );
   const [isCreateBudgetModalOpen, setIsCreateBudgetModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const { t } = useTranslations();
+
+  // Sincronizar tab con URL cuando cambia el parámetro
+  useEffect(() => {
+    if (tabFromUrl && tabs.includes(tabFromUrl) && tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
+
+  // Establecer tab por defecto en la URL si no existe
+  useEffect(() => {
+    if (!tabFromUrl) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('tab', 'Budgets');
+      router.replace(`?${params.toString()}`, { scroll: false });
+    }
+  }, []);
+
+  const handleTabChange = (tab: TabKey) => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', tab);
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
 
   const handleBudgetCreated = () => {
     setRefreshKey(prev => prev + 1);
@@ -117,7 +143,7 @@ export default function InvoiceTabPage() {
           return (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => handleTabChange(tab)}
               className={`
                     flex-1 text-center text-base font-semibold transition
                     px-4 py-2 cursor-pointer

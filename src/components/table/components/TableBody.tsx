@@ -19,6 +19,7 @@ interface TableBodyProps {
   pathDetail: string;
   onDelete?: (id: string) => void;
   onEdit?: (item: any) => void;
+  onPreview?: (item: any) => void;
   totalCounts: boolean;
   totalQuantity: number | string;
   filtersApplied: FilterValue;
@@ -38,6 +39,7 @@ export const TableBodyComponent: React.FC<TableBodyProps> = ({
   pathDetail,
   onDelete,
   onEdit,
+  onPreview,
   totalCounts,
   totalQuantity,
   filtersApplied,
@@ -59,6 +61,7 @@ export const TableBodyComponent: React.FC<TableBodyProps> = ({
         pathDetail={pathDetail}
         onDelete={onDelete}
         onEdit={onEdit}
+        onPreview={onPreview}
         filtersApplied={filtersApplied}
       />
     ))}

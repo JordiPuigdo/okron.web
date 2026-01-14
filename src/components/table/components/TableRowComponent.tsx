@@ -22,6 +22,7 @@ interface TableRowComponentProps {
   pathDetail: string;
   onDelete?: (id: string) => void;
   onEdit?: (item: any) => void;
+  onPreview?: (item: any) => void;
   filtersApplied: FilterValue;
 }
 
@@ -39,6 +40,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
   pathDetail,
   onDelete,
   onEdit,
+  onPreview,
   filtersApplied,
 }) => {
   if (rowData.length === 0) return null;
@@ -145,6 +147,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
         pathDetail={`${pathDetail}/${finalPath}`}
         onDelete={onDelete}
         onEdit={onEdit}
+        onPreview={onPreview}
       />
     </tr>
   );

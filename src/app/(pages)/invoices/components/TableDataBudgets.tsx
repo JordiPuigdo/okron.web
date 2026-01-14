@@ -15,12 +15,14 @@ import {
 import { EntityTable } from 'components/table/interface/tableEntitys';
 
 import { BudgetService } from '../../../services/budgetService';
+import { BudgetPreviewPanel } from '../../budgets/components/BudgetPreviewPanel';
 
 interface TableDataBudgetsProps {
   className?: string;
   title?: string;
   hideShadow?: boolean;
   enableFilters?: boolean;
+  refreshKey?: number;
 }
 
 export const TableDataBudgets = ({
@@ -28,9 +30,14 @@ export const TableDataBudgets = ({
   title = '',
   hideShadow = false,
   enableFilters = true,
+  refreshKey = 0,
 }: TableDataBudgetsProps) => {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [firstLoad, setFirstLoad] = useState(true);
+
+  // State para el panel de preview
+  const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // Fecha por defecto: último mes
   const defaultDateEndDate = new Date();
@@ -64,6 +71,13 @@ export const TableDataBudgets = ({
     fetchBudgets();
     setFirstLoad(false);
   }, []);
+
+  // Refetch cuando cambia refreshKey (después de crear un nuevo budget)
+  useEffect(() => {
+    if (refreshKey > 0) {
+      fetchBudgets();
+    }
+  }, [refreshKey]);
 
   useEffect(() => {
     if (dateFilters.startDate && dateFilters.endDate && !firstLoad) {
@@ -109,6 +123,19 @@ export const TableDataBudgets = ({
 
   const filteredBudgets = getFilteredBudgets();
 
+  // Handler para abrir el preview
+  const handlePreview = (item: Budget) => {
+    setSelectedBudget(item);
+    setIsPreviewOpen(true);
+  };
+
+  // Handler para cerrar el preview
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false);
+    // Delay para la animación antes de limpiar el budget
+    setTimeout(() => setSelectedBudget(null), 300);
+  };
+
   return (
     <div className="flex flex-col h-full gap-4 w-full">
       {title && (
@@ -133,6 +160,15 @@ export const TableDataBudgets = ({
         filters={filtersBudgets}
         hideShadow={hideShadow}
         totalCounts
+        onPreview={handlePreview}
+      />
+
+      {/* Panel de vista previa */}
+      <BudgetPreviewPanel
+        budget={selectedBudget}
+        isOpen={isPreviewOpen}
+        onClose={handleClosePreview}
+        onRefresh={fetchBudgets}
       />
     </div>
   );
@@ -141,6 +177,7 @@ export const TableDataBudgets = ({
 const tableButtons: TableButtons = {
   edit: true,
   detail: true,
+  preview: true,
 };
 
 const columnsBudgets: Column[] = [

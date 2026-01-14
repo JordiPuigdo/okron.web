@@ -1,3 +1,4 @@
+import { Budget } from 'app/interfaces/Budget';
 import { DeliveryNote } from 'app/interfaces';
 import { SystemConfiguration } from 'app/interfaces/Config';
 import WorkOrder from 'app/interfaces/workOrder';
@@ -25,5 +26,13 @@ export async function getDeliveryNote(id: string): Promise<DeliveryNote> {
 
   if (!res.ok)
     throw new Error(`Failed to fetch delivery note ${url} ${res.status}`);
+  return res.json();
+}
+
+export async function getBudget(id: string): Promise<Budget> {
+  const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}budgets/${id}`;
+  const res = await fetch(url, { cache: 'no-store' });
+
+  if (!res.ok) throw new Error(`Failed to fetch budget ${url} ${res.status}`);
   return res.json();
 }

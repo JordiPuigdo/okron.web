@@ -32,6 +32,11 @@ const useRoutes = () => {
       detail: '/invoices/',
       edit: (id: string) => `/invoices/${id}/edit`,
     },
+    budget: {
+      list: '/invoices?tab=budgets',
+      create: '/invoices?tab=budgets&create=true',
+      detail: (id: string) => `/budgets/${id}`,
+    },
     deliveryNote: {
       list: '/deliveryNotes',
       create: '/deliveryNotes/create',
@@ -41,6 +46,7 @@ const useRoutes = () => {
     print: {
       workOrder: '/print/workorder',
       order: '/print/order',
+      budget: (id: string) => `/print/budget?id=${id}`,
     },
     accounts: '/account',
   };

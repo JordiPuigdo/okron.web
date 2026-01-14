@@ -72,7 +72,7 @@ export function BudgetItemRow({
 
   const handleTypeChange = (newType: BudgetItemType) => {
     const updates: Partial<BudgetItemFormData> = { type: newType };
-    
+
     // Reset related fields when type changes
     if (newType === BudgetItemType.SparePart) {
       updates.operatorId = undefined;
@@ -82,7 +82,7 @@ export function BudgetItemRow({
       updates.sparePartId = undefined;
       updates.operatorId = undefined;
     }
-    
+
     onUpdate(item.tempId, updates);
   };
 
@@ -113,7 +113,9 @@ export function BudgetItemRow({
       <div className="flex items-start gap-4">
         {/* Index & Type */}
         <div className="flex flex-col items-center gap-2">
-          <span className="text-xs text-gray-400 font-medium">#{index + 1}</span>
+          <span className="text-xs text-gray-400 font-medium">
+            #{index + 1}
+          </span>
           <div className={`p-2 rounded-lg border ${getTypeColor()}`}>
             {getTypeIcon()}
           </div>
@@ -125,7 +127,11 @@ export function BudgetItemRow({
           <div className="flex gap-2">
             {[
               { type: BudgetItemType.Labor, label: "Mà d'obra", icon: User },
-              { type: BudgetItemType.SparePart, label: 'Recanvi', icon: Package },
+              {
+                type: BudgetItemType.SparePart,
+                label: 'Recanvi',
+                icon: Package,
+              },
               { type: BudgetItemType.Other, label: 'Altre', icon: Wrench },
             ].map(({ type, label, icon: Icon }) => (
               <button
@@ -137,7 +143,9 @@ export function BudgetItemRow({
                   item.type === type
                     ? 'bg-[#6E41B6] text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                } ${
+                  disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                }`}
               >
                 <Icon className="w-3 h-3" />
                 {label}
@@ -149,14 +157,15 @@ export function BudgetItemRow({
           {item.type === BudgetItemType.SparePart && (
             <select
               value={item.sparePartId || ''}
-              onChange={(e) => handleSparePartChange(e.target.value)}
+              onChange={e => handleSparePartChange(e.target.value)}
               disabled={disabled}
               className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:border-[#6E41B6] focus:outline-none"
             >
               <option value="">Selecciona un recanvi...</option>
               {spareParts.map(sp => (
                 <option key={sp.id} value={sp.id}>
-                  {sp.code} - {sp.description} ({formatCurrency(sp.rrp || sp.price)})
+                  {sp.code} - {sp.description} (
+                  {formatCurrency(sp.rrp || sp.price)})
                 </option>
               ))}
             </select>
@@ -165,7 +174,7 @@ export function BudgetItemRow({
           {item.type === BudgetItemType.Labor && (
             <select
               value={item.operatorId || ''}
-              onChange={(e) => handleOperatorChange(e.target.value)}
+              onChange={e => handleOperatorChange(e.target.value)}
               disabled={disabled}
               className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:border-[#6E41B6] focus:outline-none"
             >
@@ -182,7 +191,9 @@ export function BudgetItemRow({
           <input
             type="text"
             value={item.description}
-            onChange={(e) => onUpdate(item.tempId, { description: e.target.value })}
+            onChange={e =>
+              onUpdate(item.tempId, { description: e.target.value })
+            }
             disabled={disabled}
             placeholder="Descripció..."
             className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:border-[#6E41B6] focus:outline-none"
@@ -191,11 +202,17 @@ export function BudgetItemRow({
           {/* Quantity, Price, Discount, Tax */}
           <div className="grid grid-cols-4 gap-2">
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Quantitat</label>
+              <label className="text-xs text-gray-500 mb-1 block">
+                Quantitat
+              </label>
               <input
                 type="number"
                 value={item.quantity}
-                onChange={(e) => onUpdate(item.tempId, { quantity: parseFloat(e.target.value) || 0 })}
+                onChange={e =>
+                  onUpdate(item.tempId, {
+                    quantity: parseFloat(e.target.value) || 0,
+                  })
+                }
                 disabled={disabled}
                 min="0"
                 step="0.5"
@@ -203,11 +220,17 @@ export function BudgetItemRow({
               />
             </div>
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Preu unit.</label>
+              <label className="text-xs text-gray-500 mb-1 block">
+                Preu unit.
+              </label>
               <input
                 type="number"
                 value={item.unitPrice}
-                onChange={(e) => onUpdate(item.tempId, { unitPrice: parseFloat(e.target.value) || 0 })}
+                onChange={e =>
+                  onUpdate(item.tempId, {
+                    unitPrice: parseFloat(e.target.value) || 0,
+                  })
+                }
                 disabled={disabled}
                 min="0"
                 step="0.01"
@@ -215,11 +238,17 @@ export function BudgetItemRow({
               />
             </div>
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Desc. %</label>
+              <label className="text-xs text-gray-500 mb-1 block">
+                Desc. %
+              </label>
               <input
                 type="number"
                 value={item.discountPercentage}
-                onChange={(e) => onUpdate(item.tempId, { discountPercentage: parseFloat(e.target.value) || 0 })}
+                onChange={e =>
+                  onUpdate(item.tempId, {
+                    discountPercentage: parseFloat(e.target.value) || 0,
+                  })
+                }
                 disabled={disabled}
                 min="0"
                 max="100"
@@ -230,7 +259,11 @@ export function BudgetItemRow({
               <label className="text-xs text-gray-500 mb-1 block">IVA %</label>
               <select
                 value={item.taxPercentage}
-                onChange={(e) => onUpdate(item.tempId, { taxPercentage: parseFloat(e.target.value) })}
+                onChange={e =>
+                  onUpdate(item.tempId, {
+                    taxPercentage: parseFloat(e.target.value),
+                  })
+                }
                 disabled={disabled}
                 className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:border-[#6E41B6] focus:outline-none"
               >
@@ -293,7 +326,9 @@ export function generateTempId(): string {
 /**
  * Crea un nuevo item vacío con valores por defecto
  */
-export function createEmptyItem(type: BudgetItemType = BudgetItemType.Other): BudgetItemFormData {
+export function createEmptyItem(
+  type: BudgetItemType = BudgetItemType.Other
+): BudgetItemFormData {
   return {
     tempId: generateTempId(),
     type,

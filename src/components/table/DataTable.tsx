@@ -30,6 +30,7 @@ interface DataTableProps {
   entity: EntityTable;
   onDelete?: (id: string) => void;
   onEdit?: (item: any) => void;
+  onPreview?: (item: any) => void;
   totalCounts?: boolean;
   enableFilterActive?: boolean;
   enableCheckbox?: boolean;
@@ -61,6 +62,7 @@ const DataTable: React.FC<DataTableProps> = ({
   entity,
   onDelete,
   onEdit,
+  onPreview,
   totalCounts = false,
   enableFilterActive = true,
   enableCheckbox = false,
@@ -240,6 +242,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 pathDetail={pathDetail}
                 onDelete={onDelete ? onDelete : undefined}
                 onEdit={onEdit}
+                onPreview={onPreview}
                 totalCounts={totalCounts}
                 totalQuantity={formattedPrice ?? 0}
                 filtersApplied={tableFilters.filtersApplied}

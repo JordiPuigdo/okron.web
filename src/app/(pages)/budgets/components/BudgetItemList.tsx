@@ -18,6 +18,7 @@ interface BudgetItemListProps {
   spareParts: SparePart[];
   operators: Operator[];
   disabled?: boolean;
+  t: (key: string) => string;
 }
 
 /**
@@ -31,14 +32,17 @@ export function BudgetItemList({
   spareParts,
   operators,
   disabled = false,
+  t,
 }: BudgetItemListProps) {
-
   const handleAddItem = (type: BudgetItemType) => {
     const newItem = createEmptyItem(type);
     onChange([...items, newItem]);
   };
 
-  const handleUpdateItem = (tempId: string, updates: Partial<BudgetItemFormData>) => {
+  const handleUpdateItem = (
+    tempId: string,
+    updates: Partial<BudgetItemFormData>
+  ) => {
     onChange(
       items.map(item =>
         item.tempId === tempId ? { ...item, ...updates } : item
@@ -51,13 +55,16 @@ export function BudgetItemList({
   };
 
   // Cálculos de totales
-  const subtotal = items.reduce((acc, item) => acc + calculateLineTotal(item), 0);
-  
+  const subtotal = items.reduce(
+    (acc, item) => acc + calculateLineTotal(item),
+    0
+  );
+
   const taxBreakdown = items.reduce((acc, item) => {
     const lineTotal = calculateLineTotal(item);
     const taxAmount = lineTotal * (item.taxPercentage / 100);
     const existingTax = acc.find(t => t.percentage === item.taxPercentage);
-    
+
     if (existingTax) {
       existingTax.base += lineTotal;
       existingTax.amount += taxAmount;
@@ -79,7 +86,7 @@ export function BudgetItemList({
       {/* Header con botones de añadir */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">
-          Línies del pressupost
+          ({t('budget.form.lines')})
           {items.length > 0 && (
             <span className="ml-2 text-sm font-normal text-gray-500">
               ({items.length} {items.length === 1 ? 'línia' : 'línies'})
@@ -93,21 +100,21 @@ export function BudgetItemList({
         <QuickAddButton
           onClick={() => handleAddItem(BudgetItemType.Labor)}
           icon={User}
-          label="Mà d'obra"
+          label={t('budget.itemType.labor')}
           color="blue"
           disabled={disabled}
         />
         <QuickAddButton
           onClick={() => handleAddItem(BudgetItemType.SparePart)}
           icon={Package}
-          label="Recanvi"
+          label={t('budget.itemType.sparePart')}
           color="green"
           disabled={disabled}
         />
         <QuickAddButton
           onClick={() => handleAddItem(BudgetItemType.Other)}
           icon={Wrench}
-          label="Altre concepte"
+          label={t('budget.itemType.other')}
           color="gray"
           disabled={disabled}
         />
@@ -115,7 +122,7 @@ export function BudgetItemList({
 
       {/* Lista de items */}
       {items.length === 0 ? (
-        <EmptyState onAddItem={handleAddItem} disabled={disabled} />
+        <EmptyState onAddItem={handleAddItem} disabled={disabled} t={t} />
       ) : (
         <div className="space-y-3">
           {items.map((item, index) => (
@@ -140,6 +147,7 @@ export function BudgetItemList({
           taxBreakdown={taxBreakdown}
           totalTax={totalTax}
           total={total}
+          t={t}
         />
       )}
     </div>
@@ -171,9 +179,9 @@ function QuickAddButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 font-medium text-sm transition-all ${colorStyles[color]} ${
-        disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-      }`}
+      className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 font-medium text-sm transition-all ${
+        colorStyles[color]
+      } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
     >
       <Plus className="w-4 h-4" />
       <Icon className="w-4 h-4" />
@@ -186,9 +194,11 @@ function QuickAddButton({
 function EmptyState({
   onAddItem,
   disabled,
+  t,
 }: {
   onAddItem: (type: BudgetItemType) => void;
   disabled?: boolean;
+  t: (key: string) => string;
 }) {
   return (
     <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center">
@@ -204,10 +214,10 @@ function EmptyState({
         </div>
       </div>
       <h4 className="text-lg font-medium text-gray-700 mb-2">
-        Afegeix línies al pressupost
+        {t('budget.newlines')}
       </h4>
       <p className="text-sm text-gray-500 mb-4">
-        Pots afegir mà d'obra, recanvis o altres conceptes
+        {t('budget.form.addLinesDescription')}
       </p>
       <button
         type="button"
@@ -216,7 +226,7 @@ function EmptyState({
         className="inline-flex items-center gap-2 px-6 py-3 bg-[#6E41B6] text-white rounded-full font-medium hover:bg-[#5a3596] transition-colors disabled:opacity-50"
       >
         <Plus className="w-5 h-5" />
-        Afegir primera línia
+        {t('budget.form.addFirstLine')}
       </button>
     </div>
   );
@@ -233,38 +243,44 @@ function TotalsSummary({
   taxBreakdown,
   totalTax,
   total,
+  t,
 }: {
   subtotal: number;
   taxBreakdown: { percentage: number; base: number; amount: number }[];
   totalTax: number;
   total: number;
+  t: (key: string) => string;
 }) {
   return (
     <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-100">
       <div className="flex justify-end">
         <div className="w-64 space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Subtotal:</span>
+            <span className="text-gray-600">
+              {t('budget.preview.subtotal')}:
+            </span>
             <span className="font-medium">{formatCurrency(subtotal)}</span>
           </div>
-          
+
           {taxBreakdown.map(tax => (
             <div key={tax.percentage} className="flex justify-between text-sm">
               <span className="text-gray-600">IVA {tax.percentage}%:</span>
               <span className="font-medium">{formatCurrency(tax.amount)}</span>
             </div>
           ))}
-          
+
           {totalTax > 0 && (
             <div className="flex justify-between text-sm border-t border-purple-200 pt-2">
               <span className="text-gray-600">Total impostos:</span>
               <span className="font-medium">{formatCurrency(totalTax)}</span>
             </div>
           )}
-          
+
           <div className="flex justify-between text-lg border-t-2 border-purple-300 pt-2">
             <span className="font-bold text-gray-900">TOTAL:</span>
-            <span className="font-bold text-[#6E41B6]">{formatCurrency(total)}</span>
+            <span className="font-bold text-[#6E41B6]">
+              {formatCurrency(total)}
+            </span>
           </div>
         </div>
       </div>

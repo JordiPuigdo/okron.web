@@ -139,4 +139,16 @@ export class BudgetService {
 
     return response.json();
   }
+
+  async reactivate(id: string): Promise<Budget> {
+    const response = await fetch(`${this.baseUrl}budgets/${id}/reactivate`, {
+      method: 'PUT',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to reactivate budget');
+    }
+
+    return response.json();
+  }
 }

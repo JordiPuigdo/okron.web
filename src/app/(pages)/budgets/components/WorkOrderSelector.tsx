@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { UserType } from 'app/interfaces/User';
-import { WorkOrder, OriginWorkOrder } from 'app/interfaces/workOrder';
+import { OriginWorkOrder, WorkOrder } from 'app/interfaces/workOrder';
 import { workOrderService } from 'app/services/workOrderService';
 import { Briefcase, Check, Search, X } from 'lucide-react';
 
@@ -16,7 +16,7 @@ interface WorkOrderSelectorProps {
 /**
  * Componente para seleccionar una WorkOrder asociada al presupuesto.
  * Single Responsibility: Solo gestiona la búsqueda y selección de WorkOrders.
- * 
+ *
  * TODO: Cuando el backend soporte filtrar por customerId, implementar búsqueda automática.
  */
 export function WorkOrderSelector({
@@ -26,7 +26,9 @@ export function WorkOrderSelector({
   disabled = false,
 }: WorkOrderSelectorProps) {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
-  const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | undefined>();
+  const [selectedWorkOrder, setSelectedWorkOrder] = useState<
+    WorkOrder | undefined
+  >();
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -51,11 +53,10 @@ export function WorkOrderSelector({
       startDate.setMonth(startDate.getMonth() - 6); // Últimos 6 meses
 
       const orders = await workOrderService.getWorkOrdersWithFilters({
-        startDateTime: startDate,
-        endDateTime: endDate,
-        userType: UserType.Maintenance,
+        userType: UserType.CRM,
         originWorkOrder: OriginWorkOrder.Maintenance,
         hasDeliveryNote: false,
+        customerId: customerId,
       });
       setWorkOrders(orders.slice(0, 50)); // Limitar a 50 para performance
     } catch (error) {
@@ -78,9 +79,10 @@ export function WorkOrderSelector({
     onSelect(undefined);
   };
 
-  const filteredWorkOrders = workOrders.filter(wo =>
-    wo.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    wo.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredWorkOrders = workOrders.filter(
+    wo =>
+      wo.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      wo.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (!customerId) {
@@ -106,8 +108,12 @@ export function WorkOrderSelector({
             <Briefcase className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-gray-900 truncate">{selectedWorkOrder.code}</p>
-            <p className="text-sm text-gray-600 truncate">{selectedWorkOrder.description}</p>
+            <p className="font-semibold text-gray-900 truncate">
+              {selectedWorkOrder.code}
+            </p>
+            <p className="text-sm text-gray-600 truncate">
+              {selectedWorkOrder.description}
+            </p>
           </div>
           {!disabled && (
             <button
@@ -151,7 +157,7 @@ export function WorkOrderSelector({
                   <input
                     type="text"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={e => setSearchTerm(e.target.value)}
                     placeholder="Cercar..."
                     className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:border-[#6E41B6] focus:outline-none"
                     autoFocus
@@ -178,8 +184,12 @@ export function WorkOrderSelector({
                           <Briefcase className="w-4 h-4 text-gray-600" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-900 truncate">{wo.code}</p>
-                          <p className="text-xs text-gray-500 truncate">{wo.description}</p>
+                          <p className="font-medium text-gray-900 truncate">
+                            {wo.code}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {wo.description}
+                          </p>
                         </div>
                         {wo.id === selectedWorkOrderId && (
                           <Check className="w-5 h-5 text-[#6E41B6]" />

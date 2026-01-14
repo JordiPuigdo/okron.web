@@ -34,17 +34,31 @@ const AutocompleteSearchBar: React.FC<AutocompleteSearchBarProps> = ({
     setCurrentId(selectedId);
   }
 
+  // Recalcular searchResults cuando cambian los elements o el query
+  useEffect(() => {
+    if (query) {
+      const searchTerms = query
+        .trim()
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(Boolean);
+      setSearchResults(
+        elements.filter(element => {
+          const description = element.description.toLowerCase();
+          // Todas las palabras de búsqueda deben estar presentes en la descripción
+          return searchTerms.every(term => description.includes(term));
+        })
+      );
+    } else {
+      setSearchResults([]);
+    }
+  }, [elements, query]);
+
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentId('');
-    setQuery(event.target.value);
+    const newQuery = event.target.value;
+    setQuery(newQuery);
     setSelectedElementIndex(-1);
-    setSearchResults(
-      elements.filter(element =>
-        element.description
-          .toLowerCase()
-          .includes(event.target.value.trim().toLowerCase())
-      )
-    );
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
