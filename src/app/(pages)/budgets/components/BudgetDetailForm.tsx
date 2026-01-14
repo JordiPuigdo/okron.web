@@ -384,7 +384,8 @@ export function BudgetDetailForm({
                       .filter(value => typeof value === 'number')
                       .map(status => (
                         <option key={status} value={status}>
-                          {STATUS_CONFIG[status as BudgetStatus]?.label || status}
+                          {STATUS_CONFIG[status as BudgetStatus]?.label ||
+                            status}
                         </option>
                       ))}
                   </select>
@@ -757,9 +758,7 @@ function EditableItemRow({
     <tr className="border-t hover:bg-gray-50">
       <td className="p-2 border">
         {isReadOnly ? (
-          <span className="text-xs">
-            {ITEM_TYPE_CONFIG[item.type]?.label}
-          </span>
+          <span className="text-xs">{ITEM_TYPE_CONFIG[item.type]?.label}</span>
         ) : (
           <select
             value={item.type}
