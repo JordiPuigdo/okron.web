@@ -85,6 +85,28 @@ const OperatorForm: React.FC<OperatorFormProps> = ({
 
       <div className="mb-4">
         <label
+          htmlFor="email"
+          className="block text-sm font-medium text-gray-700"
+        >
+          {t('email')}
+        </label>
+        <Controller
+          name="email"
+          control={control}
+          defaultValue={operator ? operator.email : ''}
+          render={({ field }) => (
+            <input
+              {...field}
+              type="email"
+              placeholder={t('email')}
+              className="border rounded-md w-full px-3 py-2 mt-1 text-gray-700 focus:outline-none focus:border-indigo-500"
+            />
+          )}
+        />
+      </div>
+
+      <div className="mb-4">
+        <label
           htmlFor="name"
           className="block text-sm font-medium text-gray-700"
         >

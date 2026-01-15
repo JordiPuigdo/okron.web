@@ -228,7 +228,7 @@ export function DeliveryNoteCreateForm() {
                 placeholder={t('search.customer')}
                 mapElement={customer => ({
                   id: customer.id,
-                  description: `${customer.name} - ${customer.taxId}`,
+                  description: `${customer.name} - ${customer.fiscalName} - ${customer.taxId}`,
                 })}
               />
               {errors.customerId && (

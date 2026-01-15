@@ -2,6 +2,7 @@ interface Operator {
   id: string;
   code: string;
   name: string;
+  email?: string;
   priceHour: number;
   operatorType: OperatorType;
   active: boolean;
