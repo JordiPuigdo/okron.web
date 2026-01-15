@@ -15,6 +15,7 @@ import {
 import { EntityTable } from 'components/table/interface/tableEntitys';
 
 import { InvoiceService } from '../../../services/invoiceService';
+import { InvoicePreviewPanel } from './InvoicePreviewPanel';
 
 interface TableDataInvoicesProps {
   className?: string;
@@ -32,6 +33,10 @@ export const TableDataInvoices = ({
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
+
+  // State para el panel de preview
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // Fecha por defecto: último mes
   const defaultDateEndDate = new Date();
@@ -104,6 +109,18 @@ export const TableDataInvoices = ({
 
   const filteredInvoices = getFilteredInvoices();
 
+  // Handler para abrir el preview
+  const handlePreview = (item: Invoice) => {
+    setSelectedInvoice(item);
+    setIsPreviewOpen(true);
+  };
+
+  // Handler para cerrar el preview
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false);
+    setTimeout(() => setSelectedInvoice(null), 300);
+  };
+
   return (
     <div className="flex flex-col h-full gap-4 w-full">
       {title && (
@@ -128,6 +145,15 @@ export const TableDataInvoices = ({
         filters={filtersInvoices}
         hideShadow={hideShadow}
         totalCounts
+        onPreview={handlePreview}
+      />
+
+      {/* Panel de vista previa */}
+      <InvoicePreviewPanel
+        invoice={selectedInvoice}
+        isOpen={isPreviewOpen}
+        onClose={handleClosePreview}
+        onRefresh={fetchInvoices}
       />
     </div>
   );
@@ -136,6 +162,7 @@ export const TableDataInvoices = ({
 const tableButtons: TableButtons = {
   edit: true,
   detail: true,
+  preview: true,
 };
 
 const columnsInvoices: Column[] = [

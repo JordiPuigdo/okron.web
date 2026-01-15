@@ -16,6 +16,7 @@ import {
 import { EntityTable } from 'components/table/interface/tableEntitys';
 
 import { DeliveryNoteService } from '../../../services/deliveryNoteService';
+import { DeliveryNotePreviewPanel } from './DeliveryNotePreviewPanel';
 
 interface TableDataDeliveryNotesProps {
   className?: string;
@@ -34,6 +35,12 @@ export const TableDataDeliveryNotes = ({
   const [deliveryNotes, setDeliveryNotes] = useState<DeliveryNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
+
+  // State para el panel de preview
+  const [selectedDeliveryNote, setSelectedDeliveryNote] =
+    useState<DeliveryNote | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
   const defaultDateStartDate = new Date(new Date().getFullYear(), 0, 1);
   const defaultDate = new Date();
   const deliveryNoteService = new DeliveryNoteService(
@@ -128,6 +135,19 @@ export const TableDataDeliveryNotes = ({
     minimumFractionDigits: 2,
   }).format(totalAmount);
 
+  // Handler para abrir el preview
+  const handlePreview = (item: DeliveryNote) => {
+    setSelectedDeliveryNote(item);
+    setIsPreviewOpen(true);
+  };
+
+  // Handler para cerrar el preview
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false);
+    // Delay para la animación antes de limpiar
+    setTimeout(() => setSelectedDeliveryNote(null), 300);
+  };
+
   return (
     <div className="flex flex-col h-full gap-4 w-full">
       {title && (
@@ -164,6 +184,15 @@ export const TableDataDeliveryNotes = ({
         hideShadow={hideShadow}
         totalCounts
         totalCalculated={Number(formattedPrice)}
+        onPreview={handlePreview}
+      />
+
+      {/* Panel de vista previa */}
+      <DeliveryNotePreviewPanel
+        deliveryNote={selectedDeliveryNote}
+        isOpen={isPreviewOpen}
+        onClose={handleClosePreview}
+        onRefresh={fetchDeliveryNotes}
       />
     </div>
   );
@@ -172,6 +201,7 @@ export const TableDataDeliveryNotes = ({
 const tableButtons: TableButtons = {
   edit: true,
   detail: true,
+  preview: true,
 };
 
 const getColumnsDeliveryNotes = (t: any): Column[] => [

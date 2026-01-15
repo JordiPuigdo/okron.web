@@ -70,15 +70,16 @@ export const TableButtonsComponent = memo(
     return (
       <td className={`${colorRow} p-4`}>
         <div className="flex flex-row gap-2 justify-center">
-          {/* Preview Button */}
-          {tableButtons.preview && onPreview && (
-            <PreviewButton onClick={handlePreview} />
-          )}
+          {/* CRM Status Button (bolsa dinero) - primero a la izquierda */}
           {entity == EntityTable.DELIVERYNOTE && (
             <CRMStatusButton
               item={item}
               isCRM={loginUser?.userType === UserType.CRM}
             />
+          )}
+          {/* Preview Button */}
+          {tableButtons.preview && onPreview && (
+            <PreviewButton onClick={handlePreview} />
           )}
           {entity !== EntityTable.WORKORDER && (
             <TableButtonsComponentStandard
