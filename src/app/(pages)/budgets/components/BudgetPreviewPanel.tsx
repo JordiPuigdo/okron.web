@@ -271,9 +271,9 @@ function CustomerInfo({ budget }: { budget: Budget }) {
           <div>
             <p className="text-sm font-medium text-[#6E41B6]">Instal·lació</p>
             <p className="text-sm text-gray-700">{budget.installation.code}</p>
-            {budget.installation.address && (
+            {budget.installation.address?.address && (
               <p className="text-sm text-gray-500">
-                {budget.installation.address}
+                {budget.installation.address.address}
               </p>
             )}
           </div>
