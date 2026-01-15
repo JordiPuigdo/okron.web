@@ -14,6 +14,7 @@ import {
   TableButtons,
 } from 'components/table/interface/interfaceTable';
 import { EntityTable } from 'components/table/interface/tableEntitys';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { DeliveryNoteService } from '../../../services/deliveryNoteService';
 import { DeliveryNotePreviewPanel } from './DeliveryNotePreviewPanel';
@@ -32,6 +33,9 @@ export const TableDataDeliveryNotes = ({
   enableFilters = true,
 }: TableDataDeliveryNotesProps) => {
   const { t } = useTranslations();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [deliveryNotes, setDeliveryNotes] = useState<DeliveryNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
@@ -56,7 +60,26 @@ export const TableDataDeliveryNotes = ({
     status: enableFilters ? [0, 1, 2] : [],
   });
 
-  const [showInvoiceds, setShowInvoiceds] = useState(false);
+  // Leer showInvoiceds de la URL
+  const showInvoicedsFromUrl = searchParams.get('showInvoiced') === 'true';
+  const [showInvoiceds, setShowInvoiceds] = useState(showInvoicedsFromUrl);
+
+  // Sincronizar con URL cuando cambia el param externo
+  useEffect(() => {
+    const urlValue = searchParams.get('showInvoiced') === 'true';
+    if (urlValue !== showInvoiceds) {
+      setShowInvoiceds(urlValue);
+    }
+  }, [searchParams]);
+
+  // Actualizar URL cuando cambia showInvoiceds
+  const handleToggleShowInvoiceds = () => {
+    const newValue = !showInvoiceds;
+    setShowInvoiceds(newValue);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('showInvoiced', newValue.toString());
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
 
   const [message, setMessage] = useState<string>('');
 
@@ -75,12 +98,9 @@ export const TableDataDeliveryNotes = ({
 
   const fetchDeliveryNotes = async () => {
     try {
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setMonth(startDate.getMonth() - 1);
       const search = {
-        startDateTime: startDate!,
-        endDateTime: endDate!,
+        startDate: dateFilters.startDate!,
+        endDate: dateFilters.endDate!,
       };
       const deliveryNotes = await deliveryNoteService.getAll(search);
       setDeliveryNotes(deliveryNotes);
@@ -105,6 +125,9 @@ export const TableDataDeliveryNotes = ({
 
   const getFilteredDeliveryNotes = (): DeliveryNote[] => {
     return deliveryNotes.filter(deliveryNote => {
+      // Filtro por facturado: si showInvoiceds es true, mostrar solo facturados
+      // Si showInvoiceds es false, mostrar solo no facturados
+      // Si queremos mostrar todos, comentar o eliminar este filtro
       if (deliveryNote.isInvoiced !== showInvoiceds) {
         return false;
       }
@@ -116,9 +139,6 @@ export const TableDataDeliveryNotes = ({
       ) {
         return false;
       }
-
-      // Puedes seguir añadiendo más filtros aquí (ej. fecha, cliente, etc.)
-      // if (filters.client && deliveryNote.clientId !== filters.client) return false;
 
       return true;
     });
@@ -163,12 +183,13 @@ export const TableDataDeliveryNotes = ({
           />
           <div
             className="gap-2 flex items-center cursor-pointer"
-            onClick={() => setShowInvoiceds(!showInvoiceds)}
+            onClick={handleToggleShowInvoiceds}
           >
             <input
               type="checkbox"
               className="cursor-pointer"
               checked={showInvoiceds}
+              onChange={() => {}} // Controlado por onClick del div
             />
             💰
           </div>

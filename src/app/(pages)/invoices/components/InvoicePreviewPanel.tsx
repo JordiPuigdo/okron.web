@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-
 import { Invoice, InvoiceStatus } from 'app/interfaces/Invoice';
 import { InvoiceService } from 'app/services/invoiceService';
 import useRoutes from 'app/utils/useRoutes';

@@ -8,8 +8,19 @@ interface ActionButtonProps {
   onClick: () => void;
   icon: React.ElementType;
   label: string;
-  variant: 'primary' | 'secondary';
+  variant: 'primary' | 'secondary' | 'success' | 'warning';
 }
+
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const VARIANT_CLASSES: Record<ActionButtonProps['variant'], string> = {
+  primary: 'bg-[#6E41B6] text-white hover:bg-[#5a3596]',
+  secondary: 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50',
+  success: 'bg-green-600 text-white hover:bg-green-700',
+  warning: 'bg-amber-500 text-white hover:bg-amber-600',
+};
 
 // ============================================================================
 // COMPONENT
@@ -27,16 +38,12 @@ export function ActionButton({
 }: ActionButtonProps) {
   const baseClasses =
     'flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors';
-  const variantClasses =
-    variant === 'primary'
-      ? 'bg-[#6E41B6] text-white hover:bg-[#5a3596]'
-      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50';
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`${baseClasses} ${variantClasses}`}
+      className={`${baseClasses} ${VARIANT_CLASSES[variant]}`}
     >
       <Icon className="w-4 h-4" />
       {label}

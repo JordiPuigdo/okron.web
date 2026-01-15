@@ -1,12 +1,16 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import {
   DeliveryNote,
   DeliveryNoteItem,
   DeliveryNoteStatus,
   DeliveryNoteWorkOrder,
 } from 'app/interfaces/DeliveryNote';
+import { DeliveryNoteService } from 'app/services/deliveryNoteService';
 import useRoutes from 'app/utils/useRoutes';
+import Loader from 'components/Loader/loader';
 import {
   ActionButton,
   CommentBlock,
@@ -21,7 +25,7 @@ import {
   SlidePanelActions,
   SlidePanelSection,
 } from 'components/SlidePanel';
-import { ClipboardList, Edit2, FileText, Printer } from 'lucide-react';
+import { ClipboardList, Edit2, FileText, Printer, Receipt } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 // ============================================================================
@@ -91,10 +95,45 @@ export function DeliveryNotePreviewPanel({
 }: DeliveryNotePreviewPanelProps) {
   const router = useRouter();
   const ROUTES = useRoutes();
+  const { t } = useTranslations();
+
+  // Estado para el albarán completo cargado desde el servidor
+  const [fullDeliveryNote, setFullDeliveryNote] = useState<DeliveryNote | null>(
+    null
+  );
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch del detalle completo cuando se abre el panel
+  useEffect(() => {
+    if (isOpen && deliveryNote?.id) {
+      setIsLoading(true);
+      const deliveryNoteService = new DeliveryNoteService(
+        process.env.NEXT_PUBLIC_API_BASE_URL || ''
+      );
+      deliveryNoteService
+        .getById(deliveryNote.id)
+        .then(data => {
+          setFullDeliveryNote(data);
+        })
+        .catch(error => {
+          console.error('Error fetching delivery note details:', error);
+          // Fallback al deliveryNote parcial si falla
+          setFullDeliveryNote(deliveryNote);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else if (!isOpen) {
+      // Limpiar cuando se cierra
+      setFullDeliveryNote(null);
+    }
+  }, [isOpen, deliveryNote?.id]);
 
   if (!deliveryNote) return null;
 
-  const statusConfig = STATUS_CONFIG[deliveryNote.status];
+  // Usar el albarán completo si está disponible, sino el parcial
+  const displayDeliveryNote = fullDeliveryNote || deliveryNote;
+  const statusConfig = STATUS_CONFIG[displayDeliveryNote.status];
 
   const handleEdit = () => {
     router.push(ROUTES.deliveryNote.detail(deliveryNote.id));
@@ -105,22 +144,36 @@ export function DeliveryNotePreviewPanel({
     window.open(`/print/deliveryNote?id=${deliveryNote.id}`, '_blank');
   };
 
+  // Navegar a crear factura con este albarán preseleccionado
+  const handleCreateInvoice = () => {
+    router.push(`${ROUTES.invoices.create}?deliveryNoteId=${deliveryNote.id}`);
+    onClose();
+  };
+
+  // Navegar al detalle de la factura si existe invoiceId
+  const handleViewInvoice = () => {
+    if (displayDeliveryNote.invoiceId) {
+      router.push(`${ROUTES.invoices.detail}${displayDeliveryNote.invoiceId}`);
+    }
+    onClose();
+  };
+
   // Preparar datos del cliente para el componente reutilizable
   const customerData = {
-    companyName: deliveryNote.companyName,
-    customerNif: deliveryNote.customerNif,
-    customerEmail: deliveryNote.customerEmail,
-    customerPhone: deliveryNote.customerPhone,
-    customerAddress: deliveryNote.customerAddress,
-    installation: deliveryNote.installation,
+    companyName: displayDeliveryNote.companyName,
+    customerNif: displayDeliveryNote.customerNif,
+    customerEmail: displayDeliveryNote.customerEmail,
+    customerPhone: displayDeliveryNote.customerPhone,
+    customerAddress: displayDeliveryNote.customerAddress,
+    installation: displayDeliveryNote.installation,
   };
 
   return (
     <SlidePanel
       isOpen={isOpen}
       onClose={onClose}
-      title={deliveryNote.code}
-      subtitle={deliveryNote.companyName}
+      title={displayDeliveryNote.code}
+      subtitle={displayDeliveryNote.companyName}
       headerActions={
         <StatusBadge
           label={statusConfig.label}
@@ -128,80 +181,108 @@ export function DeliveryNotePreviewPanel({
         />
       }
     >
-      {/* Resumen de totales */}
-      <TotalsSummary
-        label="Total albarà"
-        total={deliveryNote.total}
-        subtotal={deliveryNote.subtotal}
-        totalTax={deliveryNote.totalTax}
-        extraContent={
-          deliveryNote.isInvoiced && (
-            <span className="bg-white/20 px-3 py-1 rounded-full text-sm">
-              💰 Facturat
-            </span>
-          )
-        }
-      />
-
-      {/* Información del cliente */}
-      <SlidePanelSection title="Client">
-        <CustomerInfo
-          data={customerData}
-          extraContent={
-            deliveryNote.refCustomerIds && (
-              <RefCustomerBadge refIds={deliveryNote.refCustomerIds} />
-            )
-          }
-        />
-      </SlidePanelSection>
-
-      {/* Fecha */}
-      <SlidePanelSection title="Data">
-        <DateCard
-          label="Data albarà"
-          date={new Date(deliveryNote.deliveryNoteDate)}
-        />
-      </SlidePanelSection>
-
-      {/* Work Orders con sus items */}
-      <SlidePanelSection
-        title={`Ordres de Treball (${deliveryNote.workOrders?.length || 0})`}
-      >
-        <WorkOrdersList workOrders={deliveryNote.workOrders} />
-      </SlidePanelSection>
-
-      {/* Comentarios */}
-      {deliveryNote.externalComments && (
-        <SlidePanelSection title="Comentaris">
-          <CommentBlock
-            title="Comentari extern (visible al client)"
-            content={deliveryNote.externalComments}
-            variant="external"
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader />
+        </div>
+      ) : (
+        <>
+          {/* Resumen de totales */}
+          <TotalsSummary
+            label="Total albarà"
+            total={displayDeliveryNote.total}
+            subtotal={displayDeliveryNote.subtotal}
+            totalTax={displayDeliveryNote.totalTax}
+            extraContent={
+              displayDeliveryNote.invoiceId && (
+                <span className="bg-white/20 px-3 py-1 rounded-full text-sm text-white">
+                  💰 Facturat
+                </span>
+              )
+            }
           />
-        </SlidePanelSection>
-      )}
 
-      {/* Acciones */}
-      <SlidePanelActions>
-        <ActionButton
-          onClick={handleEdit}
-          icon={Edit2}
-          label="Editar"
-          variant="primary"
-        />
-        <ActionButton
-          onClick={handlePrint}
-          icon={Printer}
-          label="Imprimir"
-          variant="secondary"
-        />
-        <ActionButton
-          onClick={handlePrint}
-          icon={FileText}
-          label="PDF"
-          variant="secondary"
-        />
-      </SlidePanelActions>
+          {/* Información del cliente */}
+          <SlidePanelSection title="Client">
+            <CustomerInfo
+              data={customerData}
+              extraContent={
+                displayDeliveryNote.refCustomerIds && (
+                  <RefCustomerBadge
+                    refIds={displayDeliveryNote.refCustomerIds}
+                  />
+                )
+              }
+            />
+          </SlidePanelSection>
+
+          {/* Fecha */}
+          <SlidePanelSection title="Data">
+            <DateCard
+              label="Data albarà"
+              date={new Date(displayDeliveryNote.deliveryNoteDate)}
+            />
+          </SlidePanelSection>
+
+          {/* Work Orders con sus items */}
+          <SlidePanelSection
+            title={`Ordres de Treball (${
+              displayDeliveryNote.workOrders?.length || 0
+            })`}
+          >
+            <WorkOrdersList workOrders={displayDeliveryNote.workOrders} />
+          </SlidePanelSection>
+
+          {/* Comentarios */}
+          {displayDeliveryNote.externalComments && (
+            <SlidePanelSection title="Comentaris">
+              <CommentBlock
+                title="Comentari extern (visible al client)"
+                content={displayDeliveryNote.externalComments}
+                variant="external"
+              />
+            </SlidePanelSection>
+          )}
+
+          {/* Acciones */}
+          <SlidePanelActions>
+            {/* Acción principal de facturación */}
+            {displayDeliveryNote.invoiceId ? (
+              <ActionButton
+                onClick={handleViewInvoice}
+                icon={Receipt}
+                label={t('see.invoice')}
+                variant="success"
+              />
+            ) : (
+              <ActionButton
+                onClick={handleCreateInvoice}
+                icon={Receipt}
+                label={t('create.invoice')}
+                variant="warning"
+              />
+            )}
+            <ActionButton
+              onClick={handleEdit}
+              icon={Edit2}
+              label={t('edit')}
+              variant="primary"
+            />
+            <ActionButton
+              onClick={handlePrint}
+              icon={Printer}
+              label={t('print')}
+              variant="secondary"
+            />
+            <ActionButton
+              onClick={handlePrint}
+              icon={FileText}
+              label="PDF"
+              variant="secondary"
+            />
+          </SlidePanelActions>
+        </>
+      )}
     </SlidePanel>
   );
 }

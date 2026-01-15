@@ -35,6 +35,7 @@ export interface DeliveryNote extends BaseModel {
   refCustomerIds: string;
   workOrderCodes: string;
   isInvoiced: boolean;
+  invoiceId?: string;
   taxBreakdowns: TaxBreakdown[];
 }
 
