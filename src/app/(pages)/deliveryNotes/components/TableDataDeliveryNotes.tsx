@@ -35,7 +35,7 @@ export const TableDataDeliveryNotes = ({
   const { t } = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [deliveryNotes, setDeliveryNotes] = useState<DeliveryNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);

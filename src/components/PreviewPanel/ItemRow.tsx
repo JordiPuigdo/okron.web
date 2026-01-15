@@ -78,7 +78,7 @@ export function ItemRow({ item }: ItemRowProps) {
         <p className="font-medium text-gray-900 truncate">{item.description}</p>
         <p className="text-sm text-gray-500">
           {item.quantity} x {formatCurrency(item.unitPrice)}
-          {item.discountPercentage > 0 && (
+          {(item.discountPercentage ?? 0) > 0 && (
             <span className="text-orange-600 ml-2">
               -{item.discountPercentage}%
             </span>
@@ -90,7 +90,7 @@ export function ItemRow({ item }: ItemRowProps) {
         <p className="font-semibold text-gray-900">
           {formatCurrency(item.lineTotal)}
         </p>
-        <p className="text-xs text-gray-500">IVA {item.taxPercentage}%</p>
+        <p className="text-xs text-gray-500">IVA {item.taxPercentage ?? 0}%</p>
       </div>
     </div>
   );
@@ -114,7 +114,7 @@ export function ItemRowCompact({ item }: ItemRowProps) {
         <p className="font-medium text-gray-900 truncate">{item.description}</p>
         <p className="text-sm text-gray-500">
           {item.quantity} x {formatCurrency(item.unitPrice)}
-          {item.discountPercentage > 0 && (
+          {(item.discountPercentage ?? 0) > 0 && (
             <span className="text-orange-600 ml-2">
               -{item.discountPercentage}%
             </span>
@@ -126,7 +126,7 @@ export function ItemRowCompact({ item }: ItemRowProps) {
         <p className="font-semibold text-gray-900">
           {formatCurrency(item.lineTotal)}
         </p>
-        <p className="text-xs text-gray-500">IVA {item.taxPercentage}%</p>
+        <p className="text-xs text-gray-500">IVA {item.taxPercentage ?? 0}%</p>
       </div>
     </div>
   );

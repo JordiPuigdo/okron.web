@@ -53,7 +53,7 @@ export function calculateDeliveryNotesTotals(
  * Mapea un DeliveryNoteItem al formato ItemData usado por ItemRow/ItemRowCompact.
  */
 export interface ItemData {
-  id: string;
+  id?: string;
   type: number;
   description: string;
   quantity: number;
