@@ -492,6 +492,8 @@ export const getRoute = (entity: EntityTable, isForHeader = false) => {
       return ROUTES.holidays;
     case EntityTable.VACATIONAPPROVAL:
       return ROUTES.vacationApprovals;
+    case EntityTable.BUDGET:
+      return '/budgets';
     default:
       return 'error';
   }
