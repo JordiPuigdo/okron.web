@@ -16,16 +16,17 @@ import {
   translateStateWorkOrder,
   translateWorkOrderType,
 } from 'app/utils/utils';
-import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
+import { DateFilters } from 'components/Filters/DateFilter';
 import dayjs from 'dayjs';
 import { BarChartComponent } from 'designSystem/BarChart/BarChartComponent';
-import { Button } from 'designSystem/Button/Buttons';
 import { DonutChartComponent } from 'designSystem/DonutChart/DonutChartComponent';
 
 import ButtonsSections from '../components/ButtonsSections';
 import CostXAsset from '../components/CostXAsset';
 import OrdersDashboard from '../components/OrdersDashboard';
 import WorkOrdersDashboard from '../components/WorkOrdersDashboard';
+import { DashboardHeader } from './components/DashboardHeader';
+import { StatusCardsGrid } from './components/StatusCardsGrid';
 
 interface WorkOrdersChartProps {
   operator: string;
@@ -139,22 +140,11 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     if (filter === selectedFilter) return;
 
     setSelectedFilter(filter);
-    switch (filter) {
-      case 0:
-        fetchData(firstDayOfMonth);
-        break;
-      case 1:
-        fetchData(firstDayOfWeek);
-        break;
-      case 2:
-        fetchData(currentDate);
-        break;
-      default:
-        break;
-    }
+    // Nota: ahora fetchData usa dateFilters del estado
+    fetchData();
   };
 
-  async function fetchData(date: Date) {
+  async function fetchData() {
     setIsLoading(true);
 
     if (!dateFilters.startDate || !dateFilters.endDate) {
@@ -299,7 +289,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
 
   useEffect(() => {
     if (loginUser?.permission == UserPermission.Administrator) {
-      fetchData(firstDayOfMonth);
+      fetchData();
       const initialWorkOrderTypes = validStates.map(state => ({
         statWorkOrder: state,
         value: 0,
@@ -415,88 +405,27 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
 
   if (loginUser?.permission !== UserPermission.Administrator) return <></>;
   return (
-    <div className="flex flex-col w-full gap-4">
-      <div className="flex flex-col gap-4 w-full items-center p-2">
-        <div className="flex justify-start w-full gap-2 py-4">
-          {/*} <div className="flex justify-center items-center">
-            <select
-              className="border-2 border-okron-main text-okron-main bg-transparent rounded-md p-3 w-40 focus:outline-none focus:ring-2 focus:ring-okron-main cursor-pointer"
-              value={selectedFilter !== null ? selectedFilter : 0}
-              onChange={handleFilterClick}
-            >
-              {Filter.map(filter => (
-                <option key={filter.key} value={filter.key}>
-                  {filter.label}
-                </option>
-              ))}
-            </select>
-          </div>*/}
+    <div className="flex flex-col w-full gap-6 p-2">
+      {/* Header con filtros y KPIs */}
+      <DashboardHeader
+        dateFilters={dateFilters}
+        setDateFilters={setDateFilters}
+        onSearch={fetchData}
+        totalMinutes={totalMinutes}
+        totalCosts={totalCosts}
+        searchLabel={t('search')}
+        minutesLabel={t('minutes')}
+        costLabel={t('cost.material')}
+      />
 
-          <div className="flex flex-col lg:flex-row bg-white shadow-md rounded-lg p-4 w-full ml-0  space-y-4 lg:space-y-0 lg:divide-x-2 divide-gray-200">
-            <div className="flex items-center w-full lg:justify-start px-0 lg:pr-6">
-              {/*<span className="font-bold ml-2">
-                {selectedFilter === 0
-                  ? formatDate(firstDayOfMonth, false)
-                  : selectedFilter === 1
-                  ? formatDate(firstDayOfWeek, false)
-                  : currentDate.toLocaleDateString('en-GB')}{' '}
-                {' - '} {currentDate.toLocaleDateString('en-GB')}
-              </span>*/}
-              <div className="flex ml-4">
-                <DateFilter
-                  dateFilters={dateFilters}
-                  setDateFilters={setDateFilters}
-                  startTimeClassName="text-gray-500 font-semibold"
-                  endTimeClassName="text-gray-500 font-semibold"
-                />
-                <Button
-                  type="create"
-                  customStyles="flex ml-4"
-                  onClick={fetchData}
-                >
-                  {t('search')}
-                </Button>
-              </div>
-            </div>
-            <div className="flex items-center w-full lg:justify-start px-0 lg:px-6">
-              <span className="text-gray-500 font-semibold">
-                {t('minutes')}:
-              </span>
-              <span className="font-bold ml-2">
-                {Math.round(totalMinutes).toLocaleString().replace(',', '.')}
-              </span>
-            </div>
-
-            <div className="flex items-center w-full lg:justify-start px-0 lg:pl-6">
-              <span className="text-gray-500 font-semibold">
-                {t('cost.material')}:
-              </span>
-              <span className="font-bold ml-2">
-                {formatCurrency(totalCosts)} €
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-4 text-white w-full  ">
-          {workOrderState.map(workOrderType => (
-            <div
-              key={workOrderType.statWorkOrder}
-              className={`flex flex-col justify-center gap-4 p-2 bg-gray-900 w-full  ${workOrderType.color} rounded`}
-            >
-              <div className="flex w-full items-center justify-center">
-                <p className="text-lg font-semibold text-white">
-                  {translateStateWorkOrder(workOrderType.statWorkOrder, t)}
-                </p>
-              </div>
-              <div className="flex w-full items-center justify-around">
-                <p className="text-lg font-semibold text-white">
-                  {workOrderType.value}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* Status Cards */}
+      <div className="flex gap-4 w-full">
+        <StatusCardsGrid
+          workOrderStates={workOrderState}
+          translateFn={state => translateStateWorkOrder(state, t)}
+          startDate={dateFilters.startDate}
+          endDate={dateFilters.endDate}
+        />
       </div>
       <ButtonsSections
         selectedButton={selectedButton}

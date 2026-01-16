@@ -13,6 +13,63 @@ const config: Config = {
     current: 'currentColor',
     extend: {
       colors: {
+        // ================================
+        // 🎨 COLORES OFICIALES OKRON (Design System)
+        // ================================
+
+        // BRAND
+        brand: {
+          primary: '#020D29', // Grey 90 (texto, brand principal)
+          purple: '#4D004D', // Dark Purple
+          accent: '#800080', // Accent
+          red: '#FF335F',
+          yellow: {
+            DEFAULT: '#FFAE00',
+            30: '#FFCC28',
+            10: '#FFF0BE',
+          },
+        },
+
+        // ALERT COLORS
+        alert: {
+          success: '#0CA678',
+          caution: '#FFAE00',
+          warning: '#E03131',
+          warningLight: '#FFE3E3',
+        },
+
+        // NEUTRALS (de la guía)
+        grey: {
+          90: '#020D29',
+          70: '#647296',
+          50: '#C9D3E7',
+          30: '#E4EAF7',
+          10: '#F7F9FF',
+        },
+
+        // UI COLORS
+        ui: {
+          background: '#FFFFFF',
+          foreground: '#020D29',
+          muted: '#E4EAF7',
+          border: '#C9D3E7',
+        },
+
+        // SEMÁFORO / STATUS TOKENS
+        status: {
+          success: '#0CA678',
+          warning: '#FFAE00',
+          error: '#E03131',
+        },
+
+        // EXTRA
+        extra: {
+          turquoise: '#1ABC9C',
+        },
+
+        // ================================
+        // Colores existentes
+        // ================================
         progress: {
           pending: 'hsl(var(--progress-pending))',
           partial: 'hsl(var(--progress-partial))',
@@ -130,6 +187,9 @@ const config: Config = {
         },
       },
       boxShadow: {
+        // Okron Design System
+        card: '0 2px 8px rgba(0,0,0,0.05)',
+        'card-hover': '0 8px 24px rgba(0,0,0,0.12)',
         // light
         'tremor-input': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
         'tremor-card':
@@ -144,6 +204,11 @@ const config: Config = {
           '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
       },
       borderRadius: {
+        // Okron Design System
+        md: '8px',
+        lg: '12px',
+        xl: '20px',
+        // Tremor
         'tremor-small': '0.375rem',
         'tremor-default': '0.5rem',
         'tremor-full': '9999px',
