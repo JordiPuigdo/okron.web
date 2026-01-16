@@ -11,7 +11,7 @@ export default function ConsumedsSparePart({
   chartConsumedSpareParts: ConsumedSparePartsChartProps[];
 }) {
   const { t } = useTranslations();
-  
+
   return (
     <div>
       <p className="text-lg font-semibold mb-4 items-center w-full">

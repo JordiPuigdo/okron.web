@@ -46,7 +46,6 @@ interface WorkOrderStateChartProps {
   color: string;
 }
 
-
 export interface DashboardMM {
   loginUser: LoginUser;
 }

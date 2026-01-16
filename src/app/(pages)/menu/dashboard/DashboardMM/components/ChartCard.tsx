@@ -42,21 +42,15 @@ export const ChartCard: React.FC<ChartCardProps> = ({
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-brand-primary">
-            {title}
-          </h3>
+          <h3 className="text-lg font-semibold text-brand-primary">{title}</h3>
           {subtitle && (
-            <p className="text-sm text-grey-70 mt-0.5">
-              {subtitle}
-            </p>
+            <p className="text-sm text-grey-70 mt-0.5">{subtitle}</p>
           )}
         </div>
       </div>
 
       {/* Chart content */}
-      <div className="flex-1 min-h-0">
-        {children}
-      </div>
+      <div className="flex-1 min-h-0">{children}</div>
     </div>
   );
 };
@@ -68,8 +62,9 @@ export const ChartLegend: React.FC<ChartLegendProps> = ({ items }) => {
   return (
     <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-grey-30">
       {items.map((item, index) => {
-        const percentage = total > 0 ? Math.round((item.value / total) * 100) : 0;
-        
+        const percentage =
+          total > 0 ? Math.round((item.value / total) * 100) : 0;
+
         return (
           <div
             key={index}
@@ -88,7 +83,7 @@ export const ChartLegend: React.FC<ChartLegendProps> = ({ items }) => {
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: item.color }}
             />
-            
+
             {/* Label and value */}
             <div className="flex flex-col">
               <span className="text-xs text-grey-70 font-medium">
@@ -98,9 +93,7 @@ export const ChartLegend: React.FC<ChartLegendProps> = ({ items }) => {
                 <span className="text-sm font-bold text-brand-primary">
                   {item.value}
                 </span>
-                <span className="text-xs text-grey-70">
-                  ({percentage}%)
-                </span>
+                <span className="text-xs text-grey-70">({percentage}%)</span>
               </div>
             </div>
           </div>

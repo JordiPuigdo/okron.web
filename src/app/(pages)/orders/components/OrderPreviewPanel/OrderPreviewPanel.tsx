@@ -14,7 +14,7 @@ import {
   SlidePanelActions,
   SlidePanelSection,
 } from 'components/SlidePanel';
-import { Edit2, Printer, Truck } from 'lucide-react';
+import { Edit2, MessageCircle, Printer, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { ORDER_TYPE_CONFIG, STATUS_CONFIG } from './constants';
@@ -53,8 +53,10 @@ export function OrderPreviewPanel({
   if (!order) return null;
 
   // Datos derivados
-  const statusConfig = STATUS_CONFIG[displayOrder?.status ?? OrderStatus.Pending];
-  const typeConfig = ORDER_TYPE_CONFIG[displayOrder?.type ?? OrderType.Purchase];
+  const statusConfig =
+    STATUS_CONFIG[displayOrder?.status ?? OrderStatus.Pending];
+  const typeConfig =
+    ORDER_TYPE_CONFIG[displayOrder?.type ?? OrderType.Purchase];
   const items = displayOrder?.items || [];
   const totals = calculateOrderTotals(items);
   const receptionProgress = calculateReceptionProgress(items);
@@ -76,6 +78,18 @@ export function OrderPreviewPanel({
 
   const handlePrint = () => {
     window.open(`/print/order?id=${order.id}`, '_blank');
+  };
+
+  const handleWhatsApp = () => {
+    const phone = displayOrder?.provider?.phoneNumber;
+    if (!phone) return;
+
+    // Formatear número: quitar caracteres no numéricos y asegurar prefijo 34
+    const formattedPhone = phone.replace(/\D/g, '').replace(/^(?!34)/, '34');
+    const message = encodeURIComponent(
+      `Bon dia, em poso en contacte per la comanda ${displayOrder?.code || ''}.`
+    );
+    window.open(`https://wa.me/${formattedPhone}?text=${message}`, '_blank');
   };
 
   const handleNavigateToRelatedOrder = (orderId: string) => {
@@ -110,6 +124,8 @@ export function OrderPreviewPanel({
           onEdit={handleEdit}
           onCreateDeliveryNote={handleCreateDeliveryNote}
           onPrint={handlePrint}
+          onWhatsApp={handleWhatsApp}
+          hasProviderPhone={!!displayOrder?.provider?.phoneNumber}
           onNavigateToRelatedOrder={handleNavigateToRelatedOrder}
         />
       )}
@@ -144,6 +160,8 @@ interface OrderPreviewContentProps {
   onEdit: () => void;
   onCreateDeliveryNote: () => void;
   onPrint: () => void;
+  onWhatsApp: () => void;
+  hasProviderPhone: boolean;
   onNavigateToRelatedOrder: (orderId: string) => void;
 }
 
@@ -158,6 +176,8 @@ function OrderPreviewContent({
   onEdit,
   onCreateDeliveryNote,
   onPrint,
+  onWhatsApp,
+  hasProviderPhone,
   onNavigateToRelatedOrder,
 }: OrderPreviewContentProps) {
   return (
@@ -220,6 +240,15 @@ function OrderPreviewContent({
             onClick={onCreateDeliveryNote}
             icon={Truck}
             label="Crear Albarà Recepció"
+            variant="success"
+          />
+        )}
+
+        {hasProviderPhone && (
+          <ActionButton
+            onClick={onWhatsApp}
+            icon={MessageCircle}
+            label="WhatsApp"
             variant="success"
           />
         )}

@@ -18,10 +18,13 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
 
   // Determinar el estado basado en el porcentaje
   const getStatus = () => {
-    if (clampedPercentage <= 20) return { label: 'Excel·lent', color: '#0CA678' };
+    if (clampedPercentage <= 20)
+      return { label: 'Excel·lent', color: '#0CA678' };
     if (clampedPercentage <= 40) return { label: 'Molt bé', color: '#37B24D' };
-    if (clampedPercentage <= 60) return { label: 'Acceptable', color: '#F59F00' };
-    if (clampedPercentage <= 80) return { label: 'Millorable', color: '#F76707' };
+    if (clampedPercentage <= 60)
+      return { label: 'Acceptable', color: '#F59F00' };
+    if (clampedPercentage <= 80)
+      return { label: 'Millorable', color: '#F76707' };
     return { label: 'Crític', color: '#E03131' };
   };
 
@@ -37,7 +40,7 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
     // Configuración del canvas para alta resolución
     const dpr = window.devicePixelRatio || 1;
     canvas.width = size * dpr;
-    canvas.height = (size * 0.65) * dpr;
+    canvas.height = size * 0.65 * dpr;
     canvas.style.width = `${size}px`;
     canvas.style.height = `${size * 0.65}px`;
     ctx.scale(dpr, dpr);
@@ -56,11 +59,11 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
 
     // Dibujar el arco de fondo con degradado
     const gradient = ctx.createLinearGradient(0, centerY, size, centerY);
-    gradient.addColorStop(0, '#0CA678');    // Verde - excelente
+    gradient.addColorStop(0, '#0CA678'); // Verde - excelente
     gradient.addColorStop(0.25, '#37B24D'); // Verde claro
-    gradient.addColorStop(0.5, '#F59F00');  // Amarillo - medio
+    gradient.addColorStop(0.5, '#F59F00'); // Amarillo - medio
     gradient.addColorStop(0.75, '#F76707'); // Naranja
-    gradient.addColorStop(1, '#E03131');    // Rojo - crítico
+    gradient.addColorStop(1, '#E03131'); // Rojo - crítico
 
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, startAngle, endAngle, false);
@@ -103,7 +106,6 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
     ctx.arc(centerX, centerY, 4, 0, Math.PI * 2);
     ctx.fillStyle = '#647296';
     ctx.fill();
-
   }, [clampedPercentage, size]);
 
   return (
@@ -117,21 +119,18 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
 
         {/* Porcentaje debajo */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-2 text-center">
-          <span 
-            className="text-3xl font-bold"
-            style={{ color: status.color }}
-          >
+          <span className="text-3xl font-bold" style={{ color: status.color }}>
             {Math.round(clampedPercentage)}%
           </span>
         </div>
       </div>
 
       {/* Estado */}
-      <div 
+      <div
         className="mt-6 px-4 py-1.5 rounded-full text-sm font-medium"
-        style={{ 
+        style={{
           backgroundColor: `${status.color}15`,
-          color: status.color 
+          color: status.color,
         }}
       >
         {status.label}

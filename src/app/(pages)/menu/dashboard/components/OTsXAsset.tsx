@@ -13,7 +13,7 @@ export default function OTsXAsset({
   chartAssets: AssetChartProps[];
 }) {
   const { t } = useTranslations();
-  
+
   return (
     <div>
       <p className="text-2xl mb-4 font-semibold text-left">

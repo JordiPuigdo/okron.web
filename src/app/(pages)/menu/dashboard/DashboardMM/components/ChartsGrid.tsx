@@ -31,9 +31,7 @@ export const ChartsGrid: React.FC<ChartsGridProps> = ({
   const total = totalCorrective + totalPreventive;
 
   // Porcentaje de correctivo (lo que queremos minimizar)
-  const correctivePercentage = total > 0 
-    ? (totalCorrective / total) * 100 
-    : 0;
+  const correctivePercentage = total > 0 ? (totalCorrective / total) * 100 : 0;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
@@ -110,7 +108,9 @@ export const ChartsGrid: React.FC<ChartsGridProps> = ({
                   <p className="text-sm font-medium text-brand-primary">
                     {operatorData.length} {t('operators')}
                   </p>
-                  <p className="text-xs text-grey-70">{t('with.assigned.work.orders')}</p>
+                  <p className="text-xs text-grey-70">
+                    {t('with.assigned.work.orders')}
+                  </p>
                 </div>
               </div>
             </div>
