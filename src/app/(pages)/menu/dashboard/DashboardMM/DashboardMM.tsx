@@ -34,19 +34,6 @@ interface WorkOrdersChartProps {
   Tickets: number;
 }
 
-export interface AssetChartProps {
-  asset: string;
-  Correctius: number;
-  Preventius: number;
-  number: number;
-}
-
-export interface ConsumedSparePartsChartProps {
-  sparePart: string;
-  number: number;
-  totalStock: number;
-}
-
 export interface WorkOrderTypeChartProps {
   workOrderType: WorkOrderType;
   value: number;
@@ -59,11 +46,6 @@ interface WorkOrderStateChartProps {
   color: string;
 }
 
-const Filter = [
-  { key: 0, label: 'Mensual' },
-  { key: 1, label: 'Setmanal' },
-  { key: 2, label: 'Dia' },
-];
 
 export interface DashboardMM {
   loginUser: LoginUser;
@@ -73,7 +55,6 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
   const operatorService = new OperatorService(
     process.env.NEXT_PUBLIC_API_BASE_URL!
   );
-  const currentDate = dayjs().startOf('day').toDate();
 
   const validStates = [
     StateWorkOrder.Waiting,
@@ -86,11 +67,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     WorkOrderStateChartProps[]
   >([]);
 
-  const [chartData, setChartData] = useState<any[]>([]);
-  const [chartAssets, setChartAssets] = useState<any[]>([]);
-  const [chartConsumedSpareParts, setChartConsumedSpareParts] = useState<any[]>(
-    []
-  );
+  const [chartData, setChartData] = useState<WorkOrdersChartProps[]>([]);
   const [selectedButton, setSelectedButton] = useState<string | null>(
     'work.orders'
   );
@@ -104,14 +81,12 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
   const [workOrderTypeChartData, setWorkOrderTypeChartData] = useState<
     WorkOrderTypeChartProps[]
   >([]);
-  const [selectedFilter, setSelectedFilter] = useState<number | null>(0);
 
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [totalMinutes, setTotalMinutes] = useState<number>(0);
   const [totalCosts, setTotalCosts] = useState<number>(0);
 
   const firstDayOfMonth = dayjs().startOf('month').toDate();
-  const firstDayOfWeek = dayjs().startOf('isoWeek').toDate();
 
   const { fetchWithFilters } = useWorkOrders();
   const { t } = useTranslations();
@@ -134,15 +109,6 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     endDate: dayjs().endOf('day').toDate(),
   });
 
-  const handleFilterClick = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const filter = parseInt(e.target.value, 10);
-    if (filter === selectedFilter) return;
-
-    setSelectedFilter(filter);
-    // Nota: ahora fetchData usa dateFilters del estado
-    fetchData();
-  };
-
   async function fetchData() {
     setIsLoading(true);
 
@@ -152,8 +118,6 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
 
     const operators = await operatorService.getOperators();
 
-    setChartAssets([]);
-    setChartConsumedSpareParts([]);
     setWorkOrderState([]);
 
     const filters: SearchWorkOrderFilters = {
@@ -167,9 +131,6 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
 
     await fetchWithFilters(filters).then(response => {
       setWorkOrders(response);
-      getTopAssets(response);
-
-      getTopConsumedSpareParts(response);
 
       if (!operators) return;
 
@@ -298,107 +259,12 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     }
   }, []);
 
-  function getTopAssets(workOrders: WorkOrder[], top: number = 3) {
-    const assetMap = new Map<string, AssetChartProps>();
-
-    workOrders
-      .filter(x => x.active == true)
-      .forEach(workOrder => {
-        const asset = workOrder.asset?.description;
-        if (asset) {
-          const existingAsset = assetMap.get(asset);
-          if (existingAsset) {
-            if (workOrder.workOrderType === WorkOrderType.Preventive) {
-              existingAsset.Preventius++;
-            }
-            if (workOrder.workOrderType === WorkOrderType.Corrective) {
-              existingAsset.Correctius++;
-            }
-            existingAsset.number++;
-          } else {
-            const newAssetEntry: AssetChartProps = {
-              asset: asset,
-              number: 1,
-              Preventius:
-                workOrder.workOrderType === WorkOrderType.Preventive ? 1 : 0,
-              Correctius:
-                workOrder.workOrderType === WorkOrderType.Corrective ? 1 : 0,
-            };
-            assetMap.set(asset, newAssetEntry);
-          }
-        }
-      });
-
-    const sortedAssets = Array.from(assetMap.values()).sort(
-      (a, b) => b.Correctius - a.Correctius
-    );
-
-    setChartAssets(sortedAssets.slice(0, top));
-  }
-
-  function getTopConsumedSpareParts(workOrders: WorkOrder[], top: number = 3) {
-    const consumedSparePartsMap = new Map<
-      string,
-      ConsumedSparePartsChartProps
-    >();
-
-    workOrders.forEach(workOrder => {
-      const consumedSpareParts = workOrder.workOrderSpareParts?.map(
-        sparePart => sparePart
-      );
-
-      if (consumedSpareParts) {
-        consumedSpareParts.forEach(consumedSparePart => {
-          const existingConsumedSparePart = consumedSparePartsMap.get(
-            consumedSparePart.sparePart.code +
-              ' - ' +
-              consumedSparePart.sparePart.description
-          );
-          if (existingConsumedSparePart) {
-            existingConsumedSparePart.number += consumedSparePart.quantity;
-          } else {
-            const newConsumedSparePartEntry: ConsumedSparePartsChartProps = {
-              sparePart:
-                consumedSparePart.sparePart.code +
-                ' - ' +
-                consumedSparePart.sparePart.description,
-              number: consumedSparePart.quantity,
-              totalStock: consumedSparePart.sparePart.stock,
-            };
-            consumedSparePartsMap.set(
-              consumedSparePart.sparePart.code +
-                ' - ' +
-                consumedSparePart.sparePart.description,
-              newConsumedSparePartEntry
-            );
-          }
-        });
-      }
-
-      const sortedSpareParts = Array.from(consumedSparePartsMap.values()).sort(
-        (a, b) => b.number - a.number
-      );
-      setChartConsumedSpareParts(sortedSpareParts.slice(0, top));
-    });
-  }
-
   const totalPreventive = workOrderTypeChartData
     .filter(x => x.workOrderType == WorkOrderType.Preventive)
     .reduce((acc, item) => acc + item.value, 0);
   const totalCorrective = workOrderTypeChartData
     .filter(x => x.workOrderType == WorkOrderType.Corrective)
     .reduce((acc, item) => acc + item.value, 0);
-  const totalTickets = workOrderTypeChartData
-    .filter(x => x.workOrderType == WorkOrderType.Ticket)
-    .reduce((acc, item) => acc + item.value, 0);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-ES', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-      useGrouping: false,
-    }).format(value);
-  };
 
   if (isLoading) return <SvgSpinner className="w-full text-white" />;
 

@@ -1,6 +1,9 @@
 import { useTranslations } from 'app/hooks/useTranslations';
 
-import { ConsumedSparePartsChartProps } from '../DashboardMM/DashboardMM';
+export interface ConsumedSparePartsChartProps {
+  sparePart: string;
+  number: number;
+}
 
 export default function ConsumedsSparePart({
   chartConsumedSpareParts,

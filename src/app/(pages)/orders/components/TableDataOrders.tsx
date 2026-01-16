@@ -25,6 +25,7 @@ import { EntityTable } from 'components/table/interface/tableEntitys';
 import dayjs from 'dayjs';
 
 import { translateOrderState } from '../orderForm/components/utilsOrder';
+import { OrderPreviewPanel } from './OrderPreviewPanel';
 
 interface TableDataOrdersProps {
   orderType?: OrderType;
@@ -67,6 +68,8 @@ export const TableDataOrders = ({
   const [isInitialized, setIsInitialized] = useState(false);
 
   const [filters, setFilters] = useState<FilterValue>({});
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
@@ -263,6 +266,18 @@ export const TableDataOrders = ({
   };
   const filteredOrders = getFilteredOrders();
 
+  // Handler para abrir el preview
+  const handlePreview = (item: Order) => {
+    setSelectedOrder(item);
+    setIsPreviewOpen(true);
+  };
+
+  // Handler para cerrar el preview
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false);
+    setTimeout(() => setSelectedOrder(null), 300);
+  };
+
   if (isLoading) {
     return <div>{t('loading')}...</div>;
   }
@@ -327,6 +342,14 @@ export const TableDataOrders = ({
         filters={getFiltersOrders(t)}
         hideShadow={hideShadow}
         totalCounts
+        onPreview={handlePreview}
+      />
+
+      {/* Panel de vista previa */}
+      <OrderPreviewPanel
+        order={selectedOrder}
+        isOpen={isPreviewOpen}
+        onClose={handleClosePreview}
       />
     </div>
   );
@@ -334,6 +357,7 @@ export const TableDataOrders = ({
 const tableButtons: TableButtons = {
   edit: true,
   detail: true,
+  preview: true,
 };
 
 const getColumnsOrders = (t: any, id: string): Column[] => {

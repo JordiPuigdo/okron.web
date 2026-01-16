@@ -136,18 +136,6 @@ export const GaugeChart: React.FC<GaugeChartProps> = ({
       >
         {status.label}
       </div>
-
-      {/* Leyenda */}
-      <div className="flex items-center justify-between w-full mt-4 px-4">
-        <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-alert-success" />
-          <span className="text-xs text-grey-70">Preventiu</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-alert-warning" />
-          <span className="text-xs text-grey-70">Correctiu</span>
-        </div>
-      </div>
     </div>
   );
 };

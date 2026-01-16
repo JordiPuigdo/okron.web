@@ -51,21 +51,14 @@ export const ChartsGrid: React.FC<ChartsGridProps> = ({
               size={220}
             />
 
-            {/* Stats debajo del gauge */}
-            <div className="flex justify-center gap-8 mt-6 pt-4 border-t border-grey-30 w-full">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-alert-success">
-                  {totalPreventive}
-                </p>
-                <p className="text-xs text-grey-70">{t('preventive')}</p>
-              </div>
-              <div className="w-px bg-grey-30" />
-              <div className="text-center">
-                <p className="text-2xl font-bold text-alert-warning">
-                  {totalCorrective}
-                </p>
-                <p className="text-xs text-grey-70">{t('corrective')}</p>
-              </div>
+            {/* Stats simplificados */}
+            <div className="mt-6 pt-4 border-t border-grey-30 w-full text-center">
+              <p className="text-base text-grey-70">
+                {t('preventive')} vs {t('corrective')}
+                <span className="ml-2 text-lg font-semibold text-brand-primary">
+                  ({totalPreventive}/{totalCorrective})
+                </span>
+              </p>
             </div>
           </div>
         ) : (

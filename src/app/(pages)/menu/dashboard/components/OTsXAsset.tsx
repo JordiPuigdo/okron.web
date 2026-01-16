@@ -1,6 +1,11 @@
 import { useTranslations } from 'app/hooks/useTranslations';
 
-import { AssetChartProps } from '../DashboardMM/DashboardMM';
+export interface AssetChartProps {
+  asset: string;
+  number: number;
+  Correctius: number;
+  Preventius: number;
+}
 
 export default function OTsXAsset({
   chartAssets,
