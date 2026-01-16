@@ -1,7 +1,7 @@
-import Container from "components/layout/Container";
-import MainLayout from "components/layout/MainLayout";
+import Container from 'components/layout/Container';
+import MainLayout from 'components/layout/MainLayout';
 
-import WorkOrderEditForm from "./components/workOrderEditForm";
+import WorkOrderEditForm from './components/WorkOrderEditFormRefactored';
 
 export default function EditWorkOrder({ params }: { params: { id: string } }) {
   return (

@@ -269,7 +269,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
             }}
           />
         </div>
-        <div className="">
+        <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 border-b-2 ">
             <thead className="bg-gray-50">
               <tr>
@@ -294,8 +294,8 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
                     key={sparePart.sparePartId}
                     className={`${index % 2 === 0 ? '' : 'bg-gray-100'}`}
                   >
-                    <td className="p-2 whitespace-nowrap">
-                      {sparePart.sparePartName}
+                    <td className="p-2 max-w-xs">
+                      <span className="break-words">{sparePart.sparePartName}</span>
                     </td>
                     <td className="p-2 whitespace-nowrap">
                       {sparePart.warehouseStock.map((stock, index) => (
@@ -355,22 +355,24 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
           <p className="text-sm font-bold border-b-2 py-2">
             {t('spareParts.consumedUnits')}
           </p>
-          <div className="p-2">
+          <div className="p-2 space-y-2">
             {selectedSpareParts.map(selectedPart => (
               <div
                 key={selectedPart.id}
-                className=" flex flex-row items-center gap-2"
+                className="flex flex-wrap items-center gap-2 text-sm"
               >
                 <p className="text-blue-600 underline">
                   <Link href={`/spareParts/${selectedPart.sparePart.id}`}>
                     {selectedPart.sparePart.code}
                   </Link>
                 </p>
-                <p>{' - '}</p>
+                <span className="text-gray-400">|</span>
                 <p>{formatDate(selectedPart.creationDate ?? new Date())}</p>
-                <p>{' - '}</p>
-                <p>{selectedPart.sparePart.description}</p>
-                <p>{' - '}</p>
+                <span className="text-gray-400">|</span>
+                <p className="max-w-xs truncate" title={selectedPart.sparePart.description}>
+                  {selectedPart.sparePart.description}
+                </p>
+                <span className="text-gray-400">|</span>
                 <p className="text-blue-600 underline">
                   <Link
                     href={`/wareHouse/${
@@ -390,17 +392,17 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
                       : selectedPart.warehouseName}
                   </Link>
                 </p>
-                <p>{' - '}</p>
-                <p className="font-bold">
+                <span className="text-gray-400">|</span>
+                <p className="font-bold whitespace-nowrap">
                   {t('spareParts.units')} {t('consumed')}:{' '}
+                  <span className="text-okron-primary">{selectedPart.quantity}</span>
                 </p>
-                {selectedPart.quantity}
                 <button
                   disabled={isFinished}
                   type="button"
                   className={`${
                     isFinished ? 'bg-gray-400' : ' bg-red-600 hover:bg-red-400'
-                  } text-white font-semibold p-1 rounded-md`}
+                  } text-white font-semibold p-1 rounded-md flex-shrink-0`}
                   onClick={e =>
                     cancelSparePartConsumption(
                       selectedPart.sparePart,
@@ -409,7 +411,7 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
                     )
                   }
                 >
-                  <SvgRestoreSparePart className="w-8 h-8" />
+                  <SvgRestoreSparePart className="w-6 h-6" />
                 </button>
               </div>
             ))}
