@@ -19,17 +19,11 @@ export class InvoiceService {
 
     if (filters?.startDate) {
       const startDate = new Date(filters.startDate);
-      const formattedStart = `${startDate.getFullYear()}-${String(
-        startDate.getMonth() + 1
-      ).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
-      queryParams.append('startDate', formattedStart);
+      queryParams.append('startDate', startDate.toISOString());
     }
     if (filters?.endDate) {
       const endDate = new Date(filters.endDate);
-      const formattedEnd = `${endDate.getFullYear()}-${String(
-        endDate.getMonth() + 1
-      ).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
-      queryParams.append('endDate', formattedEnd);
+      queryParams.append('endDate', endDate.toISOString());
     }
     if (filters?.customerId) {
       queryParams.append('customerId', filters.customerId);
