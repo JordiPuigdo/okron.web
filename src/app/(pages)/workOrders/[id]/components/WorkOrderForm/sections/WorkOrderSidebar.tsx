@@ -12,12 +12,7 @@ import { useSessionStore } from 'app/stores/globalStore';
 import useRoutes from 'app/utils/useRoutes';
 import WorkOrderOperatorComments from 'components/operator/WorkOrderCommentOperator';
 import { Button } from 'designSystem/Button/Buttons';
-import {
-  AlertTriangle,
-  Eye,
-  FileText,
-  Wrench,
-} from 'lucide-react';
+import { AlertTriangle, Eye, FileText, Wrench } from 'lucide-react';
 import Link from 'next/link';
 
 import WorkOrderButtons from '../../WorkOrderButtons';

@@ -59,7 +59,11 @@ export function TabNavigation({
     <div
       className={`
         flex items-center gap-1 overflow-x-auto scrollbar-hide
-        ${variant === 'underline' ? 'border-b border-gray-200' : 'bg-gray-100 p-1 rounded-xl'}
+        ${
+          variant === 'underline'
+            ? 'border-b border-gray-200'
+            : 'bg-gray-100 p-1 rounded-xl'
+        }
         ${className}
       `}
     >
@@ -104,23 +108,26 @@ function TabButton({ tab, isActive, onClick, variant, size }: TabButtonProps) {
   const variantClasses = {
     default: `
       rounded-lg
-      ${isActive 
-        ? 'bg-white text-okron-primary shadow-sm' 
-        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+      ${
+        isActive
+          ? 'bg-white text-okron-primary shadow-sm'
+          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
       }
     `,
     pills: `
       rounded-lg
-      ${isActive 
-        ? 'bg-okron-primary text-white shadow-sm' 
-        : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+      ${
+        isActive
+          ? 'bg-okron-primary text-white shadow-sm'
+          : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
       }
     `,
     underline: `
       pb-3 border-b-2 -mb-px
-      ${isActive 
-        ? 'border-okron-primary text-okron-primary' 
-        : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+      ${
+        isActive
+          ? 'border-okron-primary text-okron-primary'
+          : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
       }
     `,
   };
@@ -139,11 +146,12 @@ function TabButton({ tab, isActive, onClick, variant, size }: TabButtonProps) {
           className={`
             min-w-[18px] h-[18px] px-1 text-xs font-bold rounded-full
             flex items-center justify-center
-            ${isActive 
-              ? variant === 'pills' 
-                ? 'bg-white/20 text-white' 
-                : 'bg-okron-primary text-white'
-              : 'bg-gray-300 text-gray-700'
+            ${
+              isActive
+                ? variant === 'pills'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-okron-primary text-white'
+                : 'bg-gray-300 text-gray-700'
             }
           `}
         >

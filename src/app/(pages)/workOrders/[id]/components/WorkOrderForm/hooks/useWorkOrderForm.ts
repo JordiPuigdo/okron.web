@@ -167,7 +167,9 @@ function calculateTimeExceeded(workOrder: WorkOrder): boolean {
   });
 
   const plannedDurationMs = parseDuration(workOrder.plannedDuration);
-  return plannedDurationMs === 0 ? false : totalMilliseconds > plannedDurationMs;
+  return plannedDurationMs === 0
+    ? false
+    : totalMilliseconds > plannedDurationMs;
 }
 
 function calculateCosts(workOrder: WorkOrder): {
@@ -192,7 +194,9 @@ function calculateCosts(workOrder: WorkOrder): {
   const totalOperatorCost = operatorCostsArray.reduce((acc, x) => acc + x, 0);
 
   // Calculate spare part costs
-  const sparePartCostsArray = spareParts.map(x => x.sparePart.price * x.quantity);
+  const sparePartCostsArray = spareParts.map(
+    x => x.sparePart.price * x.quantity
+  );
   const totalSparePartCost =
     sparePartCostsArray.length > 0
       ? sparePartCostsArray.reduce((acc, price) => acc + price, 0)
@@ -252,23 +256,35 @@ export function useWorkOrderForm({
 
   // Available data
   const [availableOperators, setAvailableOperators] = useState<Operator[]>([]);
-  const [availableSpareParts, setAvailableSpareParts] = useState<SparePart[]>([]);
-  
+  const [availableSpareParts, setAvailableSpareParts] = useState<SparePart[]>(
+    []
+  );
+
   // Ref to avoid dependency issues in callbacks
   const availableOperatorsRef = useRef<Operator[]>([]);
   availableOperatorsRef.current = availableOperators;
 
   // Selected data
   const [selectedOperators, setSelectedOperators] = useState<Operator[]>([]);
-  const [selectedSpareParts, setSelectedSpareParts] = useState<WorkOrderSparePart[]>([]);
-  const [workOrderOperatorTimes, setWorkOrderOperatorTimes] = useState<WorkOrderOperatorTimes[]>([]);
-  const [workOrderComments, setWorkOrderComments] = useState<WorkOrderComment[]>([]);
+  const [selectedSpareParts, setSelectedSpareParts] = useState<
+    WorkOrderSparePart[]
+  >([]);
+  const [workOrderOperatorTimes, setWorkOrderOperatorTimes] = useState<
+    WorkOrderOperatorTimes[]
+  >([]);
+  const [workOrderComments, setWorkOrderComments] = useState<
+    WorkOrderComment[]
+  >([]);
   const [workOrderEvents, setWorkOrderEvents] = useState<WorkOrderEvents[]>([]);
-  const [passedInspectionPoints, setPassedInspectionPoints] = useState<WorkOrderInspectionPoint[]>([]);
+  const [passedInspectionPoints, setPassedInspectionPoints] = useState<
+    WorkOrderInspectionPoint[]
+  >([]);
   const [startDate, setStartDate] = useState<Date | null>(new Date());
 
   // Loading states
-  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
+    {}
+  );
   const [isUpdatingCustomer, setIsUpdatingCustomer] = useState(false);
 
   // Modals
@@ -538,7 +554,10 @@ export function useWorkOrderForm({
       if (operator) {
         const updated = [...selectedOperators, operator];
         setSelectedOperators(updated);
-        setValue('operatorId', updated.map(x => x.id));
+        setValue(
+          'operatorId',
+          updated.map(x => x.id)
+        );
       }
     },
     [availableOperators, selectedOperators, setValue]
@@ -548,7 +567,10 @@ export function useWorkOrderForm({
     (operatorId: string) => {
       const updated = selectedOperators.filter(x => x.id !== operatorId);
       setSelectedOperators(updated);
-      setValue('operatorId', updated.map(x => x.id));
+      setValue(
+        'operatorId',
+        updated.map(x => x.id)
+      );
     },
     [selectedOperators, setValue]
   );
@@ -556,7 +578,10 @@ export function useWorkOrderForm({
   const handleStateChange = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       const selectedValue = parseInt(event.target.value, 10);
-      if (selectedValue === StateWorkOrder.PendingToValidate && hasDefaultReason) {
+      if (
+        selectedValue === StateWorkOrder.PendingToValidate &&
+        hasDefaultReason
+      ) {
         setValue('stateWorkOrder', workOrder!.stateWorkOrder);
         alert(t('alert.default.reason'));
       }

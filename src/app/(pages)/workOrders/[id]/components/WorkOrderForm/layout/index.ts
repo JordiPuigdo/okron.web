@@ -8,8 +8,8 @@
  * - Colors de marca consistents
  */
 
-export { ContentCard, ContentCardHeader, ContentCardBody } from './ContentCard';
-export { Section, SectionHeader, SectionContent } from './Section';
-export { TabNavigation, type TabItem } from './TabNavigation';
-export { TwoColumnLayout } from './TwoColumnLayout';
+export { ContentCard, ContentCardBody, ContentCardHeader } from './ContentCard';
 export { PageContainer } from './PageContainer';
+export { Section, SectionContent, SectionHeader } from './Section';
+export { type TabItem, TabNavigation } from './TabNavigation';
+export { TwoColumnLayout } from './TwoColumnLayout';

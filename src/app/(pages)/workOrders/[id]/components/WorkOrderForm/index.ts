@@ -20,8 +20,8 @@ export * from './layout';
 export { useWorkOrderForm, type UseWorkOrderFormReturn } from './hooks';
 
 // Main components
-export { WorkOrderHeader } from './WorkOrderHeader';
 export { WorkOrderEventsTable } from './WorkOrderEventsTable';
+export { WorkOrderHeader } from './WorkOrderHeader';
 
 // Section components
 export { WorkOrderMainForm, WorkOrderSidebar } from './sections';

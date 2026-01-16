@@ -295,7 +295,9 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
                     className={`${index % 2 === 0 ? '' : 'bg-gray-100'}`}
                   >
                     <td className="p-2 max-w-xs">
-                      <span className="break-words">{sparePart.sparePartName}</span>
+                      <span className="break-words">
+                        {sparePart.sparePartName}
+                      </span>
                     </td>
                     <td className="p-2 whitespace-nowrap">
                       {sparePart.warehouseStock.map((stock, index) => (
@@ -369,7 +371,10 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
                 <span className="text-gray-400">|</span>
                 <p>{formatDate(selectedPart.creationDate ?? new Date())}</p>
                 <span className="text-gray-400">|</span>
-                <p className="max-w-xs truncate" title={selectedPart.sparePart.description}>
+                <p
+                  className="max-w-xs truncate"
+                  title={selectedPart.sparePart.description}
+                >
                   {selectedPart.sparePart.description}
                 </p>
                 <span className="text-gray-400">|</span>
@@ -395,7 +400,9 @@ const ChooseSpareParts: React.FC<ChooseSparePartsProps> = ({
                 <span className="text-gray-400">|</span>
                 <p className="font-bold whitespace-nowrap">
                   {t('spareParts.units')} {t('consumed')}:{' '}
-                  <span className="text-okron-primary">{selectedPart.quantity}</span>
+                  <span className="text-okron-primary">
+                    {selectedPart.quantity}
+                  </span>
                 </p>
                 <button
                   disabled={isFinished}
