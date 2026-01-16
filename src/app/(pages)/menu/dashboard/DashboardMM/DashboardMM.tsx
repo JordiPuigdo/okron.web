@@ -18,14 +18,13 @@ import {
 } from 'app/utils/utils';
 import { DateFilters } from 'components/Filters/DateFilter';
 import dayjs from 'dayjs';
-import { BarChartComponent } from 'designSystem/BarChart/BarChartComponent';
-import { DonutChartComponent } from 'designSystem/DonutChart/DonutChartComponent';
 
-import ButtonsSections from '../components/ButtonsSections';
 import CostXAsset from '../components/CostXAsset';
 import OrdersDashboard from '../components/OrdersDashboard';
 import WorkOrdersDashboard from '../components/WorkOrdersDashboard';
+import { ChartsGrid } from './components/ChartsGrid';
 import { DashboardHeader } from './components/DashboardHeader';
+import { NavigationTabs } from './components/NavigationTabs';
 import { StatusCardsGrid } from './components/StatusCardsGrid';
 
 interface WorkOrdersChartProps {
@@ -427,10 +426,14 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
           endDate={dateFilters.endDate}
         />
       </div>
-      <ButtonsSections
-        selectedButton={selectedButton}
-        handleButtonClick={handleButtonClick}
+
+      {/* Navigation Tabs */}
+      <NavigationTabs
+        selectedTab={selectedButton}
+        onTabChange={handleButtonClick}
       />
+
+      {/* Content Section */}
       {selectedButton === 'costs' ? (
         <div className="flex flex-col lg:flex-row flex-grow gap-4 ">
           <div className="flex flex-col flex-grow border-2 p-2 w-full rounded-xl bg-white">
@@ -475,24 +478,12 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
       ) : selectedButton === 'purchases' ? (
         <OrdersDashboard dateRange={dateFilters} />
       ) : (
-        <div className="flex flex-col lg:flex-row flex-grow gap-4">
-          <div className="flex w-full bg-white rounded-xl p-2 border-2">
-            <DonutChartComponent
-              chartData={workOrderTypeChartData}
-              title={`${t('corrective')} / ${t('preventive')} 
-               (${totalCorrective} / ${totalPreventive})`}
-              t={t}
-            />
-          </div>
-          <div className="flex w-full bg-white rounded-xl p-2 border-2">
-            <BarChartComponent
-              category={['Preventius', 'Correctius', 'Tickets']}
-              chartData={chartData}
-              index="operator"
-              title={t('work.orders.per.operator')}
-            />
-          </div>
-        </div>
+        <ChartsGrid
+          operatorData={chartData}
+          totalCorrective={totalCorrective}
+          totalPreventive={totalPreventive}
+          t={t}
+        />
       )}
     </div>
   );
