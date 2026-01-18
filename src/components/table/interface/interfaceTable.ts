@@ -43,6 +43,7 @@ export enum ColumnFormat {
   PRICE = 'PRICE',
   INVOICESTATUS = 'INVOICESTATUS',
   DELIVERYNOTESTATUS = 'DELIVERYNOTESTATUS',
+  WORKORDERCODE = 'WORKORDERCODE',
 }
 
 export enum ColumnnAlign {

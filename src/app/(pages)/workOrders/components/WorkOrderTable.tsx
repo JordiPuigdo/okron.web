@@ -2,17 +2,19 @@
 
 import 'react-datepicker/dist/react-datepicker.css';
 
+import { useState } from 'react';
 import { usePermissions } from 'app/hooks/usePermissions';
 import { useWorkOrdersList } from 'app/hooks/useWorkOrdersList';
 import { OperatorType } from 'app/interfaces/Operator';
 import { UserType } from 'app/interfaces/User';
-import { WorkOrderType } from 'app/interfaces/workOrder';
+import { WorkOrder, WorkOrderType } from 'app/interfaces/workOrder';
 import { useSessionStore } from 'app/stores/globalStore';
 import DataTable from 'components/table/DataTable';
 import { TableButtons } from 'components/table/interface/interfaceTable';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 
 import { WorkOrdersFiltersTable } from './WorkOrderFiltersTable/WorkOrdersFiltersTable';
+import { WorkOrderPreviewPanel } from './WorkOrderPreviewPanel';
 
 interface WorkOrderTableProps {
   enableFilterAssets?: boolean;
@@ -49,6 +51,24 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     isLoading,
   } = useWorkOrdersList(operatorId);
 
+  // State para el panel de preview
+  const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(
+    null
+  );
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  // Handler para abrir el preview
+  const handlePreview = (item: WorkOrder) => {
+    setSelectedWorkOrder(item);
+    setIsPreviewOpen(true);
+  };
+
+  // Handler para cerrar el preview
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false);
+    setTimeout(() => setSelectedWorkOrder(null), 300);
+  };
+
   const tableButtons: TableButtons = {
     edit: enableEdit,
     delete: enableDelete,
@@ -81,8 +101,16 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
             operatorLogged?.operatorLoggedType === OperatorType.Quality
           }
           isLoading={isLoading}
+          onPreview={handlePreview}
         />
       )}
+
+      {/* Panel de vista previa */}
+      <WorkOrderPreviewPanel
+        workOrder={selectedWorkOrder}
+        isOpen={isPreviewOpen}
+        onClose={handleClosePreview}
+      />
     </div>
   );
 };

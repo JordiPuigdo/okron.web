@@ -2,6 +2,7 @@ import { memo, useCallback, useMemo } from 'react';
 import { QueryParams, useQueryParams } from 'app/hooks/useFilters';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { FilterValue } from 'app/types/filters';
+import { Eye } from 'lucide-react';
 
 import { Column, ColumnFormat } from '../interface/interfaceTable';
 import { EntityTable } from '../interface/tableEntitys';
@@ -130,6 +131,25 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
               ? t('active')
               : t('inactive')
             : value;
+
+        // Renderizar columna con icono de ojo para WORKORDERCODE
+        if (column.format === ColumnFormat.WORKORDERCODE && onPreview) {
+          return (
+            <td key={column.key} className={classNametd}>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => onPreview(rowData)}
+                  className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#6E41B6] hover:bg-[#5a3596] transition-colors"
+                  title="Vista prèvia"
+                >
+                  <Eye className="w-4 h-4 text-white" />
+                </button>
+                <label className={className}>{displayValue}</label>
+              </div>
+            </td>
+          );
+        }
 
         return (
           <td key={column.key} className={classNametd}>

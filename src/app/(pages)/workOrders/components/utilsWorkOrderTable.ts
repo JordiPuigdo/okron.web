@@ -12,7 +12,7 @@ export const getBaseColumns = (t: any): Column[] => [
   {
     label: t('workorder.serial.number'),
     key: 'code',
-    format: ColumnFormat.TEXT,
+    format: ColumnFormat.WORKORDERCODE,
   },
   {
     label: t('common.description'),
@@ -66,7 +66,7 @@ export const getColumnsTicket = (t: any): Column[] => [
   {
     label: t('workorder.serial.number'),
     key: 'code',
-    format: ColumnFormat.TEXT,
+    format: ColumnFormat.WORKORDERCODE,
   },
   {
     label: t('common.description'),
@@ -109,7 +109,7 @@ export const getColumnsCRM = (t: any): Column[] => [
   {
     label: t('workorder.serial.number'),
     key: 'code',
-    format: ColumnFormat.TEXT,
+    format: ColumnFormat.WORKORDERCODE,
   },
   {
     label: t('common.description'),

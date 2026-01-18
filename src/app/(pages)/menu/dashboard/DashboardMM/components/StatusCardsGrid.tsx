@@ -22,13 +22,14 @@ export const StatusCardsGrid: React.FC<StatusCardsGridProps> = ({
   endDate,
 }) => {
   return (
-    <div className="w-full">
+    <div className="w-full overflow-hidden">
       {/* Grid responsive de status cards */}
       <div
         className="
           grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 
           gap-3 lg:gap-4
           w-full
+          p-1
         "
       >
         {workOrderStates.map((workOrderState, index) => (
