@@ -13,6 +13,7 @@ import {
   WorkOrderSparePart,
   WorkOrderType,
 } from 'app/interfaces/workOrder';
+import { DeliveryNoteService } from 'app/services/deliveryNoteService';
 import { workOrderService } from 'app/services/workOrderService';
 import { useSessionStore } from 'app/stores/globalStore';
 import useRoutes from 'app/utils/useRoutes';
@@ -36,6 +37,7 @@ import {
   MessageSquare,
   Package,
   Printer,
+  Receipt,
   User,
   Wrench,
 } from 'lucide-react';
@@ -182,19 +184,55 @@ function EquipmentCard({
   );
 }
 
-function CustomerCard({ name, city }: { name: string; city?: string }) {
+function CustomerCard({ 
+  name, 
+  nif,
+  city,
+  installationCode,
+  installationCity 
+}: { 
+  name: string; 
+  nif?: string;
+  city?: string;
+  installationCode?: string;
+  installationCity?: string;
+}) {
   return (
-    <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-      <User className="w-5 h-5 text-gray-400 mt-0.5" />
-      <div>
-        <p className="font-medium text-gray-900">{name}</p>
-        {city && (
-          <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
-            <MapPin className="w-3 h-3" />
-            {city}
+    <div className="space-y-3">
+      {/* Cliente */}
+      <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 text-blue-600">
+          <User className="w-5 h-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-gray-900">{name}</p>
+          <div className="flex items-center gap-2 mt-1">
+            {nif && <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">{nif}</span>}
+            {city && (
+              <span className="text-xs text-gray-500 flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                {city}
+              </span>
+            )}
           </div>
-        )}
+        </div>
       </div>
+      
+      {/* Instalación */}
+      {installationCode && (
+        <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-100 text-purple-600">
+            <MapPin className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-purple-600 font-medium">Instal·lació</p>
+            <p className="font-medium text-gray-900">{installationCode}</p>
+            {installationCity && (
+              <p className="text-sm text-gray-500">{installationCity}</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -376,6 +414,7 @@ export function WorkOrderPreviewPanel({
 
   const [fullWorkOrder, setFullWorkOrder] = useState<WorkOrder | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCreatingDeliveryNote, setIsCreatingDeliveryNote] = useState(false);
 
   useEffect(() => {
     if (isOpen && workOrder?.id) {
@@ -426,11 +465,34 @@ export function WorkOrderPreviewPanel({
     }
   };
 
+  const handleCreateDeliveryNote = async () => {
+    if (!displayWorkOrder.customerWorkOrder?.customerId || isCreatingDeliveryNote) return;
+    
+    setIsCreatingDeliveryNote(true);
+    try {
+      const deliveryNoteService = new DeliveryNoteService(
+        process.env.NEXT_PUBLIC_API_BASE_URL || ''
+      );
+      
+      const response = await deliveryNoteService.create({
+        deliveryNoteDate: new Date().toISOString(),
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        customerId: displayWorkOrder.customerWorkOrder.customerId,
+        workOrderIds: [workOrder.id],
+      });
+      
+      router.push(`/deliveryNotes/${response.id}`);
+      onClose();
+    } catch (error) {
+      console.error('Error creating delivery note:', error);
+    } finally {
+      setIsCreatingDeliveryNote(false);
+    }
+  };
+
   const equipmentDescription =
     displayWorkOrder.asset?.description ||
     displayWorkOrder.machine?.description;
-  const customerName =
-    displayWorkOrder.customerName || displayWorkOrder.customer;
   const operatorTimes = displayWorkOrder.workOrderOperatorTimes || [];
   const totalTime =
     operatorTimes.length > 0 ? calculateTotalTime(operatorTimes) : null;
@@ -481,11 +543,14 @@ export function WorkOrderPreviewPanel({
           )}
 
           {/* Cliente */}
-          {(isCRM || customerName) && (
+          {(isCRM && displayWorkOrder.customerWorkOrder) && (
             <SlidePanelSection title={t('customer.customer')}>
               <CustomerCard
-                name={customerName || '-'}
-                city={displayWorkOrder.customerInstallationCity}
+                name={displayWorkOrder.customerWorkOrder.customerName}
+                nif={displayWorkOrder.customerWorkOrder.customerNif}
+                city={displayWorkOrder.customerWorkOrder.customerAddress?.city}
+                installationCode={displayWorkOrder.customerWorkOrder.customerInstallationCode}
+                installationCity={displayWorkOrder.customerWorkOrder.customerInstallationAddress?.city}
               />
             </SlidePanelSection>
           )}
@@ -537,8 +602,18 @@ export function WorkOrderPreviewPanel({
           </SlidePanelSection>
 
           {/* Acciones */}
-          <SlidePanelActions>
-            <ActionButton
+          <SlidePanelActions>            {/* Botón crear albarán - solo si es CRM, tiene cliente y no tiene albarán */}
+            {isCRM && 
+             displayWorkOrder.customerWorkOrder?.customerId && 
+             !displayWorkOrder.hasDeliveryNote && 
+             !isCreatingDeliveryNote && (
+              <ActionButton
+                onClick={handleCreateDeliveryNote}
+                icon={Receipt}
+                label={t('create.delivery.note')}
+                variant="warning"
+              />
+            )}            <ActionButton
               onClick={handleEdit}
               icon={Edit2}
               label={t('edit')}
