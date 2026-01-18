@@ -402,7 +402,7 @@ function EmptyState({
 function InspectionPointsList({
   points,
 }: {
-  points: { check: boolean | null; operator: { name: string } | null; inspectionPoint: { description: string } }[];
+  points: { id: string; check?: boolean; inspectionPoint: { description: string } }[];
 }) {
   const completed = points.filter(p => p.check === true).length;
   const total = points.length;
@@ -425,7 +425,7 @@ function InspectionPointsList({
       {/* Lista de puntos */}
       {points.map((point, index) => (
         <div
-          key={point.inspectionPoint?.description || index}
+          key={point.id || index}
           className={`flex items-center gap-3 p-3 rounded-lg ${
             point.check === true 
               ? 'bg-green-50 border border-green-200' 
@@ -443,11 +443,6 @@ function InspectionPointsList({
             }`}>
               {point.inspectionPoint?.description}
             </p>
-            {point.check === true && point.operator && (
-              <p className="text-xs text-green-600 mt-0.5">
-                ✓ {point.operator.name}
-              </p>
-            )}
           </div>
         </div>
       ))}
