@@ -31,6 +31,8 @@ import {
 import {
   AlertTriangle,
   Calendar,
+  CheckCircle,
+  Circle,
   Clock,
   Edit2,
   MapPin,
@@ -397,6 +399,62 @@ function EmptyState({
   );
 }
 
+function InspectionPointsList({
+  points,
+}: {
+  points: { check: boolean | null; operator: { name: string } | null; inspectionPoint: { description: string } }[];
+}) {
+  const completed = points.filter(p => p.check === true).length;
+  const total = points.length;
+
+  return (
+    <div className="space-y-2">
+      {/* Barra de progreso */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-green-500 rounded-full transition-all"
+            style={{ width: `${total > 0 ? (completed / total) * 100 : 0}%` }}
+          />
+        </div>
+        <span className="text-sm font-medium text-gray-600">
+          {completed}/{total}
+        </span>
+      </div>
+
+      {/* Lista de puntos */}
+      {points.map((point, index) => (
+        <div
+          key={point.inspectionPoint?.description || index}
+          className={`flex items-center gap-3 p-3 rounded-lg ${
+            point.check === true 
+              ? 'bg-green-50 border border-green-200' 
+              : 'bg-gray-50 border border-gray-200'
+          }`}
+        >
+          {point.check === true ? (
+            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+          ) : (
+            <Circle className="w-5 h-5 text-gray-400 flex-shrink-0" />
+          )}
+          <div className="flex-1 min-w-0">
+            <p className={`text-sm font-medium ${
+              point.check === true ? 'text-green-800' : 'text-gray-700'
+            }`}>
+              {point.inspectionPoint?.description}
+            </p>
+            {point.check === true && point.operator && (
+              <p className="text-xs text-green-600 mt-0.5">
+                ✓ {point.operator.name}
+              </p>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
@@ -539,6 +597,16 @@ export function WorkOrderPreviewPanel({
                 description={displayWorkOrder.asset.description}
                 brand={displayWorkOrder.asset.brand}
               />
+            </SlidePanelSection>
+          )}
+
+          {/* Puntos de inspección (solo preventivos) */}
+          {displayWorkOrder.workOrderInspectionPoint && 
+           displayWorkOrder.workOrderInspectionPoint.length > 0 && (
+            <SlidePanelSection 
+              title={`${t('inspectionPoints')} (${displayWorkOrder.workOrderInspectionPoint.length})`}
+            >
+              <InspectionPointsList points={displayWorkOrder.workOrderInspectionPoint} />
             </SlidePanelSection>
           )}
 
