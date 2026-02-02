@@ -72,7 +72,7 @@ export function OrderPreviewPanel({
   };
 
   const handleCreateDeliveryNote = () => {
-    router.push(`${ROUTES.orders.order}?purchaseOrderId=${order.id}`);
+    router.push(`${ROUTES.orders.order}/orderForm?purchaseOrderId=${order.id}`);
     onClose();
   };
 
