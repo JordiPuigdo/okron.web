@@ -94,6 +94,7 @@ export function BodyOrderForm({
           : selectedWareHouse?.warehouseName ??
             selectedSparePart.warehouses[0].warehouseName,
       estimatedDeliveryDate: new Date().toISOString().split('T')[0],
+      sparePartName: selectedSparePart.code + ' - ' + selectedSparePart.description,
     };
 
     setOrder({

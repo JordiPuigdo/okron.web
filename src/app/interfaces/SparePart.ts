@@ -25,6 +25,7 @@ interface SparePart {
   isVirtual: boolean;
   rrp: number;
   quantityMode: QuantityMode;
+  managesStock: boolean;
 }
 
 export enum QuantityMode {

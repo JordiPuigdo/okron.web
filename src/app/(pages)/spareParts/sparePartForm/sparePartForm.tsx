@@ -104,6 +104,7 @@ const SparePartForm: React.FC<SparePartForm> = ({
         setValue('active', sparePartLoaded!.active);
         setValue('rrp', sparePartLoaded!.rrp);
         setValue('isVirtual', sparePartLoaded!.isVirtual);
+        setValue('managesStock', sparePartLoaded!.managesStock);
 
         setSparePart(sparePartLoaded!);
       } catch (error) {
@@ -144,6 +145,7 @@ const SparePartForm: React.FC<SparePartForm> = ({
       rrp: 0,
       isVirtual: false,
       quantityMode: QuantityMode.IntegerOnly,
+      managesStock: true,
     };
     setSparePart(newSparePart);
   }
@@ -454,6 +456,20 @@ const SparePartForm: React.FC<SparePartForm> = ({
                   className="mt-1 p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
                   onChange={e =>
                     setSparePart({ ...sparePart!, isVirtual: e.target.checked })
+                  }
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-600">
+                  {t('spareParts.managesStock')}
+                </label>
+                <input
+                  type="checkbox"
+                  {...register('managesStock')}
+                  checked={sparePart?.managesStock}
+                  className="mt-1 p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                  onChange={e =>
+                    setSparePart({ ...sparePart!, managesStock: e.target.checked })
                   }
                 />
               </div>
