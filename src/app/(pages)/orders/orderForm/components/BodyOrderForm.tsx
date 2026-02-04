@@ -61,7 +61,7 @@ export function BodyOrderForm({
   }, [isModalOpen]);
 
   useEffect(() => {
-    if (selectedSparePart && selectedSparePart?.warehouses.length > 1) {
+    if (selectedSparePart && selectedSparePart?.warehouses?.length > 1) {
       setIsModalWareHouseOpen(true);
       return;
     }
@@ -69,6 +69,9 @@ export function BodyOrderForm({
 
   const handleAddOrderItem = (item: OrderItemRequest) => {
     if (!selectedSparePart) return;
+
+    const hasWarehouses = selectedSparePart.warehouses && selectedSparePart.warehouses.length > 0;
+    const defaultWarehouse = hasWarehouses ? selectedSparePart.warehouses[0] : null;
 
     const newItem: OrderItemRequest = {
       sparePartId: selectedSparePart.id,
@@ -80,19 +83,19 @@ export function BodyOrderForm({
       discount: item.discount,
       wareHouseId: selectedWareHouse
         ? selectedWareHouse.warehouseId
-        : selectedSparePart.warehouses[0].warehouseId,
+        : defaultWarehouse?.warehouseId ?? '',
       wareHouse: warehouses.find(
         x =>
           x.id ==
           (selectedWareHouse !== null
             ? selectedWareHouse.warehouseId
-            : selectedSparePart.warehouses[0].warehouseId)
+            : defaultWarehouse?.warehouseId)
       ),
       wareHouseName:
         item.wareHouseName.length > 0
           ? item.wareHouseName
           : selectedWareHouse?.warehouseName ??
-            selectedSparePart.warehouses[0].warehouseName,
+            defaultWarehouse?.warehouseName ?? '',
       estimatedDeliveryDate: new Date().toISOString().split('T')[0],
       sparePartName: selectedSparePart.code + ' - ' + selectedSparePart.description,
     };
