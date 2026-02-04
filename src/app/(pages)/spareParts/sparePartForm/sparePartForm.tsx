@@ -72,7 +72,7 @@ const SparePartForm: React.FC<SparePartForm> = ({
       provider: provider,
       isDefault: false,
       discount: 0,
-      refProvider: '',
+      refProvider: '-',
     }));
 
     setSparePart({
