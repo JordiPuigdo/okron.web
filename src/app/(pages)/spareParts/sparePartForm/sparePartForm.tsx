@@ -6,6 +6,7 @@ import ProviderToSparePartRequest, {
   ProviderToSparePartRequestRef,
 } from 'app/(pages)/providers/[id]/Components/ProviderToSparePartRequest';
 import { usePermissions } from 'app/hooks/usePermissions';
+import { useProviders } from 'app/hooks/useProviders';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import SparePart, { QuantityMode } from 'app/interfaces/SparePart';
@@ -51,6 +52,43 @@ const SparePartForm: React.FC<SparePartForm> = ({
   const [sparePart, setSparePart] = useState<SparePart | null>(null);
   const providerRequestRef = useRef<ProviderToSparePartRequestRef>(null);
   const { warehouses } = useWareHouses(true);
+  const { providers } = useProviders(true);
+
+  const availableProviders = providers?.filter(
+    provider =>
+      provider.active &&
+      !sparePart?.providers.some(sp => sp.providerId === provider.id)
+  ) ?? [];
+
+  const hasAvailableProviders = availableProviders.length > 0;
+  const hasAssignedProviders = (sparePart?.providers.length ?? 0) > 0;
+
+  function handleAddAllProviders() {
+    if (!sparePart || !providers) return;
+
+    const newProviders = availableProviders.map(provider => ({
+      providerId: provider.id,
+      price: '0',
+      provider: provider,
+      isDefault: false,
+      discount: 0,
+      refProvider: '',
+    }));
+
+    setSparePart({
+      ...sparePart,
+      providers: [...sparePart.providers, ...newProviders],
+    });
+  }
+
+  function handleRemoveAllProviders() {
+    if (!sparePart) return;
+
+    setSparePart({
+      ...sparePart,
+      providers: [],
+    });
+  }
 
   function handleAssignWareHouse(wareHouseId: string) {
     setSparePart(prevSparePart => {
@@ -521,6 +559,22 @@ const SparePartForm: React.FC<SparePartForm> = ({
               <h2 className="font-semibold mb-2">
                 {t('spareParts.selectProvider')}
               </h2>
+              <div className="flex gap-2 mb-2">
+                <Button
+                  type="create"
+                  onClick={handleAddAllProviders}
+                  disabled={!hasAvailableProviders}
+                >
+                  {t('spareParts.addAllProviders')}
+                </Button>
+                <Button
+                  type="delete"
+                  onClick={handleRemoveAllProviders}
+                  disabled={!hasAssignedProviders}
+                >
+                  {t('spareParts.removeAllProviders')}
+                </Button>
+              </div>
               <ProviderToSparePartRequest
                 ref={providerRequestRef}
                 sparePart={sparePart!}
