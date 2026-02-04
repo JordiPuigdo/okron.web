@@ -22,6 +22,7 @@ const ProviderToSparePartRequest = forwardRef<
   >(undefined);
   const [price, setPrice] = useState('');
   const [isDefault, setIsDefault] = useState(false);
+  const [discount, setDiscount] = useState('');
   const { providers } = useProviders(true);
   const [searchText, setSearchText] = useState('');
   const [refProvider, setRefProvider] = useState('');
@@ -67,7 +68,7 @@ const ProviderToSparePartRequest = forwardRef<
           price: request.price,
           provider: providers?.find(x => x.id === request.providerId),
           isDefault: request.isDefault,
-          discount: 0,
+          discount: discount === '' ? 0 : Number(discount),
           refProvider: refProvider,
         },
       ];
@@ -75,6 +76,7 @@ const ProviderToSparePartRequest = forwardRef<
     setSparePart(updatedSparePart);
     setSelectedProvider(undefined);
     setPrice('');
+    setDiscount('');
     setSearchText('');
     setRefProvider('');
   }
@@ -123,17 +125,18 @@ const ProviderToSparePartRequest = forwardRef<
       )}
       {selectedProvider && (
         <div className="bg-white rounded-lg border border-orange-500 my-2 mb-2">
-          <div className="grid grid-cols-6 gap-2 px-3 py-2 rounded-lg bg-gray-50 text-sm text-gray-600 border-b">
+          <div className="grid grid-cols-7 gap-2 px-3 py-2 rounded-lg bg-gray-50 text-sm text-gray-600 border-b">
             <span className="col-span-2">{t('providers.name')}</span>
             <span className="col-span-1">{t('providers.reference')}</span>
             <span className="col-span-1">{t('providers.price')}</span>
+            <span className="col-span-1">{t('providers.discount.percentage')}</span>
             <span className="col-span-1 text-center">
               {t('providers.default')}
             </span>
             <span className="col-span-1 text-right">{t('actions')}</span>
           </div>
 
-          <div className="grid grid-cols-6 gap-2 px-3 py-2 items-center text-sm">
+          <div className="grid grid-cols-7 gap-2 px-3 py-2 items-center text-sm">
             <div className="col-span-2 truncate">
               <span className="font-medium">{selectedProvider.name}</span>
               <span className="text-gray-500 ml-1">
@@ -154,6 +157,18 @@ const ProviderToSparePartRequest = forwardRef<
                 price={price}
                 setPrice={setPrice}
                 onKeyDown={handleKeyDown}
+              />
+            </div>
+
+            <div className="col-span-1">
+              <input
+                type="number"
+                placeholder="%"
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                value={discount}
+                onChange={e => setDiscount(e.target.value)}
+                min="0"
+                max="100"
               />
             </div>
 

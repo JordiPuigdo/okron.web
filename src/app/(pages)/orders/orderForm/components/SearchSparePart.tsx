@@ -76,15 +76,23 @@ export default function SearchSparePartOrderPurchase({
     }
   }, [selectedProvider]);
 
-  const filteredSpareParts = spareParts?.filter(
-    sp =>
-      `${sp.code} - ${sp.description}`
-        .toLowerCase()
-        .includes(searchText.toLowerCase()) &&
+  const filteredSpareParts = spareParts?.filter(sp => {
+    const providerData = sp.providers?.find(
+      x => x.providerId == selectedProvider?.id
+    );
+    const refProvider = providerData?.refProvider || '';
+    const searchLower = searchText.toLowerCase();
+    
+    const matchesCode = `${sp.code} - ${sp.description}`.toLowerCase().includes(searchLower);
+    const matchesRef = refProvider.toLowerCase().includes(searchLower);
+
+    return (
+      (matchesCode || matchesRef) &&
       sp.providers &&
       sp.providers.length > 0 &&
       sp.providers.some(x => x.providerId == selectedProvider?.id)
-  );
+    );
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = e.target.value;
@@ -138,11 +146,17 @@ export default function SearchSparePartOrderPurchase({
                     size={5}
                   >
                     <option value="">{t('order.select.spare.part')}</option>
-                    {filteredSpareParts?.map(sp => (
-                      <option key={sp.id} value={sp.id}>
-                        {sp.code} - {sp.description}
-                      </option>
-                    ))}
+                    {filteredSpareParts?.map(sp => {
+                      const providerRef = sp.providers?.find(
+                        x => x.providerId == selectedProvider?.id
+                      )?.refProvider;
+                      return (
+                        <option key={sp.id} value={sp.id}>
+                          {sp.code} - {sp.description}
+                          {providerRef && providerRef !== '-' ? ` [${providerRef}]` : ''}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               )}
