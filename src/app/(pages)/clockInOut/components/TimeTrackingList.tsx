@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import {
@@ -8,13 +8,15 @@ import {
   TimeTracking,
 } from 'app/interfaces/TimeTracking';
 import dayjs from 'dayjs';
-import { Clock, Edit2, User } from 'lucide-react';
+import { Clock, Edit2, Trash2, User } from 'lucide-react';
 
 interface TimeTrackingListProps {
   timeTrackings: TimeTracking[];
   isLoading: boolean;
-  onRefresh: () => void;
   onEdit: (timeTracking: TimeTracking) => void;
+  onDelete: (timeTracking: TimeTracking) => void;
+  showInactive: boolean;
+  onToggleShowInactive: (show: boolean) => void;
 }
 
 interface GroupedTimeTrackings {
@@ -28,15 +30,26 @@ interface GroupedTimeTrackings {
 export const TimeTrackingList = ({
   timeTrackings,
   isLoading,
-  onRefresh,
   onEdit,
+  onDelete,
+  showInactive,
+  onToggleShowInactive,
 }: TimeTrackingListProps) => {
   const { t } = useTranslations();
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+
+  // Filtrar fichajes según el estado de showInactive
+  const filteredTrackings = useMemo(() => {
+    if (showInactive) {
+      return timeTrackings;
+    }
+    return timeTrackings.filter(tt => tt.active !== false);
+  }, [timeTrackings, showInactive]);
   // Agrupar fichajes por operario
   const groupedTrackings = useMemo<GroupedTimeTrackings[]>(() => {
     const groups = new Map<string, GroupedTimeTrackings>();
 
-    timeTrackings.forEach(tracking => {
+    filteredTrackings.forEach(tracking => {
       const key = tracking.operatorId;
       if (!groups.has(key)) {
         groups.set(key, {
@@ -50,19 +63,28 @@ export const TimeTrackingList = ({
 
       const group = groups.get(key)!;
       group.trackings.push(tracking);
-      group.totalHours += calculateWorkedHours(tracking);
+      // Solo sumar horas de fichajes activos al total
+      if (tracking.active !== false) {
+        group.totalHours += calculateWorkedHours(tracking);
+      }
     });
 
     return Array.from(groups.values()).sort(
       (a, b) => b.totalHours - a.totalHours
     );
-  }, [timeTrackings]);
+  }, [filteredTrackings]);
 
-  const formatTime = (date: Date): string => {
-    return new Date(date).toLocaleTimeString('ca-ES', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const handleDeleteClick = (tracking: TimeTracking) => {
+    setConfirmDelete(tracking.id);
+  };
+
+  const handleConfirmDelete = (tracking: TimeTracking) => {
+    onDelete(tracking);
+    setConfirmDelete(null);
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmDelete(null);
   };
 
   const formatHours = (hours: number): string => {
@@ -94,6 +116,21 @@ export const TimeTrackingList = ({
 
   return (
     <div className="space-y-4">
+      {/* Toggle para mostrar fichajes inactivas */}
+      <div className="flex items-center justify-end gap-2">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showInactive}
+            onChange={e => onToggleShowInactive(e.target.checked)}
+            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+          />
+          <span className="text-sm text-gray-600">
+            {t('showDeletedTimeTrackings')}
+          </span>
+        </label>
+      </div>
+
       {groupedTrackings.map(group => (
         <div
           key={group.operatorId}
@@ -131,11 +168,24 @@ export const TimeTrackingList = ({
               const workedHours = calculateWorkedHours(tracking);
               const isOpen = !tracking.endDateTime;
 
+              const isInactive = tracking.active === false;
+
               return (
                 <div
                   key={tracking.id}
-                  className="px-6 py-4 hover:bg-gray-50 transition-colors"
+                  className={`px-6 py-4 transition-colors ${
+                    isInactive
+                      ? 'bg-red-50 opacity-60'
+                      : 'hover:bg-gray-50'
+                  }`}
                 >
+                  {isInactive && (
+                    <div className="mb-2">
+                      <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">
+                        {t('deleted')}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-6">
                       {/* Entrada */}
@@ -205,13 +255,43 @@ export const TimeTrackingList = ({
                       </div>
 
                       {/* Botón Editar */}
-                      <button
-                        onClick={() => onEdit(tracking)}
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title={t('edit')}
-                      >
-                        <Edit2 className="h-5 w-5" />
-                      </button>
+                      {!isInactive && (
+                        <button
+                          onClick={() => onEdit(tracking)}
+                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title={t('edit')}
+                        >
+                          <Edit2 className="h-5 w-5" />
+                        </button>
+                      )}
+
+                      {/* Botón Eliminar */}
+                      {!isInactive && (
+                        confirmDelete === tracking.id ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleConfirmDelete(tracking)}
+                              className="px-2 py-1 text-xs font-medium text-white bg-red-600 rounded hover:bg-red-700 transition-colors"
+                            >
+                              {t('confirm')}
+                            </button>
+                            <button
+                              onClick={handleCancelDelete}
+                              className="px-2 py-1 text-xs font-medium text-gray-600 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
+                            >
+                              {t('cancel')}
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleDeleteClick(tracking)}
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title={t('delete')}
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                        )
+                      )}
                     </div>
                   </div>
 

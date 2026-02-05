@@ -24,8 +24,9 @@ export default function ClockInOutPage() {
   const [editingTimeTracking, setEditingTimeTracking] =
     useState<TimeTracking | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [showInactive, setShowInactive] = useState(false);
 
-  const { searchTimeTrackings, timeTrackings, isLoading } = useTimeTracking();
+  const { searchTimeTrackings, timeTrackings, isLoading, deleteTimeTracking } = useTimeTracking();
   const { operators } = useOperatorHook();
 
   const handleSearch = useCallback(async () => {
@@ -56,6 +57,13 @@ export default function ClockInOutPage() {
   const handleEdit = (timeTracking: TimeTracking) => {
     setEditingTimeTracking(timeTracking);
     setShowModal(true);
+  };
+
+  const handleDelete = async (timeTracking: TimeTracking) => {
+    const success = await deleteTimeTracking(timeTracking.id);
+    if (success) {
+      handleSearch();
+    }
   };
 
   const handleCloseModal = () => {
@@ -123,8 +131,10 @@ export default function ClockInOutPage() {
           <TimeTrackingList
             timeTrackings={timeTrackings}
             isLoading={isLoading || isSearching}
-            onRefresh={handleSearch}
             onEdit={handleEdit}
+            onDelete={handleDelete}
+            showInactive={showInactive}
+            onToggleShowInactive={setShowInactive}
           />
 
           {/* Modal de Crear/Editar Fichaje */}
