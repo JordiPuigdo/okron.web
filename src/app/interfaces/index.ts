@@ -9,9 +9,9 @@ export type User = {
   name: string;
 };
 
+export * from './Article';
 export * from './Budget';
 export * from './DeliveryNote';
 export * from './Family';
 export * from './Holiday';
 export * from './Vacation';
-export * from './Article';
