@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { HeaderTable } from 'components/layout/HeaderTable';
-import { Dialog, DialogContent } from 'components/Dialog';
 import { Family } from 'app/interfaces/Family';
+import { Dialog, DialogContent } from 'components/Dialog';
+import { HeaderTable } from 'components/layout/HeaderTable';
 
 import { useTranslations } from '../../../hooks/useTranslations';
-import { FamilyTable } from './FamilyTable';
 import { FamilyFormModal } from './FamilyFormModal';
+import { FamilyTable } from './FamilyTable';
 
 export default function FamilyComponent() {
   const { t } = useTranslations();
