@@ -1,8 +1,8 @@
 import {
-  Family,
   CreateFamilyRequest,
-  UpdateFamilyRequest,
+  Family,
   GenerateCodeResponse,
+  UpdateFamilyRequest,
 } from 'app/interfaces/Family';
 
 export class FamilyService {
