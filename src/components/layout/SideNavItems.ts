@@ -164,6 +164,14 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
+    titleKey: 'sidebar.articles',
+    path: '/articles',
+    icon: SvgPackage,
+    permission: [UserPermission.Administrator, UserPermission.AdminCRM],
+    userType: [UserType.Maintenance, UserType.Warehouse, UserType.CRM],
+  },
+  {
+    key: generateKey(),
     titleKey: 'sidebar.reports.consumedSpareParts',
     icon: SvgReport,
     path: '/reports/spareParts/consumedSpareParts',
@@ -239,6 +247,14 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         icon: SvgMenu,
         permission: [UserPermission.Administrator, UserPermission.AdminCRM],
         userType: [UserType.Maintenance, UserType.Warehouse, UserType.CRM],
+      },
+      {
+        key: generateKey(),
+        titleKey: 'sidebar.families',
+        path: '/families',
+        icon: SvgMenu,
+        permission: [UserPermission.Administrator, UserPermission.AdminCRM],
+        userType: [UserType.Maintenance, UserType.CRM],
       },
       {
         key: generateKey(),
