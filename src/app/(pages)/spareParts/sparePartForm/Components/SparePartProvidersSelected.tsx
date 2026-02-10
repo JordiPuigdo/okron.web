@@ -1,5 +1,4 @@
-import { useMemo, useState } from 'react';
-import { useRef } from 'react';
+import { useMemo, useRef,useState } from 'react';
 import { EditableCell } from 'app/(pages)/machines/downtimes/components/EditingCell';
 import { useTranslations } from 'app/hooks/useTranslations';
 import SparePart from 'app/interfaces/SparePart';
