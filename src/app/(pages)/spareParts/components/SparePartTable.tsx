@@ -411,13 +411,11 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
         <div className="w-full flex flex-col justify-end items-end gap-2 ">
           <Button
             type="create"
-            onClick={() => setIsLoading(true)}
             customStyles="gap-2 flex"
             href="/spareParts/sparePartForm"
           >
             <SvgCreate />
             {t('spareParts.createSparePart')}
-            {isLoading && <SvgSpinner className="w-6 h-6" />}
           </Button>
         </div>
       </div>
