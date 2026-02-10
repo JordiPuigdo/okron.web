@@ -453,6 +453,18 @@ const SparePartForm: React.FC<SparePartForm> = ({
                   }
                 />
               </div>
+              <div className="flex-grow mb-4">
+                <label className="block text-sm font-medium text-gray-600">
+                  {t('spareParts.brand')}
+                </label>
+                <input
+                  {...register('brand')}
+                  className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                  onChange={e =>
+                    setSparePart({ ...sparePart!, brand: e.target.value })
+                  }
+                />
+              </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-600">
                   {t('active')}
