@@ -167,8 +167,8 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     titleKey: 'sidebar.articles',
     path: '/articles',
     icon: SvgPackage,
-    permission: [UserPermission.Administrator, UserPermission.AdminCRM],
-    userType: [UserType.Maintenance, UserType.Warehouse, UserType.CRM],
+    permission: [UserPermission.AdminCRM],
+    userType: [UserType.CRM],
   },
   {
     key: generateKey(),
@@ -199,7 +199,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     titleKey: 'sidebar.invoices',
     icon: SvgInvoice,
     path: '/invoices',
-    permission: [UserPermission.AdminCRM, UserPermission.AdminCRM],
+    permission: [UserPermission.AdminCRM],
     userType: [UserType.CRM],
   },
   {
@@ -253,8 +253,8 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         titleKey: 'sidebar.families',
         path: '/families',
         icon: SvgMenu,
-        permission: [UserPermission.Administrator, UserPermission.AdminCRM],
-        userType: [UserType.Maintenance, UserType.CRM],
+        permission: [UserPermission.AdminCRM],
+        userType: [UserType.CRM],
       },
       {
         key: generateKey(),
