@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useRef } from 'react';
 import { EditableCell } from 'app/(pages)/machines/downtimes/components/EditingCell';
 import { useTranslations } from 'app/hooks/useTranslations';
 import SparePart from 'app/interfaces/SparePart';
@@ -11,6 +12,128 @@ interface SparePartProvidersSelectedProps {
   handleUpdateDiscount: (providerId: string, discount: string) => void;
   handleUpdateRefProvider: (providerId: string, refProvider: string) => void;
 }
+
+const PencilIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-3 h-3 text-gray-400"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+    />
+  </svg>
+);
+
+interface ProviderRowProps {
+  provider: any;
+  handleRemoveProvider: (providerId: string) => void;
+  handleUpdatePrice: (providerId: string, price: string) => void;
+  handleUpdateDiscount: (providerId: string, discount: string) => void;
+  handleUpdateRefProvider: (providerId: string, refProvider: string) => void;
+  handleCheckIsDefault: (providerId: string) => void;
+}
+
+const ProviderRow = ({
+  provider: x,
+  handleRemoveProvider,
+  handleUpdatePrice,
+  handleUpdateDiscount,
+  handleUpdateRefProvider,
+  handleCheckIsDefault,
+}: ProviderRowProps) => {
+  const refCellRef = useRef<HTMLDivElement>(null);
+  const priceCellRef = useRef<HTMLDivElement>(null);
+  const discountCellRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <div className="flex gap-2 justify-between items-center p-3 hover:bg-gray-50 transition-colors">
+      <div className="flex-[2] text-gray-600 overflow-hidden whitespace-nowrap truncate">
+        {x.provider?.name || '—'}
+      </div>
+
+      <div className="flex-[2] text-gray-600">
+        <div
+          ref={refCellRef}
+          onClick={() => refCellRef.current?.querySelector('span')?.click()}
+          className="flex items-center gap-1 hover:bg-blue-50 rounded px-2 py-2 cursor-pointer group w-full"
+        >
+          <PencilIcon />
+          <div className="flex-1">
+            <EditableCell
+              value={
+                x.refProvider && x.refProvider.length > 0
+                  ? x.refProvider
+                  : '--'
+              }
+              onUpdate={newValue =>
+                handleUpdateRefProvider(x.providerId, newValue)
+              }
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-[1] text-gray-600">
+        <div
+          ref={priceCellRef}
+          onClick={() => priceCellRef.current?.querySelector('span')?.click()}
+          className="flex items-center gap-1 hover:bg-blue-50 rounded px-2 py-2 cursor-pointer group w-full"
+        >
+          <PencilIcon />
+          <div className="flex-1">
+            <EditableCell
+              value={x.price}
+              onUpdate={newValue => handleUpdatePrice(x.providerId, newValue)}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-[1] text-gray-600">
+        <div
+          ref={discountCellRef}
+          onClick={() =>
+            discountCellRef.current?.querySelector('span')?.click()
+          }
+          className="flex items-center gap-1 hover:bg-blue-50 rounded px-2 py-2 cursor-pointer group w-full"
+        >
+          <PencilIcon />
+          <div className="flex-1">
+            <EditableCell
+              value={x.discount.toString()}
+              onUpdate={newValue =>
+                handleUpdateDiscount(x.providerId, newValue)
+              }
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-[1] text-center">
+        <input
+          type="checkbox"
+          checked={x.isDefault}
+          onChange={() => handleCheckIsDefault(x.providerId)}
+        />
+      </div>
+
+      <div className="flex-[1] text-center">
+        <button
+          onClick={() => handleRemoveProvider(x.providerId)}
+          className="px-2 py-1 bg-gray-400 hover:bg-gray-500 text-white rounded text-sm"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export default function SparePartProvidersSelected({
   sparePart,
@@ -74,62 +197,15 @@ export default function SparePartProvidersSelected({
       <div className="overflow-y-auto max-h-[300px] divide-y divide-gray-200 text-sm">
         {filteredProviders.length > 0 ? (
           filteredProviders.map(x => (
-            <div
+            <ProviderRow
               key={x.providerId}
-              className="flex gap-2 justify-between items-center p-3 hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex-[2] text-gray-600 overflow-hidden whitespace-nowrap truncate">
-                {x.provider?.name || '—'}
-              </div>
-
-              <div className="flex-[2] text-gray-600 overflow-hidden whitespace-nowrap truncate">
-                <EditableCell
-                  value={
-                    x.refProvider && x.refProvider.length > 0
-                      ? x.refProvider
-                      : '-'
-                  }
-                  onUpdate={newValue =>
-                    handleUpdateRefProvider(x.providerId, newValue)
-                  }
-                />
-              </div>
-
-              <div className="flex-[1] text-gray-600">
-                <EditableCell
-                  value={x.price}
-                  onUpdate={newValue =>
-                    handleUpdatePrice(x.providerId, newValue)
-                  }
-                />
-              </div>
-
-              <div className="flex-[1] text-gray-600">
-                <EditableCell
-                  value={x.discount.toString()}
-                  onUpdate={newValue =>
-                    handleUpdateDiscount(x.providerId, newValue)
-                  }
-                />
-              </div>
-
-              <div className="flex-[1] text-center">
-                <input
-                  type="checkbox"
-                  checked={x.isDefault}
-                  onChange={() => handleCheckIsDefault(x.providerId)}
-                />
-              </div>
-
-              <div className="flex-[1] text-center">
-                <button
-                  onClick={() => handleRemoveProvider(x.providerId)}
-                  className="px-2 py-1 bg-gray-400 hover:bg-gray-500 text-white rounded text-sm"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
+              provider={x}
+              handleRemoveProvider={handleRemoveProvider}
+              handleUpdatePrice={handleUpdatePrice}
+              handleUpdateDiscount={handleUpdateDiscount}
+              handleUpdateRefProvider={handleUpdateRefProvider}
+              handleCheckIsDefault={handleCheckIsDefault}
+            />
           ))
         ) : (
           <div className="text-center text-gray-500 py-4">

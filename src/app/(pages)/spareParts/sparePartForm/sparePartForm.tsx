@@ -455,7 +455,7 @@ const SparePartForm: React.FC<SparePartForm> = ({
               </div>
               <div className="flex-grow mb-4">
                 <label className="block text-sm font-medium text-gray-600">
-                  {t('spareParts.brand')}
+                  {t('brand')}
                 </label>
                 <input
                   {...register('brand')}
