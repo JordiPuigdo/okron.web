@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { TableDataOrders } from 'app/(pages)/orders/components/TableDataOrders';
 import { useProviders } from 'app/hooks/useProviders';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { OrderType } from 'app/interfaces/Order';
 import {
   ProviderResponse,
@@ -21,8 +22,9 @@ export default function ProvidersPageDetail({
 }) {
   const [provider, setProvider] = useState<ProviderResponse>();
   const [searchTerm, setSearchTerm] = useState('');
-  const { getById, updateProvider, isLoadingProvider, isProviderSuccessFull } =
+  const { getById, updateProvider, deleteProvider, changeActiveField, isLoadingProvider, isProviderSuccessFull } =
     useProviders(false);
+  const { t } = useTranslations();
 
   async function fetch() {
     const providerData = await getById(params.id);
@@ -35,6 +37,35 @@ export default function ProvidersPageDetail({
       await updateProvider(data);
     } catch (error) {
       console.error('Error creating provider:', error);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm(t('deleteProviderConfirm'))) {
+      return;
+    }
+    try {
+      await deleteProvider(params.id);
+      window.location.href = '/providers';
+    } catch (error) {
+      console.error('Error deleting provider:', error);
+    }
+  };
+
+  const handleChangeActive = async () => {
+    const newActiveState = !provider?.active;
+    const confirmMessage = newActiveState
+      ? t('activateProviderConfirm')
+      : t('deactivateProviderConfirm');
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+    try {
+      await changeActiveField(params.id, newActiveState);
+      await fetch();
+    } catch (error) {
+      console.error('Error changing provider active status:', error);
     }
   };
 
@@ -65,7 +96,13 @@ export default function ProvidersPageDetail({
             />
             <div className="flex flex-col bg-white p-6 rounded-md shadow-md my-4 gap-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ProviderForm providerData={provider} onSubmit={onSubmit} />
+                <ProviderForm
+                  providerData={provider}
+                  onSubmit={onSubmit}
+                  onDelete={handleDelete}
+                  onChangeActive={handleChangeActive}
+                  isDeleting={isLoadingProvider}
+                />
                 <div className="bg-white p-4 border rounded-md">
                   <div className="mb-4">
                     <input

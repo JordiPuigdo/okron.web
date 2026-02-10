@@ -14,11 +14,17 @@ import { PAYMENT_METHODS } from './paymentMethod';
 interface ProviderFormProps {
   providerData?: Provider;
   onSubmit: (data: UpdateProviderRequest) => void;
+  onDelete?: () => void;
+  onChangeActive?: () => void;
+  isDeleting?: boolean;
 }
 
 export default function ProviderForm({
   providerData,
   onSubmit,
+  onDelete,
+  onChangeActive,
+  isDeleting = false,
 }: ProviderFormProps) {
   const { t } = useTranslations();
   const router = useRouter();
@@ -242,6 +248,28 @@ export default function ProviderForm({
           {providerData ? t('update') : t('create.provider')}
           {isSubmitting && <SvgSpinner />}
         </Button>
+        {providerData && !providerData.active && onChangeActive && (
+          <Button
+            type="create"
+            onClick={onChangeActive}
+            customStyles="gap-2 flex bg-green-600 hover:bg-green-700"
+            disabled={isSubmitting || isDeleting}
+          >
+            {t('activate')}
+            {isDeleting && <SvgSpinner />}
+          </Button>
+        )}
+        {providerData && providerData.active && onDelete && (
+          <Button
+            type="delete"
+            onClick={onDelete}
+            customStyles="gap-2 flex"
+            disabled={isSubmitting || isDeleting}
+          >
+            {t('delete')}
+            {isDeleting && <SvgSpinner />}
+          </Button>
+        )}
         <Button
           type="cancel"
           onClick={() => router.back()}

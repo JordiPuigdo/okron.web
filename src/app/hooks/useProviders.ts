@@ -121,6 +121,42 @@ export const useProviders = (
     }
   };
 
+  const deleteProvider = async (id: string): Promise<boolean> => {
+    try {
+      setIsLoadingProvider(true);
+      const response = await providerService.delete(id);
+      if (response) {
+        setSuccessFull(true);
+        await mutate(process.env.NEXT_PUBLIC_API_BASE_URL + 'provider');
+      }
+      return response;
+    } catch (error) {
+      console.error('Error deleting provider:', error);
+      setSuccessFull(false);
+      throw error;
+    } finally {
+      setIsLoadingProvider(false);
+    }
+  };
+
+  const changeActiveField = async (id: string, active: boolean): Promise<boolean> => {
+    try {
+      setIsLoadingProvider(true);
+      const response = await providerService.changeActiveField(id, active);
+      if (response) {
+        setSuccessFull(true);
+        await mutate(process.env.NEXT_PUBLIC_API_BASE_URL + 'provider');
+      }
+      return response;
+    } catch (error) {
+      console.error('Error changing provider active status:', error);
+      setSuccessFull(false);
+      throw error;
+    } finally {
+      setIsLoadingProvider(false);
+    }
+  };
+
   return {
     providers,
     providersError,
@@ -128,6 +164,8 @@ export const useProviders = (
     createProvider,
     getById,
     updateProvider,
+    deleteProvider,
+    changeActiveField,
     addOrRemoveSparePart,
     isLoadingProvider,
     isProviderSuccessFull,

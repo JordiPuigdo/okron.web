@@ -12,6 +12,8 @@ export interface IProviderService {
   create(providerRequest: ProviderRequest): Promise<Provider>;
   getById(id: string): Promise<ProviderResponse>;
   update(provider: UpdateProviderRequest): Promise<Provider>;
+  delete(id: string): Promise<boolean>;
+  changeActiveField(id: string, active: boolean): Promise<boolean>;
   addOrRemoveSparePart(
     id: string,
     request: AddSparePartProvider
@@ -102,6 +104,45 @@ export class ProviderService implements IProviderService {
       return await response.json();
     } catch (error) {
       console.error('Error updating provider:', error);
+      throw error;
+    }
+  }
+
+  async delete(id: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseUrl}provider/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to delete provider: ${response.statusText}`);
+      }
+      return true;
+    } catch (error) {
+      console.error('Error deleting provider:', error);
+      throw error;
+    }
+  }
+
+  async changeActiveField(id: string, active: boolean): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseUrl}provider/${id}/active`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(active),
+      });
+      if (!response.ok) {
+        throw new Error(
+          `Failed to change provider active status: ${response.statusText}`
+        );
+      }
+      return true;
+    } catch (error) {
+      console.error('Error changing provider active status:', error);
       throw error;
     }
   }
