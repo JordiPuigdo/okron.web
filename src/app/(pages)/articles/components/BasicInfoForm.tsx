@@ -200,10 +200,7 @@ export function BasicInfoForm({
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
             defaultChecked={initialData?.active}
             onChange={e =>
-              setValue(
-                'active' as keyof CreateArticleRequest,
-                e.target.checked as never
-              )
+              setValue('active', e.target.checked)
             }
           />
           <label

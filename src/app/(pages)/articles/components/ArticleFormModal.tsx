@@ -73,60 +73,94 @@ export function ArticleFormModal({
     CreateArticleComponentRequest[]
   >([]);
 
-  const { createArticle, updateArticle, error } = useArticles();
+  const { createArticle, updateArticle, articles, error } = useArticles();
   const { providers: allProviders } = useProviders(true);
 
+  // Close modal on Escape key
   useEffect(() => {
-    if (initialData) {
-      setValue('description', initialData.description);
-      setValue('unitPrice', initialData.unitPrice);
-      setValue('marginPercentage', initialData.marginPercentage);
-      setValue('notes', initialData.notes || '');
-      
-      if (initialData.familyId) {
-        setSelectedFamilyId(initialData.familyId);
+    if (!isVisible) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onCancel();
       }
-      if (initialData.providers) {
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isVisible, onCancel]);
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (!isVisible) return;
+
+      setSuccessMessage(undefined);
+
+      if (initialData) {
+        reset({
+          description: initialData.description,
+          articleType: Number(initialData.articleType) as ArticleType,
+          unitPrice: initialData.unitPrice,
+          marginPercentage: initialData.marginPercentage,
+          familyId: initialData.familyId,
+          notes: initialData.notes || '',
+        });
+        setSelectedFamilyId(initialData.familyId || '');
+        setSelectedArticleType(Number(initialData.articleType) as ArticleType);
         setProviders(
-          initialData.providers.map(p => ({
+          initialData.providers?.map(p => ({
             providerId: p.providerId,
             providerReference: p.providerReference,
             price: p.price,
             discount: p.discount,
             isDefault: p.isDefault,
             leadTimeDays: p.leadTimeDays,
-          }))
+          })) || []
         );
-      }
-      if (initialData.components) {
         setComponents(
-          initialData.components.map(c => ({
+          initialData.components?.map(c => ({
             articleId: c.articleId,
             quantity: c.quantity,
             sortOrder: c.sortOrder,
-          }))
+          })) || []
         );
+      } else {
+        // Limpiar todo para nuevo artículo
+        reset({
+          description: '',
+          articleType: ArticleType.Component,
+          unitPrice: 0,
+          marginPercentage: 0,
+          familyId: '',
+          notes: '',
+        });
+        setSelectedFamilyId('');
+        setSelectedArticleType(ArticleType.Component);
+        setProviders([]);
+        setComponents([]);
       }
-    } else {
-      setValue('marginPercentage', 0);
-    }
-  }, [initialData, setValue]);
+      setActiveTab('basic');
+    
+  }, [isVisible, initialData, reset]);
 
   useEffect(() => {
     setValue('familyId', selectedFamilyId);
   }, [selectedFamilyId, setValue]);
 
+  useEffect(() => {
+    setValue('articleType', selectedArticleType);
+  }, [selectedArticleType, setValue]);
+
   const onSubmit = async (data: CreateArticleRequest) => {
     try {
       const submitData: CreateArticleRequest = {
         description: data.description,
-        articleType: selectedArticleType,
+        articleType: Number(selectedArticleType) as ArticleType,
         unitPrice: Number(data.unitPrice),
         marginPercentage: Number(data.marginPercentage),
         familyId: selectedFamilyId,
         notes: data.notes,
         providers: providers.length > 0 ? providers : undefined,
         components: components.length > 0 ? components : undefined,
+        active: data.active,
       };
 
       if (isEdit) {
@@ -147,7 +181,7 @@ export function ArticleFormModal({
       if (!error) {
         setTimeout(() => {
           onSuccess();
-        }, 500);
+        }, 2000);
       }
     } catch (err) {
       console.error('Error submitting form:', err);
@@ -157,7 +191,9 @@ export function ArticleFormModal({
   const tabs = [
     { id: 'basic' as TabType, label: t('basic.info'), icon: Package },
     { id: 'providers' as TabType, label: t('providers'), icon: Users },
-    { id: 'components' as TabType, label: t('bill.of.materials'), icon: Layers },
+    ...(selectedArticleType === ArticleType.Component
+      ? [{ id: 'components' as TabType, label: t('bill.of.materials'), icon: Layers }]
+      : []),
   ];
 
   return (
@@ -245,39 +281,37 @@ export function ArticleFormModal({
             {activeTab === 'components' && (
               <ComponentsTab
                 components={components}
+                setComponents={setComponents}
+                allArticles={articles}
+                currentArticleId={initialData?.id}
                 t={t}
               />
             )}
 
-            {error && (
-              <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded">
-                <p className="text-red-700 text-sm font-medium">{error}</p>
-              </div>
-            )}
-
-            {successMessage && (
-              <div className="p-4 bg-green-50 border-l-4 border-green-500 rounded">
-                <p className="text-green-700 text-sm font-medium">
-                  {successMessage}
-                </p>
-              </div>
-            )}
           </form>
         </div>
 
         {/* Footer */}
         <div className="flex-shrink-0 flex justify-between items-center gap-3 px-6 py-4 border-t bg-gray-50">
-          <div className="text-sm text-gray-600">
-            {selectedArticleType === ArticleType.BillOfMaterials ? (
-              <span className="flex items-center gap-2">
-                <Layers className="h-4 w-4 text-purple-600" />
-                {t('this.will.be.a.bom')}
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-blue-600" />
-                {t('this.will.be.a.component')}
-              </span>
+          <div className="flex items-center gap-3 text-sm">
+            {successMessage && (
+              <span className="text-green-600 font-medium">{successMessage}</span>
+            )}
+            {error && (
+              <span className="text-red-600 font-medium">{error}</span>
+            )}
+            {!successMessage && !error && (
+              selectedArticleType === ArticleType.BillOfMaterials ? (
+                <span className="flex items-center gap-2 text-gray-600">
+                  <Layers className="h-4 w-4 text-purple-600" />
+                  {t('this.will.be.a.bom')}
+                </span>
+              ) : (
+                <span className="flex items-center gap-2 text-gray-600">
+                  <Package className="h-4 w-4 text-blue-600" />
+                  {t('this.will.be.a.component')}
+                </span>
+              )
             )}
           </div>
           <div className="flex gap-3">

@@ -52,6 +52,7 @@ export interface CreateArticleRequest {
   providers?: CreateArticleProviderRequest[];
   components?: CreateArticleComponentRequest[];
   notes?: string;
+  active?: boolean;
 }
 
 export interface UpdateArticleRequest extends CreateArticleRequest {

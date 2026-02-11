@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Article } from 'app/interfaces/Article';
+import { Article, ArticleType } from 'app/interfaces/Article';
 import { HeaderTable } from 'components/layout/HeaderTable';
 
 import { useTranslations } from '../../../hooks/useTranslations';
@@ -23,9 +23,14 @@ export default function ArticleComponent() {
   };
 
   const handleEditArticle = (article: Article) => {
+    article.articleType = getArticleTypeLabel(article.articleType as any);
     setEditingArticle(article);
     setIsModalOpen(true);
   };
+
+  const getArticleTypeLabel = (type: string): ArticleType => {
+    return type === 'Component' ? ArticleType.Component : ArticleType.BillOfMaterials;
+  }
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
