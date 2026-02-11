@@ -49,9 +49,18 @@ export const Modal2 = ({
   [key: string]: any;
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [mouseDownOnBackdrop, setMouseDownOnBackdrop] = useState<boolean>(false);
+  
   useEffect(() => {
     setIsModalOpen(isVisible);
   }, [isVisible]);
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+    if (setIsVisible) {
+      setIsVisible(false);
+    }
+  };
 
   let animationStyles = `
     ${type === 'right' ? 'translate-x-[105%]' : ' '}
@@ -71,16 +80,31 @@ export const Modal2 = ({
     return (
       <div
         className={`transition-all fixed inset-0 z-50 ${animationStyles}`}
-        onClick={() => setIsModalOpen(false)}
+        onMouseDown={(e) => {
+          if (e.target === e.currentTarget) {
+            setMouseDownOnBackdrop(true);
+          }
+        }}
+        onMouseUp={(e) => {
+          if (e.target === e.currentTarget && mouseDownOnBackdrop) {
+            handleClose();
+          }
+          setMouseDownOnBackdrop(false);
+        }}
       >
-        <Container className="h-full relative">
+        <Container className="h-full relative pointer-events-none">
           <div
             className={twMerge(
-              `transition-all mx-auto bg-white rounded-2xl relative top-1/2 -translate-y-1/2
+              `transition-all mx-auto bg-white rounded-2xl relative top-1/2 -translate-y-1/2 pointer-events-auto
               ${width ? width : 'w-full'}
               ${height ? height : 'h-full'}
               ${className ? className : ''}`
             )}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              setMouseDownOnBackdrop(false);
+            }}
+            onClick={(e) => e.stopPropagation()}
             {...rest}
           >
             {children}

@@ -15,7 +15,7 @@ import {
   UpdateArticleRequest,
 } from 'app/interfaces/Article';
 import { Button } from 'designSystem/Button/Buttons';
-import { Modal2, ModalBackground } from 'designSystem/Modals/Modal';
+import { Modal2 } from 'designSystem/Modals/Modal';
 import { Layers, Package, Users } from 'lucide-react';
 
 import { ArticleTypeIndicator } from './ArticleTypeIndicator';
@@ -46,15 +46,16 @@ export function ArticleFormModal({
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<CreateArticleRequest>({
     defaultValues: {
-      description: initialData?.description || '',
-      articleType: initialData?.articleType ?? ArticleType.Component,
-      unitPrice: initialData?.unitPrice || 0,
-      marginPercentage: initialData?.marginPercentage || 0,
-      familyId: initialData?.familyId || '',
-      notes: initialData?.notes || '',
+      description: '',
+      articleType: ArticleType.Component,
+      unitPrice: 0,
+      marginPercentage: 0,
+      familyId: '',
+      notes: '',
     },
   });
 
@@ -160,23 +161,15 @@ export function ArticleFormModal({
   ];
 
   return (
-    <>
-      <ModalBackground
-        isVisible={isVisible}
-        onClick={onCancel}
-      >
-        <div></div>
-      </ModalBackground>
-      <Modal2
-        isVisible={isVisible}
-        setIsVisible={onCancel}
-        type="center"
-        width="w-full max-w-4xl"
-        height="h-[85vh]"
-        className="overflow-hidden flex flex-col shadow-2xl"
-        onClick={(e: React.MouseEvent) => e.stopPropagation()}
-      >
-        <div className="flex flex-col h-full overflow-hidden">
+    <Modal2
+      isVisible={isVisible}
+      setIsVisible={onCancel}
+      type="center"
+      width="w-full max-w-4xl"
+      height="h-[85vh]"
+      className="overflow-hidden flex flex-col shadow-2xl"
+    >
+      <div className="flex flex-col h-full overflow-hidden">
         {/* Header */}
         <div className="flex-shrink-0 p-6 pb-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
           <div className="flex items-center justify-between">
@@ -309,6 +302,5 @@ export function ArticleFormModal({
         </div>
       </div>
     </Modal2>
-    </>
   );
 }
