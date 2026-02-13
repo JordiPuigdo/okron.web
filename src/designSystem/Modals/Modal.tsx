@@ -36,6 +36,7 @@ export const Modal2 = ({
   className,
   type = 'right',
   hideModalBackground = false,
+  closeOnEsc = false,
   children,
   ...rest
 }: {
@@ -45,6 +46,7 @@ export const Modal2 = ({
   height?: string;
   className?: string;
   type?: 'right' | 'bottom' | 'center';
+  closeOnEsc?: boolean;
   children: ReactNode;
   [key: string]: any;
 }) => {
@@ -61,6 +63,17 @@ export const Modal2 = ({
       setIsVisible(false);
     }
   };
+
+  useEffect(() => {
+    if (!closeOnEsc || !isVisible) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [closeOnEsc, isVisible]);
 
   let animationStyles = `
     ${type === 'right' ? 'translate-x-[105%]' : ' '}

@@ -18,6 +18,16 @@ export enum BudgetItemType {
   Other = 2,
 }
 
+export enum BudgetType {
+  Repair = 0,
+  Assembly = 1,
+}
+
+export enum BudgetNodeType {
+  Folder = 0,
+  ArticleItem = 1,
+}
+
 export interface Budget extends BaseModel {
   code: string;
   budgetDate: string;
@@ -39,7 +49,9 @@ export interface Budget extends BaseModel {
   workOrderCode?: string;
   deliveryNoteId?: string;
   deliveryNoteCode?: string;
+  budgetType: BudgetType;
   items: BudgetItem[];
+  assemblyNodes?: AssemblyNode[];
   taxBreakdowns: TaxBreakdown[];
 }
 
@@ -105,4 +117,76 @@ export interface BudgetSearchFilters {
 export interface ConvertBudgetToDeliveryNoteRequest {
   budgetId: string;
   deliveryNoteDate: string;
+}
+
+interface AssemblyNodeBase {
+  id: string;
+  code: string;
+  description: string;
+  sortOrder: number;
+  totalAmount: number;
+}
+
+export interface AssemblyFolder extends AssemblyNodeBase {
+  nodeType: BudgetNodeType.Folder;
+  children: AssemblyNode[];
+}
+
+export interface AssemblyArticle extends AssemblyNodeBase {
+  nodeType: BudgetNodeType.ArticleItem;
+  articleId: string;
+  articleCode: string;
+  quantity: number;
+  unitPrice: number;
+  marginPercentage: number;
+  subtotal: number;
+}
+
+export type AssemblyNode = AssemblyFolder | AssemblyArticle;
+
+export interface AssemblyBudgetCreationRequest {
+  customerId: string;
+  budgetDate: string;
+  validUntil: string;
+  customerInstallationId?: string;
+  externalComments?: string;
+  internalComments?: string;
+}
+
+export interface UpdateAssemblyBudgetRequest {
+  id: string;
+  externalComments?: string;
+  internalComments?: string;
+  status?: BudgetStatus;
+  validUntil?: string;
+}
+
+export interface AddAssemblyFolderRequest {
+  budgetId: string;
+  parentNodeId?: string;
+  code: string;
+  description: string;
+  sortOrder?: number;
+}
+
+export interface AddAssemblyArticleRequest {
+  budgetId: string;
+  parentNodeId?: string;
+  articleId: string;
+  quantity: number;
+  unitPrice: number;
+  marginPercentage?: number;
+  sortOrder?: number;
+}
+
+export interface MoveAssemblyNodeRequest {
+  budgetId: string;
+  nodeId: string;
+  newParentNodeId?: string;
+  newSortOrder: number;
+}
+
+export interface RemoveAssemblyNodeRequest {
+  budgetId: string;
+  nodeId: string;
 }

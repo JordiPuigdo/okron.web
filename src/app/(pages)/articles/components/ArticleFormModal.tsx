@@ -76,18 +76,6 @@ export function ArticleFormModal({
   const { createArticle, updateArticle, articles, error } = useArticles();
   const { providers: allProviders } = useProviders(true);
 
-  // Close modal on Escape key
-  useEffect(() => {
-    if (!isVisible) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onCancel();
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isVisible, onCancel]);
-
   // Reset form when modal opens
   useEffect(() => {
     if (!isVisible) return;
@@ -204,6 +192,7 @@ export function ArticleFormModal({
       width="w-full max-w-4xl"
       height="h-[85vh]"
       className="overflow-hidden flex flex-col shadow-2xl"
+      closeOnEsc
     >
       <div className="flex flex-col h-full overflow-hidden">
         {/* Header */}

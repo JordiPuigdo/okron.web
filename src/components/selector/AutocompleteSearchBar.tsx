@@ -44,9 +44,14 @@ const AutocompleteSearchBar: React.FC<AutocompleteSearchBarProps> = ({
         .filter(Boolean);
       setSearchResults(
         elements.filter(element => {
-          const description = element.description.toLowerCase();
-          // Todas las palabras de búsqueda deben estar presentes en la descripción
-          return searchTerms.every(term => description.includes(term));
+          const searchableText = [
+            element.description,
+            element.code,
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+          return searchTerms.every(term => searchableText.includes(term));
         })
       );
     } else {
