@@ -7,7 +7,9 @@ import {
   MoveAssemblyNodeRequest,
   RemoveAssemblyNodeRequest,
   UpdateAssemblyBudgetRequest,
+  UpdateAssemblyMarginRequest,
   UpdateAssemblyNodeRequest,
+  UpdateAssemblyNodesMarginRequest,
 } from 'app/interfaces/Budget';
 import { BudgetAssemblyService } from 'app/services/budgetAssemblyService';
 
@@ -93,6 +95,18 @@ export function useBudgetAssembly() {
     [executeAction]
   );
 
+  const updateMargin = useCallback(
+    (request: UpdateAssemblyMarginRequest) =>
+      executeAction(() => serviceRef.current.updateMargin(request)),
+    [executeAction]
+  );
+
+  const updateNodesMargin = useCallback(
+    (request: UpdateAssemblyNodesMarginRequest) =>
+      executeAction(() => serviceRef.current.updateNodesMargin(request)),
+    [executeAction]
+  );
+
   return {
     budget,
     loading,
@@ -107,5 +121,7 @@ export function useBudgetAssembly() {
     removeNode,
     updateNode,
     recalculateTotals,
+    updateMargin,
+    updateNodesMargin,
   };
 }

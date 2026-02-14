@@ -1,16 +1,19 @@
 'use client';
 
 import { useState } from 'react';
+import { SvgSpinner } from 'app/icons/icons';
 import { CreateArticleProviderRequest } from 'app/interfaces/Article';
-import { Provider } from 'app/interfaces/Provider';
+import { Provider, ProviderRequest } from 'app/interfaces/Provider';
 import AutocompleteSearchBar from 'components/selector/AutocompleteSearchBar';
 import { ElementList } from 'components/selector/ElementList';
-import { Edit2, Plus, Trash2 } from 'lucide-react';
+import { Edit2, Plus, Trash2, UserPlus } from 'lucide-react';
 
 interface ProvidersTabProps {
   providers: CreateArticleProviderRequest[];
   setProviders: (providers: CreateArticleProviderRequest[]) => void;
   allProviders: Provider[] | undefined;
+  onCreateProvider: (provider: ProviderRequest) => Promise<Provider>;
+  onRefreshProviders: () => void;
   t: (key: string) => string;
 }
 
@@ -18,6 +21,8 @@ export function ProvidersTab({
   providers,
   setProviders,
   allProviders,
+  onCreateProvider,
+  onRefreshProviders,
   t,
 }: ProvidersTabProps) {
   const [editingProvider, setEditingProvider] = useState<{
@@ -49,6 +54,8 @@ export function ProvidersTab({
         <ProviderForm
           providers={allProviders || []}
           editingProvider={editingProvider}
+          onCreateProvider={onCreateProvider}
+          onRefreshProviders={onRefreshProviders}
           onSave={provider => {
             if (editingProvider !== null) {
               const updated = [...providers];
@@ -148,6 +155,8 @@ export function ProvidersTab({
 interface ProviderFormProps {
   providers: Provider[];
   editingProvider: { index: number; data: CreateArticleProviderRequest } | null;
+  onCreateProvider: (provider: ProviderRequest) => Promise<Provider>;
+  onRefreshProviders: () => void;
   onSave: (provider: CreateArticleProviderRequest) => void;
   onCancel: () => void;
   t: (key: string) => string;
@@ -156,6 +165,8 @@ interface ProviderFormProps {
 function ProviderForm({
   providers,
   editingProvider,
+  onCreateProvider,
+  onRefreshProviders,
   onSave,
   onCancel,
   t,
@@ -171,12 +182,52 @@ function ProviderForm({
     }
   );
 
+  const [showQuickCreate, setShowQuickCreate] = useState(false);
+  const [isCreatingProvider, setIsCreatingProvider] = useState(false);
+  const [quickCreateData, setQuickCreateData] = useState({
+    name: '',
+    nie: '',
+    email: '',
+    phoneNumber: '',
+  });
+
   const providerElements: ElementList[] = providers.map(provider => ({
     id: provider.id,
     description: provider.name,
   }));
 
   const selectedProvider = providers.find(p => p.id === formData.providerId);
+
+  const handleQuickCreate = async () => {
+    if (!quickCreateData.name.trim()) return;
+    setIsCreatingProvider(true);
+    try {
+      const newProvider = await onCreateProvider({
+        name: quickCreateData.name,
+        commercialName: quickCreateData.name,
+        nie: quickCreateData.nie,
+        email: quickCreateData.email,
+        phoneNumber: quickCreateData.phoneNumber,
+        address: '',
+        city: '',
+        province: '',
+        postalCode: '',
+        whatsappNumber: '',
+        accountNumber: '',
+        paymentMethod: '',
+        isVirtual: false,
+        comments: '',
+      });
+      onRefreshProviders();
+      setFormData({ ...formData, providerId: newProvider.id });
+      setShowQuickCreate(false);
+      setQuickCreateData({ name: '', nie: '', email: '', phoneNumber: '' });
+    } catch (error) {
+      console.error('Error creating provider:', error);
+    } finally {
+      setIsCreatingProvider(false);
+    }
+  };
 
   const handleSubmit = () => {
     if (!formData.providerId || !formData.providerReference) {
@@ -202,12 +253,26 @@ function ProviderForm({
             elements={providerElements}
             setCurrentId={id => setFormData({ ...formData, providerId: id })}
             placeholder={t('select.provider')}
+            onCreate={(text) => {
+              setQuickCreateData(prev => ({ ...prev, name: text }));
+              setShowQuickCreate(true);
+            }}
           />
           {selectedProvider && (
             <div className="mt-2 text-sm text-gray-600 bg-white p-2 rounded border border-gray-200">
               {t('selected')}:{' '}
               <span className="font-medium">{selectedProvider.name}</span>
             </div>
+          )}
+          {!selectedProvider && !showQuickCreate && (
+            <button
+              type="button"
+              onClick={() => setShowQuickCreate(true)}
+              className="mt-2 flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              <UserPlus className="h-3.5 w-3.5" />
+              {t('create')}
+            </button>
           )}
         </div>
 
@@ -227,6 +292,93 @@ function ProviderForm({
           />
         </div>
       </div>
+
+      {showQuickCreate && (
+        <div className="col-span-2 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl space-y-3 animate-in fade-in duration-200">
+          <div className="flex items-center justify-between">
+            <h5 className="text-sm font-semibold text-amber-900 flex items-center gap-2">
+              <UserPlus className="h-4 w-4" />
+              {t('create.provider')}
+            </h5>
+            <button
+              type="button"
+              onClick={() => setShowQuickCreate(false)}
+              className="text-gray-400 hover:text-gray-600 text-sm"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                {t('provider.name.placeholder')} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={quickCreateData.name}
+                onChange={e => setQuickCreateData({ ...quickCreateData, name: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
+                placeholder={t('provider.name.placeholder')}
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                {t('provider.nie.placeholder')}
+              </label>
+              <input
+                type="text"
+                value={quickCreateData.nie}
+                onChange={e => setQuickCreateData({ ...quickCreateData, nie: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
+                placeholder={t('provider.nie.placeholder')}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                {t('company.email.placeholder')}
+              </label>
+              <input
+                type="email"
+                value={quickCreateData.email}
+                onChange={e => setQuickCreateData({ ...quickCreateData, email: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
+                placeholder={t('company.email.placeholder')}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                {t('phone')}
+              </label>
+              <input
+                type="tel"
+                value={quickCreateData.phoneNumber}
+                onChange={e => setQuickCreateData({ ...quickCreateData, phoneNumber: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
+                placeholder={t('phone')}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowQuickCreate(false)}
+              className="px-3 py-1.5 text-xs bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-lg transition-colors font-medium"
+            >
+              {t('common.cancel')}
+            </button>
+            <button
+              type="button"
+              onClick={handleQuickCreate}
+              disabled={!quickCreateData.name.trim() || isCreatingProvider}
+              className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+            >
+              {isCreatingProvider && <SvgSpinner className="h-3 w-3" />}
+              {t('create')}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-4">
         <div>

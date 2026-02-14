@@ -1,17 +1,61 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SvgSpinner } from 'app/icons/icons';
 import { Article, ArticleType } from 'app/interfaces/Article';
+import {
+  AssemblyFolder,
+  AssemblyNode,
+  BudgetNodeType,
+} from 'app/interfaces/Budget';
 import { formatCurrencyServerSider } from 'app/utils/utils';
 import AutocompleteSearchBar from 'components/selector/AutocompleteSearchBar';
 import { Button } from 'designSystem/Button/Buttons';
 import { Modal2 } from 'designSystem/Modals/Modal';
-import { Layers, Package, Plus, Wrench, X } from 'lucide-react';
+import {
+  ChevronDown,
+  Folder,
+  Layers,
+  Package,
+  Pencil,
+  Plus,
+  Wrench,
+  X,
+} from 'lucide-react';
+
+interface FolderOption {
+  id: string;
+  code: string;
+  description: string;
+  depth: number;
+}
+
+function collectFolders(
+  nodes: AssemblyNode[],
+  depth = 0
+): FolderOption[] {
+  const result: FolderOption[] = [];
+  for (const node of nodes) {
+    if (node.nodeType === BudgetNodeType.Folder) {
+      const folder = node as AssemblyFolder;
+      result.push({
+        id: folder.id,
+        code: folder.code,
+        description: folder.description,
+        depth,
+      });
+      result.push(...collectFolders(folder.children, depth + 1));
+    }
+  }
+  return result;
+}
 
 interface AddArticleModalProps {
   isVisible: boolean;
   articles: Article[];
+  nodes: AssemblyNode[];
+  selectedParentNodeId: string | undefined;
+  onParentChange: (parentNodeId: string | undefined) => void;
   onClose: () => void;
   onConfirm: (
     article: Article,
@@ -19,15 +63,22 @@ interface AddArticleModalProps {
     marginPercentage: number
   ) => Promise<void>;
   onCreateNew: () => void;
+  onEditArticle: (article: Article) => void;
+  initialArticle?: Article;
   t: (key: string) => string;
 }
 
 export function AddArticleModal({
   isVisible,
   articles,
+  nodes,
+  selectedParentNodeId,
+  onParentChange,
   onClose,
   onConfirm,
   onCreateNew,
+  onEditArticle,
+  initialArticle,
   t,
 }: AddArticleModalProps) {
   const [selectedArticle, setSelectedArticle] = useState<Article | undefined>();
@@ -35,13 +86,20 @@ export function AddArticleModal({
   const [marginPercentage, setMarginPercentage] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const folderOptions = useMemo(() => collectFolders(nodes), [nodes]);
+
   useEffect(() => {
     if (isVisible) {
-      setSelectedArticle(undefined);
+      if (initialArticle) {
+        setSelectedArticle(initialArticle);
+        setMarginPercentage(initialArticle.marginPercentage || 0);
+      } else {
+        setSelectedArticle(undefined);
+        setMarginPercentage(0);
+      }
       setQuantity(1);
-      setMarginPercentage(0);
     }
-  }, [isVisible]);
+  }, [isVisible, initialArticle]);
 
   const handleSelectArticle = (id: string) => {
     const article = articles.find(a => a.id === id);
@@ -84,6 +142,15 @@ export function AddArticleModal({
         <ModalHeader t={t} />
 
         <div className="p-6 space-y-4">
+          {folderOptions.length > 0 && (
+            <ParentFolderSelector
+              folders={folderOptions}
+              selectedId={selectedParentNodeId}
+              onChange={onParentChange}
+              t={t}
+            />
+          )}
+
           <ArticleSearch
             articleElements={articleElements}
             onSelect={handleSelectArticle}
@@ -94,6 +161,7 @@ export function AddArticleModal({
             <SelectedArticlePreview
               article={selectedArticle}
               onClear={() => setSelectedArticle(undefined)}
+              onEdit={() => onEditArticle(selectedArticle)}
               t={t}
             />
           )}
@@ -108,7 +176,11 @@ export function AddArticleModal({
             />
           )}
 
-          <CreateNewArticleButton onClick={onCreateNew} t={t} />
+          <CreateNewArticleButton
+            onClick={onCreateNew}
+            disabled={!!selectedArticle}
+            t={t}
+          />
         </div>
 
         <div className="flex justify-end gap-3 px-6 py-4 border-t bg-gray-50">
@@ -173,10 +245,12 @@ function ArticleSearch({
 function SelectedArticlePreview({
   article,
   onClear,
+  onEdit,
   t,
 }: {
   article: Article;
   onClear: () => void;
+  onEdit: () => void;
   t: (key: string) => string;
 }) {
   const isComponent = article.articleType === ArticleType.Component;
@@ -186,9 +260,15 @@ function SelectedArticlePreview({
     <div className="rounded-lg border border-blue-100 overflow-hidden">
       <div className="bg-blue-50 p-3">
         <div className="flex items-center gap-3">
-          <div className="bg-blue-600 text-white rounded-full w-9 h-9 flex items-center justify-center shrink-0">
-            <Wrench className="h-4 w-4" />
-          </div>
+          <button
+            type="button"
+            onClick={onEdit}
+            className="relative group bg-blue-600 text-white rounded-full w-9 h-9 flex items-center justify-center shrink-0 hover:bg-blue-700 transition-colors cursor-pointer"
+            title={t('edit.article')}
+          >
+            <Wrench className="h-4 w-4 group-hover:opacity-0 transition-opacity" />
+            <Pencil className="h-4 w-4 absolute opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <p className="font-medium text-gray-900 truncate">
@@ -341,19 +421,70 @@ function QuantityAndMarginFields({
 
 function CreateNewArticleButton({
   onClick,
+  disabled,
   t,
 }: {
   onClick: () => void;
+  disabled: boolean;
   t: (key: string) => string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-2 w-full px-3 py-2.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg border border-dashed border-blue-300 transition-colors justify-center"
+      disabled={disabled}
+      className="flex items-center gap-2 w-full px-3 py-2.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg border border-dashed border-blue-300 transition-colors justify-center disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
     >
       <Plus className="h-4 w-4" />
-      {t('assemblyBudget.article.createNew')}
+      {t('create.article')}
     </button>
+  );
+}
+
+function ParentFolderSelector({
+  folders,
+  selectedId,
+  onChange,
+  t,
+}: {
+  folders: FolderOption[];
+  selectedId: string | undefined;
+  onChange: (id: string | undefined) => void;
+  t: (key: string) => string;
+}) {
+  const selectedFolder = folders.find(f => f.id === selectedId);
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        {t('assemblyBudget.targetFolder')}
+      </label>
+      <div className="relative">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500">
+          <Folder className="h-4 w-4" />
+        </div>
+        <select
+          value={selectedId || ''}
+          onChange={e => onChange(e.target.value || undefined)}
+          className="w-full appearance-none rounded-lg border-2 border-gray-200 bg-white pl-9 pr-9 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors cursor-pointer"
+        >
+          <option value="">{t('assemblyBudget.rootLevel')}</option>
+          {folders.map(folder => (
+            <option key={folder.id} value={folder.id}>
+              {'  '.repeat(folder.depth)}
+              {folder.code} — {folder.description}
+            </option>
+          ))}
+        </select>
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <ChevronDown className="h-4 w-4" />
+        </div>
+      </div>
+      {selectedFolder && (
+        <p className="mt-1 text-xs text-gray-500">
+          {selectedFolder.code} — {selectedFolder.description}
+        </p>
+      )}
+    </div>
   );
 }

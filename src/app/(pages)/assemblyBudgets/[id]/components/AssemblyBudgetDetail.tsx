@@ -7,11 +7,16 @@ import { Article } from 'app/interfaces/Article';
 import {
   AddAssemblyArticleRequest,
   AddAssemblyFolderRequest,
+  AssemblyArticle,
+  AssemblyFolder,
+  AssemblyNode,
   Budget,
+  BudgetNodeType,
   BudgetStatus,
   MoveAssemblyNodeRequest,
   RemoveAssemblyNodeRequest,
   UpdateAssemblyBudgetRequest,
+  UpdateAssemblyMarginRequest,
   UpdateAssemblyNodeRequest,
 } from 'app/interfaces/Budget';
 import useRoutes from 'app/utils/useRoutes';
@@ -21,13 +26,14 @@ import { useRouter } from 'next/navigation';
 import { ArticleFormModal } from '../../../articles/components/ArticleFormModal';
 import { AddArticleModal } from './AddArticleModal';
 import { AddFolderModal } from './AddFolderModal';
-import { generateNextCode } from './assemblyCodeUtils';
+import { ApplyMarginModal, MarginChange } from './ApplyMarginModal';
 import { AssemblyBudgetCommentsPanel } from './AssemblyBudgetCommentsPanel';
 import { AssemblyBudgetCustomerCard } from './AssemblyBudgetCustomerCard';
 import { AssemblyBudgetFooterActions } from './AssemblyBudgetFooterActions';
 import { countNodes } from './AssemblyBudgetStatusConfig';
 import { AssemblyBudgetTopBar } from './AssemblyBudgetTopBar';
 import { AssemblyBudgetTotalsCard } from './AssemblyBudgetTotalsCard';
+import { generateNextCode } from './assemblyCodeUtils';
 import { AssemblyTreePanel } from './AssemblyTreePanel';
 
 interface AssemblyBudgetDetailProps {
@@ -50,6 +56,19 @@ interface AssemblyBudgetDetailProps {
   onUpdateNode: (
     request: UpdateAssemblyNodeRequest
   ) => Promise<Budget | undefined>;
+  onUpdateMargin: (
+    request: UpdateAssemblyMarginRequest
+  ) => Promise<Budget | undefined>;
+}
+
+function findFirstFolderId(
+  nodes: AssemblyNode[] | undefined
+): string | undefined {
+  if (!nodes) return undefined;
+  for (const node of nodes) {
+    if (node.nodeType === BudgetNodeType.Folder) return node.id;
+  }
+  return undefined;
 }
 
 export function AssemblyBudgetDetail({
@@ -60,6 +79,7 @@ export function AssemblyBudgetDetail({
   onMoveNode,
   onRemoveNode,
   onUpdateNode,
+  onUpdateMargin,
 }: AssemblyBudgetDetailProps) {
   const { t } = useTranslations();
   const router = useRouter();
@@ -73,8 +93,15 @@ export function AssemblyBudgetDetail({
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
   const [isArticleModalOpen, setIsArticleModalOpen] = useState(false);
   const [isCreateArticleOpen, setIsCreateArticleOpen] = useState(false);
+  const [isMarginModalOpen, setIsMarginModalOpen] = useState(false);
   const [selectedParentNodeId, setSelectedParentNodeId] = useState<
     string | undefined
+  >(undefined);
+  const [preSelectedArticle, setPreSelectedArticle] = useState<
+    Article | undefined
+  >(undefined);
+  const [editingArticle, setEditingArticle] = useState<
+    Article | undefined
   >(undefined);
 
   const isReadOnly = budget.active === false;
@@ -121,6 +148,24 @@ export function AssemblyBudgetDetail({
     [handleFieldChange]
   );
 
+  const handleMarginPercentageChange = useCallback(
+    (value: number) => {
+      handleFieldChange('marginPercentage', value);
+    },
+    [handleFieldChange]
+  );
+
+  const handleUpdateMargin = useCallback(
+    async (marginPercentage: number) => {
+      const request: UpdateAssemblyMarginRequest = {
+        budgetId: formData.id,
+        marginPercentage,
+      };
+      await onUpdateMargin(request);
+    },
+    [formData.id, onUpdateMargin]
+  );
+
   const handleInternalCommentsChange = useCallback(
     (value: string) => {
       handleFieldChange('internalComments', value);
@@ -139,6 +184,7 @@ export function AssemblyBudgetDetail({
         internalComments: formData.internalComments,
         status: formData.status,
         validUntil: formData.validUntil,
+        marginPercentage: formData.marginPercentage,
       };
       const updated = await onUpdate(request);
       if (updated) {
@@ -155,10 +201,21 @@ export function AssemblyBudgetDetail({
     setIsFolderModalOpen(true);
   }, []);
 
-  const handleOpenArticleModal = useCallback((parentNodeId?: string) => {
-    setSelectedParentNodeId(parentNodeId);
-    setIsArticleModalOpen(true);
-  }, []);
+  const handleOpenArticleModal = useCallback(
+    (parentNodeId?: string) => {
+      const resolvedParent = parentNodeId ?? findFirstFolderId(formData.assemblyNodes);
+      setSelectedParentNodeId(resolvedParent);
+      setIsArticleModalOpen(true);
+    },
+    [formData.assemblyNodes]
+  );
+
+  const handleArticleParentChange = useCallback(
+    (newParentId: string | undefined) => {
+      setSelectedParentNodeId(newParentId);
+    },
+    []
+  );
 
   const handleAddFolder = useCallback(
     async (code: string, description: string) => {
@@ -194,10 +251,17 @@ export function AssemblyBudgetDetail({
     [formData.id, selectedParentNodeId, onAddArticle]
   );
 
-  const handleArticleCreated = useCallback(() => {
-    setIsCreateArticleOpen(false);
-    fetchArticles();
-  }, [fetchArticles]);
+  const handleArticleCreated = useCallback(
+    async (article?: Article) => {
+      setIsCreateArticleOpen(false);
+      await fetchArticles();
+      if (article) {
+        setPreSelectedArticle(article);
+      }
+      setIsArticleModalOpen(true);
+    },
+    [fetchArticles]
+  );
 
   const handleCancel = useCallback(() => {
     router.push(routes.assemblyBudget.list);
@@ -209,16 +273,109 @@ export function AssemblyBudgetDetail({
 
   const handleCloseArticleModal = useCallback(() => {
     setIsArticleModalOpen(false);
+    setPreSelectedArticle(undefined);
   }, []);
 
   const handleOpenCreateArticle = useCallback(() => {
+    setEditingArticle(undefined);
     setIsArticleModalOpen(false);
     setIsCreateArticleOpen(true);
   }, []);
 
+  const handleEditArticle = useCallback(
+    (article: Article) => {
+      setEditingArticle(article);
+      setIsArticleModalOpen(false);
+      setIsCreateArticleOpen(true);
+    },
+    []
+  );
+
   const handleCancelCreateArticle = useCallback(() => {
     setIsCreateArticleOpen(false);
+    setEditingArticle(undefined);
   }, []);
+
+  const handleOpenMarginModal = useCallback(() => {
+    setIsMarginModalOpen(true);
+  }, []);
+
+  const handleCloseMarginModal = useCallback(() => {
+    setIsMarginModalOpen(false);
+  }, []);
+
+  const applyMarginToNodes = useCallback(
+    (
+      nodes: AssemblyNode[],
+      changesMap: Map<string, number>
+    ): AssemblyNode[] => {
+      return nodes.map(node => {
+        if (node.nodeType === BudgetNodeType.ArticleItem) {
+          const newMargin = changesMap.get(node.id);
+          if (newMargin !== undefined) {
+            const article = node as AssemblyArticle;
+            const base = article.quantity * article.unitPrice;
+            const marginAmount = base * (newMargin / 100);
+            return {
+              ...article,
+              marginPercentage: newMargin,
+              totalAmount: base + marginAmount,
+            };
+          }
+          return node;
+        }
+        if (node.nodeType === BudgetNodeType.Folder) {
+          const folder = node as AssemblyFolder;
+          const updatedChildren = applyMarginToNodes(
+            folder.children,
+            changesMap
+          );
+          const folderTotal = updatedChildren.reduce(
+            (sum, child) => sum + child.totalAmount,
+            0
+          );
+          return {
+            ...folder,
+            children: updatedChildren,
+            totalAmount: folderTotal,
+          };
+        }
+        return node;
+      });
+    },
+    []
+  );
+
+  const handleApplyMargin = useCallback(
+    (changes: MarginChange[]) => {
+      if (changes.length === 0) return;
+
+      const changesMap = new Map(
+        changes.map(c => [c.articleNodeId, c.marginPercentage])
+      );
+
+      setFormData(prev => {
+        const updatedNodes = applyMarginToNodes(
+          prev.assemblyNodes || [],
+          changesMap
+        );
+
+        const newSubtotal = updatedNodes.reduce(
+          (sum, node) => sum + node.totalAmount,
+          0
+        );
+
+        return {
+          ...prev,
+          assemblyNodes: updatedNodes,
+          subtotal: newSubtotal,
+        };
+      });
+
+      setIsMarginModalOpen(false);
+    },
+    [applyMarginToNodes]
+  );
 
   return (
     <div className="min-h-screen bg-gray-50/80">
@@ -230,6 +387,9 @@ export function AssemblyBudgetDetail({
           isReadOnly={isReadOnly}
           onStatusChange={handleStatusChange}
           onValidUntilChange={handleValidUntilChange}
+          onMarginPercentageChange={handleMarginPercentageChange}
+          onUpdateMargin={handleUpdateMargin}
+          onOpenMarginModal={handleOpenMarginModal}
           t={t}
         />
 
@@ -283,16 +443,30 @@ export function AssemblyBudgetDetail({
       <AddArticleModal
         isVisible={isArticleModalOpen}
         articles={articles}
+        nodes={formData.assemblyNodes || []}
+        selectedParentNodeId={selectedParentNodeId}
+        onParentChange={handleArticleParentChange}
         onClose={handleCloseArticleModal}
         onConfirm={handleAddArticle}
         onCreateNew={handleOpenCreateArticle}
+        onEditArticle={handleEditArticle}
+        initialArticle={preSelectedArticle}
         t={t}
       />
 
       <ArticleFormModal
         isVisible={isCreateArticleOpen}
+        initialData={editingArticle}
         onSuccess={handleArticleCreated}
         onCancel={handleCancelCreateArticle}
+      />
+
+      <ApplyMarginModal
+        isVisible={isMarginModalOpen}
+        nodes={formData.assemblyNodes || []}
+        onClose={handleCloseMarginModal}
+        onApply={handleApplyMargin}
+        t={t}
       />
     </div>
   );

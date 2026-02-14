@@ -53,6 +53,7 @@ export interface Budget extends BaseModel {
   items: BudgetItem[];
   assemblyNodes?: AssemblyNode[];
   taxBreakdowns: TaxBreakdown[];
+  marginPercentage: number;
 }
 
 export interface BudgetItem extends BaseModel {
@@ -159,6 +160,7 @@ export interface UpdateAssemblyBudgetRequest {
   internalComments?: string;
   status?: BudgetStatus;
   validUntil?: string;
+  marginPercentage?: number;
 }
 
 export interface AddAssemblyFolderRequest {
@@ -195,4 +197,15 @@ export interface UpdateAssemblyNodeRequest {
   budgetId: string;
   nodeId: string;
   description: string;
+}
+
+export interface UpdateAssemblyMarginRequest {
+  budgetId: string;
+  marginPercentage: number;
+}
+
+export interface UpdateAssemblyNodesMarginRequest {
+  budgetId: string;
+  nodeIds: string[];
+  marginPercentage: number;
 }

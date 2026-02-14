@@ -224,11 +224,11 @@ export default function CustomerForm({
                   </div>
 
                   <div>
-                    <label className="block font-medium">Email</label>
+                    <label className="block font-medium">{t('company.email.placeholder')}</label>
                     <input
                       {...register('email')}
                       className="w-full border rounded p-2"
-                      placeholder="Email"
+                      placeholder={t('company.email.placeholder')}
                     />
                   </div>
 

@@ -17,7 +17,7 @@ export default function AssemblyBudgetDetailPage({
   params,
 }: AssemblyBudgetDetailPageProps) {
   const { t } = useTranslations();
-  const { budget, loading, error, fetchBudgetById, updateAssemblyBudget, addFolder, addArticle, moveNode, removeNode, updateNode } =
+  const { budget, loading, error, fetchBudgetById, updateAssemblyBudget, addFolder, addArticle, moveNode, removeNode, updateNode, updateMargin } =
     useBudgetAssembly();
 
   useEffect(() => {
@@ -61,6 +61,7 @@ export default function AssemblyBudgetDetailPage({
           onMoveNode={moveNode}
           onRemoveNode={removeNode}
           onUpdateNode={updateNode}
+          onUpdateMargin={updateMargin}
         />
       </Container>
     </MainLayout>

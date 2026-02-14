@@ -26,7 +26,7 @@ import { ProvidersTab } from './ProvidersTab';
 interface ArticleFormModalProps {
   isVisible: boolean;
   initialData?: Article;
-  onSuccess: () => void;
+  onSuccess: (article?: Article) => void;
   onCancel: () => void;
 }
 
@@ -73,14 +73,22 @@ export function ArticleFormModal({
     CreateArticleComponentRequest[]
   >([]);
 
-  const { createArticle, updateArticle, articles, error } = useArticles();
-  const { providers: allProviders } = useProviders(true);
+  const { createArticle, updateArticle, articles } = useArticles();
+  const {
+    providers: allProviders,
+    createProvider,
+    fetchProviders,
+  } = useProviders(true);
+  const [displayError, setDisplayError] = useState<string | undefined>(
+    undefined
+  );
 
   // Reset form when modal opens
   useEffect(() => {
     if (!isVisible) return;
 
       setSuccessMessage(undefined);
+      setDisplayError(undefined);
 
       if (initialData) {
         reset({
@@ -151,6 +159,8 @@ export function ArticleFormModal({
         active: data.active,
       };
 
+      let resultArticle: Article | undefined;
+
       if (isEdit) {
         const updated = await updateArticle({
           ...submitData,
@@ -158,21 +168,26 @@ export function ArticleFormModal({
         } as UpdateArticleRequest);
         if (updated) {
           setSuccessMessage(t('article.updated.successfully'));
+          resultArticle = updated;
         }
       } else {
         const created = await createArticle(submitData);
         if (created) {
           setSuccessMessage(t('article.created.successfully'));
+          resultArticle = created;
         }
       }
 
-      if (!error) {
+      if (resultArticle) {
         setTimeout(() => {
-          onSuccess();
+          onSuccess(resultArticle);
         }, 2000);
       }
     } catch (err) {
       console.error('Error submitting form:', err);
+      setDisplayError(
+        err instanceof Error ? err.message : 'Error submitting form'
+      );
     }
   };
 
@@ -263,6 +278,8 @@ export function ArticleFormModal({
                 providers={providers}
                 setProviders={setProviders}
                 allProviders={allProviders}
+                onCreateProvider={createProvider}
+                onRefreshProviders={fetchProviders}
                 t={t}
               />
             )}
@@ -286,10 +303,10 @@ export function ArticleFormModal({
             {successMessage && (
               <span className="text-green-600 font-medium">{successMessage}</span>
             )}
-            {error && (
-              <span className="text-red-600 font-medium">{error}</span>
+            {displayError && (
+              <span className="text-red-600 font-medium">{displayError}</span>
             )}
-            {!successMessage && !error && (
+            {!successMessage && !displayError && (
               selectedArticleType === ArticleType.BillOfMaterials ? (
                 <span className="flex items-center gap-2 text-gray-600">
                   <Layers className="h-4 w-4 text-purple-600" />

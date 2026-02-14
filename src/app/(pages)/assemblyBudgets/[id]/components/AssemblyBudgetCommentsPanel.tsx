@@ -22,7 +22,7 @@ export const AssemblyBudgetCommentsPanel = React.memo(
     onInternalChange,
     t,
   }: AssemblyBudgetCommentsPanelProps) {
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(true);
 
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

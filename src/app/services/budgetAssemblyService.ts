@@ -6,7 +6,9 @@ import {
   MoveAssemblyNodeRequest,
   RemoveAssemblyNodeRequest,
   UpdateAssemblyBudgetRequest,
+  UpdateAssemblyMarginRequest,
   UpdateAssemblyNodeRequest,
+  UpdateAssemblyNodesMarginRequest,
 } from '../interfaces/Budget';
 
 export class BudgetAssemblyService {
@@ -91,5 +93,24 @@ export class BudgetAssemblyService {
       `budgets/assembly/${budgetId}/recalculate`,
       { method: 'POST' }
     );
+  }
+
+  async updateMargin(request: UpdateAssemblyMarginRequest): Promise<Budget> {
+    return this.request<Budget>(
+      `budgets/assembly/${request.budgetId}/margin`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(request),
+      }
+    );
+  }
+
+  async updateNodesMargin(
+    request: UpdateAssemblyNodesMarginRequest
+  ): Promise<Budget> {
+    return this.request<Budget>('budgets/assembly/nodes-margin', {
+      method: 'PUT',
+      body: JSON.stringify(request),
+    });
   }
 }

@@ -8,14 +8,11 @@ import { useBudgetAssembly } from 'app/hooks/useBudgetAssembly';
 import { useCustomers } from 'app/hooks/useCustomers';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
-import { AssemblyBudgetCreationRequest } from 'app/interfaces/Budget';
 import { Customer } from 'app/interfaces/Customer';
-import useRoutes from 'app/utils/useRoutes';
 import ChooseElement from 'components/ChooseElement';
 import { Button } from 'designSystem/Button/Buttons';
 import { Modal2 } from 'designSystem/Modals/Modal';
-import { Calendar, FileText, Percent, User } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Calendar, FileText, User } from 'lucide-react';
 
 interface AssemblyBudgetFormModalProps {
   isVisible: boolean;
@@ -24,23 +21,19 @@ interface AssemblyBudgetFormModalProps {
 }
 
 interface AssemblyBudgetFormData {
-  title: string;
   customerId: string;
   budgetDate: Date;
   validUntil: Date;
-  defaultMarginPercentage: number;
-  description: string;
-  notes: string;
+  externalComments: string;
+  internalComments: string;
 }
 
 const INITIAL_FORM_DATA: AssemblyBudgetFormData = {
-  title: '',
   customerId: '',
   budgetDate: new Date(),
   validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-  defaultMarginPercentage: 0,
-  description: '',
-  notes: '',
+  externalComments: '',
+  internalComments: '',
 };
 
 export function AssemblyBudgetFormModal({
@@ -50,24 +43,19 @@ export function AssemblyBudgetFormModal({
 }: AssemblyBudgetFormModalProps) {
   const { t } = useTranslations();
   const { customers } = useCustomers();
-  const { createAssemblyBudget, loading, error } = useBudgetAssembly();
-  const router = useRouter();
-  const routes = useRoutes();
+  const { createAssemblyBudget } = useBudgetAssembly();
 
   const [formData, setFormData] =
     useState<AssemblyBudgetFormData>(INITIAL_FORM_DATA);
   const [selectedCustomer, setSelectedCustomer] = useState<
     Customer | undefined
   >(undefined);
-  const [successMessage, setSuccessMessage] = useState<string | undefined>(
-    undefined
-  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isVisible) return;
     setFormData(INITIAL_FORM_DATA);
     setSelectedCustomer(undefined);
-    setSuccessMessage(undefined);
   }, [isVisible]);
 
   const handleSelectCustomer = (id: string) => {
@@ -88,28 +76,26 @@ export function AssemblyBudgetFormModal({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const isFormValid =
-    formData.title.trim() !== '' && formData.customerId !== '';
+  const isFormValid = formData.customerId !== '';
+
+  const formatDate = (date: Date): string => date.toISOString();
 
   const handleSubmit = async () => {
     if (!isFormValid) return;
-
-    const request: AssemblyBudgetCreationRequest = {
-      customerId: formData.customerId,
-      budgetDate: formData.budgetDate.toISOString(),
-      validUntil: formData.validUntil.toISOString(),
-      externalComments: formData.description || undefined,
-      internalComments: formData.notes || undefined,
-    };
-
-    const created = await createAssemblyBudget(request);
-
-    if (created) {
-      setSuccessMessage(t('assemblyBudget.created.successfully'));
-      setTimeout(() => {
+    setIsSubmitting(true);
+    try {
+      const result = await createAssemblyBudget({
+        customerId: formData.customerId,
+        budgetDate: formatDate(formData.budgetDate),
+        validUntil: formatDate(formData.validUntil),
+        externalComments: formData.externalComments || undefined,
+        internalComments: formData.internalComments || undefined,
+      });
+      if (result) {
         onSuccess();
-        router.push(routes.assemblyBudget.detail(created.id));
-      }, 1500);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -127,12 +113,6 @@ export function AssemblyBudgetFormModal({
         <ModalHeader t={t} />
 
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
-          <TitleField
-            value={formData.title}
-            onChange={value => handleFieldChange('title', value)}
-            t={t}
-          />
-
           <CustomerField
             customers={customers}
             selectedCustomerId={formData.customerId}
@@ -150,34 +130,24 @@ export function AssemblyBudgetFormModal({
             t={t}
           />
 
-          <MarginField
-            value={formData.defaultMarginPercentage}
-            onChange={value =>
-              handleFieldChange('defaultMarginPercentage', value)
-            }
-            t={t}
-          />
-
           <DescriptionField
-            value={formData.description}
-            onChange={value => handleFieldChange('description', value)}
+            value={formData.externalComments}
+            onChange={value => handleFieldChange('externalComments', value)}
             t={t}
           />
 
           <NotesField
-            value={formData.notes}
-            onChange={value => handleFieldChange('notes', value)}
+            value={formData.internalComments}
+            onChange={value => handleFieldChange('internalComments', value)}
             t={t}
           />
         </div>
 
         <ModalFooter
-          isSubmitting={loading}
+          isSubmitting={isSubmitting}
           isFormValid={isFormValid}
           onCancel={onCancel}
           onSubmit={handleSubmit}
-          successMessage={successMessage}
-          errorMessage={error}
           t={t}
         />
       </div>
@@ -201,31 +171,6 @@ function ModalHeader({ t }: { t: (key: string) => string }) {
           </p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function TitleField({
-  value,
-  onChange,
-  t,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  t: (key: string) => string;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-        {t('assemblyBudget.field.title')} *
-      </label>
-      <input
-        type="text"
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={t('assemblyBudget.field.title.placeholder')}
-        className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-      />
     </div>
   );
 }
@@ -327,39 +272,6 @@ function DateFields({
   );
 }
 
-function MarginField({
-  value,
-  onChange,
-  t,
-}: {
-  value: number;
-  onChange: (value: number) => void;
-  t: (key: string) => string;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-        <Percent className="h-4 w-4 inline mr-1" />
-        {t('margin.percentage')}
-      </label>
-      <div className="relative">
-        <input
-          type="number"
-          min={0}
-          max={100}
-          step={0.01}
-          value={value}
-          onChange={e => onChange(Number(e.target.value))}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-        />
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-          %
-        </span>
-      </div>
-    </div>
-  );
-}
-
 function DescriptionField({
   value,
   onChange,
@@ -415,47 +327,33 @@ function ModalFooter({
   isFormValid,
   onCancel,
   onSubmit,
-  successMessage,
-  errorMessage,
   t,
 }: {
   isSubmitting: boolean;
   isFormValid: boolean;
   onCancel: () => void;
   onSubmit: () => void;
-  successMessage?: string;
-  errorMessage?: string;
   t: (key: string) => string;
 }) {
   return (
-    <div className="flex-shrink-0 flex justify-between items-center gap-3 px-6 py-4 border-t bg-gray-50">
-      <div className="flex items-center text-sm">
-        {successMessage && (
-          <span className="text-green-600 font-medium">{successMessage}</span>
-        )}
-        {errorMessage && !successMessage && (
-          <span className="text-red-600 font-medium">{errorMessage}</span>
-        )}
-      </div>
-      <div className="flex gap-3">
-        <Button
-          type="cancel"
-          onClick={onCancel}
-          customStyles="px-5 py-2.5"
-          disabled={isSubmitting}
-        >
-          {t('common.cancel')}
-        </Button>
-        <Button
-          type="create"
-          onClick={onSubmit}
-          customStyles="px-5 py-2.5 gap-2 flex items-center"
-          disabled={isSubmitting || !isFormValid || !!successMessage}
-        >
-          {t('assemblyBudget.create')}
-          {isSubmitting && <SvgSpinner className="h-4 w-4" />}
-        </Button>
-      </div>
+    <div className="flex-shrink-0 flex justify-end items-center gap-3 px-6 py-4 border-t bg-gray-50">
+      <Button
+        type="cancel"
+        onClick={onCancel}
+        customStyles="px-5 py-2.5"
+        disabled={isSubmitting}
+      >
+        {t('common.cancel')}
+      </Button>
+      <Button
+        type="create"
+        onClick={onSubmit}
+        customStyles="px-5 py-2.5 gap-2 flex items-center"
+        disabled={isSubmitting || !isFormValid}
+      >
+        {t('create')}
+        {isSubmitting && <SvgSpinner className="h-4 w-4" />}
+      </Button>
     </div>
   );
 }

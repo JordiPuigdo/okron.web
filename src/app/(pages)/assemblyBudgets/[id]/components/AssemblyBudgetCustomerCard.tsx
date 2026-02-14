@@ -14,7 +14,7 @@ export const AssemblyBudgetCustomerCard = React.memo(
     budget,
     t,
   }: AssemblyBudgetCustomerCardProps) {
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(true);
 
     if (!budget.companyName) return null;
 
@@ -39,19 +39,19 @@ export const AssemblyBudgetCustomerCard = React.memo(
         </button>
         {isExpanded && (
           <div className="px-5 pb-4 space-y-2 border-t border-gray-100 pt-3">
-            <InfoRow label={t('customer.name')} value={budget.companyName} />
-            <InfoRow label={t('customer.nif')} value={budget.customerNif} />
+            <InfoRow label={t('name')} value={budget.companyName} />
+            <InfoRow label={t('tax.id')} value={budget.customerNif} />
             <InfoRow
-              label={t('customer.email')}
+              label={t('company.email.placeholder')}
               value={budget.customerEmail}
             />
             <InfoRow
-              label={t('customer.phone')}
+              label={t('phone')}
               value={budget.customerPhone}
             />
             {budget.customerAddress && (
               <InfoRow
-                label={t('customer.address')}
+                label={t('customer.main.address')}
                 value={[
                   budget.customerAddress.address,
                   budget.customerAddress.city,
@@ -64,7 +64,7 @@ export const AssemblyBudgetCustomerCard = React.memo(
             )}
             {budget.installation && (
               <InfoRow
-                label={t('installation')}
+                label={t('store')}
                 value={budget.installation.code}
               />
             )}
