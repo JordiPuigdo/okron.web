@@ -51,7 +51,7 @@ export function ArticleTypeIndicator({
       )}
       {showLabel && (
         <span className={textSizeClasses[size]}>
-          {isComponent ? t('component') : t('bill.of.materials')}
+          {isComponent ? t('article') : t('bill.of.materials')}
         </span>
       )}
     </div>

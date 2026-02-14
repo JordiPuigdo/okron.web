@@ -204,6 +204,14 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
+    titleKey: 'sidebar.assemblyBudgets',
+    icon: SvgInvoice,
+    path: '/assemblyBudgets',
+    permission: [UserPermission.AdminCRM],
+    userType: [UserType.CRM],
+  },
+  {
+    key: generateKey(),
     titleKey: 'sidebar.clockInOut',
     path: '/clockInOut',
     icon: SvgClock,

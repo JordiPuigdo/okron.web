@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Family } from 'app/interfaces/Family';
-import { Dialog, DialogContent } from 'components/Dialog';
 import { HeaderTable } from 'components/layout/HeaderTable';
 
 import { useTranslations } from '../../../hooks/useTranslations';
@@ -45,20 +44,12 @@ export default function FamilyComponent() {
       />
       <FamilyTable key={refreshKey} onEdit={handleEditFamily} />
 
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent
-          type="center"
-          className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-          modalVisibility={isModalOpen}
-          setModalVisibility={setIsModalOpen}
-        >
-          <FamilyFormModal 
-            initialData={editingFamily}
-            onSuccess={handleSuccess} 
-            onCancel={handleCloseModal} 
-          />
-        </DialogContent>
-      </Dialog>
+      <FamilyFormModal
+        isVisible={isModalOpen}
+        initialData={editingFamily}
+        onSuccess={handleSuccess}
+        onCancel={handleCloseModal}
+      />
     </div>
   );
 }

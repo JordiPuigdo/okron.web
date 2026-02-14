@@ -13,15 +13,18 @@ import {
 import AutocompleteSearchBar from 'components/selector/AutocompleteSearchBar';
 import { ElementList } from 'components/selector/ElementList';
 import { Button } from 'designSystem/Button/Buttons';
+import { Modal2 } from 'designSystem/Modals/Modal';
 import { X } from 'lucide-react';
 
 interface FamilyFormModalProps {
+  isVisible: boolean;
   initialData?: Family;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
 export function FamilyFormModal({
+  isVisible,
   initialData,
   onSuccess,
   onCancel,
@@ -33,8 +36,16 @@ export function FamilyFormModal({
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors, isSubmitting },
-  } = useForm<CreateFamilyRequest>();
+  } = useForm<CreateFamilyRequest>({
+    defaultValues: {
+      name: '',
+      codePrefix: '',
+      codePattern: '',
+      parentFamilyId: undefined,
+    },
+  });
 
   const [successMessage, setSuccessMessage] = useState<string | undefined>(
     undefined
@@ -54,6 +65,10 @@ export function FamilyFormModal({
     }));
 
   useEffect(() => {
+    if (!isVisible) return;
+
+    setSuccessMessage(undefined);
+
     if (initialData) {
       Object.keys(initialData).forEach(key => {
         const value = initialData[key as keyof Family];
@@ -64,11 +79,17 @@ export function FamilyFormModal({
           formattedValue as unknown as never
         );
       });
-      if (initialData.parentFamilyId) {
-        setSelectedParentId(initialData.parentFamilyId);
-      }
+      setSelectedParentId(initialData.parentFamilyId || '');
+    } else {
+      reset({
+        name: '',
+        codePrefix: '',
+        codePattern: '',
+        parentFamilyId: undefined,
+      });
+      setSelectedParentId('');
     }
-  }, [initialData, setValue]);
+  }, [initialData, isVisible, reset, setValue]);
 
   useEffect(() => {
     setValue('parentFamilyId', selectedParentId || undefined);
@@ -104,7 +125,7 @@ export function FamilyFormModal({
         await createFamily(data);
         setSuccessMessage(t('family.created.successfully'));
       }
-      
+
       if (!error) {
         setTimeout(() => {
           onSuccess();
@@ -117,7 +138,7 @@ export function FamilyFormModal({
 
   const handleToggleActive = async () => {
     if (!initialData?.id) return;
-    
+
     setIsTogglingActive(true);
     try {
       await toggleActive(initialData.id);
@@ -139,164 +160,161 @@ export function FamilyFormModal({
   const selectedParentFamily = families.find(f => f.id === selectedParentId);
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6 pb-4 border-b">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">
+    <Modal2
+      isVisible={isVisible}
+      setIsVisible={() => onCancel()}
+      type="center"
+      width="w-full max-w-4xl"
+      height="h-[85vh]"
+      className="overflow-hidden flex flex-col shadow-2xl"
+      closeOnEsc
+    >
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex-shrink-0 p-6 pb-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">
             {isEdit ? t('family.update') : t('create.family')}
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-gray-600">
             {isEdit
               ? t('family.update.description')
               : t('family.create.description')}
           </p>
         </div>
-      </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {/* Nombre */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            {t('name')} <span className="text-red-500">*</span>
-          </label>
-          <input
-            {...register('name', {
-              required: t('validation.name.required'),
-            })}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            placeholder={t('family.name.placeholder')}
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-          )}
-        </div>
-
-        {/* Familia Padre */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            {t('family.parent')}
-          </label>
-          <AutocompleteSearchBar
-            elements={familyElements}
-            setCurrentId={setSelectedParentId}
-            placeholder={t('family.parent.placeholder')}
-            selectedId={selectedParentId || null}
-          />
-          {selectedParentId && selectedParentFamily && (
-            <div className="flex items-center justify-between mt-2 p-2 bg-blue-50 rounded-lg">
-              <p className="text-sm text-gray-700">
-                <span className="font-medium">{t('selected')}:</span>{' '}
-                {selectedParentFamily.name}
-              </p>
-              <button
-                type="button"
-                className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-100 transition-colors"
-                onClick={() => setSelectedParentId('')}
-              >
-                <X className="h-4 w-4" />
-              </button>
+        <div className="flex-1 overflow-y-auto p-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t('name')} <span className="text-red-500">*</span>
+              </label>
+              <input
+                {...register('name', {
+                  required: t('validation.name.required'),
+                })}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder={t('family.name.placeholder')}
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Código Prefijo */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-sm font-semibold text-gray-700">
-              {t('code.prefix')} <span className="text-red-500">*</span>
-            </label>
-            {selectedParentId && (
-              <button
-                type="button"
-                onClick={handleGenerateCode}
-                disabled={generatingCode}
-                title={t('generate.code.tooltip')}
-                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-1.5 px-3 text-xs font-medium disabled:opacity-50 flex items-center gap-1.5 transition-colors"
-              >
-                {generatingCode ? (
-                  <>
-                    <SvgSpinner className="h-3 w-3" />
-                    {t('generating')}
-                  </>
-                ) : (
-                  t('generate.code')
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t('family.parent')}
+              </label>
+              <AutocompleteSearchBar
+                elements={familyElements}
+                setCurrentId={setSelectedParentId}
+                placeholder={t('family.parent.placeholder')}
+                selectedId={selectedParentId || null}
+              />
+              {selectedParentId && selectedParentFamily && (
+                <div className="flex items-center justify-between mt-2 p-2 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-gray-700">
+                    <span className="font-medium">{t('selected')}:</span>{' '}
+                    {selectedParentFamily.name}
+                  </p>
+                  <button
+                    type="button"
+                    className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-100 transition-colors"
+                    onClick={() => setSelectedParentId('')}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  {t('code.prefix')} <span className="text-red-500">*</span>
+                </label>
+                {selectedParentId && (
+                  <button
+                    type="button"
+                    onClick={handleGenerateCode}
+                    disabled={generatingCode}
+                    title={t('generate.code.tooltip')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-1.5 px-3 text-xs font-medium disabled:opacity-50 flex items-center gap-1.5 transition-colors"
+                  >
+                    {generatingCode ? (
+                      <>
+                        <SvgSpinner className="h-3 w-3" />
+                        {t('generating')}
+                      </>
+                    ) : (
+                      t('generate.code')
+                    )}
+                  </button>
                 )}
-              </button>
+              </div>
+              <input
+                {...register('codePrefix', {
+                  required: t('validation.codePrefix.required'),
+                })}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder={t('code.prefix.placeholder')}
+              />
+              {errors.codePrefix && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.codePrefix.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t('code.pattern')} <span className="text-red-500">*</span>
+              </label>
+              <input
+                {...register('codePattern', {
+                  required: t('validation.codePattern.required'),
+                })}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder={t('code.pattern.placeholder')}
+              />
+              {errors.codePattern && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.codePattern.message}
+                </p>
+              )}
+            </div>
+
+            {initialData && initialData?.id.length > 0 && (
+              <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="active"
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  defaultChecked={initialData?.active}
+                  onChange={e =>
+                    setValue(
+                      'active' as keyof CreateFamilyRequest,
+                      e.target.checked as never
+                    )
+                  }
+                />
+                <label
+                  htmlFor="active"
+                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                >
+                  {t('common.active')}
+                </label>
+              </div>
             )}
-          </div>
-          <input
-            {...register('codePrefix', {
-              required: t('validation.codePrefix.required'),
-            })}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            placeholder={t('code.prefix.placeholder')}
-          />
-          {errors.codePrefix && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.codePrefix.message}
-            </p>
-          )}
+          </form>
         </div>
 
-        {/* Patrón de Código */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            {t('code.pattern')} <span className="text-red-500">*</span>
-          </label>
-          <input
-            {...register('codePattern', {
-              required: t('validation.codePattern.required'),
-            })}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            placeholder={t('code.pattern.placeholder')}
-          />
-          {errors.codePattern && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.codePattern.message}
-            </p>
-          )}
-        </div>
-
-        {/* Active checkbox (solo para edición) */}
-        {initialData && initialData?.id.length > 0 && (
-          <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-            <input
-              type="checkbox"
-              id="active"
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-              defaultChecked={initialData?.active}
-              onChange={e =>
-                setValue(
-                  'active' as keyof CreateFamilyRequest,
-                  e.target.checked as never
-                )
-              }
-            />
-            <label
-              htmlFor="active"
-              className="text-sm font-medium text-gray-700 cursor-pointer"
-            >
-              {t('common.active')}
-            </label>
+        <div className="flex-shrink-0 flex justify-between items-center gap-3 px-6 py-4 border-t bg-gray-50">
+          <div className="flex items-center gap-3 text-sm">
+            {successMessage && (
+              <span className="text-green-600 font-medium">{successMessage}</span>
+            )}
+            {error && <span className="text-red-600 font-medium">{error}</span>}
           </div>
-        )}
-
-        {/* Mensajes de error/éxito */}
-        {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-700 text-sm">{error}</p>
-          </div>
-        )}
-        {successMessage && (
-          <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-700 text-sm">{successMessage}</p>
-          </div>
-        )}
-
-        {/* Buttons */}
-        <div className="flex justify-between items-center gap-3 pt-4 border-t">
-          <div>
+          <div className="flex gap-3">
             {isEdit && initialData && (
               <Button
                 type="delete"
@@ -308,8 +326,6 @@ export function FamilyFormModal({
                 {isTogglingActive && <SvgSpinner className="h-4 w-4" />}
               </Button>
             )}
-          </div>
-          <div className="flex gap-3">
             <Button
               type="cancel"
               onClick={onCancel}
@@ -329,7 +345,7 @@ export function FamilyFormModal({
             </Button>
           </div>
         </div>
-      </form>
-    </div>
+      </div>
+    </Modal2>
   );
 }

@@ -62,7 +62,7 @@ export function BasicInfoForm({
                     : 'text-gray-700'
                 }`}
               >
-                {t('component')}
+                {t('article')}
               </div>
             </div>
           </button>

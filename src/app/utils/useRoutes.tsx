@@ -37,6 +37,10 @@ const useRoutes = () => {
       create: '/invoices?tab=budgets&create=true',
       detail: (id: string) => `/budgets/${id}`,
     },
+    assemblyBudget: {
+      list: '/assemblyBudgets',
+      detail: (id: string) => `/assemblyBudgets/${id}`,
+    },
     deliveryNote: {
       list: '/deliveryNotes',
       create: '/deliveryNotes/create',

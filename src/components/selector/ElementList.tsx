@@ -30,7 +30,12 @@ const ElementListComponent: React.FC<ElemntListProps> = ({
           }`}
           onClick={() => handleElementClick(element)}
         >
-          <p className="font-medium">{element.description}</p>
+          <div className="flex flex-col">
+            <p className="font-medium">{element.description}</p>
+            {element.code && (
+              <p className="text-xs text-gray-500">{element.code}</p>
+            )}
+          </div>
           <img src={element.image} alt="" className=" w-8" />
         </div>
       ))}

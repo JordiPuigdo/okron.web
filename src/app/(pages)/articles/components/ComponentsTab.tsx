@@ -75,19 +75,19 @@ export function ComponentsTab({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">
-          {t('components')} ({components.length})
+          {t('bill.of.materials.of.component')} ({components.length})
         </h3>
       </div>
 
       {/* Search and add */}
       <div className="p-4 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border-2 border-purple-200 shadow-sm space-y-4">
         <h4 className="font-semibold text-gray-900">
-          {t('add.component')}
+          {t('add.bill.of.materials')}
         </h4>
         <div className="flex items-end gap-4">
           <div className="flex-1">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {t('article')}
+              {t('bill.of.materials')} <span className="text-red-500">*</span>
             </label>
             <AutocompleteSearchBar
               elements={articleElements}
