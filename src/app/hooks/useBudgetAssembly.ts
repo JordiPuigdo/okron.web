@@ -7,8 +7,11 @@ import {
   MoveAssemblyNodeRequest,
   RemoveAssemblyNodeRequest,
   UpdateAssemblyBudgetRequest,
+  UpdateAssemblyNodeRequest,
 } from 'app/interfaces/Budget';
 import { BudgetAssemblyService } from 'app/services/budgetAssemblyService';
+
+import { recalculateNodeCodes } from '../(pages)/assemblyBudgets/[id]/components/assemblyCodeUtils';
 
 export function useBudgetAssembly() {
   const [budget, setBudget] = useState<Budget | undefined>(undefined);
@@ -24,7 +27,7 @@ export function useBudgetAssembly() {
       try {
         setLoading(true);
         setError(undefined);
-        const result = await action();
+        const result = recalculateNodeCodes(await action());
         setBudget(result);
         return result;
       } catch (err) {
@@ -78,6 +81,12 @@ export function useBudgetAssembly() {
     [executeAction]
   );
 
+  const updateNode = useCallback(
+    (request: UpdateAssemblyNodeRequest) =>
+      executeAction(() => serviceRef.current.updateNode(request)),
+    [executeAction]
+  );
+
   const recalculateTotals = useCallback(
     (budgetId: string) =>
       executeAction(() => serviceRef.current.recalculateTotals(budgetId)),
@@ -96,6 +105,7 @@ export function useBudgetAssembly() {
     addArticle,
     moveNode,
     removeNode,
+    updateNode,
     recalculateTotals,
   };
 }

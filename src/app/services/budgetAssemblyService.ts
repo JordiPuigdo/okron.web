@@ -6,6 +6,7 @@ import {
   MoveAssemblyNodeRequest,
   RemoveAssemblyNodeRequest,
   UpdateAssemblyBudgetRequest,
+  UpdateAssemblyNodeRequest,
 } from '../interfaces/Budget';
 
 export class BudgetAssemblyService {
@@ -74,6 +75,13 @@ export class BudgetAssemblyService {
   async removeNode(request: RemoveAssemblyNodeRequest): Promise<Budget> {
     return this.request<Budget>('budgets/assembly/node', {
       method: 'DELETE',
+      body: JSON.stringify(request),
+    });
+  }
+
+  async updateNode(request: UpdateAssemblyNodeRequest): Promise<Budget> {
+    return this.request<Budget>('budgets/assembly/node', {
+      method: 'PUT',
       body: JSON.stringify(request),
     });
   }

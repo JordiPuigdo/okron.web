@@ -9,7 +9,10 @@ import {
   AddAssemblyFolderRequest,
   Budget,
   BudgetStatus,
+  MoveAssemblyNodeRequest,
+  RemoveAssemblyNodeRequest,
   UpdateAssemblyBudgetRequest,
+  UpdateAssemblyNodeRequest,
 } from 'app/interfaces/Budget';
 import useRoutes from 'app/utils/useRoutes';
 import { HeaderForm } from 'components/layout/HeaderForm';
@@ -18,6 +21,7 @@ import { useRouter } from 'next/navigation';
 import { ArticleFormModal } from '../../../articles/components/ArticleFormModal';
 import { AddArticleModal } from './AddArticleModal';
 import { AddFolderModal } from './AddFolderModal';
+import { generateNextCode } from './assemblyCodeUtils';
 import { AssemblyBudgetCommentsPanel } from './AssemblyBudgetCommentsPanel';
 import { AssemblyBudgetCustomerCard } from './AssemblyBudgetCustomerCard';
 import { AssemblyBudgetFooterActions } from './AssemblyBudgetFooterActions';
@@ -37,6 +41,15 @@ interface AssemblyBudgetDetailProps {
   onAddArticle: (
     request: AddAssemblyArticleRequest
   ) => Promise<Budget | undefined>;
+  onMoveNode: (
+    request: MoveAssemblyNodeRequest
+  ) => Promise<Budget | undefined>;
+  onRemoveNode: (
+    request: RemoveAssemblyNodeRequest
+  ) => Promise<Budget | undefined>;
+  onUpdateNode: (
+    request: UpdateAssemblyNodeRequest
+  ) => Promise<Budget | undefined>;
 }
 
 export function AssemblyBudgetDetail({
@@ -44,6 +57,9 @@ export function AssemblyBudgetDetail({
   onUpdate,
   onAddFolder,
   onAddArticle,
+  onMoveNode,
+  onRemoveNode,
+  onUpdateNode,
 }: AssemblyBudgetDetailProps) {
   const { t } = useTranslations();
   const router = useRouter();
@@ -70,6 +86,11 @@ export function AssemblyBudgetDetail({
   const nodeStats = useMemo(
     () => countNodes(formData.assemblyNodes),
     [formData.assemblyNodes]
+  );
+
+  const autoFolderCode = useMemo(
+    () => generateNextCode(formData.assemblyNodes, selectedParentNodeId),
+    [formData.assemblyNodes, selectedParentNodeId]
   );
 
   const handleFieldChange = useCallback(
@@ -217,8 +238,12 @@ export function AssemblyBudgetDetail({
             nodes={formData.assemblyNodes}
             nodeStats={nodeStats}
             isReadOnly={isReadOnly}
+            budgetId={formData.id}
             onAddFolder={handleOpenFolderModal}
             onAddArticle={handleOpenArticleModal}
+            onMoveNode={onMoveNode}
+            onRemoveNode={onRemoveNode}
+            onUpdateNode={onUpdateNode}
             t={t}
           />
 
@@ -249,6 +274,7 @@ export function AssemblyBudgetDetail({
 
       <AddFolderModal
         isVisible={isFolderModalOpen}
+        autoCode={autoFolderCode}
         onClose={handleCloseFolderModal}
         onConfirm={handleAddFolder}
         t={t}

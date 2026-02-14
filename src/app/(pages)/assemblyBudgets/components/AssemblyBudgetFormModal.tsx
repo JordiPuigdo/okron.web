@@ -301,7 +301,7 @@ function DateFields({
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-1.5">
           <Calendar className="h-4 w-4 inline mr-1" />
-          {t('assemblyBudget.field.budgetDate')}
+          {t('budget.preview.budgetDate')}
         </label>
         <DatePicker
           selected={budgetDate}
@@ -313,7 +313,7 @@ function DateFields({
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-1.5">
           <Calendar className="h-4 w-4 inline mr-1" />
-          {t('assemblyBudget.field.validUntil')}
+          {t('budget.preview.validUntil')}
         </label>
         <DatePicker
           selected={validUntil}
@@ -340,7 +340,7 @@ function MarginField({
     <div>
       <label className="block text-sm font-semibold text-gray-700 mb-1.5">
         <Percent className="h-4 w-4 inline mr-1" />
-        {t('assemblyBudget.field.defaultMargin')}
+        {t('margin.percentage')}
       </label>
       <div className="relative">
         <input

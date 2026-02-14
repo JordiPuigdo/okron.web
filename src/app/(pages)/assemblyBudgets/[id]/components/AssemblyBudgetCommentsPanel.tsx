@@ -46,13 +46,13 @@ export const AssemblyBudgetCommentsPanel = React.memo(
         {isExpanded && (
           <div className="px-5 pb-4 space-y-3 border-t border-gray-100 pt-3">
             <CommentField
-              label={t('assemblyBudget.externalComments')}
+              label={t('budget.form.externalComments')}
               value={externalComments}
               isReadOnly={isReadOnly}
               onChange={onExternalChange}
             />
             <CommentField
-              label={t('assemblyBudget.internalComments')}
+              label={t('budget.form.internalComments')}
               value={internalComments}
               isReadOnly={isReadOnly}
               onChange={onInternalChange}

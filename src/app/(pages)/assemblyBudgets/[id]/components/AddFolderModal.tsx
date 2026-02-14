@@ -8,6 +8,7 @@ import { FolderPlus } from 'lucide-react';
 
 interface AddFolderModalProps {
   isVisible: boolean;
+  autoCode: string;
   onClose: () => void;
   onConfirm: (code: string, description: string) => Promise<void>;
   t: (key: string) => string;
@@ -15,28 +16,27 @@ interface AddFolderModalProps {
 
 export function AddFolderModal({
   isVisible,
+  autoCode,
   onClose,
   onConfirm,
   t,
 }: AddFolderModalProps) {
-  const [code, setCode] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isVisible) {
-      setCode('');
       setDescription('');
     }
   }, [isVisible]);
 
-  const isFormValid = code.trim() !== '' && description.trim() !== '';
+  const isFormValid = description.trim() !== '';
 
   const handleConfirm = async () => {
     if (!isFormValid || isSubmitting) return;
     setIsSubmitting(true);
     try {
-      await onConfirm(code.trim(), description.trim());
+      await onConfirm(autoCode, description.trim());
     } finally {
       setIsSubmitting(false);
     }
@@ -67,16 +67,11 @@ export function AddFolderModal({
         <div className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t('code')} *
+              {t('code')}
             </label>
-            <input
-              type="text"
-              value={code}
-              onChange={e => setCode(e.target.value)}
-              placeholder={t('assemblyBudget.folder.code.placeholder')}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none"
-              autoFocus
-            />
+            <div className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-600 font-mono">
+              {autoCode}
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -88,6 +83,7 @@ export function AddFolderModal({
               onChange={e => setDescription(e.target.value)}
               placeholder={t('assemblyBudget.folder.description.placeholder')}
               className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none"
+              autoFocus
               onKeyDown={e => e.key === 'Enter' && handleConfirm()}
             />
           </div>

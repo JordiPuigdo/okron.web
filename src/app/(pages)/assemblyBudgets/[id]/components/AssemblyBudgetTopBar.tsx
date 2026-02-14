@@ -146,7 +146,7 @@ function DateFields({
       <div className="flex items-center gap-1.5">
         <Calendar className="h-4 w-4 text-gray-400" />
         <span className="text-gray-500">
-          {t('assemblyBudget.field.budgetDate')}:
+          {t('budget.preview.budgetDate')}:
         </span>
         <span className="font-medium text-gray-800">
           {dayjs(budgetDate).format('DD/MM/YYYY')}
@@ -155,7 +155,7 @@ function DateFields({
       <div className="flex items-center gap-1.5">
         <Calendar className="h-4 w-4 text-gray-400" />
         <span className="text-gray-500">
-          {t('assemblyBudget.field.validUntil')}:
+          {t('budget.preview.validUntil')}:
         </span>
         {isReadOnly ? (
           <span className="font-medium text-gray-800">

@@ -190,3 +190,9 @@ export interface RemoveAssemblyNodeRequest {
   budgetId: string;
   nodeId: string;
 }
+
+export interface UpdateAssemblyNodeRequest {
+  budgetId: string;
+  nodeId: string;
+  description: string;
+}
