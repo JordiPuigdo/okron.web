@@ -222,7 +222,7 @@ const filtersInvoices: Filters[] = [
   },
   {
     label: 'Client',
-    key: 'customer.name',
+    key: 'customerName',
     format: FiltersFormat.TEXT,
   },
   {
