@@ -32,6 +32,7 @@ export interface InvoiceUpdateRequest {
   id: string;
   code: string;
   status: InvoiceStatus;
+  deliveryNoteIds?: string[];
 }
 
 export interface InvoiceSearchFilters {

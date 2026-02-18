@@ -2,7 +2,24 @@
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  defaultAnimateLayoutChanges,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import DatePicker from 'react-datepicker';
 import { useInvoices } from 'app/hooks/useInvoices';
 import { useTranslations } from 'app/hooks/useTranslations';
@@ -13,7 +30,7 @@ import { InstallationComponent } from 'components/customer/InstallationComponent
 import { TotalComponent } from 'components/customer/TotalComponent';
 import { ca } from 'date-fns/locale';
 import dayjs from 'dayjs';
-import { FileText, Plus, Save, X } from 'lucide-react';
+import { FileText, GripVertical, Plus, Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { HeaderForm } from '../../../../components/layout/HeaderForm';
@@ -31,6 +48,137 @@ import {
 import { cn } from '../../../lib/utils';
 import useRoutes from '../../../utils/useRoutes';
 import { EditableCell } from '../../machines/downtimes/components/EditingCell';
+
+interface SortableItemRowProps {
+  id: string;
+  item: DeliveryNoteItem;
+  itemIndex: number;
+  woIndex: number;
+  onItemUpdate: (
+    woIndex: number,
+    itemIndex: number,
+    field: keyof DeliveryNoteItem,
+    value: string | number | DeliveryNoteItemType
+  ) => void;
+  onRemoveItem: (woIndex: number, itemIndex: number) => void;
+  t: (key: string) => string;
+}
+
+function SortableItemRow({
+  id,
+  item,
+  itemIndex,
+  woIndex,
+  onItemUpdate,
+  onRemoveItem,
+  t,
+}: SortableItemRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id,
+    animateLayoutChanges: args => defaultAnimateLayoutChanges({ ...args, wasDragging: true }),
+  });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    position: 'relative' as const,
+    zIndex: isDragging ? 1 : 0,
+    backgroundColor: isDragging ? '#f0f4ff' : undefined,
+  };
+
+  return (
+    <tr ref={setNodeRef} style={style} className="border-t">
+      <td className="p-2 border text-center w-10">
+        <button
+          type="button"
+          className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+      </td>
+      <td className="p-2 border">
+        <EditableCell
+          value={item.description}
+          onUpdate={value =>
+            onItemUpdate(woIndex, itemIndex, 'description', value)
+          }
+          canEdit={true}
+        />
+      </td>
+      <td className="p-2 border text-center">
+        <EditableCell
+          value={item.quantity.toString()}
+          onUpdate={value =>
+            onItemUpdate(woIndex, itemIndex, 'quantity', Number(value))
+          }
+          canEdit={true}
+        />
+      </td>
+      <td className="p-2 border text-center">
+        <EditableCell
+          value={item.unitPrice.toString()}
+          onUpdate={value =>
+            onItemUpdate(woIndex, itemIndex, 'unitPrice', Number(value))
+          }
+          canEdit={true}
+        />
+      </td>
+      <td className="p-2 border text-center">
+        <EditableCell
+          value={item.discountPercentage?.toString() ?? '0'}
+          onUpdate={value =>
+            onItemUpdate(
+              woIndex,
+              itemIndex,
+              'discountPercentage',
+              Number(value)
+            )
+          }
+          canEdit={true}
+        />
+      </td>
+      <td className="p-2 border text-center">
+        {formatEuropeanCurrency(item.discountAmount, t)}
+      </td>
+      <td className="p-2 border text-center">
+        {formatEuropeanCurrency(item.lineTotal, t)}
+      </td>
+      <td className="p-2 border text-center">
+        <EditableCell
+          value={item.taxPercentage?.toString() ?? '21'}
+          onUpdate={value =>
+            onItemUpdate(
+              woIndex,
+              itemIndex,
+              'taxPercentage',
+              Number(value)
+            )
+          }
+          canEdit={true}
+        />
+      </td>
+      <td className="p-2 border text-center">
+        <button
+          type="button"
+          onClick={() => onRemoveItem(woIndex, itemIndex)}
+          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+        >
+          Eliminar
+        </button>
+      </td>
+    </tr>
+  );
+}
 
 interface DeliveryNoteDetailFormProps {
   deliveryNote: DeliveryNote;
@@ -52,13 +200,31 @@ export function DeliveryNoteDetailForm({
   const { t } = useTranslations();
   const { createInvoice } = useInvoices();
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor)
+  );
+
   useEffect(() => {
-    setFormData(deliveryNote);
+    const ensureItemIds = (dn: DeliveryNote): DeliveryNote => ({
+      ...dn,
+      workOrders: dn.workOrders.map(wo => ({
+        ...wo,
+        items: wo.items.map(item => ({
+          ...item,
+          id: item.id || crypto.randomUUID(),
+        })),
+      })),
+    });
+    setFormData(ensureItemIds(deliveryNote));
   }, [deliveryNote]);
 
   /** ===== WORK ORDER ITEMS ===== */
   const handleAddNewItem = (workOrderIndex: number) => {
     const newItem: DeliveryNoteItem = {
+      id: crypto.randomUUID(),
       description: 'Nou Concepte',
       quantity: 1,
       unitPrice: 0,
@@ -117,6 +283,31 @@ export function DeliveryNoteDetailForm({
     updatedWorkOrders[workOrderIndex].items.splice(itemIndex, 1);
     recalculateTotals(updatedWorkOrders);
   };
+
+  const handleReorderItems = (woIndex: number, event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const items = formData.workOrders[woIndex].items;
+    const oldIndex = items.findIndex(item => item.id === active.id);
+    const newIndex = items.findIndex(item => item.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const updatedWorkOrders = [...formData.workOrders];
+    updatedWorkOrders[woIndex] = {
+      ...updatedWorkOrders[woIndex],
+      items: arrayMove([...items], oldIndex, newIndex),
+    };
+
+    setFormData(prev => ({ ...prev, workOrders: updatedWorkOrders }));
+  };
+
+  const getItemSortableIds = useCallback(
+    (_woIndex: number, items: DeliveryNoteItem[]) =>
+      items.map(item => item.id!),
+    []
+  );
 
   const handleUpdateConcept = (workOrderIndex: number, value: string) => {
     const updatedWorkOrders = [...formData.workOrders];
@@ -343,113 +534,46 @@ export function DeliveryNoteDetailForm({
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full border border-gray-300">
-                    <thead>
-                      <tr className="bg-gray-100">
-                        <th className="p-2 border text-left">Descripció</th>
-                        <th className="p-2 border text-center">Quantitat</th>
-                        <th className="p-2 border text-center">Preu Unitari</th>
-                        <th className="p-2 border text-center">% Dte.</th>
-                        <th className="p-2 border text-center">Import Dte.</th>
-                        <th className="p-2 border text-center">Total Línia</th>
-                        <th className="p-2 border text-center">% IVA</th>
-                        <th className="p-2 border text-center">Accions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {wo.items.map((item, itemIndex) => (
-                        <tr key={itemIndex} className="border-t">
-                          <td className="p-2 border">
-                            <EditableCell
-                              value={item.description}
-                              onUpdate={value =>
-                                handleItemUpdate(
-                                  woIndex,
-                                  itemIndex,
-                                  'description',
-                                  value
-                                )
-                              }
-                              canEdit={true}
-                            />
-                          </td>
-                          <td className="p-2 border text-center">
-                            <EditableCell
-                              value={item.quantity.toString()}
-                              onUpdate={value =>
-                                handleItemUpdate(
-                                  woIndex,
-                                  itemIndex,
-                                  'quantity',
-                                  Number(value)
-                                )
-                              }
-                              canEdit={true}
-                            />
-                          </td>
-                          <td className="p-2 border text-center">
-                            <EditableCell
-                              value={item.unitPrice.toString()}
-                              onUpdate={value =>
-                                handleItemUpdate(
-                                  woIndex,
-                                  itemIndex,
-                                  'unitPrice',
-                                  Number(value)
-                                )
-                              }
-                              canEdit={true}
-                            />
-                          </td>
-                          <td className="p-2 border text-center">
-                            <EditableCell
-                              value={item.discountPercentage?.toString() ?? '0'}
-                              onUpdate={value =>
-                                handleItemUpdate(
-                                  woIndex,
-                                  itemIndex,
-                                  'discountPercentage',
-                                  Number(value)
-                                )
-                              }
-                              canEdit={true}
-                            />
-                          </td>
-                          <td className="p-2 border text-center">
-                            {formatEuropeanCurrency(item.discountAmount, t)}
-                          </td>
-                          <td className="p-2 border text-center">
-                            {formatEuropeanCurrency(item.lineTotal, t)}
-                          </td>
-                          <td className="p-2 border text-center">
-                            <EditableCell
-                              value={item.taxPercentage?.toString() ?? '21'}
-                              onUpdate={value =>
-                                handleItemUpdate(
-                                  woIndex,
-                                  itemIndex,
-                                  'taxPercentage',
-                                  Number(value)
-                                )
-                              }
-                              canEdit={true}
-                            />
-                          </td>
-                          <td className="p-2 border text-center">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleRemoveItem(woIndex, itemIndex)
-                              }
-                              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                            >
-                              Eliminar
-                            </button>
-                          </td>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={event => handleReorderItems(woIndex, event)}
+                  >
+                    <table className="w-full border border-gray-300">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="p-2 border text-center w-10"></th>
+                          <th className="p-2 border text-left">Descripció</th>
+                          <th className="p-2 border text-center">Quantitat</th>
+                          <th className="p-2 border text-center">Preu Unitari</th>
+                          <th className="p-2 border text-center">% Dte.</th>
+                          <th className="p-2 border text-center">Import Dte.</th>
+                          <th className="p-2 border text-center">Total Línia</th>
+                          <th className="p-2 border text-center">% IVA</th>
+                          <th className="p-2 border text-center">Accions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <SortableContext
+                        items={getItemSortableIds(woIndex, wo.items)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <tbody>
+                          {wo.items.map((item, itemIndex) => (
+                            <SortableItemRow
+                              key={item.id!}
+                              id={item.id!}
+                              item={item}
+                              itemIndex={itemIndex}
+                              woIndex={woIndex}
+                              onItemUpdate={handleItemUpdate}
+                              onRemoveItem={handleRemoveItem}
+                              t={t}
+                            />
+                          ))}
+                        </tbody>
+                      </SortableContext>
+                    </table>
+                  </DndContext>
                 </div>
 
                 {/* Add Item Button */}

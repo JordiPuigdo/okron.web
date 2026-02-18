@@ -41,6 +41,8 @@ interface DeliveryNotePreviewPanelProps {
   onClose: () => void;
   /** Callback opcional para refrescar datos después de editar */
   onRefresh?: () => void;
+  /** Ocultar acciones de facturación (crear/ver factura) */
+  hideInvoiceActions?: boolean;
 }
 
 // ============================================================================
@@ -92,6 +94,7 @@ export function DeliveryNotePreviewPanel({
   deliveryNote,
   isOpen,
   onClose,
+  hideInvoiceActions = false,
 }: DeliveryNotePreviewPanelProps) {
   const router = useRouter();
   const ROUTES = useRoutes();
@@ -152,10 +155,11 @@ export function DeliveryNotePreviewPanel({
 
   // Navegar al detalle de la factura si existe invoiceId
   const handleViewInvoice = () => {
-    if (displayDeliveryNote.invoiceId) {
-      router.push(`${ROUTES.invoices.detail}${displayDeliveryNote.invoiceId}`);
+    const invoiceId = displayDeliveryNote.invoiceId || deliveryNote.invoiceId;
+    if (invoiceId) {
+      router.push(`${ROUTES.invoices.detail}${invoiceId}`);
+      onClose();
     }
-    onClose();
   };
 
   // Preparar datos del cliente para el componente reutilizable
@@ -194,7 +198,7 @@ export function DeliveryNotePreviewPanel({
             subtotal={displayDeliveryNote.subtotal}
             totalTax={displayDeliveryNote.totalTax}
             extraContent={
-              displayDeliveryNote.invoiceId && (
+              displayDeliveryNote.isInvoiced && (
                 <span className="bg-white/20 px-3 py-1 rounded-full text-sm text-white">
                   💰 Facturat
                 </span>
@@ -247,20 +251,22 @@ export function DeliveryNotePreviewPanel({
           {/* Acciones */}
           <SlidePanelActions>
             {/* Acción principal de facturación */}
-            {displayDeliveryNote.invoiceId ? (
-              <ActionButton
-                onClick={handleViewInvoice}
-                icon={Receipt}
-                label={t('see.invoice')}
-                variant="success"
-              />
-            ) : (
-              <ActionButton
-                onClick={handleCreateInvoice}
-                icon={Receipt}
-                label={t('create.invoice')}
-                variant="warning"
-              />
+            {!hideInvoiceActions && (
+              displayDeliveryNote.isInvoiced ? (
+                <ActionButton
+                  onClick={handleViewInvoice}
+                  icon={Receipt}
+                  label={t('see.invoice')}
+                  variant="success"
+                />
+              ) : (
+                <ActionButton
+                  onClick={handleCreateInvoice}
+                  icon={Receipt}
+                  label={t('create.invoice')}
+                  variant="warning"
+                />
+              )
             )}
             <ActionButton
               onClick={handleEdit}

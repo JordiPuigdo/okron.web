@@ -130,6 +130,7 @@ function formatDuration(startTime: Date, endTime?: Date): string {
 
 function TypeBadge({ type, label }: { type: WorkOrderType; label: string }) {
   const config = TYPE_CONFIG[type];
+  if (!config) return null;
   const Icon = config.icon;
   return (
     <div
@@ -490,12 +491,15 @@ export function WorkOrderPreviewPanel({
   if (!workOrder) return null;
 
   const displayWorkOrder = fullWorkOrder || workOrder;
-  const stateLabel = translateStateWorkOrder(
-    displayWorkOrder.stateWorkOrder,
-    t
-  );
-  const stateStyle = STATE_STYLES[displayWorkOrder.stateWorkOrder];
-  const typeLabel = translateWorkOrderType(displayWorkOrder.workOrderType, t);
+  const stateLabel = displayWorkOrder.stateWorkOrder !== undefined
+    ? translateStateWorkOrder(displayWorkOrder.stateWorkOrder, t)
+    : '';
+  const stateStyle = displayWorkOrder.stateWorkOrder !== undefined
+    ? STATE_STYLES[displayWorkOrder.stateWorkOrder]
+    : '';
+  const typeLabel = displayWorkOrder.workOrderType !== undefined
+    ? translateWorkOrderType(displayWorkOrder.workOrderType, t)
+    : '';
 
   const handleEdit = () => {
     router.push(`${ROUTES.workOrders}/${workOrder.id}`);

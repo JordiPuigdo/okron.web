@@ -2,16 +2,18 @@
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
-import { TaxBreakdown } from 'app/interfaces/DeliveryNote';
+import { DeliveryNote, TaxBreakdown } from 'app/interfaces/DeliveryNote';
+import { WorkOrder } from 'app/interfaces/workOrder';
 import { formatEuropeanCurrency } from 'app/utils/utils';
+import ChooseElement from 'components/ChooseElement';
 import { CustomerInformationComponent } from 'components/customer/CustomerInformationComponent';
 import { InstallationComponent } from 'components/customer/InstallationComponent';
 import { TotalComponent } from 'components/customer/TotalComponent';
 import { Input } from 'components/ui/input';
 import dayjs from 'dayjs';
-import { Save, X } from 'lucide-react';
+import { Eye, Plus, Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { HeaderForm } from '../../../../components/layout/HeaderForm';
@@ -22,7 +24,10 @@ import {
   InvoiceStatus,
   InvoiceUpdateRequest,
 } from '../../../interfaces/Invoice';
+import { DeliveryNoteService } from '../../../services/deliveryNoteService';
 import useRoutes from '../../../utils/useRoutes';
+import { DeliveryNotePreviewPanel } from '../../deliveryNotes/components/DeliveryNotePreviewPanel';
+import { WorkOrderPreviewPanel } from '../../workOrders/components/WorkOrderPreviewPanel';
 
 interface InvoiceDetailFormProps {
   invoice: Invoice;
@@ -41,9 +46,115 @@ export function InvoiceDetailForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { t } = useTranslations();
 
+  const [showAddDeliveryNote, setShowAddDeliveryNote] = useState(false);
+  const [availableDeliveryNotes, setAvailableDeliveryNotes] = useState<
+    DeliveryNote[]
+  >([]);
+  const [isLoadingDeliveryNotes, setIsLoadingDeliveryNotes] = useState(false);
+
+  const [previewDeliveryNote, setPreviewDeliveryNote] =
+    useState<DeliveryNote | null>(null);
+  const [isDeliveryNotePreviewOpen, setIsDeliveryNotePreviewOpen] =
+    useState(false);
+  const [previewWorkOrder, setPreviewWorkOrder] =
+    useState<WorkOrder | null>(null);
+  const [isWorkOrderPreviewOpen, setIsWorkOrderPreviewOpen] = useState(false);
+
+  const deliveryNoteService = useMemo(
+    () =>
+      new DeliveryNoteService(process.env.NEXT_PUBLIC_API_BASE_URL || ''),
+    []
+  );
+
+  const customerId = useMemo(
+    () => formData.deliveryNotes?.[0]?.customerId,
+    [formData.deliveryNotes]
+  );
+
+  const companyName = useMemo(
+    () => formData.deliveryNotes?.[0]?.companyName,
+    [formData.deliveryNotes]
+  );
+
   useEffect(() => {
     setFormData(invoice);
   }, [invoice]);
+
+  const fetchAvailableDeliveryNotes = useCallback(async () => {
+    if (!customerId && !companyName) return;
+    setIsLoadingDeliveryNotes(true);
+    try {
+      const deliveryNotes = await deliveryNoteService.searchDeliveryNotes({
+        customerId: customerId,
+        companyName: companyName,
+        hasInvoice: false,
+      });
+      setAvailableDeliveryNotes(deliveryNotes.filter(dn => dn.active));
+    } catch (error) {
+      console.error('Error fetching delivery notes:', error);
+      setAvailableDeliveryNotes([]);
+    } finally {
+      setIsLoadingDeliveryNotes(false);
+    }
+  }, [customerId, companyName, deliveryNoteService]);
+
+  const handleToggleAddDeliveryNote = () => {
+    const nextState = !showAddDeliveryNote;
+    setShowAddDeliveryNote(nextState);
+    if (nextState) {
+      fetchAvailableDeliveryNotes();
+    }
+  };
+
+  const handleDeliveryNoteSelected = async (deliveryNoteId: string) => {
+    try {
+      const deliveryNote =
+        await deliveryNoteService.getById(deliveryNoteId);
+      if (deliveryNote) {
+        setFormData(prev => ({
+          ...prev,
+          deliveryNotes: [...(prev.deliveryNotes || []), deliveryNote],
+          deliveryNoteIds: [
+            ...(prev.deliveryNoteIds || []),
+            deliveryNoteId,
+          ],
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching delivery note:', error);
+    }
+  };
+
+  const handleDeleteAddedDeliveryNote = (deliveryNoteId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      deliveryNotes: (prev.deliveryNotes || []).filter(
+        dn => dn.id !== deliveryNoteId
+      ),
+      deliveryNoteIds: (prev.deliveryNoteIds || []).filter(
+        id => id !== deliveryNoteId
+      ),
+    }));
+  };
+
+  const addedDeliveryNoteIds = useMemo(() => {
+    const originalIds = new Set(
+      invoice.deliveryNoteIds || invoice.deliveryNotes?.map(dn => dn.id) || []
+    );
+    return (
+      formData.deliveryNoteIds?.filter(id => !originalIds.has(id)) || []
+    );
+  }, [formData.deliveryNoteIds, invoice.deliveryNoteIds, invoice.deliveryNotes]);
+
+  const handlePreviewDeliveryNote = (dn: DeliveryNote) => {
+    setPreviewDeliveryNote(dn);
+    setIsDeliveryNotePreviewOpen(true);
+  };
+
+  const handlePreviewWorkOrder = (workOrderId: string) => {
+    setPreviewWorkOrder({ id: workOrderId } as WorkOrder);
+    setIsWorkOrderPreviewOpen(true);
+  };
 
   const translateInvoiceStatus = (status: InvoiceStatus): string => {
     switch (status) {
@@ -135,6 +246,7 @@ export function InvoiceDetailForm({
         id: formData.id,
         code: formData.code,
         status: formData.status,
+        deliveryNoteIds: formData.deliveryNotes?.map(dn => dn.id) || [],
       };
 
       await onUpdate(updateRequest);
@@ -221,18 +333,48 @@ export function InvoiceDetailForm({
             {formData.deliveryNotes.map((dn, dnIndex) => (
               <div key={dn.id} className="p-4 bg-blue-50 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold">{dn.code}</h3>
-                  <span>
-                    Data: {new Date(dn.deliveryNoteDate).toLocaleDateString()}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handlePreviewDeliveryNote(dn)}
+                      className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#6E41B6] hover:bg-[#5a3596] transition-colors"
+                      title={t('preview')}
+                    >
+                      <Eye className="w-4 h-4 text-white" />
+                    </button>
+                    <h3 className="font-semibold">{dn.code}</h3>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span>
+                      Data: {new Date(dn.deliveryNoteDate).toLocaleDateString()}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteAddedDeliveryNote(dn.id)}
+                      className="bg-okron-btDelete hover:bg-okron-btDeleteHover text-white rounded-xl py-1 px-3 text-sm flex items-center gap-1"
+                    >
+                      <X className="h-3 w-3" />
+                      {t('delete')}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Items */}
                 {dn.workOrders.map((wo, woIndex) => (
                   <div key={wo.workOrderId} className="mb-4">
-                    <h4 className="font-semibold mb-1">
-                      {wo.workOrderCode} - {wo.workOrderRefId}
-                    </h4>
+                    <div className="flex items-center gap-2 mb-1">
+                      <button
+                        type="button"
+                        onClick={() => handlePreviewWorkOrder(wo.workOrderId)}
+                        className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#6E41B6] hover:bg-[#5a3596] transition-colors"
+                        title={t('preview')}
+                      >
+                        <Eye className="w-4 h-4 text-white" />
+                      </button>
+                      <h4 className="font-semibold">
+                        {wo.workOrderCode} - {wo.workOrderRefId}
+                      </h4>
+                    </div>
                     <div className="overflow-x-auto">
                       <table className="w-full border border-gray-300">
                         <thead>
@@ -282,6 +424,66 @@ export function InvoiceDetailForm({
               </div>
             ))}
 
+            {/* Add Delivery Notes */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-lg">
+                  {t('addDeliveryNotes')}
+                </h3>
+                <Button
+                  type="create"
+                  onClick={handleToggleAddDeliveryNote}
+                  customStyles="flex items-center gap-2"
+                >
+                  {showAddDeliveryNote ? (
+                    <X className="h-4 w-4" />
+                  ) : (
+                    <Plus className="h-4 w-4" />
+                  )}
+                  <p>
+                    {showAddDeliveryNote
+                      ? t('close')
+                      : t('addDeliveryNotes')}
+                  </p>
+                </Button>
+              </div>
+
+              {showAddDeliveryNote && (
+                <div className="space-y-3 p-4 border rounded-lg bg-gray-50">
+                  {isLoadingDeliveryNotes ? (
+                    <div className="flex justify-center py-4">
+                      <SvgSpinner className="h-6 w-6" />
+                    </div>
+                  ) : availableDeliveryNotes.length > 0 ? (
+                    <ChooseElement
+                      elements={availableDeliveryNotes}
+                      selectedElements={addedDeliveryNoteIds}
+                      onElementSelected={handleDeliveryNoteSelected}
+                      onDeleteElementSelected={handleDeleteAddedDeliveryNote}
+                      placeholder={t('searchDeliveryNote')}
+                      mapElement={deliveryNote => ({
+                        id: deliveryNote.id,
+                        description: `${deliveryNote.code} - ${new Date(
+                          deliveryNote.deliveryNoteDate
+                        ).toLocaleDateString()} - ${deliveryNote.workOrders
+                          .map(x => x.workOrderRefId)
+                          .join(', ')} - ${deliveryNote.workOrders
+                          .map(x => x.workOrderCode)
+                          .join(', ')} - ${formatEuropeanCurrency(
+                          deliveryNote.subtotal,
+                          t
+                        )}`,
+                      })}
+                    />
+                  ) : (
+                    <p className="text-gray-500 text-sm">
+                      {t('noDeliveryNotesAvailable')}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Totals */}
             <TotalComponent
               subtotal={subtotal || 0}
@@ -321,6 +523,19 @@ export function InvoiceDetailForm({
           </form>
         </div>
       </div>
+
+      <DeliveryNotePreviewPanel
+        deliveryNote={previewDeliveryNote}
+        isOpen={isDeliveryNotePreviewOpen}
+        onClose={() => setIsDeliveryNotePreviewOpen(false)}
+        hideInvoiceActions
+      />
+
+      <WorkOrderPreviewPanel
+        workOrder={previewWorkOrder}
+        isOpen={isWorkOrderPreviewOpen}
+        onClose={() => setIsWorkOrderPreviewOpen(false)}
+      />
     </div>
   );
 }
