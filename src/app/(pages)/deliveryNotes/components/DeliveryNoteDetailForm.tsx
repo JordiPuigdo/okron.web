@@ -3,6 +3,7 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import DatePicker from 'react-datepicker';
 import {
   closestCenter,
   DndContext,
@@ -20,7 +21,6 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import DatePicker from 'react-datepicker';
 import { useInvoices } from 'app/hooks/useInvoices';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { translateDeliveryNoteStatus } from 'app/utils/deliveryNoteUtils';
