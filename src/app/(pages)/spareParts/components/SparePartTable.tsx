@@ -32,7 +32,6 @@ interface SparePartTableProps {
   enableFilters: boolean;
   enableDetail?: boolean;
   enableEdit?: boolean;
-  enableDelete?: boolean;
   assetId?: string | '';
   enableCreate?: boolean;
   sparePartId?: string;
@@ -205,7 +204,6 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
   enableFilters = false,
   enableDetail = false,
   enableEdit,
-  enableDelete,
   assetId,
   enableCreate = true,
   sparePartId,
@@ -236,7 +234,6 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
 
   const tableButtons: TableButtons = {
     edit: enableEdit,
-    delete: enableDelete,
     detail: enableDetail,
   };
 

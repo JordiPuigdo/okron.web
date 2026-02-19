@@ -197,6 +197,28 @@ const SparePartForm: React.FC<SparePartForm> = ({
     );
   }
 
+  const handleStockRefresh = async () => {
+    if (!sparePartLoaded?.id) return;
+    
+    try {
+      const updatedSparePart = await sparePartService.getSparePartById(sparePartLoaded.id);
+      if (updatedSparePart) {
+        setSparePart(prev => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            stock: updatedSparePart.stock,
+            warehouses: updatedSparePart.warehouses,
+          };
+        });
+        setValue('stock', updatedSparePart.stock);
+        setValue('warehouses', updatedSparePart.warehouses);
+      }
+    } catch (error) {
+      console.error('Error refreshing stock:', error);
+    }
+  };
+
   const onSubmit = async (sparePart: SparePart) => {
     const isValid = validateForm();
     if (!isValid) {
@@ -435,9 +457,9 @@ const SparePartForm: React.FC<SparePartForm> = ({
             </div>
             {sparePartLoaded !== undefined && (
               <StockManage
-                sparePart={sparePartLoaded}
+                sparePart={sparePart ?? sparePartLoaded}
                 operatorLoggedId={operatorLogged?.idOperatorLogged ?? ''}
-                refresh={() => refresh?.()}
+                onStockUpdate={handleStockRefresh}
               />
             )}
             <div className="flex flex-row gap-4 items-start w-full">

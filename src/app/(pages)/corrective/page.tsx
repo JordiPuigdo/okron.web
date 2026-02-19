@@ -9,10 +9,13 @@ import RepairReportPage from './components/repairReport/RepairReport';
 
 function CorrectivePage() {
   const { config } = useConfig();
+  
   return (
     <MainLayout>
       <Container>
-        {config?.isCRM ? <RepairReportPage /> : <CorrectiveComponent />}
+        <div className="min-h-screen bg-gray-50 pb-8">
+          {config?.isCRM ? <RepairReportPage /> : <CorrectiveComponent />}
+        </div>
       </Container>
     </MainLayout>
   );

@@ -3,6 +3,7 @@ import { SvgClock } from 'app/icons/designSystem/SvgClock';
 import { SvgDatabase } from 'app/icons/designSystem/SvgDatabase';
 import { SvgInvoice } from 'app/icons/designSystem/SvgInvoice';
 import { SvgPackage } from 'app/icons/designSystem/SvgPackage';
+import { SvgWarehouse } from 'app/icons/designSystem/SvgWarehouse';
 import {
   SvgActiu,
   SvgAvarie,
@@ -252,7 +253,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         key: generateKey(),
         titleKey: 'sidebar.warehouse',
         path: '/wareHouse',
-        icon: SvgMenu,
+        icon: SvgWarehouse,
         permission: [UserPermission.Administrator, UserPermission.AdminCRM],
         userType: [UserType.Maintenance, UserType.Warehouse, UserType.CRM],
       },
