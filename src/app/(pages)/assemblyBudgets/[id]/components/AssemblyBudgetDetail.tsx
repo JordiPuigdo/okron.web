@@ -20,7 +20,6 @@ import {
   UpdateAssemblyNodeRequest,
 } from 'app/interfaces/Budget';
 import useRoutes from 'app/utils/useRoutes';
-import { HeaderForm } from 'components/layout/HeaderForm';
 import { useRouter } from 'next/navigation';
 
 import { ArticleFormModal } from '../../../articles/components/ArticleFormModal';
@@ -30,8 +29,8 @@ import { ApplyMarginModal, MarginChange } from './ApplyMarginModal';
 import { AssemblyBudgetCommentsPanel } from './AssemblyBudgetCommentsPanel';
 import { AssemblyBudgetCustomerCard } from './AssemblyBudgetCustomerCard';
 import { AssemblyBudgetFooterActions } from './AssemblyBudgetFooterActions';
+import { AssemblyBudgetHeader } from './AssemblyBudgetHeader';
 import { countNodes } from './AssemblyBudgetStatusConfig';
-import { AssemblyBudgetTopBar } from './AssemblyBudgetTopBar';
 import { AssemblyBudgetTotalsCard } from './AssemblyBudgetTotalsCard';
 import { generateNextCode } from './assemblyCodeUtils';
 import { AssemblyTreePanel } from './AssemblyTreePanel';
@@ -380,9 +379,7 @@ export function AssemblyBudgetDetail({
   return (
     <div className="min-h-screen bg-gray-50/80">
       <div className="max-w-[1400px] mx-auto px-4 py-6 space-y-4">
-        <HeaderForm header={formData.code} isCreate={false} />
-
-        <AssemblyBudgetTopBar
+        <AssemblyBudgetHeader
           budget={formData}
           isReadOnly={isReadOnly}
           onStatusChange={handleStatusChange}

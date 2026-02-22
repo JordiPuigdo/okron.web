@@ -42,36 +42,43 @@ export function AssignmentsSection({
         Assignacions
       </h3>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-        <ChooseInspectionPoint
-          preventiveInspectionPoints={availableInspectionPoints}
-          onInspectionPointSelected={onInspectionPointSelected}
-          onDeleteInspectionPointSelected={onDeleteInspectionPointSelected}
-          preventiveSelectedInspectionPoints={selectedInspectionPoints}
-        />
-
-        <ChooseOperatorV2
-          availableOperators={availableOperators}
-          preventiveSelectedOperators={selectedOperators}
-          onDeleteSelectedOperator={onDeleteSelectedOperator}
-          onSelectedOperator={onSelectedOperator}
-        />
-
-        {assets && selectedAssets && onAssetSelected && onDeleteSelectedAsset && (
-          <ChooseElement
-            elements={assets}
-            selectedElements={selectedAssets}
-            onElementSelected={onAssetSelected}
-            onDeleteElementSelected={onDeleteSelectedAsset}
-            placeholder="Buscar Equip"
-            mapElement={asset => ({
-              id: asset.id,
-              code: asset.code,
-              description: asset.code + ' - ' + asset.description,
-            })}
-            labelText="Equips"
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-start">
+        <div className="space-y-4 md:col-span-8">
+          <ChooseInspectionPoint
+            preventiveInspectionPoints={availableInspectionPoints}
+            onInspectionPointSelected={onInspectionPointSelected}
+            onDeleteInspectionPointSelected={onDeleteInspectionPointSelected}
+            preventiveSelectedInspectionPoints={selectedInspectionPoints}
           />
-        )}
+
+          {assets &&
+            selectedAssets &&
+            onAssetSelected &&
+            onDeleteSelectedAsset && (
+              <ChooseElement
+                elements={assets}
+                selectedElements={selectedAssets}
+                onElementSelected={onAssetSelected}
+                onDeleteElementSelected={onDeleteSelectedAsset}
+                placeholder="Buscar Equip"
+                mapElement={asset => ({
+                  id: asset.id,
+                  code: asset.code,
+                  description: asset.code + ' - ' + asset.description,
+                })}
+                labelText="Equips"
+              />
+            )}
+        </div>
+
+        <div className="md:col-span-4 self-start bg-gray-50 rounded-lg p-3">
+          <ChooseOperatorV2
+            availableOperators={availableOperators}
+            preventiveSelectedOperators={selectedOperators}
+            onDeleteSelectedOperator={onDeleteSelectedOperator}
+            onSelectedOperator={onSelectedOperator}
+          />
+        </div>
       </div>
     </ContentCard>
   );

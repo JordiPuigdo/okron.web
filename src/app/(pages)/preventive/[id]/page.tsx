@@ -3,7 +3,6 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
-import DatePicker from 'react-datepicker';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Asset } from 'app/interfaces/Asset';
 import InspectionPoint from 'app/interfaces/inspectionPoint';
@@ -19,27 +18,24 @@ import InspectionPointService from 'app/services/inspectionPointService';
 import OperatorService from 'app/services/operatorService';
 import PreventiveService from 'app/services/preventiveService';
 import { formatDate } from 'app/utils/utils';
-import ChooseInspectionPoint from 'components/inspectionPoint/ChooseInspectionPoint';
 import Container from 'components/layout/Container';
 import MainLayout from 'components/layout/MainLayout';
-import ChooseOperatorV2 from 'components/operator/ChooseOperatorV2';
 import { ElementList } from 'components/selector/ElementList';
-import ca from 'date-fns/locale/ca';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { useRouter } from 'next/navigation';
 import { Button } from 'designSystem/Button/Buttons';
+import { useRouter } from 'next/navigation';
 
-import { PreventiveSparePart } from '../preventiveForm/components/PreventiveSparePart';
-import { WorkOrderPerPreventive } from './components/WorkOrderPerPreventive';
-import { PreventiveHeader } from '../components/PreventiveHeader';
 import {
+  AssignmentsSection,
   BasicInfoSection,
   ScheduleSection,
-  AssignmentsSection,
   SparePartsSection,
 } from '../components/PreventiveForm';
+import { PreventiveHeader } from '../components/PreventiveHeader';
+import { PreventiveSparePart } from '../preventiveForm/components/PreventiveSparePart';
+import { WorkOrderPerPreventive } from './components/WorkOrderPerPreventive';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -75,6 +71,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [assets, setAssets] = useState<ElementList[]>([]);
+  const [selectedAssets, setSelectedAsset] = useState<string[]>([]);
   const [active, setActive] = useState<boolean>(true);
   const [selectedPreventiveSpareParts, setSelectedPreventiveSpareParts] =
     useState<SparePartPreventive[]>([]);
@@ -111,6 +108,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
       const addAssetAndChildren = (asset: Asset) => {
         elements.push({
           id: asset.id,
+          code: asset.code,
           description: asset.description,
         });
 
@@ -152,6 +150,9 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
           setValue('asset', data.asset);
           setValue('active', data.active);
           setValue('lastExecution', data.lastExecution);
+          if (data.asset?.id) {
+            setSelectedAsset([data.asset.id]);
+          }
           setStartDate(finalData);
           setSelectedPreventiveSpareParts(data.spareParts);
           await fetchInspectionPoints(data);
@@ -159,6 +160,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
         }
       }
     };
+    fetchAssets();
     fetchData();
   }, [params.id]);
 
@@ -200,7 +202,12 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
       startExecution: startDate!,
       days: preventive.days,
       counter: preventive.counter,
-      assetId: [preventive.asset?.id],
+      assetId:
+        selectedAssets.length > 0
+          ? selectedAssets
+          : preventive.asset?.id
+          ? [preventive.asset.id]
+          : [],
       inspectionPointId: selectedInspectionPoints.map(point => point),
       operatorId: selectedOperator.map(sparePart => sparePart),
       active: preventive.active,
@@ -225,6 +232,13 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
       prevSelected.filter(id => id !== idOperator)
     );
   };
+  const handleAssetSelected = (assetId: string) => {
+    if (assetId == '') return;
+    setSelectedAsset(prevSelected => [...prevSelected, assetId]);
+  };
+  const handleDeleteSelectedAsset = (assetId: string) => {
+    setSelectedAsset(prevSelected => prevSelected.filter(id => id !== assetId));
+  };
 
   return (
     <MainLayout>
@@ -239,20 +253,22 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
           <div className="mt-4 space-y-4">
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-4">
-                <BasicInfoSection register={register} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <BasicInfoSection register={register} />
 
-                <ScheduleSection
-                  preventiveDays={preventiveData?.days || 0}
-                  startDate={startDate}
-                  lastExecution={
-                    preventiveData?.lastExecution
-                      ? formatDate(preventiveData.lastExecution, false)
-                      : undefined
-                  }
-                  onDaysChange={days => setValue('days', days)}
-                  onStartDateChange={setStartDate}
-                  showLastExecution={true}
-                />
+                  <ScheduleSection
+                    preventiveDays={preventiveData?.days || 0}
+                    startDate={startDate}
+                    lastExecution={
+                      preventiveData?.lastExecution
+                        ? formatDate(preventiveData.lastExecution, false)
+                        : undefined
+                    }
+                    onDaysChange={days => setValue('days', days)}
+                    onStartDateChange={setStartDate}
+                    showLastExecution={true}
+                  />
+                </div>
 
                 <AssignmentsSection
                   availableInspectionPoints={availableInspectionPoints}
@@ -265,6 +281,10 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
                   selectedOperators={selectedOperator}
                   onSelectedOperator={handleSelectedOperator}
                   onDeleteSelectedOperator={handleDeleteSelectedOperator}
+                  assets={assets}
+                  selectedAssets={selectedAssets}
+                  onAssetSelected={handleAssetSelected}
+                  onDeleteSelectedAsset={handleDeleteSelectedAsset}
                 />
 
                 <SparePartsSection
@@ -284,14 +304,6 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
                       className="w-4 h-4"
                     />
                   </div>
-
-                  {preventiveData?.asset && (
-                    <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm font-semibold text-gray-700">
-                        Equip assignat: {preventiveData.asset.description}
-                      </p>
-                    </div>
-                  )}
 
                   <div className="flex gap-4">
                     <Button type="create" onClick={handleSubmit(onSubmit)}>

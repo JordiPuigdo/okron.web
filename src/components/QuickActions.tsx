@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { SvgAdd } from 'app/icons/designSystem/SvgAdd';
-import { SvgAvarie, SvgOrder } from 'app/icons/icons';
+import { SvgNewOrder } from 'app/icons/designSystem/SvgNewOrder';
+import { SvgAvarie } from 'app/icons/icons';
 import useRoutes from 'app/utils/useRoutes';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { useTranslations } from '../app/hooks/useTranslations';
 import { CorrectiveFormModal } from '../app/(pages)/corrective/components/CorrectiveFormModal';
+import { useTranslations } from '../app/hooks/useTranslations';
 
 interface QuickAction {
   label: string;
@@ -49,9 +50,9 @@ export default function QuickActions() {
       },
     },
     {
-      label: t('create.order'),
+      label: t('order.create.purchase'),
       href: ROUTES.orders.orderPurchase,
-      icon: <SvgOrder className="w-5 h-5" />,
+      icon: <SvgNewOrder className="w-5 h-5" />,
     },
   ];
 

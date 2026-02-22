@@ -1,8 +1,43 @@
+import type { ClientRect } from '@dnd-kit/core';
 import {
+  AssemblyArticle,
   AssemblyFolder,
   AssemblyNode,
   BudgetNodeType,
 } from 'app/interfaces/Budget';
+
+export interface FolderMarginSummary {
+  baseSubtotal: number;
+  totalAmount: number;
+  effectiveMarginPercentage: number;
+}
+
+export function calculateFolderMargin(
+  nodes: AssemblyNode[]
+): FolderMarginSummary {
+  let baseSubtotal = 0;
+  let totalAmount = 0;
+
+  for (const node of nodes) {
+    if (node.nodeType === BudgetNodeType.ArticleItem) {
+      const article = node as AssemblyArticle;
+      baseSubtotal += article.quantity * article.unitPrice;
+      totalAmount += article.totalAmount;
+    } else if (node.nodeType === BudgetNodeType.Folder) {
+      const folder = node as AssemblyFolder;
+      const childSummary = calculateFolderMargin(folder.children || []);
+      baseSubtotal += childSummary.baseSubtotal;
+      totalAmount += childSummary.totalAmount;
+    }
+  }
+
+  const effectiveMarginPercentage =
+    baseSubtotal > 0
+      ? Math.round(((totalAmount - baseSubtotal) / baseSubtotal) * 10000) / 100
+      : 0;
+
+  return { baseSubtotal, totalAmount, effectiveMarginPercentage };
+}
 
 export interface FlattenedNode {
   id: string;
@@ -43,6 +78,46 @@ export function flattenNodes(
 
     return acc;
   }, []);
+}
+
+export function flattenNodeIds(nodes: AssemblyNode[]): string[] {
+  return nodes.reduce<string[]>((acc, node) => {
+    acc.push(node.id);
+    if (node.nodeType === BudgetNodeType.Folder) {
+      const folder = node as AssemblyFolder;
+      if (folder.children?.length) {
+        acc.push(...flattenNodeIds(folder.children));
+      }
+    }
+    return acc;
+  }, []);
+}
+
+export function resolveDropPosition(
+  overNodeId: string,
+  overRect: ClientRect,
+  pointerY: number,
+  isOverFolder: boolean
+): DropPosition {
+  const relativeY = pointerY - overRect.top;
+  const height = overRect.height;
+
+  let position: DropPosition['position'];
+
+  if (isOverFolder) {
+    const edgeZone = height * 0.28;
+    if (relativeY <= edgeZone) {
+      position = 'before';
+    } else if (relativeY >= height - edgeZone) {
+      position = 'after';
+    } else {
+      position = 'inside';
+    }
+  } else {
+    position = relativeY < height / 2 ? 'before' : 'after';
+  }
+
+  return { targetNodeId: overNodeId, position };
 }
 
 export function findNodeById(

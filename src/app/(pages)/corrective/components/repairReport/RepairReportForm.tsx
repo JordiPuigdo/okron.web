@@ -1,14 +1,13 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
-import { Card } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import { useAssetHook } from 'app/hooks/useAssetHook';
 import { useCustomers } from 'app/hooks/useCustomers';
 import { useOperatorHook } from 'app/hooks/useOperatorsHook';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { useWorkOrders } from 'app/hooks/useWorkOrders';
-import { SvgSpinner } from 'app/icons/icons';
+import { SvgMachines, SvgSpinner } from 'app/icons/icons';
 import { Customer } from 'app/interfaces/Customer';
 import {
   OriginWorkOrder,
@@ -23,7 +22,6 @@ import { Textarea } from 'components/textarea';
 import { Input } from 'components/ui/input';
 import { ca } from 'date-fns/locale';
 import { Button } from 'designSystem/Button/Buttons';
-import { Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export interface RepairReport {
@@ -71,6 +69,8 @@ export function RepairReportForm() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [selectedOperator, setSelectedOperator] = useState<string[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<
     string | undefined
@@ -132,10 +132,24 @@ export function RepairReportForm() {
     if (!validateForm()) {
       return;
     }
+    setErrorMessage(null);
+    setSuccessMessage(null);
     setIsLoading(true);
+    try {
+      const response = await createRepairWorkOrder(formData);
+      setSuccessMessage(`${t('breakdown.created')} ${formData.code || ''}`);
+      setTimeout(() => {
+        router.push(ROUTES.workOrders + '/' + response.id);
+      }, 900);
+    } catch (error) {
+      setErrorMessage(t('error.creating.breakdown'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const response = await createRepairWorkOrder(formData);
-    router.push(ROUTES.workOrders + '/' + response.id);
+  const handleCancel = () => {
+    router.push(ROUTES.workOrders);
   };
 
   const handleAssetSelected = (assetId: string) => {
@@ -185,82 +199,105 @@ export function RepairReportForm() {
   };
 
   return (
-    <Card className="mx-auto bg-white rounded-xl p-6 shadow-lg">
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-6"
-        onKeyDown={e => {
-          const tag = (e.target as HTMLElement).tagName.toLowerCase();
-          if (e.key === 'Enter' && (tag === 'input' || tag === 'textarea')) {
-            e.preventDefault();
-          }
-        }}
-      >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-2">
-            <label className="font-semibold">{t('workorder.number')}</label>
-            <Input
-              id="code"
-              value={formData.code || ''}
-              onChange={e =>
-                setFormData(prev => ({ ...prev, code: e.target.value }))
-              }
-              className={errors.code ? 'border-destructive' : ''}
-            />
+    <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+      <div className="p-6 pb-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+        <h2 className="text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+          <SvgMachines />
+          {t('incident.management')}
+        </h2>
+        <p className="text-sm text-gray-600">
+          {t('create.corrective.description')} - {formData.code || ''}
+        </p>
+      </div>
+
+      <div className="flex-1 p-6">
+        <form
+          id="repair-report-form"
+          onSubmit={handleSubmit}
+          className="space-y-5"
+          onKeyDown={e => {
+            const tag = (e.target as HTMLElement).tagName.toLowerCase();
+            if (e.key === 'Enter' && (tag === 'input' || tag === 'textarea')) {
+              e.preventDefault();
+            }
+          }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t('workorder.number')}
+              </label>
+              <Input
+                id="code"
+                value={formData.code || ''}
+                onChange={e =>
+                  setFormData(prev => ({ ...prev, code: e.target.value }))
+                }
+                className={`bg-gray-50 ${errors.code ? 'border-destructive' : ''}`}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t('customer.reference')}
+              </label>
+              <Input
+                id="refclientId"
+                value={formData.refCustomerId || ''}
+                onChange={e =>
+                  setFormData(prev => ({
+                    ...prev,
+                    refCustomerId: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t('common.date')}
+              </label>
+              <DatePicker
+                id="startDate"
+                selected={formData.initialDateTime}
+                onChange={(date: Date) =>
+                  setFormData(prev => ({ ...prev, initialDateTime: date }))
+                }
+                dateFormat="dd/MM/yyyy"
+                locale={ca}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="font-semibold">{t('customer.reference')}</label>
-            <Input
-              id="refclientId"
-              value={formData.refCustomerId || ''}
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              {t('common.description')}
+            </label>
+            <Textarea
+              id="description"
+              placeholder={t('workorder.describe.problem')}
+              value={formData.description || ''}
               onChange={e =>
-                setFormData(prev => ({
-                  ...prev,
-                  refCustomerId: e.target.value,
-                }))
+                setFormData(prev => ({ ...prev, description: e.target.value }))
               }
+              className={cn(
+                'min-h-[100px]',
+                errors.description && 'border-destructive'
+              )}
             />
-          </div>
-          <div className="space-y-2 flex flex-col">
-            <label className="font-semibold">{t('common.date')}</label>
-            <DatePicker
-              id="startDate"
-              selected={formData.initialDateTime}
-              onChange={(date: Date) =>
-                setFormData(prev => ({ ...prev, initialDateTime: date }))
-              }
-              dateFormat="dd/MM/yyyy"
-              locale={ca}
-              className="flex h-10 w-full rounded-md border border-input text-lg"
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="description" className="font-semibold">
-            {t('common.description')}
-          </label>
-          <Textarea
-            id="description"
-            placeholder={t('workorder.describe.problem')}
-            value={formData.description || ''}
-            onChange={e =>
-              setFormData(prev => ({ ...prev, description: e.target.value }))
-            }
-            className={cn(
-              'min-h-[100px]',
-              errors.description && 'border-destructive'
+            {errors.description && (
+              <p className="text-sm text-red-500 mt-1">{errors.description}</p>
             )}
-          />
-          {errors.description && (
-            <p className="text-destructive text-sm text-red-500">
-              {errors.description}
-            </p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <div className="space-y-2">
-            <label className="font-semibold">{t('workorder.equipment')}</label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              {t('workorder.equipment')}
+            </label>
             <ChooseElement
               elements={assets ?? []}
               selectedElements={selectedAssets}
@@ -274,57 +311,60 @@ export function RepairReportForm() {
               })}
             />
           </div>
-        </div>
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="font-semibold">{t('workorder.operators')}</label>
-            <ChooseElement
-              elements={
-                operators ? operators.filter(x => x.active == true) : []
-              }
-              selectedElements={selectedOperator}
-              onElementSelected={handleSelectedOperator}
-              onDeleteElementSelected={handleDeleteSelectedOperator}
-              placeholder={t('workorder.search.operators')}
-              mapElement={operator => ({
-                id: operator.id,
-                description: operator.name,
-              })}
-            />
-            {errors.operatorId && (
-              <p className="text-destructive text-sm text-red-500">
-                {errors.operatorId}
-              </p>
-            )}
-          </div>
 
-          <div className="space-y-2">
-            <label className="font-semibold">{t('customer.customer')}</label>
-            <ChooseElement
-              elements={
-                customers ? customers.filter(x => x.active == true) : []
-              }
-              selectedElements={selectedCustomerId ? [selectedCustomerId] : []}
-              onElementSelected={handleSelectedCustomer}
-              onDeleteElementSelected={handleDeleteSelectedCustomer}
-              placeholder={t('customer.search.customer')}
-              mapElement={customer => ({
-                id: customer.id,
-                description: `${customer.name} - ${customer.fiscalName} - ${customer.taxId}`,
-              })}
-            />
-            {errors.customerId && (
-              <p className="text-destructive text-sm text-red-500">
-                {errors.customerId}
-              </p>
-            )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t('workorder.operators')}
+              </label>
+              <ChooseElement
+                elements={
+                  operators ? operators.filter(x => x.active == true) : []
+                }
+                selectedElements={selectedOperator}
+                onElementSelected={handleSelectedOperator}
+                onDeleteElementSelected={handleDeleteSelectedOperator}
+                placeholder={t('workorder.search.operators')}
+                mapElement={operator => ({
+                  id: operator.id,
+                  description: operator.name,
+                })}
+              />
+              {errors.operatorId && (
+                <p className="text-sm text-red-500 mt-1">{errors.operatorId}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t('customer.customer')}
+              </label>
+              <ChooseElement
+                elements={
+                  customers ? customers.filter(x => x.active == true) : []
+                }
+                selectedElements={selectedCustomerId ? [selectedCustomerId] : []}
+                onElementSelected={handleSelectedCustomer}
+                onDeleteElementSelected={handleDeleteSelectedCustomer}
+                placeholder={t('customer.search.customer')}
+                mapElement={customer => ({
+                  id: customer.id,
+                  description: `${customer.name} - ${customer.fiscalName} - ${customer.taxId}`,
+                })}
+              />
+              {errors.customerId && (
+                <p className="text-sm text-red-500 mt-1">{errors.customerId}</p>
+              )}
+            </div>
           </div>
 
           {selectedCustomer &&
             selectedCustomer.installations &&
             selectedCustomer.installations.length > 0 && (
-              <div className="space-y-2">
-                <label className="font-semibold">{t('customer.stores')}</label>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  {t('customer.stores')}
+                </label>
                 <ChooseElement
                   elements={selectedCustomer.installations}
                   selectedElements={
@@ -346,41 +386,49 @@ export function RepairReportForm() {
                   })}
                 />
                 {errors.installationId && (
-                  <p className="text-destructive text-sm text-red-500">
+                  <p className="text-sm text-red-500 mt-1">
                     {errors.installationId}
                   </p>
                 )}
               </div>
             )}
+        </form>
+      </div>
+
+      <div className="flex justify-between items-center gap-3 px-6 py-4 border-t bg-gray-50">
+        <div className="flex items-center gap-3 text-sm">
+          {successMessage && (
+            <span className="text-green-600 font-medium">{successMessage}</span>
+          )}
+          {errorMessage && (
+            <span className="text-red-600 font-medium">{errorMessage}</span>
+          )}
         </div>
-        <div className="flex gap-3 pt-6 border-t">
-          <Button
-            type="create"
-            isSubmit
-            className="w-full"
-            customStyles="flex justify-center"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <SvgSpinner className="mr-2 h-4 w-4" />
-            ) : (
-              <Save className="mr-2 h-4 w-4" />
-            )}
-            <p>{t('common.save')}</p>
-          </Button>
+        <div className="flex gap-3">
           <Button
             type="cancel"
-            variant="outline"
-            onClick={() => {}}
-            className="w-full"
-            customStyles="flex justify-center"
+            onClick={handleCancel}
+            customStyles="px-5 py-2.5"
             disabled={isLoading}
           >
-            <X className="mr-2 h-4 w-4" />
-            <p>{t('common.cancel')}</p>
+            {t('common.cancel')}
+          </Button>
+          <Button
+            type="create"
+            onClick={() => {
+              const form = document.getElementById('repair-report-form');
+              if (form instanceof HTMLFormElement) {
+                form.requestSubmit();
+              }
+            }}
+            customStyles="px-5 py-2.5 gap-2 flex items-center"
+            disabled={isLoading}
+          >
+            {t('common.save')}
+            {isLoading && <SvgSpinner className="h-4 w-4" />}
           </Button>
         </div>
-      </form>
-    </Card>
+      </div>
+    </div>
   );
 }

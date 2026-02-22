@@ -55,6 +55,7 @@ export function CorrectiveFormModal({
   const isCRM = config?.isCRM;
   const isProduction = loginUser?.userType === UserType.Production;
   const isMaintenance = loginUser?.userType === UserType.Maintenance;
+  const showEquipmentLabel = Boolean(isCRM || isMaintenance);
 
   const [activeTab, setActiveTab] = useState<TabType>('basic');
   const { register, handleSubmit, setValue, reset } = useForm<Corrective>();
@@ -132,6 +133,10 @@ export function CorrectiveFormModal({
       setShowDowntimeReasonsModal(true);
     }
   }, [selectedId, isProduction]);
+
+  useEffect(() => {
+    setValue('stateWorkOrder', stateCorrective);
+  }, [setValue, stateCorrective]);
 
   const onSubmit: SubmitHandler<Corrective> = async data => {
     setIsLoading(true);
@@ -412,18 +417,18 @@ export function CorrectiveFormModal({
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isMaintenance ? t('equipment') : t('machine')}
+                      {showEquipmentLabel ? t('equipment') : t('machine')}
                     </label>
                     <AutocompleteSearchBar
                       elements={
-                        assets?.filter(a => a.createWorkOrder).map(a => ({
+                        assets?.map(a => ({
                           id: a.id,
-                          description: `${a.description} - ${a.brand || ''}`,
+                          description: `${a.code ? `${a.code} - ` : ''}${a.description}`,
                         })) || []
                       }
                       setCurrentId={handleAssetSelected}
                       placeholder={
-                        isMaintenance
+                        showEquipmentLabel
                           ? t('search.equipment')
                           : t('search.machine')
                       }
@@ -461,15 +466,21 @@ export function CorrectiveFormModal({
                         value={stateCorrective}
                         onChange={e =>
                           setStateCorrective(
-                            e.target.value as unknown as StateWorkOrder
+                            Number(e.target.value) as StateWorkOrder
                           )
                         }
-                        className="w-full p-2 border border-gray-300 rounded-md"
+                        className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-900"
                       >
-                        <option value={StateWorkOrder.OnGoing}>
+                        <option
+                          className="bg-white text-gray-900"
+                          value={StateWorkOrder.OnGoing}
+                        >
                           {translateStateWorkOrder(StateWorkOrder.OnGoing, t)}
                         </option>
-                        <option value={StateWorkOrder.Waiting}>
+                        <option
+                          className="bg-white text-gray-900"
+                          value={StateWorkOrder.Waiting}
+                        >
                           {translateStateWorkOrder(StateWorkOrder.Waiting, t)}
                         </option>
                       </select>

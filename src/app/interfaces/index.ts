@@ -11,6 +11,7 @@ export type User = {
 
 export * from './Article';
 export * from './Budget';
+export * from './CreditNote';
 export * from './DeliveryNote';
 export * from './Family';
 export * from './Holiday';

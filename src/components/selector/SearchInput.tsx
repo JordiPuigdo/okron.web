@@ -22,7 +22,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
   return (
     <input
       type="text"
-      className={`p-3 text-sm border border-gray-300 rounded-md w-full ${className}`}
+      className={`p-3 text-sm border border-gray-300 rounded-md w-full bg-white text-gray-900 placeholder:text-gray-400 disabled:bg-gray-100 disabled:text-gray-500 ${className}`}
       value={value}
       onChange={onChange}
       onKeyDown={onKeyDown}
