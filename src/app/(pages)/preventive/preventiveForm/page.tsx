@@ -29,14 +29,14 @@ import { Button } from 'designSystem/Button/Buttons';
 import OkronTimePicker from 'designSystem/TimePicker/OkronTimePicker';
 import { useRouter } from 'next/navigation';
 
-import { PreventiveSparePart } from './components/PreventiveSparePart';
-import { PreventiveHeader } from '../components/PreventiveHeader';
 import {
+  AssignmentsSection,
   BasicInfoSection,
   ScheduleSection,
-  AssignmentsSection,
   SparePartsSection,
 } from '../components/PreventiveForm';
+import { PreventiveHeader } from '../components/PreventiveHeader';
+import { PreventiveSparePart } from './components/PreventiveSparePart';
 
 const PreventiveForm = () => {
   const router = useRouter();

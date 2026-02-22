@@ -1,6 +1,6 @@
+import { PreventiveSparePart } from 'app/(pages)/preventive/preventiveForm/components/PreventiveSparePart';
 import { ContentCard } from 'app/(pages)/workOrders/[id]/components/WorkOrderForm/layout/ContentCard';
 import { SparePartPreventive } from 'app/interfaces/Preventive';
-import { PreventiveSparePart } from 'app/(pages)/preventive/preventiveForm/components/PreventiveSparePart';
 
 interface SparePartsSectionProps {
   selectedSpareParts: SparePartPreventive[];

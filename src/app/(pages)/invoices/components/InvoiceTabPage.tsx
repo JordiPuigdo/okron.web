@@ -7,7 +7,9 @@ import { HeaderTable } from 'components/layout/HeaderTable';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { BudgetCreateModal } from './BudgetCreateModal';
+import { CreditNoteCreateModal } from './CreditNoteCreateModal';
 import { TableDataBudgets } from './TableDataBudgets';
+import { TableDataCreditNotes } from './TableDataCreditNotes';
 import { TableDataInvoices } from './TableDataInvoices';
 
 // Componentes que se muestran en las pestañas
@@ -60,15 +62,36 @@ function Budgets({ onOpenCreateModal }: { onOpenCreateModal: () => void }) {
   );
 }
 
-type TabKey = 'Invoices' | 'DeliveryNotes' | 'Budgets';
+function CreditNotes({
+  onOpenCreateModal,
+}: {
+  onOpenCreateModal: () => void;
+}) {
+  const { t } = useTranslations();
+
+  return (
+    <>
+      <HeaderTable
+        title={t('creditNotes')}
+        subtitle={`${t('start')} - ${t('creditNotes.list')}`}
+        createButton={t('creditNotes.create')}
+        onCreate={onOpenCreateModal}
+      />
+      <TableDataCreditNotes className="bg-white p-4 rounded-xl shadow-md" />
+    </>
+  );
+}
+
+type TabKey = 'Invoices' | 'DeliveryNotes' | 'Budgets' | 'CreditNotes';
 
 const labels: Record<TabKey, string> = {
   Budgets: 'budgets',
   DeliveryNotes: 'invoices.tabs.deliveryNotes',
   Invoices: 'invoices.tabs.invoices',
+  CreditNotes: 'invoices.tabs.creditNotes',
 };
 
-const tabs: TabKey[] = ['Budgets', 'DeliveryNotes', 'Invoices'];
+const tabs: TabKey[] = ['Budgets', 'DeliveryNotes', 'Invoices', 'CreditNotes'];
 
 export default function InvoiceTabPage() {
   const router = useRouter();
@@ -79,6 +102,8 @@ export default function InvoiceTabPage() {
     tabFromUrl && tabs.includes(tabFromUrl) ? tabFromUrl : 'Budgets'
   );
   const [isCreateBudgetModalOpen, setIsCreateBudgetModalOpen] = useState(false);
+  const [isCreateCreditNoteModalOpen, setIsCreateCreditNoteModalOpen] =
+    useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const { t } = useTranslations();
 
@@ -109,6 +134,10 @@ export default function InvoiceTabPage() {
     setRefreshKey(prev => prev + 1);
   };
 
+  const handleCreditNoteCreated = () => {
+    setRefreshKey(prev => prev + 1);
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'Invoices':
@@ -120,6 +149,13 @@ export default function InvoiceTabPage() {
           <Budgets
             key={refreshKey}
             onOpenCreateModal={() => setIsCreateBudgetModalOpen(true)}
+          />
+        );
+      case 'CreditNotes':
+        return (
+          <CreditNotes
+            key={refreshKey}
+            onOpenCreateModal={() => setIsCreateCreditNoteModalOpen(true)}
           />
         );
       default:
@@ -134,6 +170,13 @@ export default function InvoiceTabPage() {
         isOpen={isCreateBudgetModalOpen}
         onClose={() => setIsCreateBudgetModalOpen(false)}
         onSuccess={handleBudgetCreated}
+      />
+
+      {/* Modal de crear abono */}
+      <CreditNoteCreateModal
+        isOpen={isCreateCreditNoteModalOpen}
+        onClose={() => setIsCreateCreditNoteModalOpen(false)}
+        onSuccess={handleCreditNoteCreated}
       />
 
       {/* Botones de Tabs */}

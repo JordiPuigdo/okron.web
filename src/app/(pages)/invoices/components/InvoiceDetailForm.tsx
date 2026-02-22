@@ -13,7 +13,7 @@ import { InstallationComponent } from 'components/customer/InstallationComponent
 import { TotalComponent } from 'components/customer/TotalComponent';
 import { Input } from 'components/ui/input';
 import dayjs from 'dayjs';
-import { Eye, Plus, Save, X } from 'lucide-react';
+import { Eye, Plus, ReceiptText, Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { HeaderForm } from '../../../../components/layout/HeaderForm';
@@ -28,6 +28,7 @@ import { DeliveryNoteService } from '../../../services/deliveryNoteService';
 import useRoutes from '../../../utils/useRoutes';
 import { DeliveryNotePreviewPanel } from '../../deliveryNotes/components/DeliveryNotePreviewPanel';
 import { WorkOrderPreviewPanel } from '../../workOrders/components/WorkOrderPreviewPanel';
+import { CreditNoteCreateModal } from './CreditNoteCreateModal';
 
 interface InvoiceDetailFormProps {
   invoice: Invoice;
@@ -59,6 +60,7 @@ export function InvoiceDetailForm({
   const [previewWorkOrder, setPreviewWorkOrder] =
     useState<WorkOrder | null>(null);
   const [isWorkOrderPreviewOpen, setIsWorkOrderPreviewOpen] = useState(false);
+  const [isCreditNoteModalOpen, setIsCreditNoteModalOpen] = useState(false);
 
   const deliveryNoteService = useMemo(
     () =>
@@ -509,6 +511,14 @@ export function InvoiceDetailForm({
                 <p>Actualitzar</p>
               </Button>
               <Button
+                type="others"
+                onClick={() => setIsCreditNoteModalOpen(true)}
+                customStyles="flex justify-center gap-2"
+              >
+                <ReceiptText className="h-4 w-4" />
+                <p>Abonar</p>
+              </Button>
+              <Button
                 type="cancel"
                 variant="outline"
                 onClick={() => router.push(ROUTES.invoices.list)}
@@ -535,6 +545,12 @@ export function InvoiceDetailForm({
         workOrder={previewWorkOrder}
         isOpen={isWorkOrderPreviewOpen}
         onClose={() => setIsWorkOrderPreviewOpen(false)}
+      />
+
+      <CreditNoteCreateModal
+        isOpen={isCreditNoteModalOpen}
+        onClose={() => setIsCreditNoteModalOpen(false)}
+        preloadedInvoice={formData}
       />
     </div>
   );

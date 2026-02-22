@@ -83,7 +83,6 @@ export default function page({ params }: { params: { id: string } }) {
                     sparePartId={sparePart!.sparePart.id}
                     enableFilters={false}
                     enableDetail={true}
-                    enableDelete={false}
                     enableCreate={false}
                     enableFilterActive={false}
                   />

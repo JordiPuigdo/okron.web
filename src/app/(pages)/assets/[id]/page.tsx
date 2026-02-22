@@ -251,7 +251,6 @@ export default function AssetDetailsPage({
                         <SparePartTable
                           enableFilters={true}
                           enableEdit={false}
-                          enableDelete={false}
                           enableDetail={true}
                           enableCreate={false}
                           assetId={id}

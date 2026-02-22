@@ -20,8 +20,10 @@ import {
   SlidePanelActions,
   SlidePanelSection,
 } from 'components/SlidePanel';
-import { Edit2, FileText, Printer } from 'lucide-react';
+import { Edit2, FileText, Printer, ReceiptText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+
+import { CreditNoteCreateModal } from './CreditNoteCreateModal';
 
 // ============================================================================
 // TYPES
@@ -75,9 +77,9 @@ export function InvoicePreviewPanel({
   const router = useRouter();
   const ROUTES = useRoutes();
 
-  // Estado para la factura completa cargada desde el servidor
   const [fullInvoice, setFullInvoice] = useState<Invoice | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCreditNoteModalOpen, setIsCreditNoteModalOpen] = useState(false);
 
   // Fetch del detalle completo cuando se abre el panel
   useEffect(() => {
@@ -136,6 +138,10 @@ export function InvoicePreviewPanel({
 
   const handlePrint = () => {
     window.open(`/print/invoice?id=${invoice.id}`, '_blank');
+  };
+
+  const handleCreditNote = () => {
+    setIsCreditNoteModalOpen(true);
   };
 
   return (
@@ -206,9 +212,21 @@ export function InvoicePreviewPanel({
               label="PDF"
               variant="secondary"
             />
+            <ActionButton
+              onClick={handleCreditNote}
+              icon={ReceiptText}
+              label="Abonar"
+              variant="secondary"
+            />
           </SlidePanelActions>
         </>
       )}
+
+      <CreditNoteCreateModal
+        isOpen={isCreditNoteModalOpen}
+        onClose={() => setIsCreditNoteModalOpen(false)}
+        preloadedInvoice={displayInvoice}
+      />
     </SlidePanel>
   );
 }
