@@ -1,6 +1,23 @@
 'use client';
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
+import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  KeyboardSensor,
+  MeasuringStrategy,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   AssemblyArticle,
   AssemblyFolder,
@@ -15,6 +32,7 @@ import { formatCurrencyServerSider } from 'app/utils/utils';
 import { Button } from 'designSystem/Button/Buttons';
 import {
   AlertTriangle,
+  Check,
   ChevronDown,
   ChevronRight,
   FolderClosed,
@@ -22,16 +40,30 @@ import {
   FolderPlus,
   GripVertical,
   Package,
+  Pencil,
+  Percent,
   Plus,
   Trash2,
   Wrench,
+  X,
 } from 'lucide-react';
 
 import { NodeStats } from './AssemblyBudgetStatusConfig';
 import {
   calculateMove,
   DropPosition,
+  findNodeById,
+  flattenNodeIds,
+  resolveDropPosition,
 } from './assemblyTreeDndUtils';
+
+const MEASURING_CONFIG = {
+  droppable: { strategy: MeasuringStrategy.Always },
+};
+
+const POINTER_SENSOR_OPTIONS = {
+  activationConstraint: { distance: 5 },
+};
 
 interface AssemblyTreePanelProps {
   nodes?: AssemblyNode[];
@@ -78,67 +110,98 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
 
   const displayNodes = optimisticNodes || nodes;
 
+  const sortableIds = useMemo(
+    () => (displayNodes ? flattenNodeIds(displayNodes) : []),
+    [displayNodes]
+  );
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, POINTER_SENSOR_OPTIONS),
+    useSensor(KeyboardSensor)
+  );
+
+  const draggedNode = useMemo(() => {
+    if (!draggedNodeId || !displayNodes) return null;
+    return findNodeById(displayNodes, draggedNodeId) ?? null;
+  }, [draggedNodeId, displayNodes]);
+
   const handleDragStart = useCallback(
-    (nodeId: string) => {
+    (event: DragStartEvent) => {
       if (isReadOnly || isMoving) return;
-      setDraggedNodeId(nodeId);
+      setDraggedNodeId(String(event.active.id));
     },
     [isReadOnly, isMoving]
   );
 
   const handleDragOver = useCallback(
-    (targetNodeId: string, position: DropPosition['position']) => {
-      if (!draggedNodeId || draggedNodeId === targetNodeId) {
+    (event: DragOverEvent) => {
+      const { active, over, activatorEvent } = event;
+      if (!over || active.id === over.id || !displayNodes) {
         setDropIndicator(null);
         return;
       }
-      setDropIndicator({ targetNodeId, position });
+
+      const overNode = findNodeById(displayNodes, String(over.id));
+      if (!overNode) {
+        setDropIndicator(null);
+        return;
+      }
+
+      const pointerEvent = activatorEvent as PointerEvent | MouseEvent;
+      const pointerY = pointerEvent.clientY + event.delta.y;
+
+      const position = resolveDropPosition(
+        String(over.id),
+        over.rect,
+        pointerY,
+        overNode.nodeType === BudgetNodeType.Folder
+      );
+
+      setDropIndicator(position);
     },
-    [draggedNodeId]
+    [displayNodes]
   );
 
-  const handleDragEnd = useCallback(async () => {
-    if (!draggedNodeId || !dropIndicator || !displayNodes) {
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const activeId = String(event.active.id);
+
+      if (!dropIndicator || !displayNodes) {
+        setDraggedNodeId(null);
+        setDropIndicator(null);
+        return;
+      }
+
+      const moveResult = calculateMove(displayNodes, activeId, dropIndicator);
+
       setDraggedNodeId(null);
       setDropIndicator(null);
-      return;
-    }
 
-    const movedNodeId = draggedNodeId;
-    const currentDropIndicator = dropIndicator;
+      if (!moveResult) return;
 
-    const moveResult = calculateMove(
-      displayNodes,
-      movedNodeId,
-      currentDropIndicator
-    );
+      setOptimisticNodes(moveResult.optimisticNodes);
+      setIsMoving(true);
 
-    setDraggedNodeId(null);
-    setDropIndicator(null);
+      try {
+        const result = await onMoveNode({
+          budgetId,
+          nodeId: activeId,
+          newParentNodeId: moveResult.newParentNodeId,
+          newSortOrder: moveResult.newSortOrder,
+        });
 
-    if (!moveResult) return;
-
-    setOptimisticNodes(moveResult.optimisticNodes);
-    setIsMoving(true);
-
-    try {
-      const result = await onMoveNode({
-        budgetId,
-        nodeId: movedNodeId,
-        newParentNodeId: moveResult.newParentNodeId,
-        newSortOrder: moveResult.newSortOrder,
-      });
-
-      if (!result) {
+        if (!result) {
+          setOptimisticNodes(null);
+        }
+      } catch {
         setOptimisticNodes(null);
+      } finally {
+        setOptimisticNodes(null);
+        setIsMoving(false);
       }
-    } catch {
-      setOptimisticNodes(null);
-    } finally {
-      setOptimisticNodes(null);
-      setIsMoving(false);
-    }
-  }, [draggedNodeId, dropIndicator, displayNodes, onMoveNode, budgetId]);
+    },
+    [dropIndicator, displayNodes, onMoveNode, budgetId]
+  );
 
   const handleDragCancel = useCallback(() => {
     setDraggedNodeId(null);
@@ -191,31 +254,48 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
           t={t}
         />
       ) : (
-        <div className="flex-1 overflow-auto px-2 py-2">
-          <div className="min-w-[500px]">
-            {displayNodes?.map((node, index) => (
-              <TreeNode
-                key={node.id}
-                node={node}
-                depth={0}
-                isLast={index === (displayNodes?.length || 0) - 1}
-                parentLines={[]}
-                isReadOnly={isReadOnly}
-                onAddFolder={onAddFolder}
-                onAddArticle={onAddArticle}
-                onRequestDelete={handleRequestDelete}
-                draggedNodeId={draggedNodeId}
-                dropIndicator={dropIndicator}
-                onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
-                onDragEnd={handleDragEnd}
-                onDragCancel={handleDragCancel}
-                onUpdateNode={onUpdateNode}
-                budgetId={budgetId}
-              />
-            ))}
-          </div>
-        </div>
+        <DndContext
+          sensors={isReadOnly ? undefined : sensors}
+          collisionDetection={closestCenter}
+          measuring={MEASURING_CONFIG}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+        >
+          <SortableContext
+            items={sortableIds}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="flex-1 overflow-auto px-2 py-2">
+              <div className="min-w-[500px]">
+                {displayNodes?.map((node, index) => (
+                  <TreeNode
+                    key={node.id}
+                    node={node}
+                    depth={0}
+                    isLast={index === (displayNodes?.length || 0) - 1}
+                    parentLines={[]}
+                    isReadOnly={isReadOnly}
+                    onAddFolder={onAddFolder}
+                    onAddArticle={onAddArticle}
+                    onRequestDelete={handleRequestDelete}
+                    draggedNodeId={draggedNodeId}
+                    dropIndicator={dropIndicator}
+                    onUpdateNode={onUpdateNode}
+                    budgetId={budgetId}
+                  />
+                ))}
+              </div>
+            </div>
+          </SortableContext>
+
+          <DragOverlay dropAnimation={null}>
+            {draggedNode ? (
+              <DragOverlayContent node={draggedNode} />
+            ) : null}
+          </DragOverlay>
+        </DndContext>
       )}
 
       <DeleteConfirmDialog
@@ -340,13 +420,6 @@ interface TreeNodeProps {
   onRequestDelete: (node: AssemblyNode) => void;
   draggedNodeId: string | null;
   dropIndicator: DropPosition | null;
-  onDragStart: (nodeId: string) => void;
-  onDragOver: (
-    targetNodeId: string,
-    position: DropPosition['position']
-  ) => void;
-  onDragEnd: () => void;
-  onDragCancel: () => void;
   onUpdateNode: (
     request: UpdateAssemblyNodeRequest
   ) => Promise<Budget | undefined>;
@@ -364,94 +437,53 @@ function TreeNode({
   onRequestDelete,
   draggedNodeId,
   dropIndicator,
-  onDragStart,
-  onDragOver,
-  onDragEnd,
-  onDragCancel,
   onUpdateNode,
   budgetId,
 }: TreeNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(node.description);
+  const [isEditingArticle, setIsEditingArticle] = useState(false);
+  const [editQuantity, setEditQuantity] = useState(0);
+  const [editUnitPrice, setEditUnitPrice] = useState(0);
+  const [editMargin, setEditMargin] = useState(0);
+  const [isEditingFolderMargin, setIsEditingFolderMargin] = useState(false);
+  const [editFolderMargin, setEditFolderMargin] = useState(0);
   const isConfirmedRef = useRef(false);
-  const rowRef = useRef<HTMLDivElement>(null);
+  const isArticleConfirmedRef = useRef(false);
+  const isFolderMarginConfirmedRef = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const quantityInputRef = useRef<HTMLInputElement>(null);
+  const folderMarginInputRef = useRef<HTMLInputElement>(null);
   const isFolder = node.nodeType === BudgetNodeType.Folder;
   const folder = isFolder ? (node as AssemblyFolder) : null;
   const article = !isFolder ? (node as AssemblyArticle) : null;
 
-  const isDragged = draggedNodeId === node.id;
-
+  const isDragging = draggedNodeId === node.id;
   const isDropTarget = dropIndicator?.targetNodeId === node.id;
   const dropPosition = isDropTarget ? dropIndicator.position : null;
+
+  const canDrag = !isReadOnly && !isEditing && !isEditingArticle && !isEditingFolderMargin;
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({
+    id: node.id,
+    disabled: !canDrag,
+  });
+
+  const style = useMemo(() => ({
+    transform: CSS.Translate.toString(transform),
+    transition,
+  }), [transform, transition]);
 
   const childLines = useMemo(
     () => [...parentLines, !isLast],
     [parentLines, isLast]
-  );
-
-  const handleDragStart = useCallback(
-    (e: React.DragEvent) => {
-      if (isReadOnly) return;
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', node.id);
-      requestAnimationFrame(() => {
-        onDragStart(node.id);
-      });
-    },
-    [isReadOnly, node.id, onDragStart]
-  );
-
-  const handleDragOver = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      if (!draggedNodeId || draggedNodeId === node.id) return;
-
-      const rect = rowRef.current?.getBoundingClientRect();
-      if (!rect) return;
-
-      const y = e.clientY - rect.top;
-      const height = rect.height;
-      const threshold = height * 0.25;
-
-      let position: DropPosition['position'];
-
-      if (isFolder && y > threshold && y < height - threshold) {
-        position = 'inside';
-      } else if (y <= threshold) {
-        position = 'before';
-      } else {
-        position = 'after';
-      }
-
-      onDragOver(node.id, position);
-    },
-    [draggedNodeId, node.id, isFolder, onDragOver]
-  );
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.stopPropagation();
-  }, []);
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      onDragEnd();
-    },
-    [onDragEnd]
-  );
-
-  const handleDragEndNative = useCallback(
-    (e: React.DragEvent) => {
-      if (e.dataTransfer.dropEffect === 'none') {
-        onDragCancel();
-      }
-    },
-    [onDragCancel]
   );
 
   const handleStartEditing = useCallback(
@@ -501,36 +533,160 @@ function TreeNode({
     [handleConfirmEditing, handleCancelEditing]
   );
 
+  const handleStartArticleEditing = useCallback(
+    (e: React.MouseEvent) => {
+      if (isReadOnly || !article) return;
+      e.stopPropagation();
+      setEditQuantity(article.quantity);
+      setEditUnitPrice(article.unitPrice);
+      setEditMargin(article.marginPercentage);
+      setIsEditingArticle(true);
+      requestAnimationFrame(() => quantityInputRef.current?.select());
+    },
+    [isReadOnly, article]
+  );
+
+  const handleCancelArticleEditing = useCallback(() => {
+    setIsEditingArticle(false);
+    isArticleConfirmedRef.current = false;
+  }, []);
+
+  const handleConfirmArticleEditing = useCallback(async () => {
+    if (isArticleConfirmedRef.current || !article) return;
+    isArticleConfirmedRef.current = true;
+
+    const qty = Number(editQuantity);
+    const price = Number(editUnitPrice);
+    const margin = Number(editMargin);
+
+    const hasChanges =
+      qty !== article.quantity ||
+      price !== article.unitPrice ||
+      margin !== article.marginPercentage;
+
+    if (!hasChanges || qty <= 0 || price < 0 || margin < 0) {
+      handleCancelArticleEditing();
+      return;
+    }
+
+    setIsEditingArticle(false);
+    await onUpdateNode({
+      budgetId,
+      nodeId: node.id,
+      quantity: qty,
+      unitPrice: price,
+      marginPercentage: margin,
+    });
+    isArticleConfirmedRef.current = false;
+  }, [
+    editQuantity,
+    editUnitPrice,
+    editMargin,
+    article,
+    budgetId,
+    node.id,
+    onUpdateNode,
+    handleCancelArticleEditing,
+  ]);
+
+  const handleArticleEditKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleConfirmArticleEditing();
+      } else if (e.key === 'Escape') {
+        handleCancelArticleEditing();
+      }
+    },
+    [handleConfirmArticleEditing, handleCancelArticleEditing]
+  );
+
+  const handleStartFolderMarginEditing = useCallback(
+    (e: React.MouseEvent) => {
+      if (isReadOnly || !folder) return;
+      e.stopPropagation();
+      setEditFolderMargin(folder.marginPercentage);
+      setIsEditingFolderMargin(true);
+      requestAnimationFrame(() => folderMarginInputRef.current?.select());
+    },
+    [isReadOnly, folder]
+  );
+
+  const handleCancelFolderMarginEditing = useCallback(() => {
+    setIsEditingFolderMargin(false);
+    isFolderMarginConfirmedRef.current = false;
+  }, []);
+
+  const handleConfirmFolderMarginEditing = useCallback(async () => {
+    if (isFolderMarginConfirmedRef.current || !folder) return;
+    isFolderMarginConfirmedRef.current = true;
+
+    const margin = Number(editFolderMargin);
+
+    if (margin === folder.marginPercentage || margin < 0) {
+      handleCancelFolderMarginEditing();
+      return;
+    }
+
+    setIsEditingFolderMargin(false);
+    await onUpdateNode({
+      budgetId,
+      nodeId: node.id,
+      marginPercentage: margin,
+    });
+    isFolderMarginConfirmedRef.current = false;
+  }, [
+    editFolderMargin,
+    folder,
+    budgetId,
+    node.id,
+    onUpdateNode,
+    handleCancelFolderMarginEditing,
+  ]);
+
+  const handleFolderMarginEditKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleConfirmFolderMarginEditing();
+      } else if (e.key === 'Escape') {
+        handleCancelFolderMarginEditing();
+      }
+    },
+    [handleConfirmFolderMarginEditing, handleCancelFolderMarginEditing]
+  );
+
   return (
-    <div className="relative">
+    <div ref={setNodeRef} style={style} className="relative">
       {dropPosition === 'before' && <DropLine />}
 
       <div
-        ref={rowRef}
-        draggable={!isReadOnly && !isEditing}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onDragEnd={handleDragEndNative}
-        className={`group flex items-center h-11 rounded-lg transition-all duration-150 ${
-          isDragged
+        className={`group flex items-center h-14 rounded-lg transition-all duration-150 ${
+          isDragging
             ? 'opacity-40 scale-[0.98]'
             : isFolder
             ? 'hover:bg-amber-50/60'
             : 'hover:bg-blue-50/50'
         } ${
           dropPosition === 'inside'
-            ? 'bg-amber-50 ring-2 ring-amber-400 ring-inset rounded-lg'
+            ? 'bg-amber-100 ring-2 ring-amber-400 ring-inset rounded-lg shadow-[inset_0_0_12px_rgba(245,158,11,0.15)]'
+            : dropPosition === 'before'
+            ? 'bg-gradient-to-b from-blue-50 to-transparent'
+            : dropPosition === 'after'
+            ? 'bg-gradient-to-t from-blue-50 to-transparent'
             : ''
-        } ${!isReadOnly && !isEditing ? 'cursor-grab active:cursor-grabbing' : ''}`}
-        onClick={() => !isEditing && isFolder && setIsExpanded(!isExpanded)}
+        }`}
+        onClick={() => !isEditing && !isEditingArticle && !isEditingFolderMargin && isFolder && setIsExpanded(!isExpanded)}
       >
         <TreeIndent parentLines={parentLines} isLast={isLast} />
 
         {!isReadOnly && (
-          <div className="flex items-center shrink-0 mr-0.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
-            <GripVertical className="h-3.5 w-3.5 text-gray-300" />
+          <div
+            className="flex items-center shrink-0 mr-1 opacity-40 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing touch-none"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-4 w-4 text-gray-400" />
           </div>
         )}
 
@@ -542,7 +698,7 @@ function TreeNode({
           </div>
         )}
 
-        <span className="text-xs font-mono text-gray-400 min-w-[70px] shrink-0">
+        <span className="text-sm font-mono text-gray-400 min-w-[80px] shrink-0">
           {node.code}
         </span>
 
@@ -561,7 +717,7 @@ function TreeNode({
           <span
             className={`flex-1 truncate ${
               isFolder
-                ? 'text-sm font-semibold text-gray-800 cursor-text hover:text-amber-700'
+                ? 'text-base font-semibold text-gray-800 cursor-text hover:text-amber-700'
                 : 'text-sm text-gray-700'
             }`}
             onDoubleClick={handleStartEditing}
@@ -576,30 +732,60 @@ function TreeNode({
             onAddFolder={onAddFolder}
             onAddArticle={onAddArticle}
             onDelete={() => onRequestDelete(node)}
+            onEditMargin={handleStartFolderMarginEditing}
           />
         )}
 
         {article && !isReadOnly && (
-          <div className="hidden group-hover:flex items-center mr-1">
+          <div className="flex items-center gap-0.5 mr-1 opacity-40 group-hover:opacity-100 transition-opacity">
+            <button
+              type="button"
+              onClick={handleStartArticleEditing}
+              className="p-1.5 rounded hover:bg-blue-100 text-gray-400 hover:text-blue-600 transition-colors"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
             <button
               type="button"
               onClick={e => {
                 e.stopPropagation();
                 onRequestDelete(node);
               }}
-              className="p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition-colors"
+              className="p-1.5 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition-colors"
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <Trash2 className="h-4 w-4" />
             </button>
           </div>
         )}
 
-        {article && <ArticleAmounts article={article} />}
+        {article && (
+          <ArticleAmounts
+            article={article}
+            isEditing={isEditingArticle}
+            editQuantity={editQuantity}
+            editUnitPrice={editUnitPrice}
+            editMargin={editMargin}
+            onQuantityChange={setEditQuantity}
+            onUnitPriceChange={setEditUnitPrice}
+            onMarginChange={setEditMargin}
+            onKeyDown={handleArticleEditKeyDown}
+            onConfirm={handleConfirmArticleEditing}
+            onCancel={handleCancelArticleEditing}
+            quantityInputRef={quantityInputRef}
+          />
+        )}
 
-        {isFolder && (
+        {isFolder && folder && (
           <FolderAmounts
-            childrenCount={folder?.children?.length}
+            folder={folder}
             totalAmount={node.totalAmount}
+            isEditing={isEditingFolderMargin}
+            editMargin={editFolderMargin}
+            onMarginChange={setEditFolderMargin}
+            onKeyDown={handleFolderMarginEditKeyDown}
+            onConfirm={handleConfirmFolderMarginEditing}
+            onCancel={handleCancelFolderMarginEditing}
+            marginInputRef={folderMarginInputRef}
           />
         )}
       </div>
@@ -621,10 +807,6 @@ function TreeNode({
               onRequestDelete={onRequestDelete}
               draggedNodeId={draggedNodeId}
               dropIndicator={dropIndicator}
-              onDragStart={onDragStart}
-              onDragOver={onDragOver}
-              onDragEnd={onDragEnd}
-              onDragCancel={onDragCancel}
               onUpdateNode={onUpdateNode}
               budgetId={budgetId}
             />
@@ -637,11 +819,42 @@ function TreeNode({
   );
 }
 
+function DragOverlayContent({ node }: { node: AssemblyNode }) {
+  const isFolder = node.nodeType === BudgetNodeType.Folder;
+  const article = !isFolder ? (node as AssemblyArticle) : null;
+
+  return (
+    <div className={`flex items-center h-12 px-4 rounded-xl shadow-2xl border-2 bg-white ${
+      isFolder ? 'border-amber-400' : 'border-blue-400'
+    }`}>
+      <GripVertical className="h-4 w-4 text-gray-300 mr-2 shrink-0" />
+      {isFolder ? (
+        <FolderClosed className="h-4 w-4 text-amber-500 mr-2 shrink-0" />
+      ) : (
+        <Wrench className="h-4 w-4 text-blue-500 mr-2 shrink-0" />
+      )}
+      <span className="text-sm font-mono text-gray-400 mr-2 shrink-0">
+        {node.code}
+      </span>
+      <span className={`text-sm truncate max-w-[300px] ${
+        isFolder ? 'font-semibold text-gray-800' : 'text-gray-700'
+      }`}>
+        {node.description}
+      </span>
+      {article && (
+        <span className="text-sm font-semibold text-gray-900 ml-4 shrink-0">
+          {formatCurrencyServerSider(article.totalAmount)}
+        </span>
+      )}
+    </div>
+  );
+}
+
 function DropLine() {
   return (
-    <div className="relative h-0 z-10">
-      <div className="absolute left-4 right-4 h-0.5 bg-blue-500 rounded-full" />
-      <div className="absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full" />
+    <div className="relative h-0 z-20">
+      <div className="absolute left-4 right-4 h-[3px] bg-blue-500 rounded-full shadow-md shadow-blue-200" />
+      <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-blue-500 rounded-full ring-2 ring-blue-200 shadow-sm" />
     </div>
   );
 }
@@ -670,23 +883,32 @@ function FolderActions({
   onAddFolder,
   onAddArticle,
   onDelete,
+  onEditMargin,
 }: {
   nodeId: string;
   onAddFolder: (parentNodeId?: string) => void;
   onAddArticle: (parentNodeId?: string) => void;
   onDelete: () => void;
+  onEditMargin: (e: React.MouseEvent) => void;
 }) {
   return (
-    <div className="hidden group-hover:flex items-center gap-1 mr-2">
+    <div className="flex items-center gap-1 mr-2 opacity-40 group-hover:opacity-100 transition-opacity">
+      <button
+        type="button"
+        onClick={onEditMargin}
+        className="p-1.5 rounded hover:bg-emerald-100 text-gray-400 hover:text-emerald-600 transition-colors"
+      >
+        <Percent className="h-3.5 w-3.5" />
+      </button>
       <button
         type="button"
         onClick={e => {
           e.stopPropagation();
           onAddFolder(nodeId);
         }}
-        className="p-1 rounded hover:bg-amber-100 text-amber-600 transition-colors"
+        className="p-1.5 rounded hover:bg-amber-100 text-amber-600 transition-colors"
       >
-        <FolderPlus className="h-3.5 w-3.5" />
+        <FolderPlus className="h-4 w-4" />
       </button>
       <button
         type="button"
@@ -694,9 +916,9 @@ function FolderActions({
           e.stopPropagation();
           onAddArticle(nodeId);
         }}
-        className="p-1 rounded hover:bg-blue-100 text-blue-600 transition-colors"
+        className="p-1.5 rounded hover:bg-blue-100 text-blue-600 transition-colors"
       >
-        <Plus className="h-3.5 w-3.5" />
+        <Plus className="h-4 w-4" />
       </button>
       <button
         type="button"
@@ -704,15 +926,103 @@ function FolderActions({
           e.stopPropagation();
           onDelete();
         }}
-        className="p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition-colors"
+        className="p-1.5 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition-colors"
       >
-        <Trash2 className="h-3.5 w-3.5" />
+        <Trash2 className="h-4 w-4" />
       </button>
     </div>
   );
 }
 
-function ArticleAmounts({ article }: { article: AssemblyArticle }) {
+function ArticleAmounts({
+  article,
+  isEditing,
+  editQuantity,
+  editUnitPrice,
+  editMargin,
+  onQuantityChange,
+  onUnitPriceChange,
+  onMarginChange,
+  onKeyDown,
+  onConfirm,
+  onCancel,
+  quantityInputRef,
+}: {
+  article: AssemblyArticle;
+  isEditing: boolean;
+  editQuantity: number;
+  editUnitPrice: number;
+  editMargin: number;
+  onQuantityChange: (v: number) => void;
+  onUnitPriceChange: (v: number) => void;
+  onMarginChange: (v: number) => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+  quantityInputRef: React.RefObject<HTMLInputElement>;
+}) {
+  if (isEditing) {
+    return (
+      <div
+        className="flex items-center gap-2 ml-4 shrink-0 pr-3"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-1">
+          <input
+            ref={quantityInputRef}
+            type="number"
+            min={1}
+            step={1}
+            value={editQuantity}
+            onChange={e => onQuantityChange(Number(e.target.value))}
+            onKeyDown={onKeyDown}
+            className="w-16 text-sm text-center border border-blue-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
+          />
+          <span className="text-xs text-gray-400">x</span>
+          <input
+            type="number"
+            min={0}
+            step={0.01}
+            value={editUnitPrice}
+            onChange={e => onUnitPriceChange(Number(e.target.value))}
+            onKeyDown={onKeyDown}
+            className="w-24 text-sm text-right border border-blue-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
+          />
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-gray-400">+</span>
+          <input
+            type="number"
+            min={0}
+            max={100}
+            step={0.1}
+            value={editMargin}
+            onChange={e => onMarginChange(Number(e.target.value))}
+            onKeyDown={onKeyDown}
+            className="w-16 text-sm text-center border border-blue-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
+          />
+          <span className="text-xs text-gray-400">%</span>
+        </div>
+        <div className="flex items-center gap-0.5 ml-1">
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="p-1 rounded hover:bg-green-100 text-green-600 transition-colors"
+          >
+            <Check className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="p-1 rounded hover:bg-gray-200 text-gray-400 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center gap-3 ml-4 shrink-0 pr-3">
       <span className="text-xs text-gray-400 tabular-nums">
@@ -732,17 +1042,75 @@ function ArticleAmounts({ article }: { article: AssemblyArticle }) {
 }
 
 function FolderAmounts({
-  childrenCount,
+  folder,
   totalAmount,
+  isEditing,
+  editMargin,
+  onMarginChange,
+  onKeyDown,
+  onConfirm,
+  onCancel,
+  marginInputRef,
 }: {
-  childrenCount?: number;
+  folder: AssemblyFolder;
   totalAmount: number;
+  isEditing: boolean;
+  editMargin: number;
+  onMarginChange: (v: number) => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+  marginInputRef: React.RefObject<HTMLInputElement>;
 }) {
+  if (isEditing) {
+    return (
+      <div
+        className="flex items-center gap-2 ml-4 shrink-0 pr-3"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-1">
+          <input
+            ref={marginInputRef}
+            type="number"
+            min={0}
+            max={100}
+            step={0.1}
+            value={editMargin}
+            onChange={e => onMarginChange(Number(e.target.value))}
+            onKeyDown={onKeyDown}
+            onBlur={onConfirm}
+            className="w-20 text-sm text-center border border-emerald-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-emerald-500 tabular-nums"
+          />
+          <span className="text-xs text-gray-400">%</span>
+        </div>
+        <div className="flex items-center gap-0.5 ml-1">
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="p-1 rounded hover:bg-green-100 text-green-600 transition-colors"
+          >
+            <Check className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="p-1 rounded hover:bg-gray-200 text-gray-400 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center gap-2 ml-4 shrink-0 pr-3">
-      {childrenCount !== undefined && (
-        <span className="text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-          {childrenCount}
+      <span className="text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+        {folder.children.length}
+      </span>
+      {folder.marginPercentage > 0 && (
+        <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md tabular-nums">
+          +{folder.marginPercentage}%
         </span>
       )}
       <span className="text-sm font-bold text-gray-900 min-w-[90px] text-right tabular-nums">

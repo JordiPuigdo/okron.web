@@ -21,7 +21,7 @@ function PreventivePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingPage, setIsLoadingPage] = useState(true);
   const router = useRouter();
-  const {t} = useTranslations();
+  const { t } = useTranslations();
   useEffect(() => {
     const fetchPreventives = async () => {
       try {
@@ -75,7 +75,7 @@ function PreventivePage() {
           {!isLoadingPage && (
             <PreventiveTable
               enableFilters={true}
-              enableDelete={true}
+              enableDelete={false}
               enableEdit={true}
             />
           )}

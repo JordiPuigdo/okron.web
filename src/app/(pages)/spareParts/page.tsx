@@ -21,7 +21,6 @@ function SparePartsPage() {
           <SparePartTable
             enableFilters={true}
             enableEdit={canEdit}
-            enableDelete={canEdit}
           />
         </div>
       </Container>

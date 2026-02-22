@@ -18,20 +18,20 @@ const ElementListComponent: React.FC<ElemntListProps> = ({
   handleElementClick,
 }) => {
   return (
-    <div className="bg-white max-h-96 overflow-y-scroll">
+    <div className="mt-2 bg-white border border-gray-200 rounded-md shadow-sm max-h-96 overflow-y-auto">
       {elements.map((element, index) => (
         <div
           key={element.id}
           id={`element-${index}`}
-          className={`py-2 px-4 flex items-center justify-between gap-8   ${
+          className={`py-2 px-4 flex items-center justify-between gap-8 text-gray-900 ${
             selectedElementIndex === index
-              ? 'bg-gray-200 '
-              : 'bg-zinc-100/50 hover:bg-gray-200 cursor-pointer'
+              ? 'bg-gray-200'
+              : 'bg-white hover:bg-gray-100 cursor-pointer'
           }`}
           onClick={() => handleElementClick(element)}
         >
           <div className="flex flex-col">
-            <p className="font-medium">{element.description}</p>
+            <p className="font-medium text-gray-900">{element.description}</p>
             {element.code && (
               <p className="text-xs text-gray-500">{element.code}</p>
             )}

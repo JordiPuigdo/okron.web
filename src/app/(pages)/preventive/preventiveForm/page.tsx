@@ -5,7 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { SvgMachines, SvgSpinner } from 'app/icons/icons';
+import { SvgSpinner } from 'app/icons/icons';
 import { Asset } from 'app/interfaces/Asset';
 import InspectionPoint from 'app/interfaces/inspectionPoint';
 import Operator from 'app/interfaces/Operator';
@@ -30,6 +30,13 @@ import OkronTimePicker from 'designSystem/TimePicker/OkronTimePicker';
 import { useRouter } from 'next/navigation';
 
 import { PreventiveSparePart } from './components/PreventiveSparePart';
+import { PreventiveHeader } from '../components/PreventiveHeader';
+import {
+  BasicInfoSection,
+  ScheduleSection,
+  AssignmentsSection,
+  SparePartsSection,
+} from '../components/PreventiveForm';
 
 const PreventiveForm = () => {
   const router = useRouter();
@@ -266,183 +273,78 @@ const PreventiveForm = () => {
     currentTimeExecution.setHours(hours, minutes, 0, 0);
     setTimeExecution(currentTimeExecution);
   };
-  const renderHeader = () => {
-    return (
-      <div className="flex p-2 my-2">
-        <div className="w-full flex flex-col gap-2 items">
-          <h2 className="text-2xl font-bold text-black flex gap-2">
-            <SvgMachines />
-            Nova Revisió
-          </h2>
-        </div>
-      </div>
-    );
-  };
+
   return (
     <MainLayout>
       <Container>
-        <div className="w-full">
-          {renderHeader()}
+        <div className="min-h-screen bg-gray-50 pb-8">
+          <PreventiveHeader isEditMode={false} errorMessage={error || undefined} />
+
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="mx-auto bg-white p-8 rounded shadow-md"
-            style={{ display: 'flex', flexDirection: 'column', width: '100%' }}
+            className="mt-4 space-y-4"
           >
-            <div className="grid grid-cols-4 w-full gap-4 py-4">
-              <div className="col-span-2">
-                <label
-                  className="text-gray-700 font-bold text-lg"
-                  htmlFor="code"
-                >
-                  Codi
-                </label>
-                <input
-                  {...register('code')}
-                  id="code"
-                  type="text"
-                  className="form-input border border-gray-300 rounded-md w-full"
-                />
-              </div>
-              <div className="col-span-2">
-                <label
-                  className="text-gray-700 font-bold mb-2 text-lg"
-                  htmlFor="description"
-                >
-                  Descripció
-                </label>
-                <input
-                  {...register('description')}
-                  id="description"
-                  type="text"
-                  className="form-input border border-gray-300 rounded-md w-full"
-                />
-              </div>
-            </div>
-            <div className="flex w-full gap-4 py-4">
-              <div className="col-span-2 w-full">
-                <label
-                  className="block text-gray-700 font-bold mb-2 text-lg"
-                  htmlFor="days"
-                >
-                  Freqüència Dies
-                </label>
-                <input
-                  value={preventiveDays}
-                  onChange={e => setPreventiveDays(parseInt(e.target.value))}
-                  id="days"
-                  type="number"
-                  className="form-input border border-gray-300 rounded-md w-full"
-                />
-              </div>
-              <div className="flex flex-row  col-span-2 w-full">
-                <div className="flex flex-row gap-4 items-center">
-                  <div>
-                    <label
-                      className="block text-gray-700 font-bold mb-2 text-lg"
-                      htmlFor="startExecution"
-                    >
-                      Primera Execució
-                    </label>
-                    <DatePicker
-                      id="startDate"
-                      selected={startDate}
-                      onChange={(date: Date) => setStartDate(date)}
-                      dateFormat="dd/MM/yyyy"
-                      locale={ca}
-                      className="border border-gray-300 p-2 rounded-md mr-4 w-full"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      className="block text-gray-700 font-bold mb-2 text-lg"
-                      htmlFor="timeExecution"
-                    >
-                      Temps d'execució
-                    </label>
-                    <OkronTimePicker
-                      selectedTime={
-                        timeExecution?.toLocaleTimeString('ca-ES', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        }) || '00:00'
-                      }
-                      onTimeChange={handleTimePickerChange}
-                      startTme={0}
-                      endTime={9}
-                      interval={30}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <BasicInfoSection register={register} />
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <ScheduleSection
+              preventiveDays={preventiveDays}
+              startDate={startDate}
+              timeExecution={timeExecution}
+              onDaysChange={setPreventiveDays}
+              onStartDateChange={setStartDate}
+              onTimeChange={handleTimePickerChange}
+            />
 
-            <div className="flex flex-row gap-4 py-4 w-full">
-              <ChooseInspectionPoint
-                preventiveInspectionPoints={availableInspectionPoints}
-                onInspectionPointSelected={handleInspectionPointSelected}
-                onDeleteInspectionPointSelected={
-                  handleDeleteInspectionPointSelected
-                }
-                preventiveSelectedInspectionPoints={selectedInspectionPoints}
-              />
-              <ChooseOperatorV2
-                availableOperators={operators}
-                preventiveSelectedOperators={selectedOperator}
-                onDeleteSelectedOperator={handleDeleteSelectedOperator}
-                onSelectedOperator={handleSelectedOperator}
-              />
-              <ChooseElement
-                elements={assets}
-                selectedElements={selectedAssets}
-                onElementSelected={handleAssetSelected}
-                onDeleteElementSelected={handleDeleteSelectedAsset}
-                placeholder="Buscar Equip"
-                mapElement={asset => ({
-                  id: asset.id,
-                  code: asset.code,
-                  description: asset.code + ' - ' + asset.description,
-                })}
-                labelText="Equips"
-              />
-            </div>
-            <div>
-              <PreventiveSparePart
-                onSparePartsChange={setSelectedPreventiveSpareParts}
-                initialSelectedSpareParts={selectedPreventiveSpareParts}
-              />
-            </div>
+            <AssignmentsSection
+              availableInspectionPoints={availableInspectionPoints}
+              selectedInspectionPoints={selectedInspectionPoints}
+              onInspectionPointSelected={handleInspectionPointSelected}
+              onDeleteInspectionPointSelected={handleDeleteInspectionPointSelected}
+              availableOperators={operators}
+              selectedOperators={selectedOperator}
+              onSelectedOperator={handleSelectedOperator}
+              onDeleteSelectedOperator={handleDeleteSelectedOperator}
+              assets={assets}
+              selectedAssets={selectedAssets}
+              onAssetSelected={handleAssetSelected}
+              onDeleteSelectedAsset={handleDeleteSelectedAsset}
+            />
 
-            <div className="flex gap-4">
-              <Button
-                type="create"
-                onClick={handleSubmitForm}
-                disabled={isLoading}
-                customStyles="flex gap-2"
-              >
-                Crear Revisió
-                {isLoading && <SvgSpinner className="w-6 h-6" />}
-              </Button>
-              <Button
-                type="cancel"
-                onClick={handleCancel}
-                disabled={isLoading}
-                customStyles="flex gap-2"
-              >
-                Cancelar
-                {isLoading && <SvgSpinner className="w-6 h-6" />}
-              </Button>
-            </div>
-            <div className="flex flex-row py-4 w-full">
+            <SparePartsSection
+              selectedSpareParts={selectedPreventiveSpareParts}
+              onSparePartsChange={setSelectedPreventiveSpareParts}
+            />
+
+            <div className="bg-white p-4 rounded-xl shadow-sm">
+              <div className="flex gap-4">
+                <Button
+                  type="create"
+                  onClick={handleSubmitForm}
+                  disabled={isLoading}
+                  customStyles="flex gap-2"
+                >
+                  Crear Revisió
+                  {isLoading && <SvgSpinner className="w-6 h-6" />}
+                </Button>
+                <Button
+                  type="cancel"
+                  onClick={handleCancel}
+                  disabled={isLoading}
+                  customStyles="flex gap-2"
+                >
+                  Cancelar
+                  {isLoading && <SvgSpinner className="w-6 h-6" />}
+                </Button>
+              </div>
+
               {showSuccessMessage && (
-                <div className="bg-green-200 text-green-800 p-4 rounded mb-4 w-1/4">
+                <div className="bg-green-200 text-green-800 p-4 rounded-lg mt-4">
                   Revisió creada correctament
                 </div>
               )}
 
               {showErrorMessage && (
-                <div className="  bg-red-200 text-red-800 p-4 rounded mb-4 w-1/4">
+                <div className="bg-red-200 text-red-800 p-4 rounded-lg mt-4">
                   Error al crear revisió
                 </div>
               )}

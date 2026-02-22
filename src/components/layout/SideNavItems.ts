@@ -1,12 +1,19 @@
+import { SvgAccountingAccount } from 'app/icons/designSystem/SvgAccountingAccount';
+import { SvgAssemblyBudget } from 'app/icons/designSystem/SvgAssemblyBudget';
 import { SvgCalendar } from 'app/icons/designSystem/SvgCalendar';
 import { SvgClock } from 'app/icons/designSystem/SvgClock';
 import { SvgDatabase } from 'app/icons/designSystem/SvgDatabase';
+import { SvgDocumentsOrders } from 'app/icons/designSystem/SvgDocumentsOrders';
 import { SvgInvoice } from 'app/icons/designSystem/SvgInvoice';
+import { SvgNewOrder } from 'app/icons/designSystem/SvgNewOrder';
 import { SvgPackage } from 'app/icons/designSystem/SvgPackage';
+import { SvgWarehouse } from 'app/icons/designSystem/SvgWarehouse';
 import {
+  SvgAccount,
   SvgActiu,
   SvgAvarie,
   SvgCustomer,
+  SvgDeliveryNote,
   SvgGear,
   SvgInspect,
   SvgMenu,
@@ -68,7 +75,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         key: generateKey(),
         titleKey: 'sidebar.preventive.calendar',
         path: '/preventive/calendar',
-        icon: SvgInspect,
+        icon: SvgCalendar,
         permission: [UserPermission.Administrator],
         userType: [UserType.Maintenance],
       },
@@ -121,13 +128,13 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     permission: [UserPermission.Administrator],
     userType: [UserType.Maintenance, UserType.Warehouse],
     submenu: true,
-    icon: SvgReview,
+    icon: SvgDocumentsOrders,
     submenuItems: [
       {
         key: generateKey(),
         titleKey: 'sidebar.orders.purchases',
         path: '/orders/purchases',
-        icon: SvgGear,
+        icon: SvgNewOrder,
         permission: [UserPermission.Administrator],
         userType: [UserType.Maintenance, UserType.Warehouse],
       },
@@ -135,7 +142,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         key: generateKey(),
         titleKey: 'sidebar.orders.purchases.lowStock',
         path: '/orders/purchases/lowStock',
-        icon: SvgGear,
+        icon: SvgNewOrder,
         permission: [UserPermission.Administrator],
         userType: [UserType.Maintenance, UserType.Warehouse],
       },
@@ -143,7 +150,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         key: generateKey(),
         titleKey: 'sidebar.orders.deliveries',
         path: '/orders/deliverys',
-        icon: SvgInspect,
+        icon: SvgDeliveryNote,
         permission: [UserPermission.Administrator],
         userType: [UserType.Maintenance, UserType.Warehouse],
       },
@@ -205,7 +212,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   {
     key: generateKey(),
     titleKey: 'sidebar.assemblyBudgets',
-    icon: SvgInvoice,
+    icon: SvgAssemblyBudget,
     path: '/assemblyBudgets',
     permission: [UserPermission.AdminCRM],
     userType: [UserType.CRM],
@@ -252,7 +259,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         key: generateKey(),
         titleKey: 'sidebar.warehouse',
         path: '/wareHouse',
-        icon: SvgMenu,
+        icon: SvgWarehouse,
         permission: [UserPermission.Administrator, UserPermission.AdminCRM],
         userType: [UserType.Maintenance, UserType.Warehouse, UserType.CRM],
       },
@@ -292,7 +299,7 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         key: generateKey(),
         titleKey: 'sidebar.accounts',
         path: '/account',
-        icon: SvgOperari,
+        icon: SvgAccountingAccount,
         userType: [UserType.Production, UserType.Maintenance],
         permission: [UserPermission.Administrator],
       },

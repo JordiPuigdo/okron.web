@@ -12,13 +12,13 @@ import { ModalStockManage, SubmitDataStockRequest } from './ModalStockManage';
 interface StockManageProps {
   sparePart: SparePart;
   operatorLoggedId: string;
-  refresh: () => void;
+  onStockUpdate: () => Promise<void>;
 }
 
 export const StockManage = ({
   sparePart,
   operatorLoggedId,
-  refresh,
+  onStockUpdate,
 }: StockManageProps) => {
   const [modalType, setModalType] = useState<StockMovementType | undefined>(
     undefined
@@ -55,7 +55,7 @@ export const StockManage = ({
     };
     await warehouseStockRequest(request);
     setModalType(undefined);
-    refresh();
+    await onStockUpdate();
   };
 
   return (

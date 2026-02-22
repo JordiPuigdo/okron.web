@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgCreate, SvgMachines } from 'app/icons/icons';
 import InspectionPointService from 'app/services/inspectionPointService';
@@ -17,6 +17,7 @@ import {
 import { EntityTable } from 'components/table/interface/tableEntitys';
 
 import InspectionPoint from '../../interfaces/inspectionPoint';
+import { InspectionPointFormModal } from './components/InspectionPointFormModal';
 
 export default function InspectionPointsPage() {
   const { t } = useTranslations();
@@ -24,12 +25,10 @@ export default function InspectionPointsPage() {
     []
   );
   const [isLoading, setIsLoading] = useState(true);
-  const [isFormVisible, setIsFormVisible] = useState(false);
-  const [newDescription, setNewDescription] = useState('');
-  const toggleFormVisibility = () => {
-    setIsFormVisible(!isFormVisible);
-  };
-  const [filterActive, setFilterActive] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedInspectionPoint, setSelectedInspectionPoint] = useState<
+    InspectionPoint | undefined
+  >(undefined);
 
   const getColumns = (): Column[] => [
     {
@@ -59,30 +58,28 @@ export default function InspectionPointsPage() {
 
   const tableButtons: TableButtons = {
     edit: true,
-    delete: true,
+    delete: false,
   };
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    setIsLoading(true);
-    e.preventDefault();
-    try {
-      const inspectionPointService = new InspectionPointService(
-        process.env.NEXT_PUBLIC_API_BASE_URL || ''
-      );
-      const newInspectionPoint =
-        await inspectionPointService.createInspectionPoint({
-          description: newDescription,
-          id: '',
-          active: true,
-        });
-      fetchInspectionPoints();
 
-      setNewDescription('');
-      setIsFormVisible(false);
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      console.error('Error creating inspection point:', error);
-    }
+  const handleOpenCreateModal = () => {
+    setSelectedInspectionPoint(undefined);
+    setIsModalVisible(true);
+  };
+
+  const handleOpenEditModal = (inspectionPoint: InspectionPoint) => {
+    setSelectedInspectionPoint(inspectionPoint);
+    setIsModalVisible(true);
+  };
+
+  const handleModalSuccess = async () => {
+    setIsModalVisible(false);
+    setSelectedInspectionPoint(undefined);
+    await fetchInspectionPoints();
+  };
+
+  const handleModalCancel = () => {
+    setIsModalVisible(false);
+    setSelectedInspectionPoint(undefined);
   };
 
   useEffect(() => {
@@ -104,59 +101,6 @@ export default function InspectionPointsPage() {
     }
   }
 
-  const handleEditDescription = useCallback(
-    async (id: string, description: string) => {
-      try {
-        const newDescription = prompt(t('edit.description'), description);
-        if (newDescription === null) {
-          return;
-        }
-
-        const inspectionPointService = new InspectionPointService(
-          process.env.NEXT_PUBLIC_API_BASE_URL || ''
-        );
-        await inspectionPointService.updateInspectionPoint(id, {
-          description: newDescription,
-          id: id,
-          active: true,
-        });
-
-        setInspectionPoints(prevInspectionPoints =>
-          prevInspectionPoints.map(inspectionPoint =>
-            inspectionPoint.id === id
-              ? { ...inspectionPoint, description: newDescription }
-              : inspectionPoint
-          )
-        );
-      } catch (error) {
-        console.error('Error updating inspection point description:', error);
-      }
-    },
-    []
-  );
-
-  async function handleDeleteInspectionPoint(id: string) {
-    try {
-      const isConfirmed = window.confirm(
-        t('confirm.delete.inspection.point')
-      );
-      if (isConfirmed) {
-        const inspectionPointService = new InspectionPointService(
-          process.env.NEXT_PUBLIC_API_BASE_URL || ''
-        );
-        await inspectionPointService.deleteInspectionPoint(id);
-        setInspectionPoints(prevInspectionPoints =>
-          prevInspectionPoints.filter(
-            inspectionPoint => inspectionPoint.id !== id
-          )
-        );
-        fetchInspectionPoints();
-      }
-    } catch (error) {
-      console.error('Error deleting inspection point:', error);
-    }
-  }
-
   if (isLoading) {
     return <div className="container mx-auto py-8">{t('loading')}</div>;
   }
@@ -169,15 +113,17 @@ export default function InspectionPointsPage() {
             <SvgMachines />
             {t('inspection.points')}
           </h2>
-          <span className="text-l">{t('start')} - {t('inspection.points.list')}</span>
+          <span className="text-l">
+            {t('start')} - {t('inspection.points.list')}
+          </span>
         </div>
         <div className="w-full flex justify-end items-center">
           <button
-            onClick={toggleFormVisibility}
+            onClick={handleOpenCreateModal}
             className="bg-okron-btCreate text-white font-semibold p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100 flex items-center gap-2"
           >
-            {!isFormVisible && <SvgCreate className="text-white" />}
-            {isFormVisible ? t('close') : t('create.inspection.point')}
+            <SvgCreate className="text-white" />
+            {t('create.inspection.point')}
           </button>
         </div>
       </div>
@@ -189,33 +135,23 @@ export default function InspectionPointsPage() {
       <Container>
         <div className="flex flex-col h-full">
           {renderHeader()}
-          {isFormVisible && (
-            <form onSubmit={handleFormSubmit} className="mb-4">
-              <input
-                type="text"
-                placeholder={t('enter.description')}
-                value={newDescription}
-                onChange={e => setNewDescription(e.target.value)}
-                className="border rounded py-2 px-3"
-              />
-              <button
-                type="submit"
-                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 ml-2 rounded"
-              >
-                {t('create')}
-              </button>
-            </form>
-          )}
           <DataTable
             data={inspectionPoints}
             columns={getColumns()}
             filters={getFilters()}
             tableButtons={tableButtons}
             entity={EntityTable.INSPECTIONPOINTS}
-            onDelete={handleDeleteInspectionPoint}
+            onEdit={handleOpenEditModal}
           />
         </div>
       </Container>
+
+      <InspectionPointFormModal
+        isVisible={isModalVisible}
+        initialData={selectedInspectionPoint}
+        onSuccess={handleModalSuccess}
+        onCancel={handleModalCancel}
+      />
     </MainLayout>
   );
 }

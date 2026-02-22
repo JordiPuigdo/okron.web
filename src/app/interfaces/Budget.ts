@@ -131,6 +131,7 @@ interface AssemblyNodeBase {
 export interface AssemblyFolder extends AssemblyNodeBase {
   nodeType: BudgetNodeType.Folder;
   children: AssemblyNode[];
+  marginPercentage: number;
 }
 
 export interface AssemblyArticle extends AssemblyNodeBase {
@@ -196,7 +197,10 @@ export interface RemoveAssemblyNodeRequest {
 export interface UpdateAssemblyNodeRequest {
   budgetId: string;
   nodeId: string;
-  description: string;
+  description?: string;
+  quantity?: number;
+  unitPrice?: number;
+  marginPercentage?: number;
 }
 
 export interface UpdateAssemblyMarginRequest {

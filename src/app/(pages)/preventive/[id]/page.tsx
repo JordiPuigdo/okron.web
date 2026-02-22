@@ -3,7 +3,6 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { useEffect, useState } from 'react';
-import DatePicker from 'react-datepicker';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Asset } from 'app/interfaces/Asset';
 import InspectionPoint from 'app/interfaces/inspectionPoint';
@@ -19,17 +18,22 @@ import InspectionPointService from 'app/services/inspectionPointService';
 import OperatorService from 'app/services/operatorService';
 import PreventiveService from 'app/services/preventiveService';
 import { formatDate } from 'app/utils/utils';
-import ChooseInspectionPoint from 'components/inspectionPoint/ChooseInspectionPoint';
 import Container from 'components/layout/Container';
 import MainLayout from 'components/layout/MainLayout';
-import ChooseOperatorV2 from 'components/operator/ChooseOperatorV2';
 import { ElementList } from 'components/selector/ElementList';
-import ca from 'date-fns/locale/ca';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
+import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
 
+import {
+  AssignmentsSection,
+  BasicInfoSection,
+  ScheduleSection,
+  SparePartsSection,
+} from '../components/PreventiveForm';
+import { PreventiveHeader } from '../components/PreventiveHeader';
 import { PreventiveSparePart } from '../preventiveForm/components/PreventiveSparePart';
 import { WorkOrderPerPreventive } from './components/WorkOrderPerPreventive';
 
@@ -67,6 +71,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [assets, setAssets] = useState<ElementList[]>([]);
+  const [selectedAssets, setSelectedAsset] = useState<string[]>([]);
   const [active, setActive] = useState<boolean>(true);
   const [selectedPreventiveSpareParts, setSelectedPreventiveSpareParts] =
     useState<SparePartPreventive[]>([]);
@@ -103,6 +108,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
       const addAssetAndChildren = (asset: Asset) => {
         elements.push({
           id: asset.id,
+          code: asset.code,
           description: asset.description,
         });
 
@@ -144,6 +150,9 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
           setValue('asset', data.asset);
           setValue('active', data.active);
           setValue('lastExecution', data.lastExecution);
+          if (data.asset?.id) {
+            setSelectedAsset([data.asset.id]);
+          }
           setStartDate(finalData);
           setSelectedPreventiveSpareParts(data.spareParts);
           await fetchInspectionPoints(data);
@@ -151,6 +160,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
         }
       }
     };
+    fetchAssets();
     fetchData();
   }, [params.id]);
 
@@ -192,7 +202,12 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
       startExecution: startDate!,
       days: preventive.days,
       counter: preventive.counter,
-      assetId: [preventive.asset?.id],
+      assetId:
+        selectedAssets.length > 0
+          ? selectedAssets
+          : preventive.asset?.id
+          ? [preventive.asset.id]
+          : [],
       inspectionPointId: selectedInspectionPoints.map(point => point),
       operatorId: selectedOperator.map(sparePart => sparePart),
       active: preventive.active,
@@ -217,169 +232,105 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
       prevSelected.filter(id => id !== idOperator)
     );
   };
+  const handleAssetSelected = (assetId: string) => {
+    if (assetId == '') return;
+    setSelectedAsset(prevSelected => [...prevSelected, assetId]);
+  };
+  const handleDeleteSelectedAsset = (assetId: string) => {
+    setSelectedAsset(prevSelected => prevSelected.filter(id => id !== assetId));
+  };
 
   return (
     <MainLayout>
       <Container>
-        <div className="flex gap-2">
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="mx-auto bg-white p-4 rounded shadow-md w-full"
-          >
-            <p className="text-lg font-semibold mb-2">Editar Revisió</p>
-            <div className="grid grid-cols-4 w-full gap-4 py-4">
-              <div className="col-span-2">
-                <label
-                  className="text-gray-700 font-bold text-sm"
-                  htmlFor="code"
-                >
-                  Codi
-                </label>
-                <input
-                  {...register('code')}
-                  id="code"
-                  type="text"
-                  className="form-input border border-gray-300 rounded-md w-full"
-                />
-              </div>
-              <div className="col-span-2">
-                <label
-                  className="text-gray-700 font-bold mb-2 text-sm"
-                  htmlFor="description"
-                >
-                  Descripció
-                </label>
-                <input
-                  {...register('description')}
-                  id="description"
-                  type="text"
-                  className="form-input border border-gray-300 rounded-md w-full"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-4 w-full gap-4 py-4">
-              <div className="col-span-2">
-                <label
-                  className="block text-gray-700 font-bold mb-2 text-sm"
-                  htmlFor="days"
-                >
-                  Freqüència Dies
-                </label>
-                <input
-                  {...register('days')}
-                  id="days"
-                  type="number"
-                  className="form-input border border-gray-300 rounded-md w-full"
-                />
-              </div>
-              <div className="col-span-2">
-                <label
-                  className="block text-gray-700 font-bold mb-2 text-sm"
-                  htmlFor="startExecution"
-                >
-                  Primera Execució
-                </label>
-                <DatePicker
-                  id="startDate"
-                  selected={startDate}
-                  onChange={(date: Date) => setStartDate(date)}
-                  dateFormat="dd/MM/yyyy"
-                  locale={ca}
-                  className="border border-gray-300 p-2 rounded-md mr-4 w-full"
-                />
-              </div>
-              {preventiveData?.lastExecution && (
-                <div className="col-span-2">
-                  <label
-                    className="block text-gray-700 font-bold mb-2 text-sm"
-                    htmlFor="startExecution"
-                  >
-                    Última Execució
-                  </label>
-                  <div>{formatDate(preventiveData.lastExecution, false)}</div>
-                </div>
-              )}
-            </div>
+        <div className="min-h-screen bg-gray-50 pb-8">
+          <PreventiveHeader
+            preventive={preventiveData || undefined}
+            isEditMode={true}
+            errorMessage={error || undefined}
+          />
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <div className="flex flex-row gap-8 w-full ">
-              <ChooseInspectionPoint
-                preventiveInspectionPoints={availableInspectionPoints}
-                onInspectionPointSelected={handleInspectionPointSelected}
-                onDeleteInspectionPointSelected={
-                  handleDeleteInspectionPointSelected
-                }
-                preventiveSelectedInspectionPoints={selectedInspectionPoints}
-              />
-              <ChooseOperatorV2
-                availableOperators={operators.filter(x => x.active == true)}
-                preventiveSelectedOperators={selectedOperator}
-                onDeleteSelectedOperator={handleDeleteSelectedOperator}
-                onSelectedOperator={handleSelectedOperator}
-              />
-            </div>
-            <div>
-              <PreventiveSparePart
-                onSparePartsChange={setSelectedPreventiveSpareParts}
-                initialSelectedSpareParts={selectedPreventiveSpareParts}
-              />
-            </div>
-            <div className="gap-2 flex items-center jusitfy-center py-4">
-              <p className="text-gray-700 font-bold text-sm">Activa:</p>
-              <input
-                {...register('active')}
-                id="active"
-                className="flex"
-                type="checkbox"
-              />
-            </div>
-            <div className="flex text-black">
-              <p className="font-semibold">
-                Equip assignat: {preventiveData?.asset?.description}
-              </p>
-            </div>
-            <div className="flex flex-row gap-4">
-              <button
-                type="submit"
-                className={`${
-                  showSuccessMessage
-                    ? 'bg-green-500'
-                    : showErrorMessage
-                    ? 'bg-red-500'
-                    : 'bg-okron-btCreate'
-                } hover:${
-                  showSuccessMessage
-                    ? 'bg-green-700'
-                    : showErrorMessage
-                    ? 'bg-red-700'
-                    : 'bg-blue-700'
-                } text-white font-bold py-2 px-4 rounded mt-6`}
-              >
-                Actualitzar Revisió
-              </button>
+          <div className="mt-4 space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <BasicInfoSection register={register} />
 
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mt-6"
-              >
-                Cancelar
-              </button>
-            </div>
-            <div className="flex my-4 w-full">
-              {showSuccessMessage && (
-                <div className="bg-green-200 text-green-800 p-4 rounded mb-4">
-                  Revisió actualitzada correctament
+                  <ScheduleSection
+                    preventiveDays={preventiveData?.days || 0}
+                    startDate={startDate}
+                    lastExecution={
+                      preventiveData?.lastExecution
+                        ? formatDate(preventiveData.lastExecution, false)
+                        : undefined
+                    }
+                    onDaysChange={days => setValue('days', days)}
+                    onStartDateChange={setStartDate}
+                    showLastExecution={true}
+                  />
                 </div>
-              )}
-              {showErrorMessage && (
-                <div className="bg-red-200 text-red-800 p-4 rounded mb-4">
-                  Error al actualitzar revisió
+
+                <AssignmentsSection
+                  availableInspectionPoints={availableInspectionPoints}
+                  selectedInspectionPoints={selectedInspectionPoints}
+                  onInspectionPointSelected={handleInspectionPointSelected}
+                  onDeleteInspectionPointSelected={
+                    handleDeleteInspectionPointSelected
+                  }
+                  availableOperators={operators.filter(x => x.active == true)}
+                  selectedOperators={selectedOperator}
+                  onSelectedOperator={handleSelectedOperator}
+                  onDeleteSelectedOperator={handleDeleteSelectedOperator}
+                  assets={assets}
+                  selectedAssets={selectedAssets}
+                  onAssetSelected={handleAssetSelected}
+                  onDeleteSelectedAsset={handleDeleteSelectedAsset}
+                />
+
+                <SparePartsSection
+                  selectedSpareParts={selectedPreventiveSpareParts}
+                  onSparePartsChange={setSelectedPreventiveSpareParts}
+                />
+
+                <div className="bg-white p-4 rounded-xl shadow-sm">
+                  <div className="flex items-center gap-4 mb-4">
+                    <label className="text-gray-700 font-bold text-sm">
+                      Activa:
+                    </label>
+                    <input
+                      {...register('active')}
+                      id="active"
+                      type="checkbox"
+                      className="w-4 h-4"
+                    />
+                  </div>
+
+                  <div className="flex gap-4">
+                    <Button type="create" onClick={handleSubmit(onSubmit)}>
+                      Actualitzar Revisió
+                    </Button>
+                    <Button type="cancel" onClick={handleCancel}>
+                      Cancelar
+                    </Button>
+                  </div>
+
+                  {showSuccessMessage && (
+                    <div className="bg-green-200 text-green-800 p-4 rounded-lg mt-4">
+                      Revisió actualitzada correctament
+                    </div>
+                  )}
+
+                  {showErrorMessage && (
+                    <div className="bg-red-200 text-red-800 p-4 rounded-lg mt-4">
+                      Error al actualitzar revisió
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </form>
-          <WorkOrderPerPreventive id={params.id} />
+              </div>
+            </form>
+
+            <WorkOrderPerPreventive id={params.id} />
+          </div>
         </div>
       </Container>
     </MainLayout>
