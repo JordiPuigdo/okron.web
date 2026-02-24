@@ -1,7 +1,19 @@
 'use client';
 
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import type {
+  CollisionDetection,
+  DragEndEvent,
+  DragMoveEvent,
+  DragOverEvent,
+  DragStartEvent,
+} from '@dnd-kit/core';
 import {
   closestCenter,
   DndContext,
@@ -9,6 +21,7 @@ import {
   KeyboardSensor,
   MeasuringStrategy,
   PointerSensor,
+  pointerWithin,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
@@ -110,6 +123,10 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
 
   const displayNodes = optimisticNodes || nodes;
 
+  useEffect(() => {
+    setOptimisticNodes(null);
+  }, [nodes]);
+
   const sortableIds = useMemo(
     () => (displayNodes ? flattenNodeIds(displayNodes) : []),
     [displayNodes]
@@ -133,9 +150,30 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
     [isReadOnly, isMoving]
   );
 
-  const handleDragOver = useCallback(
-    (event: DragOverEvent) => {
-      const { active, over, activatorEvent } = event;
+  const getPointerCoordinates = useCallback(
+    (
+      event: DragOverEvent | DragMoveEvent
+    ): { x: number; y: number } | null => {
+      const pointerEvent = event.activatorEvent as PointerEvent | MouseEvent;
+      const hasCoordinates =
+        typeof pointerEvent.clientX === 'number' &&
+        typeof pointerEvent.clientY === 'number';
+
+      if (hasCoordinates) {
+        return {
+          x: pointerEvent.clientX + event.delta.x,
+          y: pointerEvent.clientY + event.delta.y,
+        };
+      }
+
+      return null;
+    },
+    []
+  );
+
+  const updateDropIndicator = useCallback(
+    (event: DragOverEvent | DragMoveEvent) => {
+      const { active, over } = event;
       if (!over || active.id === over.id || !displayNodes) {
         setDropIndicator(null);
         return;
@@ -147,19 +185,50 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
         return;
       }
 
-      const pointerEvent = activatorEvent as PointerEvent | MouseEvent;
-      const pointerY = pointerEvent.clientY + event.delta.y;
+      const pointerCoordinates = getPointerCoordinates(event);
+      if (!pointerCoordinates) {
+        setDropIndicator(null);
+        return;
+      }
 
       const position = resolveDropPosition(
         String(over.id),
         over.rect,
-        pointerY,
-        overNode.nodeType === BudgetNodeType.Folder
+        pointerCoordinates.y,
+        overNode.nodeType === BudgetNodeType.Folder,
+        pointerCoordinates.x
       );
 
       setDropIndicator(position);
     },
-    [displayNodes]
+    [displayNodes, getPointerCoordinates]
+  );
+
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      updateDropIndicator(event);
+    },
+    [updateDropIndicator]
+  );
+
+  const handleDragMove = useCallback(
+    (event: DragMoveEvent) => {
+      updateDropIndicator(event);
+    },
+    [updateDropIndicator]
+  );
+
+  const collisionDetection = useMemo<CollisionDetection>(
+    () => args => {
+      const pointerCollisions = pointerWithin(args);
+
+      if (pointerCollisions.length > 0) {
+        return pointerCollisions;
+      }
+
+      return closestCenter(args);
+    },
+    []
   );
 
   const handleDragEnd = useCallback(
@@ -182,6 +251,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
       setOptimisticNodes(moveResult.optimisticNodes);
       setIsMoving(true);
 
+      let shouldKeepOptimistic = false;
       try {
         const result = await onMoveNode({
           budgetId,
@@ -189,14 +259,13 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
           newParentNodeId: moveResult.newParentNodeId,
           newSortOrder: moveResult.newSortOrder,
         });
-
-        if (!result) {
-          setOptimisticNodes(null);
-        }
+        shouldKeepOptimistic = !result;
       } catch {
         setOptimisticNodes(null);
       } finally {
-        setOptimisticNodes(null);
+        if (!shouldKeepOptimistic) {
+          setOptimisticNodes(null);
+        }
         setIsMoving(false);
       }
     },
@@ -256,9 +325,10 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
       ) : (
         <DndContext
           sensors={isReadOnly ? undefined : sensors}
-          collisionDetection={closestCenter}
+          collisionDetection={collisionDetection}
           measuring={MEASURING_CONFIG}
           onDragStart={handleDragStart}
+          onDragMove={handleDragMove}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
           onDragCancel={handleDragCancel}
@@ -468,7 +538,8 @@ function TreeNode({
   const {
     attributes,
     listeners,
-    setNodeRef,
+    setDroppableNodeRef,
+    setDraggableNodeRef,
     transform,
     transition,
   } = useSortable({
@@ -657,10 +728,11 @@ function TreeNode({
   );
 
   return (
-    <div ref={setNodeRef} style={style} className="relative">
+    <div ref={setDraggableNodeRef} style={style} className="relative">
       {dropPosition === 'before' && <DropLine />}
 
       <div
+        ref={setDroppableNodeRef}
         className={`group flex items-center h-14 rounded-lg transition-all duration-150 ${
           isDragging
             ? 'opacity-40 scale-[0.98]'

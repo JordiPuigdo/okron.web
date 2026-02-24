@@ -97,7 +97,8 @@ export function resolveDropPosition(
   overNodeId: string,
   overRect: ClientRect,
   pointerY: number,
-  isOverFolder: boolean
+  isOverFolder: boolean,
+  pointerX?: number
 ): DropPosition {
   const relativeY = pointerY - overRect.top;
   const height = overRect.height;
@@ -105,13 +106,20 @@ export function resolveDropPosition(
   let position: DropPosition['position'];
 
   if (isOverFolder) {
-    const edgeZone = height * 0.28;
+    const edgeZone = Math.min(Math.max(height * 0.32, 12), 24);
     if (relativeY <= edgeZone) {
       position = 'before';
     } else if (relativeY >= height - edgeZone) {
       position = 'after';
     } else {
-      position = 'inside';
+      const insideHorizontalThreshold = overRect.left + 56;
+      const canDropInside =
+        pointerX !== undefined && pointerX >= insideHorizontalThreshold;
+      position = canDropInside
+        ? 'inside'
+        : relativeY < height / 2
+        ? 'before'
+        : 'after';
     }
   } else {
     position = relativeY < height / 2 ? 'before' : 'after';
