@@ -70,6 +70,84 @@ function findFirstFolderId(
   return undefined;
 }
 
+function findNodeByIdInTree(
+  nodes: AssemblyNode[] | undefined,
+  targetId: string
+): AssemblyNode | undefined {
+  if (!nodes) return undefined;
+  for (const node of nodes) {
+    if (node.id === targetId) return node;
+    if (node.nodeType === BudgetNodeType.Folder) {
+      const found = findNodeByIdInTree(
+        (node as AssemblyFolder).children || [],
+        targetId
+      );
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
+function findParentIdInTree(
+  nodes: AssemblyNode[] | undefined,
+  targetId: string,
+  currentParentId?: string
+): string | undefined {
+  if (!nodes) return undefined;
+  for (const node of nodes) {
+    if (node.id === targetId) return currentParentId;
+    if (node.nodeType === BudgetNodeType.Folder) {
+      const found = findParentIdInTree(
+        (node as AssemblyFolder).children || [],
+        targetId,
+        node.id
+      );
+      if (found !== undefined) return found;
+    }
+  }
+  return undefined;
+}
+
+function collectNodeIds(nodes: AssemblyNode[] | undefined): Set<string> {
+  const ids = new Set<string>();
+  if (!nodes) return ids;
+
+  const walk = (items: AssemblyNode[]) => {
+    for (const node of items) {
+      ids.add(node.id);
+      if (node.nodeType === BudgetNodeType.Folder) {
+        walk((node as AssemblyFolder).children || []);
+      }
+    }
+  };
+
+  walk(nodes);
+  return ids;
+}
+
+function getInsertedNodeId(
+  previousNodes: AssemblyNode[] | undefined,
+  nextNodes: AssemblyNode[] | undefined
+): string | undefined {
+  const previousIds = collectNodeIds(previousNodes);
+  const nextIds = collectNodeIds(nextNodes);
+
+  for (const nextId of nextIds) {
+    if (!previousIds.has(nextId)) return nextId;
+  }
+
+  return undefined;
+}
+
+function calculateTotalWithMargin(
+  baseAmount: number,
+  marginPercentage: number
+): number {
+  const divisor = 1 - marginPercentage / 100;
+  if (divisor <= 0) return baseAmount;
+  return baseAmount / divisor;
+}
+
 export function AssemblyBudgetDetail({
   budget,
   onUpdate,
@@ -177,6 +255,7 @@ export function AssemblyBudgetDetail({
 
     setIsSubmitting(true);
     try {
+      const currentNodes = formData.assemblyNodes || [];
       const request: UpdateAssemblyBudgetRequest = {
         id: formData.id,
         externalComments: formData.externalComments,
@@ -184,6 +263,7 @@ export function AssemblyBudgetDetail({
         status: formData.status,
         validUntil: formData.validUntil,
         marginPercentage: formData.marginPercentage,
+        assemblyNodes: currentNodes,
       };
       const updated = await onUpdate(request);
       if (updated) {
@@ -250,6 +330,70 @@ export function AssemblyBudgetDetail({
     [formData.id, selectedParentNodeId, onAddArticle]
   );
 
+  const handleDuplicateNode = useCallback(
+    async (node: AssemblyNode) => {
+      if (isReadOnly) return;
+
+      const sourceNodes = formData.assemblyNodes || [];
+      const sourceNode = findNodeByIdInTree(sourceNodes, node.id);
+      if (!sourceNode) return;
+
+      let workingNodes = sourceNodes;
+
+      const duplicateBranch = async (
+        source: AssemblyNode,
+        parentNodeId?: string
+      ): Promise<string | undefined> => {
+        const previousNodes = workingNodes;
+
+        if (source.nodeType === BudgetNodeType.Folder) {
+          const sourceFolder = source as AssemblyFolder;
+          const createdFolderBudget = await onAddFolder({
+            budgetId: formData.id,
+            parentNodeId,
+            code: generateNextCode(previousNodes, parentNodeId),
+            description: sourceFolder.description,
+          });
+
+          if (!createdFolderBudget?.assemblyNodes) return undefined;
+
+          workingNodes = createdFolderBudget.assemblyNodes;
+          const createdFolderId = getInsertedNodeId(
+            previousNodes,
+            workingNodes
+          );
+          if (!createdFolderId) return undefined;
+
+          for (const child of sourceFolder.children || []) {
+            const createdChildId = await duplicateBranch(child, createdFolderId);
+            if (!createdChildId) return undefined;
+          }
+
+          return createdFolderId;
+        }
+
+        const sourceArticle = source as AssemblyArticle;
+        const createdArticleBudget = await onAddArticle({
+          budgetId: formData.id,
+          parentNodeId,
+          articleId: sourceArticle.articleId,
+          quantity: sourceArticle.quantity,
+          unitPrice: sourceArticle.unitPrice,
+          marginPercentage: sourceArticle.marginPercentage,
+        });
+
+        if (!createdArticleBudget?.assemblyNodes) return undefined;
+
+        workingNodes = createdArticleBudget.assemblyNodes;
+        return getInsertedNodeId(previousNodes, workingNodes);
+      };
+
+      const sourceParentId = findParentIdInTree(sourceNodes, sourceNode.id);
+      await duplicateBranch(sourceNode, sourceParentId);
+    },
+    [isReadOnly, formData.id, formData.assemblyNodes, onAddFolder, onAddArticle]
+  );
+
   const handleArticleCreated = useCallback(
     async (article?: Article) => {
       setIsCreateArticleOpen(false);
@@ -314,11 +458,10 @@ export function AssemblyBudgetDetail({
           if (newMargin !== undefined) {
             const article = node as AssemblyArticle;
             const base = article.quantity * article.unitPrice;
-            const marginAmount = base * (newMargin / 100);
             return {
               ...article,
               marginPercentage: newMargin,
-              totalAmount: base + marginAmount,
+              totalAmount: calculateTotalWithMargin(base, newMargin),
             };
           }
           return node;
@@ -378,7 +521,7 @@ export function AssemblyBudgetDetail({
 
   return (
     <div className="min-h-screen bg-gray-50/80">
-      <div className="max-w-[1400px] mx-auto px-4 py-6 space-y-4">
+      <div className="px-4 py-6 space-y-4">
         <AssemblyBudgetHeader
           budget={formData}
           isReadOnly={isReadOnly}
@@ -401,6 +544,7 @@ export function AssemblyBudgetDetail({
             onMoveNode={onMoveNode}
             onRemoveNode={onRemoveNode}
             onUpdateNode={onUpdateNode}
+            onDuplicateNode={handleDuplicateNode}
             t={t}
           />
 

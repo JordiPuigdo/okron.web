@@ -61,6 +61,15 @@ function collectArticlesFlat(nodes: AssemblyNode[]): AssemblyArticle[] {
   return result;
 }
 
+function calculateTotalWithMargin(
+  baseAmount: number,
+  marginPercentage: number
+): number {
+  const divisor = 1 - marginPercentage / 100;
+  if (divisor <= 0) return baseAmount;
+  return baseAmount / divisor;
+}
+
 export function ApplyMarginModal({
   isVisible,
   nodes,
@@ -155,14 +164,14 @@ export function ApplyMarginModal({
 
     for (const article of allArticles) {
       const base = article.quantity * article.unitPrice;
-      const currentMarginAmount =
-        base * (article.marginPercentage / 100);
-      const currentTotal = base + currentMarginAmount;
+      const currentTotal = calculateTotalWithMargin(
+        base,
+        article.marginPercentage
+      );
 
       if (selectedIds.has(article.id)) {
-        const newMarginAmount = base * (parsedMargin / 100);
         originalTotal += currentTotal;
-        newTotal += base + newMarginAmount;
+        newTotal += calculateTotalWithMargin(base, parsedMargin);
       } else {
         originalTotal += currentTotal;
         newTotal += currentTotal;
@@ -474,13 +483,14 @@ function ArticleNodeRow({
   onToggle: (id: string) => void;
 }) {
   const baseAmount = article.quantity * article.unitPrice;
-  const currentMarginAmount = baseAmount * (article.marginPercentage / 100);
-  const currentTotal = baseAmount + currentMarginAmount;
+  const currentTotal = calculateTotalWithMargin(
+    baseAmount,
+    article.marginPercentage
+  );
 
   const newMargin =
     isSelected && hasValidMargin ? parsedMargin : article.marginPercentage;
-  const newMarginAmount = baseAmount * (newMargin / 100);
-  const newTotal = baseAmount + newMarginAmount;
+  const newTotal = calculateTotalWithMargin(baseAmount, newMargin);
 
   const showDiff =
     isSelected && hasValidMargin && newMargin !== article.marginPercentage;

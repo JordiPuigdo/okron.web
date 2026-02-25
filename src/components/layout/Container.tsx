@@ -1,13 +1,17 @@
 export default function Container({
   children,
+  fullWidth = false,
   className = '',
 }: {
   children: React.ReactNode;
   enablePading?: boolean;
+  fullWidth?: boolean;
   className?: string;
 }) {
   return (
-    <div className={`pt-20 pb-6 mx-6 w-full h-full ${className}`}>
+    <div
+      className={`pt-20 pb-6 w-full h-full ${fullWidth ? '' : 'mx-6'} ${className}`}
+    >
       {children}
     </div>
   );

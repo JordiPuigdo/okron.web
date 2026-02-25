@@ -27,7 +27,7 @@ export default function AssemblyBudgetDetailPage({
   if (loading && !budget) {
     return (
       <MainLayout>
-        <Container>
+        <Container fullWidth>
           <div className="flex justify-center items-center h-64">
             <SvgSpinner className="w-8 h-8" />
           </div>
@@ -39,7 +39,7 @@ export default function AssemblyBudgetDetailPage({
   if (error && !budget) {
     return (
       <MainLayout>
-        <Container>
+        <Container fullWidth>
           <div className="flex justify-center items-center h-64">
             <p className="text-red-500">{t('assemblyBudget.not.found')}</p>
           </div>
@@ -52,7 +52,7 @@ export default function AssemblyBudgetDetailPage({
 
   return (
     <MainLayout>
-      <Container>
+      <Container fullWidth>
         <AssemblyBudgetDetail
           budget={budget}
           onUpdate={updateAssemblyBudget}

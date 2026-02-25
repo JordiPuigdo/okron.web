@@ -162,6 +162,7 @@ export interface UpdateAssemblyBudgetRequest {
   status?: BudgetStatus;
   validUntil?: string;
   marginPercentage?: number;
+  assemblyNodes?: AssemblyNode[];
 }
 
 export interface AddAssemblyFolderRequest {
@@ -185,7 +186,7 @@ export interface AddAssemblyArticleRequest {
 export interface MoveAssemblyNodeRequest {
   budgetId: string;
   nodeId: string;
-  newParentNodeId?: string;
+  newParentNodeId?: string | null;
   newSortOrder: number;
 }
 

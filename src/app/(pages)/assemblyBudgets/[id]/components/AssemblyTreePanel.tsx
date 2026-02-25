@@ -45,16 +45,19 @@ import { formatCurrencyServerSider } from 'app/utils/utils';
 import { Button } from 'designSystem/Button/Buttons';
 import {
   AlertTriangle,
+  ArrowDown,
+  ArrowUp,
   Check,
   ChevronDown,
   ChevronRight,
+  Copy,
+  FileText,
   FolderClosed,
   FolderOpen,
   FolderPlus,
   GripVertical,
   Package,
   Pencil,
-  Percent,
   Plus,
   Trash2,
   Wrench,
@@ -63,10 +66,12 @@ import {
 
 import { NodeStats } from './AssemblyBudgetStatusConfig';
 import {
+  calculateFolderMargin,
   calculateMove,
   DropPosition,
   findNodeById,
   flattenNodeIds,
+  getSiblingsAndIndex,
   resolveDropPosition,
 } from './assemblyTreeDndUtils';
 
@@ -77,6 +82,48 @@ const MEASURING_CONFIG = {
 const POINTER_SENSOR_OPTIONS = {
   activationConstraint: { distance: 5 },
 };
+
+type MoveDirection = 'up' | 'down';
+const DESCRIPTION_WORD_LIMIT = 40;
+
+function truncateDescriptionWords(description: string): string {
+  const words = description.trim().split(/\s+/).filter(Boolean);
+  if (words.length <= DESCRIPTION_WORD_LIMIT) {
+    return description.trim();
+  }
+  return `${words.slice(0, DESCRIPTION_WORD_LIMIT).join(' ')}...`;
+}
+
+function shouldShowDescriptionDialog(description: string): boolean {
+  const words = description.trim().split(/\s+/).filter(Boolean);
+  return words.length > DESCRIPTION_WORD_LIMIT;
+}
+
+function calculateAmountWithMargin(
+  baseAmount: number,
+  marginPercentage: number
+): number {
+  const divisor = 1 - marginPercentage / 100;
+  if (divisor <= 0) return baseAmount;
+  return baseAmount / divisor;
+}
+
+function calculateArticleDisplayTotal(article: AssemblyArticle): number {
+  const articleSubtotal = article.quantity * article.unitPrice;
+  return calculateAmountWithMargin(articleSubtotal, article.marginPercentage);
+}
+
+function calculateNodeDisplayTotal(node: AssemblyNode): number {
+  if (node.nodeType === BudgetNodeType.ArticleItem) {
+    return calculateArticleDisplayTotal(node as AssemblyArticle);
+  }
+
+  const folder = node as AssemblyFolder;
+  return (folder.children || []).reduce(
+    (sum, child) => sum + calculateNodeDisplayTotal(child),
+    0
+  );
+}
 
 interface AssemblyTreePanelProps {
   nodes?: AssemblyNode[];
@@ -94,6 +141,7 @@ interface AssemblyTreePanelProps {
   onUpdateNode: (
     request: UpdateAssemblyNodeRequest
   ) => Promise<Budget | undefined>;
+  onDuplicateNode: (node: AssemblyNode) => Promise<void>;
   t: (key: string) => string;
 }
 
@@ -107,6 +155,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
   onMoveNode,
   onRemoveNode,
   onUpdateNode,
+  onDuplicateNode,
   t,
 }: AssemblyTreePanelProps) {
   const isEmpty = !nodes || nodes.length === 0;
@@ -116,6 +165,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
     AssemblyNode[] | null
   >(null);
   const [isMoving, setIsMoving] = useState(false);
+  const [isDuplicating, setIsDuplicating] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     node: AssemblyNode;
   } | null>(null);
@@ -144,10 +194,10 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
 
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
-      if (isReadOnly || isMoving) return;
+      if (isReadOnly || isMoving || isDuplicating) return;
       setDraggedNodeId(String(event.active.id));
     },
-    [isReadOnly, isMoving]
+    [isReadOnly, isMoving, isDuplicating]
   );
 
   const getPointerCoordinates = useCallback(
@@ -231,6 +281,78 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
     []
   );
 
+  const persistNodeMove = useCallback(
+    async (
+      nodeId: string,
+      moveResult: {
+        newParentNodeId: string | undefined;
+        newSortOrder: number;
+        optimisticNodes: AssemblyNode[];
+      }
+    ) => {
+      setOptimisticNodes(moveResult.optimisticNodes);
+      setIsMoving(true);
+
+      let shouldKeepOptimistic = false;
+      try {
+        const result = await onMoveNode({
+          budgetId,
+          nodeId,
+          newParentNodeId: moveResult.newParentNodeId ?? null,
+          newSortOrder: moveResult.newSortOrder,
+        });
+        shouldKeepOptimistic = !result;
+      } catch {
+        setOptimisticNodes(null);
+      } finally {
+        if (!shouldKeepOptimistic) {
+          setOptimisticNodes(null);
+        }
+        setIsMoving(false);
+      }
+    },
+    [onMoveNode, budgetId]
+  );
+
+  const canMoveNode = useCallback(
+    (nodeId: string, direction: MoveDirection) => {
+      if (!displayNodes) return false;
+      const siblingData = getSiblingsAndIndex(displayNodes, nodeId);
+      if (!siblingData) return false;
+
+      return direction === 'up'
+        ? siblingData.index > 0
+        : siblingData.index < siblingData.siblings.length - 1;
+    },
+    [displayNodes]
+  );
+
+  const handleMoveNodeByOffset = useCallback(
+    async (nodeId: string, direction: MoveDirection) => {
+      if (isReadOnly || isMoving || !displayNodes) return;
+
+      const siblingData = getSiblingsAndIndex(displayNodes, nodeId);
+      if (!siblingData) return;
+
+      const targetIndex =
+        direction === 'up' ? siblingData.index - 1 : siblingData.index + 1;
+      if (targetIndex < 0 || targetIndex >= siblingData.siblings.length) {
+        return;
+      }
+
+      const targetNodeId = siblingData.siblings[targetIndex].id;
+      const moveResult = calculateMove(displayNodes, nodeId, {
+        targetNodeId,
+        position: direction === 'up' ? 'before' : 'after',
+      });
+
+      if (!moveResult) return;
+
+      await persistNodeMove(nodeId, moveResult);
+    },
+    [isReadOnly, isMoving, displayNodes, persistNodeMove]
+  );
+
   const handleDragEnd = useCallback(
     async (event: DragEndEvent) => {
       const activeId = String(event.active.id);
@@ -248,28 +370,9 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
 
       if (!moveResult) return;
 
-      setOptimisticNodes(moveResult.optimisticNodes);
-      setIsMoving(true);
-
-      let shouldKeepOptimistic = false;
-      try {
-        const result = await onMoveNode({
-          budgetId,
-          nodeId: activeId,
-          newParentNodeId: moveResult.newParentNodeId,
-          newSortOrder: moveResult.newSortOrder,
-        });
-        shouldKeepOptimistic = !result;
-      } catch {
-        setOptimisticNodes(null);
-      } finally {
-        if (!shouldKeepOptimistic) {
-          setOptimisticNodes(null);
-        }
-        setIsMoving(false);
-      }
+      await persistNodeMove(activeId, moveResult);
     },
-    [dropIndicator, displayNodes, onMoveNode, budgetId]
+    [dropIndicator, displayNodes, persistNodeMove]
   );
 
   const handleDragCancel = useCallback(() => {
@@ -303,6 +406,20 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
   const handleCancelDelete = useCallback(() => {
     setDeleteConfirm(null);
   }, []);
+
+  const handleDuplicateRequest = useCallback(
+    async (node: AssemblyNode) => {
+      if (isReadOnly || isMoving || isDuplicating) return;
+
+      setIsDuplicating(true);
+      try {
+        await onDuplicateNode(node);
+      } finally {
+        setIsDuplicating(false);
+      }
+    },
+    [isReadOnly, isMoving, isDuplicating, onDuplicateNode]
+  );
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col min-h-[600px]">
@@ -338,7 +455,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
             strategy={verticalListSortingStrategy}
           >
             <div className="flex-1 overflow-auto px-2 py-2">
-              <div className="min-w-[500px]">
+              <div className="min-w-0 w-full">
                 {displayNodes?.map((node, index) => (
                   <TreeNode
                     key={node.id}
@@ -354,6 +471,11 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
                     dropIndicator={dropIndicator}
                     onUpdateNode={onUpdateNode}
                     budgetId={budgetId}
+                    isMoving={isMoving}
+                    isDuplicating={isDuplicating}
+                    canMoveNode={canMoveNode}
+                    onMoveNodeByOffset={handleMoveNodeByOffset}
+                    onDuplicateNode={handleDuplicateRequest}
                   />
                 ))}
               </div>
@@ -494,6 +616,14 @@ interface TreeNodeProps {
     request: UpdateAssemblyNodeRequest
   ) => Promise<Budget | undefined>;
   budgetId: string;
+  isMoving: boolean;
+  isDuplicating: boolean;
+  canMoveNode: (nodeId: string, direction: MoveDirection) => boolean;
+  onMoveNodeByOffset: (
+    nodeId: string,
+    direction: MoveDirection
+  ) => Promise<void>;
+  onDuplicateNode: (node: AssemblyNode) => Promise<void>;
 }
 
 function TreeNode({
@@ -509,31 +639,41 @@ function TreeNode({
   dropIndicator,
   onUpdateNode,
   budgetId,
+  isMoving,
+  isDuplicating,
+  canMoveNode,
+  onMoveNodeByOffset,
+  onDuplicateNode,
 }: TreeNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
+  const [isSavingDescription, setIsSavingDescription] = useState(false);
   const [editValue, setEditValue] = useState(node.description);
   const [isEditingArticle, setIsEditingArticle] = useState(false);
   const [editQuantity, setEditQuantity] = useState(0);
   const [editUnitPrice, setEditUnitPrice] = useState(0);
   const [editMargin, setEditMargin] = useState(0);
-  const [isEditingFolderMargin, setIsEditingFolderMargin] = useState(false);
-  const [editFolderMargin, setEditFolderMargin] = useState(0);
   const isConfirmedRef = useRef(false);
   const isArticleConfirmedRef = useRef(false);
-  const isFolderMarginConfirmedRef = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const quantityInputRef = useRef<HTMLInputElement>(null);
-  const folderMarginInputRef = useRef<HTMLInputElement>(null);
   const isFolder = node.nodeType === BudgetNodeType.Folder;
   const folder = isFolder ? (node as AssemblyFolder) : null;
   const article = !isFolder ? (node as AssemblyArticle) : null;
+  const canOpenDescription = shouldShowDescriptionDialog(node.description);
+  const collapsedDescription = truncateDescriptionWords(node.description);
 
   const isDragging = draggedNodeId === node.id;
   const isDropTarget = dropIndicator?.targetNodeId === node.id;
   const dropPosition = isDropTarget ? dropIndicator.position : null;
 
-  const canDrag = !isReadOnly && !isEditing && !isEditingArticle && !isEditingFolderMargin;
+  const canMoveUp = canMoveNode(node.id, 'up');
+  const canMoveDown = canMoveNode(node.id, 'down');
+  const isMoveDisabled =
+    isReadOnly || isMoving || isDuplicating || isEditing || isEditingArticle;
+  const canDuplicate = !isReadOnly && !isMoving && !isDuplicating && !isEditing && !isEditingArticle;
+  const canDrag = !isReadOnly && !isDuplicating && !isEditing && !isEditingArticle;
 
   const {
     attributes,
@@ -672,59 +812,35 @@ function TreeNode({
     [handleConfirmArticleEditing, handleCancelArticleEditing]
   );
 
-  const handleStartFolderMarginEditing = useCallback(
-    (e: React.MouseEvent) => {
-      if (isReadOnly || !folder) return;
-      e.stopPropagation();
-      setEditFolderMargin(folder.marginPercentage);
-      setIsEditingFolderMargin(true);
-      requestAnimationFrame(() => folderMarginInputRef.current?.select());
-    },
-    [isReadOnly, folder]
-  );
+  const handleSaveDescription = useCallback(
+    async (description: string): Promise<boolean> => {
+      const trimmed = description.trim();
 
-  const handleCancelFolderMarginEditing = useCallback(() => {
-    setIsEditingFolderMargin(false);
-    isFolderMarginConfirmedRef.current = false;
-  }, []);
+      if (!trimmed) return false;
+      if (trimmed === node.description) {
+        setIsDescriptionOpen(false);
+        return true;
+      }
 
-  const handleConfirmFolderMarginEditing = useCallback(async () => {
-    if (isFolderMarginConfirmedRef.current || !folder) return;
-    isFolderMarginConfirmedRef.current = true;
+      setIsSavingDescription(true);
+      try {
+        const result = await onUpdateNode({
+          budgetId,
+          nodeId: node.id,
+          description: trimmed,
+        });
 
-    const margin = Number(editFolderMargin);
+        if (result) {
+          setIsDescriptionOpen(false);
+          return true;
+        }
 
-    if (margin === folder.marginPercentage || margin < 0) {
-      handleCancelFolderMarginEditing();
-      return;
-    }
-
-    setIsEditingFolderMargin(false);
-    await onUpdateNode({
-      budgetId,
-      nodeId: node.id,
-      marginPercentage: margin,
-    });
-    isFolderMarginConfirmedRef.current = false;
-  }, [
-    editFolderMargin,
-    folder,
-    budgetId,
-    node.id,
-    onUpdateNode,
-    handleCancelFolderMarginEditing,
-  ]);
-
-  const handleFolderMarginEditKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        handleConfirmFolderMarginEditing();
-      } else if (e.key === 'Escape') {
-        handleCancelFolderMarginEditing();
+        return false;
+      } finally {
+        setIsSavingDescription(false);
       }
     },
-    [handleConfirmFolderMarginEditing, handleCancelFolderMarginEditing]
+    [budgetId, node.id, node.description, onUpdateNode]
   );
 
   return (
@@ -733,7 +849,7 @@ function TreeNode({
 
       <div
         ref={setDroppableNodeRef}
-        className={`group flex items-center h-14 rounded-lg transition-all duration-150 ${
+        className={`group flex items-center min-h-14 py-2 rounded-lg transition-all duration-150 ${
           isDragging
             ? 'opacity-40 scale-[0.98]'
             : isFolder
@@ -748,7 +864,7 @@ function TreeNode({
             ? 'bg-gradient-to-t from-blue-50 to-transparent'
             : ''
         }`}
-        onClick={() => !isEditing && !isEditingArticle && !isEditingFolderMargin && isFolder && setIsExpanded(!isExpanded)}
+        onClick={() => !isEditing && !isEditingArticle && isFolder && setIsExpanded(!isExpanded)}
       >
         <TreeIndent parentLines={parentLines} isLast={isLast} />
 
@@ -786,16 +902,32 @@ function TreeNode({
             className="flex-1 text-sm font-semibold text-gray-800 bg-white border border-amber-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-amber-500 min-w-0"
           />
         ) : (
-          <span
-            className={`flex-1 truncate ${
-              isFolder
-                ? 'text-base font-semibold text-gray-800 cursor-text hover:text-amber-700'
-                : 'text-sm text-gray-700'
-            }`}
-            onDoubleClick={handleStartEditing}
-          >
-            {node.description}
-          </span>
+          <div className="flex-1 min-w-0 flex items-center gap-1">
+            <span
+              className={`flex-1 min-w-0 overflow-hidden break-words [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] ${
+                isFolder
+                  ? 'text-base font-semibold text-gray-800 cursor-text hover:text-amber-700'
+                  : 'text-sm text-gray-700'
+              }`}
+              title={node.description}
+              onDoubleClick={handleStartEditing}
+            >
+              {collapsedDescription}
+            </span>
+            {canOpenDescription && (
+              <button
+                type="button"
+                onClick={e => {
+                  e.stopPropagation();
+                  setIsDescriptionOpen(true);
+                }}
+                className="shrink-0 p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+                title="View full description"
+              >
+                <FileText className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
         )}
 
         {isFolder && !isReadOnly && (
@@ -804,12 +936,54 @@ function TreeNode({
             onAddFolder={onAddFolder}
             onAddArticle={onAddArticle}
             onDelete={() => onRequestDelete(node)}
-            onEditMargin={handleStartFolderMarginEditing}
+            canMoveUp={canMoveUp}
+            canMoveDown={canMoveDown}
+            isMoveDisabled={isMoveDisabled}
+            onMoveUp={() => onMoveNodeByOffset(node.id, 'up')}
+            onMoveDown={() => onMoveNodeByOffset(node.id, 'down')}
+            onDuplicate={() => onDuplicateNode(node)}
+            canDuplicate={canDuplicate}
           />
         )}
 
         {article && !isReadOnly && (
           <div className="flex items-center gap-0.5 mr-1 opacity-40 group-hover:opacity-100 transition-opacity">
+            <button
+              type="button"
+              onClick={e => {
+                e.stopPropagation();
+                onDuplicateNode(node);
+              }}
+              disabled={!canDuplicate}
+              className="p-1.5 rounded hover:bg-violet-100 text-gray-400 hover:text-violet-600 transition-colors disabled:text-gray-300 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+              title="Duplicate"
+            >
+              <Copy className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={e => {
+                e.stopPropagation();
+                onMoveNodeByOffset(node.id, 'up');
+              }}
+              disabled={isMoveDisabled || !canMoveUp}
+              className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors disabled:text-gray-300 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+              title="Move up"
+            >
+              <ArrowUp className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={e => {
+                e.stopPropagation();
+                onMoveNodeByOffset(node.id, 'down');
+              }}
+              disabled={isMoveDisabled || !canMoveDown}
+              className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors disabled:text-gray-300 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+              title="Move down"
+            >
+              <ArrowDown className="h-3.5 w-3.5" />
+            </button>
             <button
               type="button"
               onClick={handleStartArticleEditing}
@@ -850,14 +1024,7 @@ function TreeNode({
         {isFolder && folder && (
           <FolderAmounts
             folder={folder}
-            totalAmount={node.totalAmount}
-            isEditing={isEditingFolderMargin}
-            editMargin={editFolderMargin}
-            onMarginChange={setEditFolderMargin}
-            onKeyDown={handleFolderMarginEditKeyDown}
-            onConfirm={handleConfirmFolderMarginEditing}
-            onCancel={handleCancelFolderMarginEditing}
-            marginInputRef={folderMarginInputRef}
+            totalAmount={calculateNodeDisplayTotal(node)}
           />
         )}
       </div>
@@ -881,12 +1048,27 @@ function TreeNode({
               dropIndicator={dropIndicator}
               onUpdateNode={onUpdateNode}
               budgetId={budgetId}
+              isMoving={isMoving}
+              isDuplicating={isDuplicating}
+              canMoveNode={canMoveNode}
+              onMoveNodeByOffset={onMoveNodeByOffset}
+              onDuplicateNode={onDuplicateNode}
             />
           ))}
         </div>
       )}
 
       {dropPosition === 'after' && isFolder && <DropLine />}
+
+      <DescriptionDialog
+        isOpen={isDescriptionOpen}
+        title={node.description}
+        subtitle={node.code}
+        onClose={() => setIsDescriptionOpen(false)}
+        canEdit={!isReadOnly && isFolder}
+        isSaving={isSavingDescription}
+        onSave={handleSaveDescription}
+      />
     </div>
   );
 }
@@ -915,7 +1097,7 @@ function DragOverlayContent({ node }: { node: AssemblyNode }) {
       </span>
       {article && (
         <span className="text-sm font-semibold text-gray-900 ml-4 shrink-0">
-          {formatCurrencyServerSider(article.totalAmount)}
+          {formatCurrencyServerSider(calculateArticleDisplayTotal(article))}
         </span>
       )}
     </div>
@@ -955,22 +1137,63 @@ function FolderActions({
   onAddFolder,
   onAddArticle,
   onDelete,
-  onEditMargin,
+  canMoveUp,
+  canMoveDown,
+  isMoveDisabled,
+  onMoveUp,
+  onMoveDown,
+  onDuplicate,
+  canDuplicate,
 }: {
   nodeId: string;
   onAddFolder: (parentNodeId?: string) => void;
   onAddArticle: (parentNodeId?: string) => void;
   onDelete: () => void;
-  onEditMargin: (e: React.MouseEvent) => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  isMoveDisabled: boolean;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  onDuplicate: () => void;
+  canDuplicate: boolean;
 }) {
   return (
     <div className="flex items-center gap-1 mr-2 opacity-40 group-hover:opacity-100 transition-opacity">
       <button
         type="button"
-        onClick={onEditMargin}
-        className="p-1.5 rounded hover:bg-emerald-100 text-gray-400 hover:text-emerald-600 transition-colors"
+        onClick={e => {
+          e.stopPropagation();
+          onMoveUp();
+        }}
+        disabled={isMoveDisabled || !canMoveUp}
+        className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors disabled:text-gray-300 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+        title="Move up"
       >
-        <Percent className="h-3.5 w-3.5" />
+        <ArrowUp className="h-3.5 w-3.5" />
+      </button>
+      <button
+        type="button"
+        onClick={e => {
+          e.stopPropagation();
+          onMoveDown();
+        }}
+        disabled={isMoveDisabled || !canMoveDown}
+        className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors disabled:text-gray-300 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+        title="Move down"
+      >
+        <ArrowDown className="h-3.5 w-3.5" />
+      </button>
+      <button
+        type="button"
+        onClick={e => {
+          e.stopPropagation();
+          onDuplicate();
+        }}
+        disabled={!canDuplicate}
+        className="p-1.5 rounded hover:bg-violet-100 text-gray-400 hover:text-violet-600 transition-colors disabled:text-gray-300 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+        title="Duplicate"
+      >
+        <Copy className="h-3.5 w-3.5" />
       </button>
       <button
         type="button"
@@ -1095,19 +1318,32 @@ function ArticleAmounts({
     );
   }
 
+  const articleSubtotal = article.quantity * article.unitPrice;
+  const articleTotalWithMargin = calculateArticleDisplayTotal(article);
+  const articleFinalUnitPrice =
+    article.quantity > 0
+      ? articleTotalWithMargin / article.quantity
+      : article.unitPrice;
+
   return (
     <div className="flex items-center gap-3 ml-4 shrink-0 pr-3">
       <span className="text-xs text-gray-400 tabular-nums">
         {article.quantity} x{' '}
         {formatCurrencyServerSider(article.unitPrice)}
       </span>
+      <span className="text-[11px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded-md tabular-nums">
+        = {formatCurrencyServerSider(articleSubtotal)}
+      </span>
       {article.marginPercentage > 0 && (
         <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">
           +{article.marginPercentage}%
         </span>
       )}
+      <span className="text-[11px] text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded-md tabular-nums">
+        {formatCurrencyServerSider(articleFinalUnitPrice)}
+      </span>
       <span className="text-sm font-semibold text-gray-900 min-w-[90px] text-right tabular-nums">
-        {formatCurrencyServerSider(article.totalAmount)}
+        {formatCurrencyServerSider(articleTotalWithMargin)}
       </span>
     </div>
   );
@@ -1116,73 +1352,31 @@ function ArticleAmounts({
 function FolderAmounts({
   folder,
   totalAmount,
-  isEditing,
-  editMargin,
-  onMarginChange,
-  onKeyDown,
-  onConfirm,
-  onCancel,
-  marginInputRef,
 }: {
   folder: AssemblyFolder;
   totalAmount: number;
-  isEditing: boolean;
-  editMargin: number;
-  onMarginChange: (v: number) => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-  onConfirm: () => void;
-  onCancel: () => void;
-  marginInputRef: React.RefObject<HTMLInputElement>;
 }) {
-  if (isEditing) {
-    return (
-      <div
-        className="flex items-center gap-2 ml-4 shrink-0 pr-3"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="flex items-center gap-1">
-          <input
-            ref={marginInputRef}
-            type="number"
-            min={0}
-            max={100}
-            step={0.1}
-            value={editMargin}
-            onChange={e => onMarginChange(Number(e.target.value))}
-            onKeyDown={onKeyDown}
-            onBlur={onConfirm}
-            className="w-20 text-sm text-center border border-emerald-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-emerald-500 tabular-nums"
-          />
-          <span className="text-xs text-gray-400">%</span>
-        </div>
-        <div className="flex items-center gap-0.5 ml-1">
-          <button
-            type="button"
-            onClick={onConfirm}
-            className="p-1 rounded hover:bg-green-100 text-green-600 transition-colors"
-          >
-            <Check className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="p-1 rounded hover:bg-gray-200 text-gray-400 transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const totalWithoutMargin = calculateFolderMargin(
+    folder.children || []
+  ).baseSubtotal;
+  const calculatedMarginPercentage =
+    totalAmount > 0 && totalWithoutMargin > 0
+      ? Math.round(
+          ((1 - totalWithoutMargin / totalAmount) * 100 + Number.EPSILON) * 100
+        ) / 100
+      : 0;
 
   return (
     <div className="flex items-center gap-2 ml-4 shrink-0 pr-3">
       <span className="text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
         {folder.children.length}
       </span>
-      {folder.marginPercentage > 0 && (
+      <span className="text-[11px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded-md tabular-nums">
+        {formatCurrencyServerSider(totalWithoutMargin)}
+      </span>
+      {calculatedMarginPercentage > 0 && (
         <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md tabular-nums">
-          +{folder.marginPercentage}%
+          +{calculatedMarginPercentage}%
         </span>
       )}
       <span className="text-sm font-bold text-gray-900 min-w-[90px] text-right tabular-nums">
@@ -1314,6 +1508,135 @@ function DeleteConfirmDialog({
             <Trash2 className="h-4 w-4" />
             {t('delete')}
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DescriptionDialog({
+  isOpen,
+  title,
+  subtitle,
+  onClose,
+  canEdit = false,
+  isSaving = false,
+  onSave,
+}: {
+  isOpen: boolean;
+  title: string;
+  subtitle?: string;
+  onClose: () => void;
+  canEdit?: boolean;
+  isSaving?: boolean;
+  onSave?: (value: string) => Promise<boolean>;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(title);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setIsEditing(false);
+    setEditValue(title);
+  }, [isOpen, title]);
+
+  const handleStartEdit = useCallback(() => {
+    if (!canEdit) return;
+    setIsEditing(true);
+  }, [canEdit]);
+
+  const handleCancelEdit = useCallback(() => {
+    setIsEditing(false);
+    setEditValue(title);
+  }, [title]);
+
+  const handleSave = useCallback(async () => {
+    if (!onSave || isSaving) return;
+    const saved = await onSave(editValue);
+    if (saved) {
+      setIsEditing(false);
+    }
+  }, [onSave, isSaving, editValue]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-black/50 transition-opacity"
+        onClick={() => {
+          if (!isSaving) onClose();
+        }}
+      />
+      <div className="relative bg-white rounded-xl shadow-2xl max-w-3xl w-full mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="px-6 py-4 border-b bg-gray-50">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-gray-500 shrink-0" />
+            <h3 className="text-sm font-semibold text-gray-900">
+              {isEditing ? 'Edit description' : 'Full description'}
+            </h3>
+            {subtitle && (
+              <span className="text-xs text-gray-400 font-mono">{subtitle}</span>
+            )}
+          </div>
+        </div>
+
+        <div className="px-6 py-5 max-h-[60vh] overflow-auto">
+          {isEditing ? (
+            <textarea
+              value={editValue}
+              onChange={e => setEditValue(e.target.value)}
+              className="w-full min-h-[280px] text-sm text-gray-700 leading-6 whitespace-pre-wrap break-words border border-amber-300 rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 resize-y"
+              disabled={isSaving}
+            />
+          ) : (
+            <p className="text-sm text-gray-700 leading-6 whitespace-pre-wrap break-words">
+              {title}
+            </p>
+          )}
+        </div>
+
+        <div className="flex justify-end gap-2 px-6 py-4 border-t bg-gray-50">
+          {isEditing ? (
+            <>
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                disabled={isSaving}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {isSaving ? 'Saving...' : 'Save'}
+              </button>
+            </>
+          ) : (
+            <>
+              {canEdit && (
+                <button
+                  type="button"
+                  onClick={handleStartEdit}
+                  className="px-4 py-2 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
+                >
+                  Edit
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isSaving}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
+              >
+                Close
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
