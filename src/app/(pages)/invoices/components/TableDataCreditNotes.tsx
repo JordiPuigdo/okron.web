@@ -115,6 +115,11 @@ const tableButtons: TableButtons = {
 
 const columnsCreditNotes: Column[] = [
   {
+    label: 'ID',
+    key: 'id',
+    format: ColumnFormat.TEXT,
+  },
+  {
     label: 'Codi',
     key: 'code',
     format: ColumnFormat.TEXT,

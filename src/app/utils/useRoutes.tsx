@@ -47,6 +47,10 @@ const useRoutes = () => {
       detail: (id: string) => `/deliveryNotes/${id}`,
       edit: (id: string) => `/deliveryNotes/${id}`,
     },
+    creditNote: {
+      list: '/invoices?tab=creditNotes',
+      detail: (id: string) => `/creditNodes/${id}`,
+    },
     print: {
       workOrder: '/print/workorder',
       order: '/print/order',

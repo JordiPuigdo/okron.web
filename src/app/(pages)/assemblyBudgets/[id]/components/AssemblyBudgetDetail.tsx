@@ -34,6 +34,7 @@ import { countNodes } from './AssemblyBudgetStatusConfig';
 import { AssemblyBudgetTotalsCard } from './AssemblyBudgetTotalsCard';
 import { generateNextCode } from './assemblyCodeUtils';
 import { AssemblyTreePanel } from './AssemblyTreePanel';
+import { BudgetVersionsModal } from './BudgetVersionsModal';
 
 interface AssemblyBudgetDetailProps {
   budget: Budget;
@@ -171,6 +172,7 @@ export function AssemblyBudgetDetail({
   const [isArticleModalOpen, setIsArticleModalOpen] = useState(false);
   const [isCreateArticleOpen, setIsCreateArticleOpen] = useState(false);
   const [isMarginModalOpen, setIsMarginModalOpen] = useState(false);
+  const [isVersionsModalOpen, setIsVersionsModalOpen] = useState(false);
   const [selectedParentNodeId, setSelectedParentNodeId] = useState<
     string | undefined
   >(undefined);
@@ -447,6 +449,21 @@ export function AssemblyBudgetDetail({
     setIsMarginModalOpen(false);
   }, []);
 
+  const handleOpenVersionsModal = useCallback(() => {
+    setIsVersionsModalOpen(true);
+  }, []);
+
+  const handleCloseVersionsModal = useCallback(() => {
+    setIsVersionsModalOpen(false);
+  }, []);
+
+  const handleVersionRestored = useCallback(
+    (restoredBudget: Budget) => {
+      setFormData(restoredBudget);
+    },
+    []
+  );
+
   const applyMarginToNodes = useCallback(
     (
       nodes: AssemblyNode[],
@@ -530,6 +547,7 @@ export function AssemblyBudgetDetail({
           onMarginPercentageChange={handleMarginPercentageChange}
           onUpdateMargin={handleUpdateMargin}
           onOpenMarginModal={handleOpenMarginModal}
+          onOpenVersionsModal={handleOpenVersionsModal}
           t={t}
         />
 
@@ -607,6 +625,14 @@ export function AssemblyBudgetDetail({
         nodes={formData.assemblyNodes || []}
         onClose={handleCloseMarginModal}
         onApply={handleApplyMargin}
+        t={t}
+      />
+
+      <BudgetVersionsModal
+        isVisible={isVersionsModalOpen}
+        budgetId={formData.id}
+        onClose={handleCloseVersionsModal}
+        onVersionRestored={handleVersionRestored}
         t={t}
       />
     </div>

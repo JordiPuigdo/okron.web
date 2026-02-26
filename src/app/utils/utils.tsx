@@ -496,6 +496,8 @@ export const getRoute = (entity: EntityTable, isForHeader = false) => {
       return '/budgets';
     case EntityTable.ASSEMBLY_BUDGET:
       return '/assemblyBudgets';
+    case EntityTable.CREDITNOTE:
+      return '/creditNodes';
     default:
       return 'error';
   }

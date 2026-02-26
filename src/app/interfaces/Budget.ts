@@ -214,3 +214,29 @@ export interface UpdateAssemblyNodesMarginRequest {
   nodeIds: string[];
   marginPercentage: number;
 }
+
+export interface BudgetVersion extends BaseModel {
+  budgetId: string;
+  versionNumber: number;
+  description?: string;
+  operatorId?: string;
+  snapshot: Budget;
+}
+
+export interface BudgetVersionSummary extends BaseModel {
+  budgetId: string;
+  versionNumber: number;
+  description?: string;
+  operatorId?: string;
+}
+
+export interface CreateBudgetVersionRequest {
+  budgetId: string;
+  operatorId?: string;
+  description?: string;
+}
+
+export interface RestoreBudgetVersionRequest {
+  budgetId: string;
+  versionId: string;
+}
