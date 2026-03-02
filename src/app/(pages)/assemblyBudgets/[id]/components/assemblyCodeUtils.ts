@@ -6,6 +6,34 @@ import {
   BudgetNodeType,
 } from 'app/interfaces/Budget';
 
+function normalizeNodesBySortOrder(nodes: AssemblyNode[]): AssemblyNode[] {
+  return nodes
+    .map((node, index) => ({ node, index }))
+    .sort((a, b) => {
+      const sortA =
+        typeof a.node.sortOrder === 'number' ? a.node.sortOrder : a.index;
+      const sortB =
+        typeof b.node.sortOrder === 'number' ? b.node.sortOrder : b.index;
+
+      if (sortA !== sortB) {
+        return sortA - sortB;
+      }
+
+      return a.index - b.index;
+    })
+    .map(({ node }) => {
+      if (node.nodeType === BudgetNodeType.Folder) {
+        const folder = node as AssemblyFolder;
+        return {
+          ...folder,
+          children: normalizeNodesBySortOrder(folder.children || []),
+        } as AssemblyNode;
+      }
+
+      return { ...(node as AssemblyArticle) };
+    });
+}
+
 function findFolderById(
   nodes: AssemblyNode[],
   id: string
@@ -49,10 +77,11 @@ function recalculateNodes(
 
 export function recalculateNodeCodes(budget: Budget): Budget {
   if (!budget.assemblyNodes) return budget;
+  const normalizedNodes = normalizeNodesBySortOrder(budget.assemblyNodes);
 
   return {
     ...budget,
-    assemblyNodes: recalculateNodes(budget.assemblyNodes, ''),
+    assemblyNodes: recalculateNodes(normalizedNodes, ''),
   };
 }
 

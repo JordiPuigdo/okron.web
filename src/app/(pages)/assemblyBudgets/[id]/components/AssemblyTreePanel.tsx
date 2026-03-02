@@ -286,6 +286,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
       nodeId: string,
       moveResult: {
         newParentNodeId: string | undefined;
+        apiNewParentNodeId?: string;
         newSortOrder: number;
         optimisticNodes: AssemblyNode[];
       }
@@ -298,7 +299,8 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
         const result = await onMoveNode({
           budgetId,
           nodeId,
-          newParentNodeId: moveResult.newParentNodeId ?? null,
+          newParentNodeId:
+            moveResult.apiNewParentNodeId ?? moveResult.newParentNodeId ?? null,
           newSortOrder: moveResult.newSortOrder,
         });
         shouldKeepOptimistic = !result;
@@ -348,7 +350,12 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
 
       if (!moveResult) return;
 
-      await persistNodeMove(nodeId, moveResult);
+      await persistNodeMove(nodeId, {
+        ...moveResult,
+        // Backend expects the sibling target id for before/after reorders.
+        apiNewParentNodeId: targetNodeId,
+        newSortOrder: targetIndex,
+      });
     },
     [isReadOnly, isMoving, displayNodes, persistNodeMove]
   );
@@ -370,7 +377,13 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
 
       if (!moveResult) return;
 
-      await persistNodeMove(activeId, moveResult);
+      await persistNodeMove(activeId, {
+        ...moveResult,
+        apiNewParentNodeId:
+          dropIndicator.position === 'inside'
+            ? undefined
+            : dropIndicator.targetNodeId,
+      });
     },
     [dropIndicator, displayNodes, persistNodeMove]
   );
@@ -886,9 +899,11 @@ function TreeNode({
           </div>
         )}
 
-        <span className="text-sm font-mono text-gray-400 min-w-[80px] shrink-0">
-          {node.code}
-        </span>
+        <div className="min-w-[150px] shrink-0 mr-2">
+          <span className="block text-sm font-mono text-gray-400">
+            {node.code}
+          </span>
+        </div>
 
         {isEditing ? (
           <input
@@ -1089,6 +1104,12 @@ function DragOverlayContent({ node }: { node: AssemblyNode }) {
       )}
       <span className="text-sm font-mono text-gray-400 mr-2 shrink-0">
         {node.code}
+      </span>
+      <span
+        className="text-xs font-mono text-gray-300 mr-2 max-w-[220px] truncate shrink-0"
+        title={node.id}
+      >
+        {node.id}
       </span>
       <span className={`text-sm truncate max-w-[300px] ${
         isFolder ? 'font-semibold text-gray-800' : 'text-gray-700'
@@ -1476,7 +1497,7 @@ function DeleteConfirmDialog({
                   </span>
                 </div>
                 <p className="text-xs text-gray-400 mt-1 ml-6">
-                  {node.code}
+                  {node.code} Â· {node.id}
                   {isFolder && childCount > 0 && (
                     <span className="text-red-500 font-medium">
                       {' '}

@@ -244,15 +244,18 @@ function insertNodeIntoTree(
 
 export function getSiblingsAndIndex(
   nodes: AssemblyNode[],
-  nodeId: string
-): { siblings: AssemblyNode[]; index: number } | undefined {
+  nodeId: string,
+  parentNodeId?: string
+): { siblings: AssemblyNode[]; index: number; parentNodeId?: string } | undefined {
   const idx = nodes.findIndex(n => n.id === nodeId);
-  if (idx !== -1) return { siblings: nodes, index: idx };
+  if (idx !== -1) {
+    return { siblings: nodes, index: idx, parentNodeId };
+  }
 
   for (const node of nodes) {
     if (node.nodeType === BudgetNodeType.Folder) {
       const folder = node as AssemblyFolder;
-      const result = getSiblingsAndIndex(folder.children || [], nodeId);
+      const result = getSiblingsAndIndex(folder.children || [], nodeId, node.id);
       if (result) return result;
     }
   }

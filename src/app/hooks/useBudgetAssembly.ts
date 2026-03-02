@@ -72,9 +72,11 @@ export function useBudgetAssembly() {
   );
 
   const moveNode = useCallback(
-    (request: MoveAssemblyNodeRequest) =>
-      executeAction(() => serviceRef.current.moveNode(request)),
-    [executeAction]
+     (request: MoveAssemblyNodeRequest) =>
+       executeAction(() => serviceRef.current.moveNode(request)),
+//    (_request: MoveAssemblyNodeRequest): Promise<Budget | undefined> =>
+  //    Promise.resolve(undefined),
+    []
   );
 
   const removeNode = useCallback(
