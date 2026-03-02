@@ -9,13 +9,16 @@ import {
   CreditNoteUpdateRequest,
 } from 'app/interfaces/CreditNote';
 import useRoutes from 'app/utils/useRoutes';
+import { TotalComponent } from 'components/customer/TotalComponent';
+import { Textarea } from 'components/textarea';
+import dayjs from 'dayjs';
 import { Button } from 'designSystem/Button/Buttons';
-import { ArrowLeft, FileText, Pencil, Save, X } from 'lucide-react';
+import { Pencil, Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { CreditNoteInfoCard } from './CreditNoteInfoCard';
+import { HeaderForm } from '../../../../../components/layout/HeaderForm';
+import { SvgSpinner } from '../../../../icons/icons';
 import { CreditNoteItemsTable } from './CreditNoteItemsTable';
-import { CreditNoteTotalsCard } from './CreditNoteTotalsCard';
 
 interface CreditNoteDetailFormProps {
   creditNote: CreditNote;
@@ -26,12 +29,6 @@ const CREDIT_NOTE_TYPE_LABELS: Record<CreditNoteType, string> = {
   [CreditNoteType.Total]: 'Total',
   [CreditNoteType.Partial]: 'Parcial',
   [CreditNoteType.External]: 'Externa',
-};
-
-const CREDIT_NOTE_TYPE_STYLES: Record<CreditNoteType, string> = {
-  [CreditNoteType.Total]: 'bg-blue-100 text-blue-700',
-  [CreditNoteType.Partial]: 'bg-amber-100 text-amber-700',
-  [CreditNoteType.External]: 'bg-purple-100 text-purple-700',
 };
 
 export function CreditNoteDetailForm({
@@ -49,8 +46,8 @@ export function CreditNoteDetailForm({
     creditNote.items || []
   );
 
-  const typeLabel = CREDIT_NOTE_TYPE_LABELS[creditNote.type] ?? t('common.unknown');
-  const typeStyle = CREDIT_NOTE_TYPE_STYLES[creditNote.type] ?? 'bg-gray-100 text-gray-700';
+  const typeLabel =
+    CREDIT_NOTE_TYPE_LABELS[creditNote.type] ?? t('common.unknown');
 
   const totals = useMemo(() => {
     const items = isEditing ? editedItems : creditNote.items || [];
@@ -75,7 +72,8 @@ export function CreditNoteDetailForm({
     setEditedItems(creditNote.items || []);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (isSubmitting) return;
     setIsSubmitting(true);
 
@@ -128,41 +126,79 @@ export function CreditNoteDetailForm({
     });
   };
 
+  const invoiceReference =
+    creditNote.originalInvoiceCode ||
+    creditNote.externalInvoiceCode ||
+    t('common.not.available');
+
   return (
-    <div className="min-h-screen bg-gray-50/80">
-      <div className="px-4 py-6 space-y-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={() => router.push(ROUTES.invoices.list + '?tab=creditNotes')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
-              </button>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-okron-primary/10">
-                  <FileText className="w-5 h-5 text-okron-primary" />
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-6xl mx-auto space-y-8">
+        <HeaderForm
+          header={creditNote.code}
+          isCreate={false}
+          canPrint={`creditNote?id=${creditNote.id}`}
+        />
+
+        <div className="bg-white rounded-xl p-6 shadow-lg">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="space-y-2">
+                <label className="font-semibold">{t('creditNotes.columns.code')}</label>
+                <div className="p-2 bg-gray-50 rounded border text-gray-700">
+                  {creditNote.code}
                 </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">
-                    {creditNote.code}
-                  </h1>
-                  <p className="text-sm text-gray-500">
-                    {t('creditNote.detail')}
-                  </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="font-semibold">{t('creditNotes.columns.date')}</label>
+                <div className="p-2 bg-gray-50 rounded border text-gray-700">
+                  {dayjs(creditNote.creditNoteDate).format('DD/MM/YYYY')}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="font-semibold">{t('creditNotes.columns.type')}</label>
+                <div className="p-2 bg-gray-50 rounded border text-gray-700">
+                  {typeLabel}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="font-semibold">
+                  {t('creditNotes.originalInvoice')}
+                </label>
+                <div className="p-2 bg-gray-50 rounded border text-gray-700">
+                  {invoiceReference}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <span
-                className={`px-3 py-1.5 rounded-full text-sm font-medium ${typeStyle}`}
-              >
-                {typeLabel}
-              </span>
-              {!isEditing && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <label className="font-semibold">
+                  {t('creditNotes.columns.customer')}
+                </label>
+                <div className="p-2 bg-gray-50 rounded border text-gray-700">
+                  {creditNote.companyName || t('common.not.available')}
+                </div>
+              </div>
+
+              {creditNote.creditPercentage !== undefined &&
+                creditNote.creditPercentage !== null && (
+                  <div className="space-y-2">
+                    <label className="font-semibold">
+                      {t('creditNotes.percentageToCredit')}
+                    </label>
+                    <div className="p-2 bg-gray-50 rounded border text-gray-700">
+                      {creditNote.creditPercentage}%
+                    </div>
+                  </div>
+                )}
+            </div>
+
+            {!isEditing && (
+              <div className="flex justify-end">
                 <Button
                   type="edit"
                   onClick={handleStartEdit}
@@ -171,13 +207,9 @@ export function CreditNoteDetailForm({
                   <Pencil className="w-4 h-4" />
                   <p>{t('edit')}</p>
                 </Button>
-              )}
-            </div>
-          </div>
-        </div>
+              </div>
+            )}
 
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
-          <div className="space-y-6">
             <CreditNoteItemsTable
               items={isEditing ? editedItems : creditNote.items || []}
               isEditing={isEditing}
@@ -185,67 +217,76 @@ export function CreditNoteDetailForm({
               t={t}
             />
 
-            {creditNote.reason && !isEditing && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                  {t('creditNote.reason')}
-                </h3>
-                <p className="text-gray-700 leading-relaxed">
-                  {creditNote.reason}
-                </p>
-              </div>
-            )}
+            <TotalComponent
+              subtotal={isEditing ? totals.subtotal : creditNote.subtotal}
+              totalTax={isEditing ? totals.taxAmount : creditNote.taxAmount}
+              total={isEditing ? totals.total : creditNote.total}
+            />
 
-            {isEditing && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                  {t('creditNote.reason')}
-                </h3>
-                <textarea
+            <div className="space-y-2">
+              <label className="font-semibold">
+                {t('creditNotes.reason')}
+              </label>
+              {isEditing ? (
+                <Textarea
+                  placeholder={t('creditNotes.reasonPlaceholder')}
                   value={editedReason}
                   onChange={e => setEditedReason(e.target.value)}
-                  rows={3}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-okron-primary focus:ring-1 focus:ring-okron-primary outline-none transition-colors resize-none"
-                  placeholder={t('creditNote.reason.placeholder')}
+                  className="min-h-[100px]"
                 />
-              </div>
-            )}
-          </div>
+              ) : (
+                <div className="p-3 bg-gray-50 rounded border text-gray-700 min-h-[60px]">
+                  {creditNote.reason || '-'}
+                </div>
+              )}
+            </div>
 
-          <div className="space-y-6">
-            <CreditNoteInfoCard creditNote={creditNote} t={t} />
-            <CreditNoteTotalsCard
-              subtotal={isEditing ? totals.subtotal : creditNote.subtotal}
-              taxAmount={isEditing ? totals.taxAmount : creditNote.taxAmount}
-              total={isEditing ? totals.total : creditNote.total}
-              creditPercentage={creditNote.creditPercentage}
-              t={t}
-            />
-          </div>
+            <div className="flex gap-3 pt-6 border-t">
+              {isEditing ? (
+                <>
+                  <Button
+                    type="create"
+                    isSubmit
+                    className="flex-1"
+                    customStyles="flex justify-center"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <SvgSpinner className="mr-2 h-4 w-4" />
+                    ) : (
+                      <Save className="mr-2 h-4 w-4" />
+                    )}
+                    <p>{t('save')}</p>
+                  </Button>
+                  <Button
+                    type="cancel"
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                    className="flex-1"
+                    customStyles="flex justify-center"
+                    disabled={isSubmitting}
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    <p>{t('cancel')}</p>
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  type="cancel"
+                  variant="outline"
+                  onClick={() =>
+                    router.push(ROUTES.invoices.list + '?tab=creditNotes')
+                  }
+                  className="flex-1"
+                  customStyles="flex justify-center"
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  <p>{t('back')}</p>
+                </Button>
+              )}
+            </div>
+          </form>
         </div>
-
-        {isEditing && (
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <Button
-              type="cancel"
-              onClick={handleCancelEdit}
-              customStyles="flex items-center gap-2"
-              disabled={isSubmitting}
-            >
-              <X className="w-4 h-4" />
-              <p>{t('cancel')}</p>
-            </Button>
-            <Button
-              type="create"
-              onClick={handleSubmit}
-              customStyles="flex items-center gap-2"
-              disabled={isSubmitting}
-            >
-              <Save className="w-4 h-4" />
-              <p>{t('save')}</p>
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );

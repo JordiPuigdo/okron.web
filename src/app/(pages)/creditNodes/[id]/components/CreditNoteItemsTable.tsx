@@ -22,57 +22,52 @@ export function CreditNoteItemsTable({
 }: CreditNoteItemsTableProps) {
   if (items.length === 0) {
     return (
-      <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100 text-center">
-        <p className="text-gray-400 text-sm">{t('creditNote.noItems')}</p>
+      <div className="p-4 text-center">
+        <p className="text-gray-400 text-sm">{t('creditNotes.noLinesYet')}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-100">
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-          {t('creditNote.items')} ({items.length})
-        </h3>
-      </div>
-
+    <div className="space-y-2">
+      <h3 className="font-semibold">{t('creditNotes.lines')}</h3>
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full border border-gray-300">
           <thead>
-            <tr className="bg-gray-50/80">
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <tr className="bg-gray-100">
+              <th className="p-2 border text-left">
                 {t('description')}
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">
+              <th className="p-2 border text-center">
                 {t('quantity')}
               </th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">
+              <th className="p-2 border text-center">
                 {t('unitPrice')}
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">
-                {t('discount')} %
+              <th className="p-2 border text-center">
+                % {t('discount')}
               </th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">
+              <th className="p-2 border text-center">
                 {t('discount')}
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">
-                {t('tax')} %
+              <th className="p-2 border text-center">
+                % {t('tax')}
               </th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">
+              <th className="p-2 border text-center">
                 {t('subtotal')}
               </th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">
+              <th className="p-2 border text-center">
                 {t('total')}
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody>
             {items.map((item, index) => (
               <tr
                 key={item.id || index}
-                className="hover:bg-gray-50/50 transition-colors"
+                className="border-t"
               >
-                <td className="px-4 py-3">
+                <td className="p-2 border">
                   {isEditing ? (
                     <input
                       type="text"
@@ -83,12 +78,10 @@ export function CreditNoteItemsTable({
                       className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-okron-primary focus:ring-1 focus:ring-okron-primary outline-none"
                     />
                   ) : (
-                    <span className="text-sm text-gray-800">
-                      {item.description}
-                    </span>
+                    <span>{item.description}</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-center">
+                <td className="p-2 border text-center">
                   {isEditing ? (
                     <input
                       type="number"
@@ -105,12 +98,10 @@ export function CreditNoteItemsTable({
                       step="any"
                     />
                   ) : (
-                    <span className="text-sm text-gray-700">
-                      {item.quantity}
-                    </span>
+                    <span>{item.quantity}</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="p-2 border text-center">
                   {isEditing ? (
                     <input
                       type="number"
@@ -122,17 +113,15 @@ export function CreditNoteItemsTable({
                           parseFloat(e.target.value) || 0
                         )
                       }
-                      className="w-28 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-right focus:border-okron-primary focus:ring-1 focus:ring-okron-primary outline-none"
+                      className="w-28 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-center focus:border-okron-primary focus:ring-1 focus:ring-okron-primary outline-none"
                       min={0}
                       step="any"
                     />
                   ) : (
-                    <span className="text-sm text-gray-700">
-                      {formatCurrencyServerSider(item.unitPrice)}
-                    </span>
+                    <span>{formatCurrencyServerSider(item.unitPrice)}</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-center">
+                <td className="p-2 border text-center">
                   {isEditing ? (
                     <input
                       type="number"
@@ -150,21 +139,19 @@ export function CreditNoteItemsTable({
                       step="any"
                     />
                   ) : (
-                    <span className="text-sm text-gray-500">
+                    <span>
                       {item.discountPercentage > 0
                         ? `${item.discountPercentage.toFixed(2)}%`
                         : '-'}
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <span className="text-sm text-gray-500">
-                    {item.discountAmount > 0
-                      ? formatCurrencyServerSider(item.discountAmount)
-                      : '-'}
-                  </span>
+                <td className="p-2 border text-center">
+                  {item.discountAmount > 0
+                    ? formatCurrencyServerSider(item.discountAmount)
+                    : '-'}
                 </td>
-                <td className="px-4 py-3 text-center">
+                <td className="p-2 border text-center">
                   {isEditing ? (
                     <input
                       type="number"
@@ -182,20 +169,14 @@ export function CreditNoteItemsTable({
                       step="any"
                     />
                   ) : (
-                    <span className="text-sm text-gray-500">
-                      {item.taxPercentage}%
-                    </span>
+                    <span>{item.taxPercentage}%</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <span className="text-sm text-gray-700">
-                    {formatCurrencyServerSider(item.subtotal)}
-                  </span>
+                <td className="p-2 border text-center">
+                  {formatCurrencyServerSider(item.subtotal)}
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <span className="text-sm font-medium text-gray-900">
-                    {formatCurrencyServerSider(item.total)}
-                  </span>
+                <td className="p-2 border text-center">
+                  {formatCurrencyServerSider(item.total)}
                 </td>
               </tr>
             ))}

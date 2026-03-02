@@ -48,37 +48,37 @@ export function CreditNoteInfoCard({ creditNote, t }: CreditNoteInfoCardProps) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
       <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-        {t('creditNote.information')}
+        {t('creditNotes.creditNoteDetail')}
       </h3>
 
       <div className="divide-y divide-gray-50">
         <InfoRow
           icon={<Hash className="w-4 h-4 text-gray-400" />}
-          label={t('creditNote.code')}
+          label={t('creditNotes.columns.code')}
           value={creditNote.code}
         />
 
         <InfoRow
           icon={<FileText className="w-4 h-4 text-gray-400" />}
-          label={t('creditNote.originalInvoice')}
+          label={t('creditNotes.originalInvoice')}
           value={invoiceReference}
         />
 
         <InfoRow
           icon={<Calendar className="w-4 h-4 text-gray-400" />}
-          label={t('creditNote.date')}
+          label={t('creditNotes.columns.date')}
           value={dayjs(creditNote.creditNoteDate).format('DD/MM/YYYY')}
         />
 
         <InfoRow
           icon={<User className="w-4 h-4 text-gray-400" />}
-          label={t('creditNote.customer')}
+          label={t('creditNotes.columns.customer')}
           value={creditNote.companyName || t('common.not.available')}
         />
 
         <InfoRow
           icon={<Percent className="w-4 h-4 text-gray-400" />}
-          label={t('creditNote.type')}
+          label={t('creditNotes.columns.type')}
           value={TYPE_LABELS[creditNote.type] ?? t('common.unknown')}
         />
 
@@ -86,7 +86,7 @@ export function CreditNoteInfoCard({ creditNote, t }: CreditNoteInfoCardProps) {
           creditNote.creditPercentage !== null && (
             <InfoRow
               icon={<Percent className="w-4 h-4 text-gray-400" />}
-              label={t('creditNote.percentage')}
+              label={t('creditNotes.percentageToCredit')}
               value={`${creditNote.creditPercentage}%`}
             />
           )}

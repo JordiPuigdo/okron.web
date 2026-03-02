@@ -20,13 +20,13 @@ export function CreditNoteTotalsCard({
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
       <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-        {t('creditNote.totals')}
+        {t('creditNotes.total')}
       </h3>
 
       <div className="space-y-3">
         {creditPercentage !== undefined && creditPercentage !== null && (
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-500">{t('creditNote.percentage')}</span>
+            <span className="text-gray-500">{t('creditNotes.percentageToCredit')}</span>
             <span className="font-medium text-gray-700">
               {creditPercentage}%
             </span>

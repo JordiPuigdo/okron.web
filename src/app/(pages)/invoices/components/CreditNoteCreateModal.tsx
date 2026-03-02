@@ -74,6 +74,9 @@ export function CreditNoteCreateModal({
   const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(
     new Set()
   );
+  const [customQuantities, setCustomQuantities] = useState<Map<string, number>>(
+    new Map()
+  );
   const [reason, setReason] = useState('');
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -101,6 +104,7 @@ export function CreditNoteCreateModal({
     setCreditMode('total');
     setCreditPercentage(100);
     setSelectedItemIds(new Set());
+    setCustomQuantities(new Map());
     setReason('');
     setSubmitError(null);
   };
@@ -181,10 +185,26 @@ export function CreditNoteCreateModal({
     if (creditMode !== 'lines') return;
     setSelectedItemIds(prev => {
       const next = new Set(prev);
-      if (next.has(itemId)) next.delete(itemId);
-      else next.add(itemId);
+      if (next.has(itemId)) {
+        next.delete(itemId);
+        setCustomQuantities(prevQ => {
+          const nextQ = new Map(prevQ);
+          nextQ.delete(itemId);
+          return nextQ;
+        });
+      } else {
+        next.add(itemId);
+        const original = flattenedItems.find(i => i.id === itemId);
+        if (original) {
+          setCustomQuantities(prevQ => new Map(prevQ).set(itemId, original.quantity));
+        }
+      }
       return next;
     });
+  };
+
+  const handleCustomQuantityChange = (itemId: string, quantity: number) => {
+    setCustomQuantities(prev => new Map(prev).set(itemId, quantity));
   };
 
   const addExternalItem = () => {
@@ -248,7 +268,10 @@ export function CreditNoteCreateModal({
     let subtotal = 0;
     let taxAmount = 0;
     relevantItems.forEach(item => {
-      const base = item.quantity * item.unitPrice;
+      const qty = creditMode === 'lines' && customQuantities.has(item.id)
+        ? customQuantities.get(item.id)!
+        : item.quantity;
+      const base = qty * item.unitPrice;
       const discounted = base * (1 - (item.discountPercentage || 0) / 100);
       const itemSubtotal =
         creditMode === 'percentage'
@@ -267,6 +290,7 @@ export function CreditNoteCreateModal({
     creditMode,
     creditPercentage,
     selectedItemIds,
+    customQuantities,
   ]);
 
   const canSubmit = useMemo(() => {
@@ -304,6 +328,19 @@ export function CreditNoteCreateModal({
         const type =
           creditMode === 'total' ? CreditNoteType.Total : CreditNoteType.Partial;
 
+        const selectedItems = creditMode === 'lines'
+          ? flattenedItems
+              .filter(i => selectedItemIds.has(i.id))
+              .map(i => ({
+                description: i.description,
+                quantity: customQuantities.get(i.id) ?? i.quantity,
+                unitPrice: i.unitPrice,
+                discountPercentage: i.discountPercentage,
+                discountAmount: i.discountAmount,
+                taxPercentage: i.taxPercentage,
+              }))
+          : undefined;
+
         request = {
           originalInvoiceId: selectedInvoice!.id,
           type,
@@ -311,6 +348,7 @@ export function CreditNoteCreateModal({
           creditNoteDate: new Date().toISOString(),
           creditPercentage:
             creditMode === 'percentage' ? creditPercentage : undefined,
+          items: selectedItems,
           selectedItemIds:
             creditMode === 'lines'
               ? Array.from(selectedItemIds)
@@ -376,6 +414,8 @@ export function CreditNoteCreateModal({
               creditMode={creditMode}
               selectedItemIds={selectedItemIds}
               onToggleItem={toggleItemSelection}
+              customQuantities={customQuantities}
+              onCustomQuantityChange={handleCustomQuantityChange}
               creditPercentage={creditPercentage}
               invoiceSubtotal={invoiceSubtotal}
               invoiceTax={invoiceTax}
@@ -491,6 +531,8 @@ function LeftPanel({
   creditMode,
   selectedItemIds,
   onToggleItem,
+  customQuantities,
+  onCustomQuantityChange,
   creditPercentage,
   invoiceSubtotal,
   invoiceTax,
@@ -518,6 +560,8 @@ function LeftPanel({
   creditMode: CreditMode;
   selectedItemIds: Set<string>;
   onToggleItem: (id: string) => void;
+  customQuantities: Map<string, number>;
+  onCustomQuantityChange: (id: string, qty: number) => void;
   creditPercentage: number;
   invoiceSubtotal: number;
   invoiceTax: number;
@@ -694,6 +738,8 @@ function LeftPanel({
                     isSelectable={creditMode === 'lines'}
                     isPartialPercentage={creditMode === 'percentage'}
                     creditPercentage={creditPercentage}
+                    customQuantity={customQuantities.get(item.id)}
+                    onCustomQuantityChange={onCustomQuantityChange}
                     onToggle={() => onToggleItem(item.id)}
                   />
                 ))}
@@ -799,6 +845,8 @@ function InvoiceItemRow({
   isSelectable,
   isPartialPercentage,
   creditPercentage,
+  customQuantity,
+  onCustomQuantityChange,
   onToggle,
 }: {
   item: FlattenedInvoiceItem;
@@ -806,11 +854,40 @@ function InvoiceItemRow({
   isSelectable: boolean;
   isPartialPercentage: boolean;
   creditPercentage: number;
+  customQuantity?: number;
+  onCustomQuantityChange: (id: string, qty: number) => void;
   onToggle: () => void;
 }) {
+  const numericQuantity = customQuantity ?? item.quantity;
+  const [localQuantity, setLocalQuantity] = useState<string>(
+    String(numericQuantity)
+  );
+
+  useEffect(() => {
+    setLocalQuantity(String(numericQuantity));
+  }, [numericQuantity]);
+
+  const commitQuantity = () => {
+    const parsed = parseFloat(localQuantity);
+    if (isNaN(parsed) || parsed <= 0) {
+      const fallback = item.quantity;
+      setLocalQuantity(String(fallback));
+      onCustomQuantityChange(item.id, fallback);
+      return;
+    }
+    const clamped = Math.min(item.quantity, parsed);
+    setLocalQuantity(String(clamped));
+    onCustomQuantityChange(item.id, clamped);
+  };
+
+  const qty = isSelectable && isSelected && customQuantity !== undefined
+    ? customQuantity
+    : item.quantity;
+  const base = qty * item.unitPrice;
+  const discounted = base * (1 - (item.discountPercentage || 0) / 100);
   const effectiveTotal = isPartialPercentage
     ? item.lineTotal * (creditPercentage / 100)
-    : item.lineTotal;
+    : discounted;
 
   const isAffected = isSelectable ? isSelected : true;
 
@@ -842,9 +919,35 @@ function InvoiceItemRow({
           {item.description}
         </p>
         <div className="flex items-center gap-2 text-xs text-gray-500">
-          <span>
-            {item.quantity} × {item.unitPrice.toFixed(2)} €
-          </span>
+          {isSelectable && isSelected ? (
+            <span className="flex items-center gap-1">
+              <input
+                type="text"
+                inputMode="decimal"
+                value={localQuantity}
+                onChange={e => {
+                  e.stopPropagation();
+                  setLocalQuantity(e.target.value);
+                }}
+                onBlur={commitQuantity}
+                onKeyDown={e => {
+                  e.stopPropagation();
+                  if (e.key === 'Enter') {
+                    commitQuantity();
+                    (e.target as HTMLInputElement).blur();
+                  }
+                }}
+                onClick={e => e.stopPropagation()}
+                onFocus={e => e.target.select()}
+                className="w-16 h-6 rounded border border-gray-300 px-1 text-xs text-center focus:ring-1 focus:ring-[#6E41B6] focus:border-[#6E41B6] outline-none"
+              />
+              <span>/ {item.quantity} × {item.unitPrice.toFixed(2)} €</span>
+            </span>
+          ) : (
+            <span>
+              {item.quantity} × {item.unitPrice.toFixed(2)} €
+            </span>
+          )}
           {item.discountPercentage > 0 && (
             <span className="text-orange-500">
               -{item.discountPercentage}%
