@@ -94,7 +94,6 @@ export function CreditNoteItemsTable({
                         )
                       }
                       className="w-20 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-center focus:border-okron-primary focus:ring-1 focus:ring-okron-primary outline-none"
-                      min={0}
                       step="any"
                     />
                   ) : (
@@ -114,7 +113,6 @@ export function CreditNoteItemsTable({
                         )
                       }
                       className="w-28 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-center focus:border-okron-primary focus:ring-1 focus:ring-okron-primary outline-none"
-                      min={0}
                       step="any"
                     />
                   ) : (
