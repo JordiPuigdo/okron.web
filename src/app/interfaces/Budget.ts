@@ -54,6 +54,7 @@ export interface Budget extends BaseModel {
   assemblyNodes?: AssemblyNode[];
   taxBreakdowns: TaxBreakdown[];
   marginPercentage: number;
+  currentVersionNumber?: number;
 }
 
 export interface BudgetItem extends BaseModel {
@@ -226,6 +227,7 @@ export interface BudgetVersion extends BaseModel {
 export interface BudgetVersionSummary extends BaseModel {
   budgetId: string;
   versionNumber: number;
+  versionDate: Date;
   description?: string;
   operatorId?: string;
 }

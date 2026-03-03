@@ -54,23 +54,50 @@ export class BudgetAssemblyService {
   }
 
   async addFolder(request: AddAssemblyFolderRequest): Promise<Budget> {
+    const normalizedRequest: AddAssemblyFolderRequest = {
+      ...request,
+      parentNodeId:
+        typeof request.parentNodeId === 'string' &&
+        request.parentNodeId.trim() === ''
+          ? undefined
+          : request.parentNodeId,
+    };
+
     return this.request<Budget>('budgets/assembly/folder', {
       method: 'POST',
-      body: JSON.stringify(request),
+      body: JSON.stringify(normalizedRequest),
     });
   }
 
   async addArticle(request: AddAssemblyArticleRequest): Promise<Budget> {
+    const normalizedRequest: AddAssemblyArticleRequest = {
+      ...request,
+      parentNodeId:
+        typeof request.parentNodeId === 'string' &&
+        request.parentNodeId.trim() === ''
+          ? undefined
+          : request.parentNodeId,
+    };
+
     return this.request<Budget>('budgets/assembly/article', {
       method: 'POST',
-      body: JSON.stringify(request),
+      body: JSON.stringify(normalizedRequest),
     });
   }
 
   async moveNode(request: MoveAssemblyNodeRequest): Promise<Budget> {
+    const normalizedRequest: MoveAssemblyNodeRequest = {
+      ...request,
+      newParentNodeId:
+        typeof request.newParentNodeId === 'string' &&
+        request.newParentNodeId.trim() === ''
+          ? null
+          : request.newParentNodeId,
+    };
+
     return this.request<Budget>('budgets/assembly/move-node', {
       method: 'PUT',
-      body: JSON.stringify(request),
+      body: JSON.stringify(normalizedRequest),
     });
   }
 

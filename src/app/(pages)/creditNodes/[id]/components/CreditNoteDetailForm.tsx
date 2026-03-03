@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useCustomers } from 'app/hooks/useCustomers';
 import { useTranslations } from 'app/hooks/useTranslations';
 import {
   CreditNote,
@@ -8,7 +9,9 @@ import {
   CreditNoteType,
   CreditNoteUpdateRequest,
 } from 'app/interfaces/CreditNote';
+import { Customer } from 'app/interfaces/Customer';
 import useRoutes from 'app/utils/useRoutes';
+import ChooseElement from 'components/ChooseElement';
 import { TotalComponent } from 'components/customer/TotalComponent';
 import { Textarea } from 'components/textarea';
 import dayjs from 'dayjs';
@@ -38,12 +41,16 @@ export function CreditNoteDetailForm({
   const { t } = useTranslations();
   const router = useRouter();
   const ROUTES = useRoutes();
+  const { customers } = useCustomers();
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editedReason, setEditedReason] = useState(creditNote.reason || '');
   const [editedItems, setEditedItems] = useState<CreditNoteItem[]>(
     creditNote.items || []
+  );
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>(
+    creditNote.customerId || ''
   );
 
   const typeLabel =
@@ -63,6 +70,7 @@ export function CreditNoteDetailForm({
   const handleStartEdit = () => {
     setEditedReason(creditNote.reason || '');
     setEditedItems(creditNote.items || []);
+    setSelectedCustomerId(creditNote.customerId || '');
     setIsEditing(true);
   };
 
@@ -70,6 +78,7 @@ export function CreditNoteDetailForm({
     setIsEditing(false);
     setEditedReason(creditNote.reason || '');
     setEditedItems(creditNote.items || []);
+    setSelectedCustomerId(creditNote.customerId || '');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,6 +90,7 @@ export function CreditNoteDetailForm({
       const updateRequest: CreditNoteUpdateRequest = {
         id: creditNote.id,
         reason: editedReason,
+        customerId: selectedCustomerId || undefined,
         items: editedItems.map(item => ({
           description: item.description,
           quantity: item.quantity,
@@ -179,9 +189,29 @@ export function CreditNoteDetailForm({
                 <label className="font-semibold">
                   {t('creditNotes.columns.customer')}
                 </label>
-                <div className="p-2 bg-gray-50 rounded border text-gray-700">
-                  {creditNote.companyName || t('common.not.available')}
-                </div>
+                {isEditing ? (
+                  <ChooseElement
+                    elements={customers}
+                    selectedElements={selectedCustomerId ? [selectedCustomerId] : []}
+                    onElementSelected={(id: string) => {
+                      setSelectedCustomerId(id);
+                    }}
+                    onDeleteElementSelected={() => {
+                      setSelectedCustomerId('');
+                    }}
+                    placeholder={t('customer.search.customer')}
+                    mapElement={(customer: Customer) => ({
+                      id: customer.id,
+                      description: customer.name,
+                      code: customer.taxId,
+                    })}
+                    className="rounded-md border border-gray-300"
+                  />
+                ) : (
+                  <div className="p-2 bg-gray-50 rounded border text-gray-700">
+                    {creditNote.companyName || t('common.not.available')}
+                  </div>
+                )}
               </div>
 
               {creditNote.creditPercentage !== undefined &&

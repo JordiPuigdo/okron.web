@@ -281,8 +281,8 @@ function VersionList({
     () =>
       [...versions].sort(
         (a, b) =>
-          new Date(b.creationDate).getTime() -
-          new Date(a.creationDate).getTime()
+          new Date(b.versionDate).getTime() -
+          new Date(a.versionDate).getTime()
       ),
     [versions]
   );
@@ -294,7 +294,7 @@ function VersionList({
       v =>
         v.description?.toLowerCase().includes(query) ||
         `v${v.versionNumber}`.includes(query) ||
-        dayjs(v.creationDate).format('DD/MM/YYYY HH:mm').includes(query)
+        dayjs(v.versionDate).format('DD/MM/YYYY HH:mm').includes(query)
     );
   }, [sortedVersions, searchQuery]);
 
@@ -409,7 +409,7 @@ function VersionItem({
           <div className="flex items-center gap-1.5 mt-1 ml-8">
             <Clock className="h-3 w-3 text-gray-400" />
             <span className="text-xs text-gray-500">
-              {dayjs(version.creationDate).format('DD/MM/YYYY HH:mm')}
+              {dayjs(version.versionDate).format('DD/MM/YYYY HH:mm')}
             </span>
           </div>
         </div>

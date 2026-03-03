@@ -58,6 +58,7 @@ export interface CreditNoteCreationRequest {
 export interface CreditNoteUpdateRequest {
   id: string;
   reason?: string;
+  customerId?: string;
   items?: CreditNoteItemRequest[];
 }
 

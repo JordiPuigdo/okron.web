@@ -64,7 +64,7 @@ export function useBudgetVersions() {
         serviceRef.current.createVersion(request)
       );
       if (result) {
-        setVersions((prev) => [...prev, result]);
+        setVersions((prev) => [...prev, result as unknown as BudgetVersionSummary]);
       }
       return result;
     },

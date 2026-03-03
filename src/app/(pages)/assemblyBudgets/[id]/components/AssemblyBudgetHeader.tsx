@@ -67,9 +67,17 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
             <FileText className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900 leading-tight">
-              {budget.code}
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-gray-900 leading-tight">
+                {budget.code}
+              </h1>
+              {budget.currentVersionNumber != null && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                  <GitBranch className="h-3 w-3" />
+                  v{budget.currentVersionNumber}
+                </span>
+              )}
+            </div>
             <p className="text-xs text-gray-500">
               {t('assemblyBudget')} ·{' '}
               {dayjs(budget.creationDate).format('DD/MM/YYYY')}
