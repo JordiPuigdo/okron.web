@@ -6,6 +6,7 @@ import {
   Budget,
   MoveAssemblyNodeRequest,
   RemoveAssemblyNodeRequest,
+  ReorganizeAssemblyNodesRequest,
   UpdateAssemblyBudgetRequest,
   UpdateAssemblyMarginRequest,
   UpdateAssemblyNodeRequest,
@@ -72,10 +73,10 @@ export function useBudgetAssembly() {
   );
 
   const moveNode = useCallback(
-      (request: MoveAssemblyNodeRequest) =>
-      executeAction(() => serviceRef.current.moveNode(request)),
-    //(_request: MoveAssemblyNodeRequest): Promise<Budget | undefined> =>
-     // Promise.resolve(undefined),
+      //(request: MoveAssemblyNodeRequest) =>
+      //executeAction(() => serviceRef.current.moveNode(request)),
+    (_request: MoveAssemblyNodeRequest): Promise<Budget | undefined> =>
+      Promise.resolve(undefined),
     []
   );
 
@@ -109,6 +110,12 @@ export function useBudgetAssembly() {
     [executeAction]
   );
 
+  const reorganizeNodes = useCallback(
+    (request: ReorganizeAssemblyNodesRequest) =>
+      executeAction(() => serviceRef.current.reorganizeNodes(request)),
+    [executeAction]
+  );
+
   return {
     budget,
     loading,
@@ -125,5 +132,6 @@ export function useBudgetAssembly() {
     recalculateTotals,
     updateMargin,
     updateNodesMargin,
+    reorganizeNodes,
   };
 }

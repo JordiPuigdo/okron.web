@@ -35,10 +35,11 @@ import {
   AssemblyArticle,
   AssemblyFolder,
   AssemblyNode,
+  AssemblyNodeStructureDto,
   Budget,
   BudgetNodeType,
-  MoveAssemblyNodeRequest,
   RemoveAssemblyNodeRequest,
+  ReorganizeAssemblyNodesRequest,
   UpdateAssemblyNodeRequest,
 } from 'app/interfaces/Budget';
 import { formatCurrencyServerSider } from 'app/utils/utils';
@@ -125,6 +126,25 @@ function calculateNodeDisplayTotal(node: AssemblyNode): number {
   );
 }
 
+function nodesToStructure(
+  nodes: AssemblyNode[]
+): AssemblyNodeStructureDto[] {
+  return nodes.map((node, index) => {
+    const dto: AssemblyNodeStructureDto = {
+      id: node.id,
+      nodeType: node.nodeType,
+      sortOrder: index,
+    };
+
+    if (node.nodeType === BudgetNodeType.Folder) {
+      const folder = node as AssemblyFolder;
+      dto.children = nodesToStructure(folder.children || []);
+    }
+
+    return dto;
+  });
+}
+
 interface AssemblyTreePanelProps {
   nodes?: AssemblyNode[];
   nodeStats: NodeStats;
@@ -132,8 +152,8 @@ interface AssemblyTreePanelProps {
   budgetId: string;
   onAddFolder: (parentNodeId?: string) => void;
   onAddArticle: (parentNodeId?: string) => void;
-  onMoveNode: (
-    request: MoveAssemblyNodeRequest
+  onReorganizeNodes: (
+    request: ReorganizeAssemblyNodesRequest
   ) => Promise<Budget | undefined>;
   onRemoveNode: (
     request: RemoveAssemblyNodeRequest
@@ -152,7 +172,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
   budgetId,
   onAddFolder,
   onAddArticle,
-  onMoveNode,
+  onReorganizeNodes,
   onRemoveNode,
   onUpdateNode,
   onDuplicateNode,
@@ -283,10 +303,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
 
   const persistNodeMove = useCallback(
     async (
-      nodeId: string,
       moveResult: {
-        newParentNodeId: string | undefined;
-        newSortOrder: number;
         optimisticNodes: AssemblyNode[];
       }
     ) => {
@@ -295,11 +312,9 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
 
       let shouldKeepOptimistic = false;
       try {
-        const result = await onMoveNode({
+        const result = await onReorganizeNodes({
           budgetId,
-          nodeId,
-          newParentNodeId: moveResult.newParentNodeId ?? null,
-          newSortOrder: moveResult.newSortOrder,
+          assemblyNodes: nodesToStructure(moveResult.optimisticNodes),
         });
         shouldKeepOptimistic = !result;
       } catch {
@@ -311,7 +326,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
         setIsMoving(false);
       }
     },
-    [onMoveNode, budgetId]
+    [onReorganizeNodes, budgetId]
   );
 
   const canMoveNode = useCallback(
@@ -348,10 +363,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
 
       if (!moveResult) return;
 
-      await persistNodeMove(nodeId, {
-        ...moveResult,
-        newSortOrder: targetIndex,
-      });
+      await persistNodeMove(moveResult);
     },
     [isReadOnly, isMoving, displayNodes, persistNodeMove]
   );
@@ -373,7 +385,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
 
       if (!moveResult) return;
 
-      await persistNodeMove(activeId, moveResult);
+      await persistNodeMove(moveResult);
     },
     [dropIndicator, displayNodes, persistNodeMove]
   );
@@ -1094,7 +1106,7 @@ function DragOverlayContent({ node }: { node: AssemblyNode }) {
       )}
       <span className="text-sm font-mono text-gray-400 mr-2 shrink-0">
         {node.code}
-      </span>    
+      </span>
       <span className={`text-sm truncate max-w-[300px] ${
         isFolder ? 'font-semibold text-gray-800' : 'text-gray-700'
       }`}>

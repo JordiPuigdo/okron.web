@@ -5,6 +5,7 @@ import {
   Budget,
   MoveAssemblyNodeRequest,
   RemoveAssemblyNodeRequest,
+  ReorganizeAssemblyNodesRequest,
   UpdateAssemblyBudgetRequest,
   UpdateAssemblyMarginRequest,
   UpdateAssemblyNodeRequest,
@@ -136,6 +137,15 @@ export class BudgetAssemblyService {
     request: UpdateAssemblyNodesMarginRequest
   ): Promise<Budget> {
     return this.request<Budget>('budgets/assembly/nodes-margin', {
+      method: 'PUT',
+      body: JSON.stringify(request),
+    });
+  }
+
+  async reorganizeNodes(
+    request: ReorganizeAssemblyNodesRequest
+  ): Promise<Budget> {
+    return this.request<Budget>('budgets/assembly/reorganize-nodes', {
       method: 'PUT',
       body: JSON.stringify(request),
     });

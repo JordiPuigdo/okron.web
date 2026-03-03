@@ -242,3 +242,15 @@ export interface RestoreBudgetVersionRequest {
   budgetId: string;
   versionId: string;
 }
+
+export interface AssemblyNodeStructureDto {
+  id: string;
+  nodeType: BudgetNodeType;
+  sortOrder: number;
+  children?: AssemblyNodeStructureDto[];
+}
+
+export interface ReorganizeAssemblyNodesRequest {
+  budgetId: string;
+  assemblyNodes: AssemblyNodeStructureDto[];
+}

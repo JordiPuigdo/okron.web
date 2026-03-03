@@ -13,8 +13,8 @@ import {
   Budget,
   BudgetNodeType,
   BudgetStatus,
-  MoveAssemblyNodeRequest,
   RemoveAssemblyNodeRequest,
+  ReorganizeAssemblyNodesRequest,
   UpdateAssemblyBudgetRequest,
   UpdateAssemblyMarginRequest,
   UpdateAssemblyNodeRequest,
@@ -47,8 +47,8 @@ interface AssemblyBudgetDetailProps {
   onAddArticle: (
     request: AddAssemblyArticleRequest
   ) => Promise<Budget | undefined>;
-  onMoveNode: (
-    request: MoveAssemblyNodeRequest
+  onReorganizeNodes: (
+    request: ReorganizeAssemblyNodesRequest
   ) => Promise<Budget | undefined>;
   onRemoveNode: (
     request: RemoveAssemblyNodeRequest
@@ -154,7 +154,7 @@ export function AssemblyBudgetDetail({
   onUpdate,
   onAddFolder,
   onAddArticle,
-  onMoveNode,
+  onReorganizeNodes,
   onRemoveNode,
   onUpdateNode,
   onUpdateMargin,
@@ -559,7 +559,7 @@ export function AssemblyBudgetDetail({
             budgetId={formData.id}
             onAddFolder={handleOpenFolderModal}
             onAddArticle={handleOpenArticleModal}
-            onMoveNode={onMoveNode}
+            onReorganizeNodes={onReorganizeNodes}
             onRemoveNode={onRemoveNode}
             onUpdateNode={onUpdateNode}
             onDuplicateNode={handleDuplicateNode}
