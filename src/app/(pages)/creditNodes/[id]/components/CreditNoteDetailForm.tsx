@@ -281,7 +281,7 @@ export function CreditNoteDetailForm({
                   customStyles="flex justify-center"
                 >
                   <X className="mr-2 h-4 w-4" />
-                  <p>{t('back')}</p>
+                  <p>{t('common.cancel')}</p>
                 </Button>
               )}
             </div>

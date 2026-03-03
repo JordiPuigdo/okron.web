@@ -39,25 +39,25 @@ export function CreditNoteItemsTable({
                 {t('description')}
               </th>
               <th className="p-2 border text-center">
-                {t('quantity')}
+                {t('creditNotes.quantity')}
               </th>
               <th className="p-2 border text-center">
-                {t('unitPrice')}
+                {t('unit.price')}
               </th>
               <th className="p-2 border text-center">
-                % {t('discount')}
+                {t('creditNotes.discount')} %
               </th>
               <th className="p-2 border text-center">
-                {t('discount')}
+                {t('creditNotes.discount')}
               </th>
               <th className="p-2 border text-center">
-                % {t('tax')}
+                {t('creditNotes.taxShort')} %
               </th>
               <th className="p-2 border text-center">
-                {t('subtotal')}
+                {t('creditNotes.subtotal')}
               </th>
               <th className="p-2 border text-center">
-                {t('total')}
+                {t('creditNotes.total')}
               </th>
             </tr>
           </thead>
