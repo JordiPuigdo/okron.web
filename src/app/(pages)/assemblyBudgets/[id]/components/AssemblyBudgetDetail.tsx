@@ -27,7 +27,6 @@ import { AddArticleModal } from './AddArticleModal';
 import { AddFolderModal } from './AddFolderModal';
 import { ApplyMarginModal, MarginChange } from './ApplyMarginModal';
 import { AssemblyBudgetCommentsPanel } from './AssemblyBudgetCommentsPanel';
-import { AssemblyBudgetCustomerCard } from './AssemblyBudgetCustomerCard';
 import { AssemblyBudgetFooterActions } from './AssemblyBudgetFooterActions';
 import { AssemblyBudgetHeader } from './AssemblyBudgetHeader';
 import { countNodes } from './AssemblyBudgetStatusConfig';
@@ -551,34 +550,30 @@ export function AssemblyBudgetDetail({
           t={t}
         />
 
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4">
-          <AssemblyTreePanel
-            nodes={formData.assemblyNodes}
-            nodeStats={nodeStats}
-            isReadOnly={isReadOnly}
-            budgetId={formData.id}
-            onAddFolder={handleOpenFolderModal}
-            onAddArticle={handleOpenArticleModal}
-            onReorganizeNodes={onReorganizeNodes}
-            onRemoveNode={onRemoveNode}
-            onUpdateNode={onUpdateNode}
-            onDuplicateNode={handleDuplicateNode}
-            t={t}
-          />
+        <AssemblyTreePanel
+          nodes={formData.assemblyNodes}
+          nodeStats={nodeStats}
+          isReadOnly={isReadOnly}
+          budgetId={formData.id}
+          onAddFolder={handleOpenFolderModal}
+          onAddArticle={handleOpenArticleModal}
+          onReorganizeNodes={onReorganizeNodes}
+          onRemoveNode={onRemoveNode}
+          onUpdateNode={onUpdateNode}
+          onDuplicateNode={handleDuplicateNode}
+          t={t}
+        />
 
-          <div className="space-y-4">
-            <AssemblyBudgetTotalsCard budget={formData} t={t} />
-            <AssemblyBudgetCustomerCard budget={formData} t={t} />
-            <AssemblyBudgetCommentsPanel
-              externalComments={formData.externalComments}
-              internalComments={formData.internalComments}
-              isReadOnly={isReadOnly}
-              onExternalChange={handleExternalCommentsChange}
-              onInternalChange={handleInternalCommentsChange}
-              t={t}
-            />
-          </div>
-        </div>
+        <AssemblyBudgetTotalsCard budget={formData} t={t} />
+
+        <AssemblyBudgetCommentsPanel
+          externalComments={formData.externalComments}
+          internalComments={formData.internalComments}
+          isReadOnly={isReadOnly}
+          onExternalChange={handleExternalCommentsChange}
+          onInternalChange={handleInternalCommentsChange}
+          t={t}
+        />
 
         {!isReadOnly && (
           <AssemblyBudgetFooterActions

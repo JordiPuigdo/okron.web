@@ -964,7 +964,7 @@ function TreeNode({
         )}
 
         {article && !isReadOnly && (
-          <div className="flex items-center gap-0.5 mr-1 opacity-40 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-0.5 mr-1 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
             <button
               type="button"
               onClick={e => {
@@ -1175,7 +1175,7 @@ function FolderActions({
   canDuplicate: boolean;
 }) {
   return (
-    <div className="flex items-center gap-1 mr-2 opacity-40 group-hover:opacity-100 transition-opacity">
+    <div className="flex items-center gap-1 mr-2 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
       <button
         type="button"
         onClick={e => {
@@ -1343,23 +1343,30 @@ function ArticleAmounts({
       : article.unitPrice;
 
   return (
-    <div className="flex items-center gap-3 ml-4 shrink-0 pr-3">
-      <span className="text-xs text-gray-400 tabular-nums">
-        {article.quantity} x{' '}
-        {formatCurrencyServerSider(article.unitPrice)}
+    <div className="flex items-center shrink-0 pr-3">
+      <span className="w-[130px] flex items-center justify-end text-xs text-gray-400 tabular-nums">
+        <span className="w-[40px] text-right">{article.quantity}</span>
+        <span className="w-[16px] text-center">x</span>
+        <span className="text-right">{formatCurrencyServerSider(article.unitPrice)}</span>
       </span>
-      <span className="text-[11px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded-md tabular-nums">
-        = {formatCurrencyServerSider(articleSubtotal)}
-      </span>
-      {article.marginPercentage > 0 && (
-        <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">
-          +{article.marginPercentage}%
+      <span className="w-[100px] text-right">
+        <span className="text-[11px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded-md tabular-nums">
+          = {formatCurrencyServerSider(articleSubtotal)}
         </span>
-      )}
-      <span className="text-[11px] text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded-md tabular-nums">
-        {formatCurrencyServerSider(articleFinalUnitPrice)}
       </span>
-      <span className="text-sm font-semibold text-gray-900 min-w-[90px] text-right tabular-nums">
+      <span className="w-[55px] text-center">
+        {article.marginPercentage > 0 && (
+          <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">
+            +{article.marginPercentage}%
+          </span>
+        )}
+      </span>
+      <span className="w-[85px] text-right">
+        <span className="text-[11px] text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded-md tabular-nums">
+          {formatCurrencyServerSider(articleFinalUnitPrice)}
+        </span>
+      </span>
+      <span className="w-[100px] text-right text-sm font-semibold text-gray-900 tabular-nums">
         {formatCurrencyServerSider(articleTotalWithMargin)}
       </span>
     </div>
@@ -1384,19 +1391,26 @@ function FolderAmounts({
       : 0;
 
   return (
-    <div className="flex items-center gap-2 ml-4 shrink-0 pr-3">
-      <span className="text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-        {folder.children.length}
-      </span>
-      <span className="text-[11px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded-md tabular-nums">
-        {formatCurrencyServerSider(totalWithoutMargin)}
-      </span>
-      {calculatedMarginPercentage > 0 && (
-        <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md tabular-nums">
-          +{calculatedMarginPercentage}%
+    <div className="flex items-center shrink-0 pr-3">
+      <span className="w-[130px] text-right">
+        <span className="text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+          {folder.children.length}
         </span>
-      )}
-      <span className="text-sm font-bold text-gray-900 min-w-[90px] text-right tabular-nums">
+      </span>
+      <span className="w-[100px] text-right">
+        <span className="text-[11px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded-md tabular-nums">
+          {formatCurrencyServerSider(totalWithoutMargin)}
+        </span>
+      </span>
+      <span className="w-[55px] text-center">
+        {calculatedMarginPercentage > 0 && (
+          <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md tabular-nums">
+            +{calculatedMarginPercentage}%
+          </span>
+        )}
+      </span>
+      <span className="w-[85px]" />
+      <span className="w-[100px] text-right text-sm font-bold text-gray-900 tabular-nums">
         {formatCurrencyServerSider(totalAmount)}
       </span>
     </div>
