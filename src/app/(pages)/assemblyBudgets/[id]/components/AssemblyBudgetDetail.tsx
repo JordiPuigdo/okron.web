@@ -219,6 +219,13 @@ export function AssemblyBudgetDetail({
     [handleFieldChange]
   );
 
+  const handleTitleChange = useCallback(
+    (value: string) => {
+      handleFieldChange('title', value);
+    },
+    [handleFieldChange]
+  );
+
   const handleExternalCommentsChange = useCallback(
     (value: string) => {
       handleFieldChange('externalComments', value);
@@ -259,6 +266,7 @@ export function AssemblyBudgetDetail({
       const currentNodes = formData.assemblyNodes || [];
       const request: UpdateAssemblyBudgetRequest = {
         id: formData.id,
+        title: formData.title,
         externalComments: formData.externalComments,
         internalComments: formData.internalComments,
         status: formData.status,
@@ -543,6 +551,7 @@ export function AssemblyBudgetDetail({
           isReadOnly={isReadOnly}
           onStatusChange={handleStatusChange}
           onValidUntilChange={handleValidUntilChange}
+          onTitleChange={handleTitleChange}
           onMarginPercentageChange={handleMarginPercentageChange}
           onUpdateMargin={handleUpdateMargin}
           onOpenMarginModal={handleOpenMarginModal}

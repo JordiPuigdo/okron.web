@@ -30,6 +30,7 @@ export enum BudgetNodeType {
 
 export interface Budget extends BaseModel {
   code: string;
+  title?: string;
   budgetDate: string;
   validUntil: string;
   companyName?: string;
@@ -158,6 +159,7 @@ export interface AssemblyBudgetCreationRequest {
 
 export interface UpdateAssemblyBudgetRequest {
   id: string;
+  title?: string;
   externalComments?: string;
   internalComments?: string;
   status?: BudgetStatus;

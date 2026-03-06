@@ -470,6 +470,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
             strategy={verticalListSortingStrategy}
           >
             <div className="flex-1 overflow-auto px-2 py-2">
+              <TreeColumnHeader t={t} />
               <div className="min-w-0 w-full">
                 {displayNodes?.map((node, index) => (
                   <TreeNode
@@ -714,13 +715,13 @@ function TreeNode({
 
   const handleStartEditing = useCallback(
     (e: React.MouseEvent) => {
-      if (isReadOnly || !isFolder) return;
+      if (isReadOnly) return;
       e.stopPropagation();
       setEditValue(node.description);
       setIsEditing(true);
       requestAnimationFrame(() => inputRef.current?.select());
     },
-    [isReadOnly, isFolder, node.description]
+    [isReadOnly, node.description]
   );
 
   const handleCancelEditing = useCallback(() => {
@@ -924,7 +925,7 @@ function TreeNode({
               className={`flex-1 min-w-0 overflow-hidden break-words [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] ${
                 isFolder
                   ? 'text-base font-semibold text-gray-800 cursor-text hover:text-amber-700'
-                  : 'text-sm text-gray-700'
+                  : 'text-sm text-gray-700 cursor-text hover:text-blue-700'
               }`}
               title={node.description}
               onDoubleClick={handleStartEditing}
@@ -1082,7 +1083,7 @@ function TreeNode({
         title={node.description}
         subtitle={node.code}
         onClose={() => setIsDescriptionOpen(false)}
-        canEdit={!isReadOnly && isFolder}
+        canEdit={!isReadOnly}
         isSaving={isSavingDescription}
         onSave={handleSaveDescription}
       />
@@ -1351,7 +1352,7 @@ function ArticleAmounts({
       </span>
       <span className="w-[100px] text-right">
         <span className="text-[11px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded-md tabular-nums">
-          = {formatCurrencyServerSider(articleSubtotal)}
+          {formatCurrencyServerSider(articleSubtotal)}
         </span>
       </span>
       <span className="w-[55px] text-center">
@@ -1413,6 +1414,31 @@ function FolderAmounts({
       <span className="w-[100px] text-right text-sm font-bold text-gray-900 tabular-nums">
         {formatCurrencyServerSider(totalAmount)}
       </span>
+    </div>
+  );
+}
+
+function TreeColumnHeader({ t }: { t: (key: string) => string }) {
+  return (
+    <div className="flex items-center min-h-8 px-1 mb-1 border-b border-gray-100">
+      <div className="flex-1 min-w-0" />
+      <div className="flex items-center shrink-0 pr-3">
+        <span className="w-[130px] text-right text-[11px] font-medium text-gray-400 uppercase tracking-wider">
+          {t('assemblyBudget.column.qtyPrice')}
+        </span>
+        <span className="w-[100px] text-right text-[11px] font-medium text-gray-400 uppercase tracking-wider">
+          {t('assemblyBudget.column.subtotal')}
+        </span>
+        <span className="w-[55px] text-center text-[11px] font-medium text-gray-400 uppercase tracking-wider">
+          {t('assemblyBudget.column.margin')}
+        </span>
+        <span className="w-[85px] text-right text-[11px] font-medium text-gray-400 uppercase tracking-wider">
+          {t('assemblyBudget.column.unitPrice')}
+        </span>
+        <span className="w-[100px] text-right text-[11px] font-medium text-gray-400 uppercase tracking-wider">
+          {t('assemblyBudget.column.total')}
+        </span>
+      </div>
     </div>
   );
 }

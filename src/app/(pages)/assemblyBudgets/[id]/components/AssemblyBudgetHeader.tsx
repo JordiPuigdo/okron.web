@@ -25,6 +25,7 @@ interface AssemblyBudgetHeaderProps {
   isReadOnly: boolean;
   onStatusChange: (value: string) => void;
   onValidUntilChange: (date: Date) => void;
+  onTitleChange: (value: string) => void;
   onMarginPercentageChange: (value: number) => void;
   onUpdateMargin: (marginPercentage: number) => Promise<void>;
   onOpenMarginModal: () => void;
@@ -37,6 +38,7 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
   isReadOnly,
   onStatusChange,
   onValidUntilChange,
+  onTitleChange,
   onMarginPercentageChange,
   onUpdateMargin,
   onOpenMarginModal,
@@ -84,6 +86,15 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
             </p>
           </div>
         </div>
+
+        <div className="h-8 w-px bg-gray-200 hidden sm:block" />
+
+        <TitleField
+          value={budget.title || ''}
+          isReadOnly={isReadOnly}
+          onChange={onTitleChange}
+          t={t}
+        />
 
         <div className="h-8 w-px bg-gray-200 hidden sm:block" />
 
@@ -249,6 +260,34 @@ function CompanyBadge({
         )}
       </div>
     </div>
+  );
+}
+
+function TitleField({
+  value,
+  isReadOnly,
+  onChange,
+  t,
+}: {
+  value: string;
+  isReadOnly: boolean;
+  onChange: (value: string) => void;
+  t: (key: string) => string;
+}) {
+  if (isReadOnly) {
+    return value ? (
+      <span className="text-sm font-medium text-gray-700">{value}</span>
+    ) : null;
+  }
+
+  return (
+    <input
+      type="text"
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={t('assemblyBudget.title.placeholder')}
+      className="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+    />
   );
 }
 
