@@ -10,11 +10,17 @@ export const InvoiceBody = ({
   deliveryNotes: DeliveryNote[];
   t?: TranslateFn;
 }) => {
+  const filteredDeliveryNotes = deliveryNotes.filter(dn =>
+    dn.workOrders.some(wo => wo.items?.length > 0)
+  );
+
   return (
     <div className="mt-6 space-y-6">
-      {deliveryNotes.map((deliveryNote, dnIndex) => (
+      {filteredDeliveryNotes.map((deliveryNote, dnIndex) => (
         <div key={dnIndex} className="space-y-4">
-          {deliveryNote.workOrders.map((workOrder, woIndex) => (
+          {deliveryNote.workOrders
+            .filter(wo => wo.items?.length > 0)
+            .map((workOrder, woIndex) => (
             <div
               key={woIndex}
               className="border border-gray-300 rounded overflow-hidden"

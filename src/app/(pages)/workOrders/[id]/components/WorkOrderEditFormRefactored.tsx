@@ -75,6 +75,8 @@ const WorkOrderEditFormRefactored: React.FC<
     modals,
     loadingStates,
     isUpdatingCustomer,
+    availableAssets,
+    selectedAssetId,
   } = state;
 
   const {
@@ -86,6 +88,7 @@ const WorkOrderEditFormRefactored: React.FC<
     handleStateChange,
     setStartDate,
     handleCustomerChange,
+    handleAssetChange,
     selectDowntimeReason,
     openModal,
     closeModal,
@@ -142,6 +145,9 @@ const WorkOrderEditFormRefactored: React.FC<
                 onChangeCustomer={() => openModal('changeCustomer')}
                 onDowntimeReasonClick={() => openModal('downtimeReasons')}
                 isUpdatingCustomer={isUpdatingCustomer}
+                availableAssets={availableAssets}
+                selectedAssetId={selectedAssetId}
+                onAssetChange={handleAssetChange}
               />
 
               {/* Costs Card */}

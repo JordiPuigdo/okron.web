@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useAssetHook } from 'app/hooks/useAssetHook';
 import { usePermissions } from 'app/hooks/usePermissions';
 import { useTranslations } from 'app/hooks/useTranslations';
 import Operator from 'app/interfaces/Operator';
@@ -46,6 +47,8 @@ export interface WorkOrderFormState {
   // Available data
   availableOperators: Operator[];
   availableSpareParts: SparePart[];
+  availableAssets: { id: string; description: string }[];
+  selectedAssetId: string;
 
   // Selected/Edited data
   selectedOperators: Operator[];
@@ -97,6 +100,9 @@ export interface WorkOrderFormActions {
     customerId: string,
     installationId: string
   ) => Promise<void>;
+
+  // Asset
+  handleAssetChange: (assetId: string) => void;
 
   // Downtime reasons
   selectDowntimeReason: (reason: DowntimesReasons) => void;
@@ -235,6 +241,7 @@ export function useWorkOrderForm({
   const { t } = useTranslations();
   const { filterOperatorTypesWorkOrder, workorderHeader, isAdmin, isCRM } =
     usePermissions();
+  const { assets: rawAssets } = useAssetHook();
   const { loginUser, operatorLogged } = useSessionStore();
   const { isModalOpen } = useGlobalStore();
 
@@ -259,6 +266,7 @@ export function useWorkOrderForm({
   const [availableSpareParts, setAvailableSpareParts] = useState<SparePart[]>(
     []
   );
+  const [selectedAssetId, setSelectedAssetId] = useState<string>('');
 
   // Ref to avoid dependency issues in callbacks
   const availableOperatorsRef = useRef<Operator[]>([]);
@@ -437,6 +445,7 @@ export function useWorkOrderForm({
           !isAdmin();
         setIsFinished(finished);
         setWorkOrder(wo);
+        setSelectedAssetId(wo.asset?.id || '');
         loadFormData(wo);
       }
     } catch (e: unknown) {
@@ -499,6 +508,7 @@ export function useWorkOrderForm({
           downtimeReason: data.downtimeReason,
           visibleReport: data.visibleReport,
           refCustomerId: data.refCustomerId,
+          assetId: selectedAssetId || undefined,
           active: data.active,
           userId: loginUser!.agentId,
           operatorLoggedId: operatorLogged!.idOperatorLogged,
@@ -527,6 +537,7 @@ export function useWorkOrderForm({
       startDate,
       operatorLogged,
       loginUser,
+      selectedAssetId,
       validateData,
       toggleLoading,
       fetchWorkOrder,
@@ -632,6 +643,24 @@ export function useWorkOrderForm({
     [setValue, workOrder, handleFormSubmit]
   );
 
+  const handleAssetChange = useCallback(
+    (assetId: string) => {
+      if (assetId) {
+        setSelectedAssetId(assetId);
+      }
+    },
+    []
+  );
+
+  const availableAssets = useMemo(
+    () =>
+      rawAssets?.map(a => ({
+        id: a.id,
+        description: `${a.code ? `${a.code} - ` : ''}${a.description}`,
+      })) || [],
+    [rawAssets]
+  );
+
   const openModal = useCallback((modal: keyof typeof modals) => {
     setModals(prev => ({ ...prev, [modal]: true }));
   }, []);
@@ -679,6 +708,8 @@ export function useWorkOrderForm({
     showErrorMessage,
     availableOperators,
     availableSpareParts,
+    availableAssets,
+    selectedAssetId,
     selectedOperators,
     selectedSpareParts,
     workOrderOperatorTimes,
@@ -702,6 +733,7 @@ export function useWorkOrderForm({
     handleStateChange,
     setStartDate,
     handleCustomerChange,
+    handleAssetChange,
     selectDowntimeReason,
     openModal,
     closeModal,

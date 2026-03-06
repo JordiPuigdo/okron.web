@@ -7,9 +7,13 @@ export const DeliveryNoteBody = ({
 }: {
   deliveryNote: DeliveryNote;
 }) => {
+  const filteredWorkOrders = deliveryNote.workOrders.filter(
+    wo => wo.items?.length > 0
+  );
+
   return (
     <div className="mt-6 space-y-6">
-      {deliveryNote.workOrders.map((workOrder, workOrderIndex) => (
+      {filteredWorkOrders.map((workOrder, workOrderIndex) => (
         <div key={workOrderIndex} className="border border-gray-300 rounded">
           {/* Work Order Header */}
           <div className="bg-gray-100 p-3 border-b border-gray-300">

@@ -14,6 +14,7 @@ import WorkOrder, {
 import { translateStateWorkOrder } from 'app/utils/utils';
 import { getStatesForWorkOrderType } from 'app/utils/utilsWorkOrder';
 import ChooseElement from 'components/ChooseElement';
+import AutocompleteSearchBar from 'components/selector/AutocompleteSearchBar';
 import ca from 'date-fns/locale/ca';
 import { Button } from 'designSystem/Button/Buttons';
 import {
@@ -24,6 +25,7 @@ import {
   Eye,
   FileText,
   MapPin,
+  Settings,
   Users,
 } from 'lucide-react';
 
@@ -54,6 +56,10 @@ interface WorkOrderMainFormProps {
   onDowntimeReasonClick: () => void;
   // Loading
   isUpdatingCustomer: boolean;
+  // Asset
+  availableAssets: { id: string; description: string }[];
+  selectedAssetId: string;
+  onAssetChange: (assetId: string) => void;
 }
 
 // ============================================================================
@@ -88,6 +94,9 @@ export function WorkOrderMainForm({
   onChangeCustomer,
   onDowntimeReasonClick,
   isUpdatingCustomer,
+  availableAssets,
+  selectedAssetId,
+  onAssetChange,
 }: WorkOrderMainFormProps) {
   const { t } = useTranslations();
   const isTicket = workOrder.workOrderType === WorkOrderType.Ticket;
@@ -118,6 +127,30 @@ export function WorkOrderMainForm({
           className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-okron-primary focus:border-transparent transition-all"
           disabled={isDisabled}
           onKeyPress={e => e.key === 'Enter' && e.preventDefault()}
+        />
+      </FormField>
+
+      {/* Asset / Equipment */}
+      <FormField
+        icon={<Settings className="w-4 h-4" />}
+        label={t('equipment')}
+      >
+        {selectedAssetId && (
+          <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <span className="text-sm font-medium text-gray-700">
+              {availableAssets.find(a => a.id === selectedAssetId)
+                ?.description ||
+                workOrder.asset?.description ||
+                ''}
+            </span>
+          </div>
+        )}
+        <AutocompleteSearchBar
+          elements={availableAssets}
+          setCurrentId={onAssetChange}
+          placeholder={t('search.equipment')}
+          selectedId={selectedAssetId || null}
+          disabled={isDisabled}
         />
       </FormField>
 
