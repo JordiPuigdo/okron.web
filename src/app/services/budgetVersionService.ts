@@ -4,6 +4,7 @@ import {
   BudgetVersionSummary,
   CreateBudgetVersionRequest,
   RestoreBudgetVersionRequest,
+  UpdateBudgetVersionDescriptionRequest,
 } from '../interfaces/Budget';
 
 export class BudgetVersionService {
@@ -62,5 +63,14 @@ export class BudgetVersionService {
       method: 'POST',
       body: JSON.stringify(request),
     }, 'Failed to restore budget version');
+  }
+
+  async updateDescription(
+    request: UpdateBudgetVersionDescriptionRequest
+  ): Promise<BudgetVersionSummary> {
+    return this.request<BudgetVersionSummary>('budgets/versions/description', {
+      method: 'PUT',
+      body: JSON.stringify(request),
+    }, 'Failed to update version description');
   }
 }

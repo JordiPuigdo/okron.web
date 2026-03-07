@@ -21,7 +21,11 @@ export const useOperatorHook = () => {
     data: operators,
     error: operatorsError,
     mutate: fetchAllOperators,
-  } = useSWR<Operator[]>("operators", fetchOperators);
+  } = useSWR<Operator[]>("operators", fetchOperators, {
+    revalidateOnFocus: false,
+    revalidateIfStale: false,
+    revalidateOnReconnect: false,
+  });
 
   return { operators, operatorsError, fetchAllOperators };
 };

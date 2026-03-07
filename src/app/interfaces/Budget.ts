@@ -55,7 +55,9 @@ export interface Budget extends BaseModel {
   assemblyNodes?: AssemblyNode[];
   taxBreakdowns: TaxBreakdown[];
   marginPercentage: number;
-  currentVersionNumber?: number;
+  activeVersionId?: string;
+  activeVersionNumber?: number;
+  activeVersionDescription?: string;
 }
 
 export interface BudgetItem extends BaseModel {
@@ -159,6 +161,7 @@ export interface AssemblyBudgetCreationRequest {
 
 export interface UpdateAssemblyBudgetRequest {
   id: string;
+  versionId?: string;
   title?: string;
   externalComments?: string;
   internalComments?: string;
@@ -170,6 +173,7 @@ export interface UpdateAssemblyBudgetRequest {
 
 export interface AddAssemblyFolderRequest {
   budgetId: string;
+  versionId?: string;
   parentNodeId?: string;
   code: string;
   description: string;
@@ -178,16 +182,19 @@ export interface AddAssemblyFolderRequest {
 
 export interface AddAssemblyArticleRequest {
   budgetId: string;
+  versionId?: string;
   parentNodeId?: string;
   articleId: string;
   quantity: number;
   unitPrice: number;
   marginPercentage?: number;
   sortOrder?: number;
+  code : string;
 }
 
 export interface MoveAssemblyNodeRequest {
   budgetId: string;
+  versionId?: string;
   nodeId: string;
   newParentNodeId?: string | null;
   newSortOrder: number;
@@ -195,11 +202,13 @@ export interface MoveAssemblyNodeRequest {
 
 export interface RemoveAssemblyNodeRequest {
   budgetId: string;
+  versionId?: string;
   nodeId: string;
 }
 
 export interface UpdateAssemblyNodeRequest {
   budgetId: string;
+  versionId?: string;
   nodeId: string;
   description?: string;
   quantity?: number;
@@ -209,11 +218,13 @@ export interface UpdateAssemblyNodeRequest {
 
 export interface UpdateAssemblyMarginRequest {
   budgetId: string;
+  versionId?: string;
   marginPercentage: number;
 }
 
 export interface UpdateAssemblyNodesMarginRequest {
   budgetId: string;
+  versionId?: string;
   nodeIds: string[];
   marginPercentage: number;
 }
@@ -245,6 +256,11 @@ export interface RestoreBudgetVersionRequest {
   versionId: string;
 }
 
+export interface UpdateBudgetVersionDescriptionRequest {
+  versionId: string;
+  description: string;
+}
+
 export interface AssemblyNodeStructureDto {
   id: string;
   nodeType: BudgetNodeType;
@@ -254,5 +270,6 @@ export interface AssemblyNodeStructureDto {
 
 export interface ReorganizeAssemblyNodesRequest {
   budgetId: string;
+  versionId?: string;
   assemblyNodes: AssemblyNodeStructureDto[];
 }

@@ -8,14 +8,18 @@ import {
   BudgetVersionSummary,
   CreateBudgetVersionRequest,
   RestoreBudgetVersionRequest,
+  UpdateBudgetVersionDescriptionRequest,
 } from 'app/interfaces/Budget';
 import dayjs from 'dayjs';
 import { Button } from 'designSystem/Button/Buttons';
 import { Modal2 } from 'designSystem/Modals/Modal';
 import {
   AlertTriangle,
+  Check,
   Clock,
+  Eye,
   GitBranch,
+  Pencil,
   Plus,
   RotateCcw,
   Search,
@@ -27,6 +31,7 @@ interface BudgetVersionsModalProps {
   budgetId: string;
   onClose: () => void;
   onVersionRestored: (budget: Budget) => void;
+  onVersionPreview: (budget: Budget) => void;
   t: (key: string) => string;
 }
 
@@ -35,6 +40,7 @@ export function BudgetVersionsModal({
   budgetId,
   onClose,
   onVersionRestored,
+  onVersionPreview,
   t,
 }: BudgetVersionsModalProps) {
   const {
@@ -42,9 +48,13 @@ export function BudgetVersionsModal({
     loading,
     error,
     fetchVersionsByBudgetId,
+    fetchVersionById,
     createVersion,
     restoreVersion,
+    updateDescription,
   } = useBudgetVersions();
+
+  const [previewingVersionId, setPreviewingVersionId] = useState<string | undefined>(undefined);
 
   const [description, setDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -103,6 +113,29 @@ export function BudgetVersionsModal({
     [isCreating, handleCreateVersion]
   );
 
+  const handleUpdateDescription = useCallback(
+    async (versionId: string, newDescription: string) => {
+      const request: UpdateBudgetVersionDescriptionRequest = {
+        versionId,
+        description: newDescription,
+      };
+      await updateDescription(request);
+    },
+    [updateDescription]
+  );
+
+  const handlePreviewVersion = useCallback(
+    async (versionId: string) => {
+      setPreviewingVersionId(versionId);
+      const version = await fetchVersionById(versionId);
+      if (version) {
+        onVersionPreview(version.snapshot);
+      }
+      setPreviewingVersionId(undefined);
+    },
+    [fetchVersionById, onVersionPreview]
+  );
+
   return (
     <Modal2
       isVisible={isVisible}
@@ -139,6 +172,9 @@ export function BudgetVersionsModal({
             onRequestRestore={setConfirmRestoreId}
             onCancelRestore={() => setConfirmRestoreId(undefined)}
             onConfirmRestore={handleRestoreVersion}
+            onUpdateDescription={handleUpdateDescription}
+            onPreview={handlePreviewVersion}
+            previewingVersionId={previewingVersionId}
             t={t}
           />
         </div>
@@ -265,6 +301,9 @@ function VersionList({
   onRequestRestore,
   onCancelRestore,
   onConfirmRestore,
+  onUpdateDescription,
+  onPreview,
+  previewingVersionId,
   t,
 }: {
   versions: BudgetVersionSummary[];
@@ -275,6 +314,9 @@ function VersionList({
   onRequestRestore: (id: string) => void;
   onCancelRestore: () => void;
   onConfirmRestore: (id: string) => void;
+  onUpdateDescription: (versionId: string, description: string) => Promise<void>;
+  onPreview: (versionId: string) => void;
+  previewingVersionId?: string;
   t: (key: string) => string;
 }) {
   const sortedVersions = useMemo(
@@ -350,6 +392,9 @@ function VersionList({
               onRequestRestore={() => onRequestRestore(version.id)}
               onCancelRestore={onCancelRestore}
               onConfirmRestore={() => onConfirmRestore(version.id)}
+              onUpdateDescription={onUpdateDescription}
+              onPreview={() => onPreview(version.id)}
+              isPreviewing={previewingVersionId === version.id}
               t={t}
             />
           ))
@@ -379,6 +424,9 @@ function VersionItem({
   onRequestRestore,
   onCancelRestore,
   onConfirmRestore,
+  onUpdateDescription,
+  onPreview,
+  isPreviewing,
   t,
 }: {
   version: BudgetVersionSummary;
@@ -386,8 +434,48 @@ function VersionItem({
   onRequestRestore: () => void;
   onCancelRestore: () => void;
   onConfirmRestore: () => void;
+  onUpdateDescription: (versionId: string, description: string) => Promise<void>;
+  onPreview: () => void;
+  isPreviewing: boolean;
   t: (key: string) => string;
 }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(version.description ?? '');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleStartEdit = useCallback(() => {
+    setEditValue(version.description ?? '');
+    setIsEditing(true);
+  }, [version.description]);
+
+  const handleCancelEdit = useCallback(() => {
+    setIsEditing(false);
+    setEditValue(version.description ?? '');
+  }, [version.description]);
+
+  const handleSaveEdit = useCallback(async () => {
+    const trimmed = editValue.trim();
+    if (trimmed === (version.description ?? '')) {
+      setIsEditing(false);
+      return;
+    }
+    setIsSaving(true);
+    await onUpdateDescription(version.id, trimmed);
+    setIsSaving(false);
+    setIsEditing(false);
+  }, [editValue, version.id, version.description, onUpdateDescription]);
+
+  const handleEditKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && !isSaving) {
+        handleSaveEdit();
+      } else if (e.key === 'Escape') {
+        handleCancelEdit();
+      }
+    },
+    [isSaving, handleSaveEdit, handleCancelEdit]
+  );
+
   return (
     <div
       className={`rounded-lg border p-3 transition-colors ${
@@ -402,9 +490,53 @@ function VersionItem({
             <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold shrink-0">
               v{version.versionNumber}
             </span>
-            <span className="text-sm font-medium text-gray-800 truncate">
-              {version.description || t('assemblyBudget.versions.noDescription')}
-            </span>
+            {isEditing ? (
+              <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                <input
+                  type="text"
+                  value={editValue}
+                  onChange={e => setEditValue(e.target.value)}
+                  onKeyDown={handleEditKeyDown}
+                  className="flex-1 min-w-0 rounded border border-blue-300 px-2 py-0.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                  autoFocus
+                  disabled={isSaving}
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveEdit}
+                  disabled={isSaving}
+                  className="p-1 rounded hover:bg-green-100 text-green-600 transition-colors"
+                >
+                  {isSaving ? (
+                    <SvgSpinner className="h-3.5 w-3.5" />
+                  ) : (
+                    <Check className="h-3.5 w-3.5" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  disabled={isSaving}
+                  className="p-1 rounded hover:bg-gray-100 text-gray-500 transition-colors"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 min-w-0 group">
+                <span className="text-sm font-medium text-gray-800 truncate">
+                  {version.description || t('assemblyBudget.versions.noDescription')}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleStartEdit}
+                  className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all"
+                  title={t('assemblyBudget.versions.editDescription')}
+                >
+                  <Pencil className="h-3 w-3" />
+                </button>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-1.5 mt-1 ml-8">
             <Clock className="h-3 w-3 text-gray-400" />
@@ -415,15 +547,30 @@ function VersionItem({
         </div>
 
         {!isConfirming ? (
-          <button
-            type="button"
-            onClick={onRequestRestore}
-            className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors shrink-0"
-            title={t('assemblyBudget.versions.restore')}
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            {t('assemblyBudget.versions.restore')}
-          </button>
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={onPreview}
+              disabled={isPreviewing}
+              className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
+              title={t('assemblyBudget.versions.preview')}
+            >
+              {isPreviewing ? (
+                <SvgSpinner className="h-3.5 w-3.5" />
+              ) : (
+                <Eye className="h-3.5 w-3.5" />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={onRequestRestore}
+              className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
+              title={t('assemblyBudget.versions.restore')}
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              {t('assemblyBudget.versions.restore')}
+            </button>
+          </div>
         ) : (
           <ConfirmRestoreActions
             onCancel={onCancelRestore}

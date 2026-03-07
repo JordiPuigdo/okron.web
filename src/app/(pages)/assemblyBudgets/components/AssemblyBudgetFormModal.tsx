@@ -24,16 +24,12 @@ interface AssemblyBudgetFormData {
   customerId: string;
   budgetDate: Date;
   validUntil: Date;
-  externalComments: string;
-  internalComments: string;
 }
 
 const INITIAL_FORM_DATA: AssemblyBudgetFormData = {
   customerId: '',
   budgetDate: new Date(),
   validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-  externalComments: '',
-  internalComments: '',
 };
 
 export function AssemblyBudgetFormModal({
@@ -88,8 +84,6 @@ export function AssemblyBudgetFormModal({
         customerId: formData.customerId,
         budgetDate: formatDate(formData.budgetDate),
         validUntil: formatDate(formData.validUntil),
-        externalComments: formData.externalComments || undefined,
-        internalComments: formData.internalComments || undefined,
       });
       if (result) {
         onSuccess();
@@ -127,18 +121,6 @@ export function AssemblyBudgetFormModal({
             validUntil={formData.validUntil}
             onBudgetDateChange={date => handleFieldChange('budgetDate', date)}
             onValidUntilChange={date => handleFieldChange('validUntil', date)}
-            t={t}
-          />
-
-          <DescriptionField
-            value={formData.externalComments}
-            onChange={value => handleFieldChange('externalComments', value)}
-            t={t}
-          />
-
-          <NotesField
-            value={formData.internalComments}
-            onChange={value => handleFieldChange('internalComments', value)}
             t={t}
           />
         </div>
@@ -268,56 +250,6 @@ function DateFields({
           className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
         />
       </div>
-    </div>
-  );
-}
-
-function DescriptionField({
-  value,
-  onChange,
-  t,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  t: (key: string) => string;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-        {t('description')}
-      </label>
-      <textarea
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={t('assemblyBudget.field.description.placeholder')}
-        rows={3}
-        className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors resize-none"
-      />
-    </div>
-  );
-}
-
-function NotesField({
-  value,
-  onChange,
-  t,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  t: (key: string) => string;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-        {t('notes')}
-      </label>
-      <textarea
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={t('assemblyBudget.field.notes.placeholder')}
-        rows={2}
-        className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors resize-none"
-      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useBudgetAssembly } from 'app/hooks/useBudgetAssembly';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
@@ -19,6 +19,10 @@ export default function AssemblyBudgetDetailPage({
   const { t } = useTranslations();
   const { budget, loading, error, fetchBudgetById, updateAssemblyBudget, addFolder, addArticle, reorganizeNodes, removeNode, updateNode, updateMargin } =
     useBudgetAssembly();
+
+  const handleRefreshBudget = useCallback(async () => {
+    await fetchBudgetById(params.id);
+  }, [fetchBudgetById, params.id]);
 
   useEffect(() => {
     fetchBudgetById(params.id);
@@ -62,6 +66,7 @@ export default function AssemblyBudgetDetailPage({
           onRemoveNode={removeNode}
           onUpdateNode={updateNode}
           onUpdateMargin={updateMargin}
+          onRefreshBudget={handleRefreshBudget}
         />
       </Container>
     </MainLayout>

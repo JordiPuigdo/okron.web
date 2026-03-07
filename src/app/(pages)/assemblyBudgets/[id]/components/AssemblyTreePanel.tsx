@@ -150,6 +150,7 @@ interface AssemblyTreePanelProps {
   nodeStats: NodeStats;
   isReadOnly: boolean;
   budgetId: string;
+  versionId?: string;
   onAddFolder: (parentNodeId?: string) => void;
   onAddArticle: (parentNodeId?: string) => void;
   onReorganizeNodes: (
@@ -170,6 +171,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
   nodeStats,
   isReadOnly,
   budgetId,
+  versionId,
   onAddFolder,
   onAddArticle,
   onReorganizeNodes,
@@ -314,6 +316,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
       try {
         const result = await onReorganizeNodes({
           budgetId,
+          versionId,
           assemblyNodes: nodesToStructure(moveResult.optimisticNodes),
         });
         shouldKeepOptimistic = !result;
@@ -410,6 +413,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
     try {
       await onRemoveNode({
         budgetId,
+        versionId,
         nodeId: deleteConfirm.node.id,
       });
     } finally {
@@ -487,6 +491,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
                     dropIndicator={dropIndicator}
                     onUpdateNode={onUpdateNode}
                     budgetId={budgetId}
+                    versionId={versionId}
                     isMoving={isMoving}
                     isDuplicating={isDuplicating}
                     canMoveNode={canMoveNode}
@@ -632,6 +637,7 @@ interface TreeNodeProps {
     request: UpdateAssemblyNodeRequest
   ) => Promise<Budget | undefined>;
   budgetId: string;
+  versionId?: string;
   isMoving: boolean;
   isDuplicating: boolean;
   canMoveNode: (nodeId: string, direction: MoveDirection) => boolean;
@@ -655,6 +661,7 @@ function TreeNode({
   dropIndicator,
   onUpdateNode,
   budgetId,
+  versionId,
   isMoving,
   isDuplicating,
   canMoveNode,
@@ -742,11 +749,12 @@ function TreeNode({
     setIsEditing(false);
     await onUpdateNode({
       budgetId,
+      versionId,
       nodeId: node.id,
       description: trimmed,
     });
     isConfirmedRef.current = false;
-  }, [editValue, node.description, node.id, budgetId, onUpdateNode, handleCancelEditing]);
+  }, [editValue, node.description, node.id, budgetId, versionId, onUpdateNode, handleCancelEditing]);
 
   const handleEditKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -799,6 +807,7 @@ function TreeNode({
     setIsEditingArticle(false);
     await onUpdateNode({
       budgetId,
+      versionId,
       nodeId: node.id,
       quantity: qty,
       unitPrice: price,
@@ -842,6 +851,7 @@ function TreeNode({
       try {
         const result = await onUpdateNode({
           budgetId,
+          versionId,
           nodeId: node.id,
           description: trimmed,
         });
@@ -856,7 +866,7 @@ function TreeNode({
         setIsSavingDescription(false);
       }
     },
-    [budgetId, node.id, node.description, onUpdateNode]
+    [budgetId, versionId, node.id, node.description, onUpdateNode]
   );
 
   return (
@@ -1066,6 +1076,7 @@ function TreeNode({
               dropIndicator={dropIndicator}
               onUpdateNode={onUpdateNode}
               budgetId={budgetId}
+              versionId={versionId}
               isMoving={isMoving}
               isDuplicating={isDuplicating}
               canMoveNode={canMoveNode}

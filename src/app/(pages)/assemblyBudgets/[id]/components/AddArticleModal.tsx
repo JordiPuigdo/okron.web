@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SvgSpinner } from 'app/icons/icons';
 import { Article, ArticleType } from 'app/interfaces/Article';
 import {
@@ -60,7 +60,8 @@ interface AddArticleModalProps {
   onConfirm: (
     article: Article,
     quantity: number,
-    marginPercentage: number
+    marginPercentage: number,
+    unitPrice: number
   ) => Promise<void>;
   onCreateNew: () => void;
   onEditArticle: (article: Article) => void;
@@ -84,6 +85,7 @@ export function AddArticleModal({
   const [selectedArticle, setSelectedArticle] = useState<Article | undefined>();
   const [quantity, setQuantity] = useState(1);
   const [marginPercentage, setMarginPercentage] = useState(0);
+  const [costPrice, setCostPrice] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const folderOptions = useMemo(() => collectFolders(nodes), [nodes]);
@@ -93,9 +95,11 @@ export function AddArticleModal({
       if (initialArticle) {
         setSelectedArticle(initialArticle);
         setMarginPercentage(initialArticle.marginPercentage || 0);
+        setCostPrice(initialArticle.unitPrice || 0);
       } else {
         setSelectedArticle(undefined);
         setMarginPercentage(0);
+        setCostPrice(0);
       }
       setQuantity(1);
     }
@@ -106,14 +110,46 @@ export function AddArticleModal({
     if (article) {
       setSelectedArticle(article);
       setMarginPercentage(article.marginPercentage || 0);
+      setCostPrice(article.unitPrice || 0);
     }
   };
+
+  const salePrice = useMemo(() => {
+    if (marginPercentage <= 0 || marginPercentage >= 100) return costPrice;
+    return costPrice / (1 - marginPercentage / 100);
+  }, [costPrice, marginPercentage]);
+
+  const handleCostPriceChange = useCallback(
+    (newCost: number) => {
+      setCostPrice(newCost);
+    },
+    []
+  );
+
+  const handleSalePriceChange = useCallback(
+    (newSalePrice: number) => {
+      if (newSalePrice > 0 && costPrice > 0) {
+        const newMargin = (1 - costPrice / newSalePrice) * 100;
+        setMarginPercentage(
+          Math.round(Math.max(0, Math.min(99.99, newMargin)) * 100) / 100
+        );
+      }
+    },
+    [costPrice]
+  );
+
+  const handleMarginChange = useCallback(
+    (newMargin: number) => {
+      setMarginPercentage(newMargin);
+    },
+    []
+  );
 
   const handleConfirm = async () => {
     if (!selectedArticle || isSubmitting) return;
     setIsSubmitting(true);
     try {
-      await onConfirm(selectedArticle, quantity, marginPercentage);
+      await onConfirm(selectedArticle, quantity, marginPercentage, costPrice);
     } finally {
       setIsSubmitting(false);
     }
@@ -167,11 +203,15 @@ export function AddArticleModal({
           )}
 
           {selectedArticle && (
-            <QuantityAndMarginFields
+            <QuantityAndPricingFields
               quantity={quantity}
+              costPrice={costPrice}
+              salePrice={salePrice}
               marginPercentage={marginPercentage}
               onQuantityChange={setQuantity}
-              onMarginChange={setMarginPercentage}
+              onCostPriceChange={handleCostPriceChange}
+              onMarginChange={handleMarginChange}
+              onSalePriceChange={handleSalePriceChange}
               t={t}
             />
           )}
@@ -368,51 +408,112 @@ function ComponentsList({
   );
 }
 
-function QuantityAndMarginFields({
+function QuantityAndPricingFields({
   quantity,
+  costPrice,
+  salePrice,
   marginPercentage,
   onQuantityChange,
+  onCostPriceChange,
   onMarginChange,
+  onSalePriceChange,
   t,
 }: {
   quantity: number;
+  costPrice: number;
+  salePrice: number;
   marginPercentage: number;
   onQuantityChange: (value: number) => void;
+  onCostPriceChange: (value: number) => void;
   onMarginChange: (value: number) => void;
+  onSalePriceChange: (value: number) => void;
   t: (key: string) => string;
 }) {
+  const [salePriceInput, setSalePriceInput] = useState('');
+  const [isEditingSalePrice, setIsEditingSalePrice] = useState(false);
+
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          {t('quantity')} *
-        </label>
-        <input
-          type="number"
-          min={1}
-          step={1}
-          value={quantity}
-          onChange={e => onQuantityChange(Math.max(1, Number(e.target.value)))}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          {t('margin.percentage')}
-        </label>
-        <div className="relative">
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t('quantity')} *
+          </label>
           <input
             type="number"
-            min={0}
-            max={100}
-            step={0.01}
-            value={marginPercentage}
-            onChange={e => onMarginChange(Number(e.target.value))}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            min={1}
+            step={1}
+            value={quantity}
+            onChange={e => onQuantityChange(Math.max(1, Number(e.target.value)))}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-            %
-          </span>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t('unit.price')}
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              min={0}
+              step={0.01}
+              value={costPrice}
+              onChange={e => onCostPriceChange(Math.max(0, Number(e.target.value)))}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+              €
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t('assemblyBudget.salePrice')}
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              min={0}
+              step={0.01}
+              value={isEditingSalePrice ? salePriceInput : Math.round(salePrice * 100) / 100}
+              onFocus={e => {
+                setIsEditingSalePrice(true);
+                setSalePriceInput(String(Math.round(salePrice * 100) / 100));
+                e.target.select();
+              }}
+              onChange={e => {
+                setSalePriceInput(e.target.value);
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) onSalePriceChange(val);
+              }}
+              onBlur={() => setIsEditingSalePrice(false)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+              €
+            </span>
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t('margin.percentage')}
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              min={0}
+              max={99.99}
+              step={0.01}
+              value={marginPercentage}
+              onChange={e => onMarginChange(Number(e.target.value))}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+              %
+            </span>
+          </div>
         </div>
       </div>
     </div>

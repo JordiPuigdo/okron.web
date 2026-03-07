@@ -58,6 +58,7 @@ interface AssemblyBudgetDetailProps {
   onUpdateMargin: (
     request: UpdateAssemblyMarginRequest
   ) => Promise<Budget | undefined>;
+  onRefreshBudget: () => Promise<void>;
 }
 
 function findFirstFolderId(
@@ -157,6 +158,7 @@ export function AssemblyBudgetDetail({
   onRemoveNode,
   onUpdateNode,
   onUpdateMargin,
+  onRefreshBudget,
 }: AssemblyBudgetDetailProps) {
   const { t } = useTranslations();
   const router = useRouter();
@@ -244,6 +246,7 @@ export function AssemblyBudgetDetail({
     async (marginPercentage: number) => {
       const request: UpdateAssemblyMarginRequest = {
         budgetId: formData.id,
+        versionId: formData.activeVersionId,
         marginPercentage,
       };
       await onUpdateMargin(request);
@@ -258,23 +261,27 @@ export function AssemblyBudgetDetail({
     [handleFieldChange]
   );
 
+  const saveBudget = useCallback(async () => {
+    const request: UpdateAssemblyBudgetRequest = {
+      id: formData.id,
+      versionId: formData.activeVersionId,
+      title: formData.title,
+      externalComments: formData.externalComments,
+      internalComments: formData.internalComments,
+      status: formData.status,
+      validUntil: formData.validUntil,
+      marginPercentage: formData.marginPercentage,
+      assemblyNodes: formData.assemblyNodes || [],
+    };
+    return onUpdate(request);
+  }, [formData, onUpdate]);
+
   const handleSubmit = useCallback(async () => {
     if (isSubmitting || isReadOnly) return;
 
     setIsSubmitting(true);
     try {
-      const currentNodes = formData.assemblyNodes || [];
-      const request: UpdateAssemblyBudgetRequest = {
-        id: formData.id,
-        title: formData.title,
-        externalComments: formData.externalComments,
-        internalComments: formData.internalComments,
-        status: formData.status,
-        validUntil: formData.validUntil,
-        marginPercentage: formData.marginPercentage,
-        assemblyNodes: currentNodes,
-      };
-      const updated = await onUpdate(request);
+      const updated = await saveBudget();
       if (updated) {
         setSuccessMessage(t('assemblyBudget.updated.successfully'));
         setTimeout(() => setSuccessMessage(undefined), 3000);
@@ -282,7 +289,7 @@ export function AssemblyBudgetDetail({
     } finally {
       setIsSubmitting(false);
     }
-  }, [isSubmitting, isReadOnly, formData, onUpdate, t]);
+  }, [isSubmitting, isReadOnly, saveBudget, t]);
 
   const handleOpenFolderModal = useCallback((parentNodeId?: string) => {
     setSelectedParentNodeId(parentNodeId);
@@ -307,8 +314,10 @@ export function AssemblyBudgetDetail({
 
   const handleAddFolder = useCallback(
     async (code: string, description: string) => {
+      await saveBudget();
       const request: AddAssemblyFolderRequest = {
         budgetId: formData.id,
+        versionId: formData.activeVersionId,
         parentNodeId: selectedParentNodeId,
         code,
         description,
@@ -318,25 +327,28 @@ export function AssemblyBudgetDetail({
         setIsFolderModalOpen(false);
       }
     },
-    [formData.id, selectedParentNodeId, onAddFolder]
+    [formData.id, formData.activeVersionId, selectedParentNodeId, onAddFolder, saveBudget]
   );
 
   const handleAddArticle = useCallback(
-    async (article: Article, quantity: number, marginPercentage: number) => {
+    async (article: Article, quantity: number, marginPercentage: number, unitPrice: number) => {
+      await saveBudget();
       const request: AddAssemblyArticleRequest = {
         budgetId: formData.id,
+        versionId: formData.activeVersionId,
         parentNodeId: selectedParentNodeId,
         articleId: article.id,
         quantity,
-        unitPrice: article.unitPrice,
+        unitPrice,
         marginPercentage,
+        code: generateNextCode(formData.assemblyNodes || [], selectedParentNodeId),
       };
       const updated = await onAddArticle(request);
       if (updated) {
         setIsArticleModalOpen(false);
       }
     },
-    [formData.id, selectedParentNodeId, onAddArticle]
+    [formData.id, formData.activeVersionId, selectedParentNodeId, onAddArticle, saveBudget]
   );
 
   const handleDuplicateNode = useCallback(
@@ -359,6 +371,7 @@ export function AssemblyBudgetDetail({
           const sourceFolder = source as AssemblyFolder;
           const createdFolderBudget = await onAddFolder({
             budgetId: formData.id,
+            versionId: formData.activeVersionId,
             parentNodeId,
             code: generateNextCode(previousNodes, parentNodeId),
             description: sourceFolder.description,
@@ -384,11 +397,13 @@ export function AssemblyBudgetDetail({
         const sourceArticle = source as AssemblyArticle;
         const createdArticleBudget = await onAddArticle({
           budgetId: formData.id,
+          versionId: formData.activeVersionId,
           parentNodeId,
           articleId: sourceArticle.articleId,
           quantity: sourceArticle.quantity,
           unitPrice: sourceArticle.unitPrice,
-          marginPercentage: sourceArticle.marginPercentage,
+          marginPercentage: sourceArticle.marginPercentage,   
+          code: generateNextCode(previousNodes, parentNodeId),
         });
 
         if (!createdArticleBudget?.assemblyNodes) return undefined;
@@ -462,11 +477,20 @@ export function AssemblyBudgetDetail({
 
   const handleCloseVersionsModal = useCallback(() => {
     setIsVersionsModalOpen(false);
-  }, []);
+    onRefreshBudget();
+  }, [onRefreshBudget]);
 
   const handleVersionRestored = useCallback(
     (restoredBudget: Budget) => {
       setFormData(restoredBudget);
+    },
+    []
+  );
+
+  const handleVersionPreview = useCallback(
+    (budget: Budget) => {
+      setFormData(budget);
+      setIsVersionsModalOpen(false);
     },
     []
   );
@@ -564,6 +588,7 @@ export function AssemblyBudgetDetail({
           nodeStats={nodeStats}
           isReadOnly={isReadOnly}
           budgetId={formData.id}
+          versionId={formData.activeVersionId}
           onAddFolder={handleOpenFolderModal}
           onAddArticle={handleOpenArticleModal}
           onReorganizeNodes={onReorganizeNodes}
@@ -637,6 +662,7 @@ export function AssemblyBudgetDetail({
         budgetId={formData.id}
         onClose={handleCloseVersionsModal}
         onVersionRestored={handleVersionRestored}
+        onVersionPreview={handleVersionPreview}
         t={t}
       />
     </div>

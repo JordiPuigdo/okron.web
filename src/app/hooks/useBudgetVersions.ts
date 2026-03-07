@@ -5,6 +5,7 @@ import {
   BudgetVersionSummary,
   CreateBudgetVersionRequest,
   RestoreBudgetVersionRequest,
+  UpdateBudgetVersionDescriptionRequest,
 } from 'app/interfaces/Budget';
 import { BudgetVersionService } from 'app/services/budgetVersionService';
 
@@ -80,6 +81,23 @@ export function useBudgetVersions() {
     [executeAction]
   );
 
+  const updateDescription = useCallback(
+    async (
+      request: UpdateBudgetVersionDescriptionRequest
+    ): Promise<BudgetVersionSummary | undefined> => {
+      const result = await executeAction(() =>
+        serviceRef.current.updateDescription(request)
+      );
+      if (result) {
+        setVersions(prev =>
+          prev.map(v => (v.id === result.id ? { ...v, description: result.description } : v))
+        );
+      }
+      return result;
+    },
+    [executeAction]
+  );
+
   return {
     versions,
     selectedVersion,
@@ -89,6 +107,7 @@ export function useBudgetVersions() {
     fetchVersionById,
     createVersion,
     restoreVersion,
+    updateDescription,
     setSelectedVersion,
   };
 }

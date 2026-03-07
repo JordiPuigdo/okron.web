@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import { Budget, BudgetStatus, BudgetType } from 'app/interfaces/Budget';
 import { BudgetService } from 'app/services/budgetService';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
@@ -33,23 +34,25 @@ const TABLE_BUTTONS: TableButtons = {
   detail: true,
 };
 
-const COLUMNS: Column[] = [
+const getColumns = (t: (key: string) => string): Column[] => [
   { label: 'ID', key: 'id', format: ColumnFormat.TEXT },
-  { label: 'Codi', key: 'code', format: ColumnFormat.TEXT },
-  { label: 'Client', key: 'companyName', format: ColumnFormat.TEXT },
-  { label: 'Data', key: 'budgetDate', format: ColumnFormat.DATE },
-  { label: 'Vàlid fins', key: 'validUntil', format: ColumnFormat.DATE },
+  { label: t('code'), key: 'code', format: ColumnFormat.TEXT },
+  { label: t('assemblyBudget.field.title'), key: 'title', format: ColumnFormat.TEXT },
+  { label: t('customer'), key: 'companyName', format: ColumnFormat.TEXT },
+  { label: t('date'), key: 'budgetDate', format: ColumnFormat.DATE },
+  { label: t('budget.preview.validUntil'), key: 'validUntil', format: ColumnFormat.DATE },
   {
-    label: 'Total',
+    label: t('total'),
     key: 'total',
     format: ColumnFormat.PRICE,
     align: ColumnnAlign.RIGHT,
   },
 ];
 
-const FILTERS: Filters[] = [
-  { label: 'Codi', key: 'code', format: FiltersFormat.TEXT },
-  { label: 'Client', key: 'companyName', format: FiltersFormat.TEXT },
+const getFilters = (t: (key: string) => string): Filters[] => [
+  { label: t('code'), key: 'code', format: FiltersFormat.TEXT },
+  { label: t('assemblyBudget.field.title'), key: 'title', format: FiltersFormat.TEXT },
+  { label: t('customer'), key: 'companyName', format: FiltersFormat.TEXT },
 ];
 
 function getDefaultDateRange(): DateFilters {
@@ -63,9 +66,13 @@ export const TableDataAssemblyBudgets = ({
   className = '',
   refreshKey = 0,
 }: TableDataAssemblyBudgetsProps) => {
+  const { t } = useTranslations();
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [dateFilters, setDateFilters] = useState<DateFilters>(getDefaultDateRange);
+
+  const columns = useMemo(() => getColumns(t), [t]);
+  const filters = useMemo(() => getFilters(t), [t]);
 
   const serviceRef = useRef(
     new BudgetService(process.env.NEXT_PUBLIC_API_BASE_URL || '')
@@ -121,10 +128,10 @@ export const TableDataAssemblyBudgets = ({
       </div>
       <DataTable
         data={filteredBudgets}
-        columns={COLUMNS}
+        columns={columns}
         entity={EntityTable.ASSEMBLY_BUDGET}
         tableButtons={TABLE_BUTTONS}
-        filters={FILTERS}
+        filters={filters}
         totalCounts
       />
     </div>

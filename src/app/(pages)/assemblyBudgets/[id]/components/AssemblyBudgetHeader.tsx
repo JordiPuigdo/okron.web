@@ -73,10 +73,15 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
               <h1 className="text-xl font-bold text-gray-900 leading-tight">
                 {budget.code}
               </h1>
-              {budget.currentVersionNumber != null && (
+              {budget.activeVersionNumber != null && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
                   <GitBranch className="h-3 w-3" />
-                  v{budget.currentVersionNumber}
+                  v{budget.activeVersionNumber}
+                  {budget.activeVersionDescription && (
+                    <span className="font-normal text-blue-600">
+                      · {budget.activeVersionDescription}
+                    </span>
+                  )}
                 </span>
               )}
             </div>
@@ -285,7 +290,7 @@ function TitleField({
       type="text"
       value={value}
       onChange={e => onChange(e.target.value)}
-      placeholder={t('assemblyBudget.title.placeholder')}
+      placeholder={t('assemblyBudget.field.title.placeholder')}
       className="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
     />
   );
