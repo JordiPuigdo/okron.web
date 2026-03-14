@@ -109,6 +109,7 @@ export const TableDataBillingSummary = ({
         filters={filters}
         totalCounts
         isLoading={isLoading}
+        enableCurrencyFormat
       />
     </div>
   );

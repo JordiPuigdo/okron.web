@@ -289,7 +289,8 @@ export const exportTableToExcel = (
   data: any[],
   columns: Column[],
   filename: string,
-  footerData?: Record<string, any>
+  footerData?: Record<string, any>,
+  enableCurrencyFormat?: boolean
 ) => {
   const filteredColumns = columns.filter(
     col =>
@@ -304,9 +305,13 @@ export const exportTableToExcel = (
     filteredColumns.map(col => {
       const cellValue = row[col.key];
 
-      return validColumns.includes(col.format)
-        ? formatDate(cellValue)
-        : cellValue;
+      if (validColumns.includes(col.format)) return formatDate(cellValue);
+
+      if (enableCurrencyFormat && col.format === ColumnFormat.PRICE) {
+        return Number(cellValue) || 0;
+      }
+
+      return cellValue;
     })
   );
 
@@ -317,11 +322,25 @@ export const exportTableToExcel = (
     worksheetData.push(footerRow);
   }
 
-  // Step 3: Create worksheet and workbook
   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+  if (enableCurrencyFormat) {
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+    filteredColumns.forEach((col, colIdx) => {
+      if (col.format === ColumnFormat.PRICE) {
+        for (let rowIdx = 1; rowIdx <= range.e.r; rowIdx++) {
+          const cellRef = XLSX.utils.encode_cell({ r: rowIdx, c: colIdx });
+          const cell = worksheet[cellRef];
+          if (cell) {
+            cell.t = 'n';
+            cell.z = '#,##0.00 €';
+          }
+        }
+      }
+    });
+  }
+
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
-  // Step 4: Export to Excel
   XLSX.writeFile(workbook, `${filename}.xlsx`);
 };

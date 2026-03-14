@@ -41,6 +41,7 @@ interface DataTableProps {
   totalCalculated?: number | string;
   filtersToApply?: FilterValue;
   isLoading?: boolean;
+  enableCurrencyFormat?: boolean;
 }
 
 export enum ButtonTypesTable {
@@ -72,6 +73,7 @@ const DataTable: React.FC<DataTableProps> = ({
   hideExport = false,
   totalCalculated,
   isLoading: isLoadingProp,
+  enableCurrencyFormat = false,
 }: DataTableProps) => {
   const [pathDetail, setPathDetail] = useState<string>('');
   const tableFilters = useTableFilters(enableFilterActive);
@@ -203,7 +205,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 className="p-2 rounded-lg m-2 items-center bg-green-700 text-white hover:bg-green-900 cursor-pointer"
                 title={t('table.export.excel')}
                 onClick={() =>
-                  exportTableToExcel(data, columns, entity, footerData)
+                  exportTableToExcel(data, columns, entity, footerData, enableCurrencyFormat)
                 }
               >
                 <SvgExportExcel />

@@ -38,18 +38,20 @@ export const HeaderTable = ({
         </h2>
         <span className="text-l self-start"> {subtitle}</span>
       </div>
-      <div className="w-full flex flex-col justify-end items-end gap-2 ">
-        <Button
-          type="create"
-          onClick={onCreate ? handleClick : undefined}
-          customStyles="gap-2 flex"
-          href={urlCreateButton}
-        >
-          <SvgCreate />
-          {createButton}
-          {isLoading && <SvgSpinner className="w-6 h-6" />}
-        </Button>
-      </div>
+      {createButton && (
+        <div className="w-full flex flex-col justify-end items-end gap-2 ">
+          <Button
+            type="create"
+            onClick={onCreate ? handleClick : undefined}
+            customStyles="gap-2 flex"
+            href={urlCreateButton}
+          >
+            <SvgCreate />
+            {createButton}
+            {isLoading && <SvgSpinner className="w-6 h-6" />}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
