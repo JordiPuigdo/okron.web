@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import { BudgetCreateModal } from './BudgetCreateModal';
 import { CreditNoteCreateModal } from './CreditNoteCreateModal';
+import { TableDataBillingSummary } from './TableDataBillingSummary';
 import { TableDataBudgets } from './TableDataBudgets';
 import { TableDataCreditNotes } from './TableDataCreditNotes';
 import { TableDataInvoices } from './TableDataInvoices';
@@ -82,16 +83,42 @@ function CreditNotes({
   );
 }
 
-type TabKey = 'Invoices' | 'DeliveryNotes' | 'Budgets' | 'CreditNotes';
+function BillingSummary() {
+  const { t } = useTranslations();
+
+  return (
+    <>
+      <HeaderTable
+        title={t('billingSummary')}
+        subtitle={`${t('start')} - ${t('billingSummary.list')}`}
+      />
+      <TableDataBillingSummary className="bg-white p-4 rounded-xl shadow-md" />
+    </>
+  );
+}
+
+type TabKey =
+  | 'Invoices'
+  | 'DeliveryNotes'
+  | 'Budgets'
+  | 'CreditNotes'
+  | 'BillingSummary';
 
 const labels: Record<TabKey, string> = {
   Budgets: 'budgets',
   DeliveryNotes: 'invoices.tabs.deliveryNotes',
   Invoices: 'invoices.tabs.invoices',
   CreditNotes: 'invoices.tabs.creditNotes',
+  BillingSummary: 'invoices.tabs.billingSummary',
 };
 
-const tabs: TabKey[] = ['Budgets', 'DeliveryNotes', 'Invoices', 'CreditNotes'];
+const tabs: TabKey[] = [
+  'Budgets',
+  'DeliveryNotes',
+  'Invoices',
+  'CreditNotes',
+  'BillingSummary',
+];
 
 export default function InvoiceTabPage() {
   const router = useRouter();
@@ -158,6 +185,8 @@ export default function InvoiceTabPage() {
             onOpenCreateModal={() => setIsCreateCreditNoteModalOpen(true)}
           />
         );
+      case 'BillingSummary':
+        return <BillingSummary />;
       default:
         return null;
     }
