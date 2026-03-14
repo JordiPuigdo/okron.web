@@ -90,7 +90,7 @@ export function CreditNoteDetailForm({
       const updateRequest: CreditNoteUpdateRequest = {
         id: creditNote.id,
         reason: editedReason,
-        customerId: selectedCustomerId || undefined,
+        customerId: selectedCustomerId || null,
         items: editedItems.map(item => ({
           description: item.description,
           quantity: item.quantity,
