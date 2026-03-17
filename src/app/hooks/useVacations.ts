@@ -239,10 +239,6 @@ export const useVacations = (operatorId?: string) => {
     }
   };
 
-  const calculateVacationDays = (startDate: Date, endDate: Date): number => {
-    return vacationService.calculateVacationDays(startDate, endDate);
-  };
-
   return {
     vacationRequests,
     vacationBalance,
@@ -258,6 +254,5 @@ export const useVacations = (operatorId?: string) => {
     cancelVacationRequest,
     reactivateVacationRequest,
     deleteVacationRequest,
-    calculateVacationDays,
   };
 };

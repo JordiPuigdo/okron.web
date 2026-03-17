@@ -84,10 +84,7 @@ export class VacationService {
             approvedDate: item.approvedDate
               ? new Date(item.approvedDate)
               : undefined,
-            totalDays: this.calculateVacationDays(
-              new Date(item.startDate!),
-              new Date(item.endDate!)
-            ),
+            totalDays: item.totalDays || 0,
           } as VacationRequest)
       );
     } catch (error) {
@@ -125,10 +122,7 @@ export class VacationService {
             approvedDate: item.approvedDate
               ? new Date(item.approvedDate)
               : undefined,
-            totalDays: this.calculateVacationDays(
-              new Date(item.startDate!),
-              new Date(item.endDate!)
-            ),
+            totalDays: item.totalDays || 0,
           } as VacationRequest)
       );
     } catch (error) {
@@ -172,10 +166,7 @@ export class VacationService {
           ...data,
           startDate: new Date(data.startDate),
           endDate: new Date(data.endDate),
-          totalDays: this.calculateVacationDays(
-            new Date(data.startDate),
-            new Date(data.endDate)
-          ),
+          totalDays: data.totalDays || 0,
         };
       }
 
