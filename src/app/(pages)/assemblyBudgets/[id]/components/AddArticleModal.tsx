@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SvgSpinner } from 'app/icons/icons';
 import { Article, ArticleType } from 'app/interfaces/Article';
 import {
@@ -66,6 +66,7 @@ interface AddArticleModalProps {
   onCreateNew: () => void;
   onEditArticle: (article: Article) => void;
   initialArticle?: Article;
+  onInitialArticleConsumed?: () => void;
   t: (key: string) => string;
 }
 
@@ -80,6 +81,7 @@ export function AddArticleModal({
   onCreateNew,
   onEditArticle,
   initialArticle,
+  onInitialArticleConsumed,
   t,
 }: AddArticleModalProps) {
   const [selectedArticle, setSelectedArticle] = useState<Article | undefined>();
@@ -87,23 +89,31 @@ export function AddArticleModal({
   const [marginPercentage, setMarginPercentage] = useState(0);
   const [costPrice, setCostPrice] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const hasInitializedForCurrentOpenRef = useRef(false);
 
   const folderOptions = useMemo(() => collectFolders(nodes), [nodes]);
 
   useEffect(() => {
-    if (isVisible) {
-      if (initialArticle) {
-        setSelectedArticle(initialArticle);
-        setMarginPercentage(initialArticle.marginPercentage || 0);
-        setCostPrice(initialArticle.unitPrice || 0);
-      } else {
-        setSelectedArticle(undefined);
-        setMarginPercentage(0);
-        setCostPrice(0);
-      }
-      setQuantity(1);
+    if (!isVisible) {
+      hasInitializedForCurrentOpenRef.current = false;
+      return;
     }
-  }, [isVisible, initialArticle]);
+
+    if (hasInitializedForCurrentOpenRef.current) return;
+
+    if (initialArticle) {
+      setSelectedArticle(initialArticle);
+      setMarginPercentage(initialArticle.marginPercentage || 0);
+      setCostPrice(initialArticle.unitPrice || 0);
+      onInitialArticleConsumed?.();
+    } else {
+      setSelectedArticle(undefined);
+      setMarginPercentage(0);
+      setCostPrice(0);
+    }
+    setQuantity(1);
+    hasInitializedForCurrentOpenRef.current = true;
+  }, [isVisible, initialArticle, onInitialArticleConsumed]);
 
   const handleSelectArticle = (id: string) => {
     const article = articles.find(a => a.id === id);

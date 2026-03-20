@@ -345,11 +345,16 @@ export function AssemblyBudgetDetail({
       };
       const updated = await onAddArticle(request);
       if (updated) {
+        setPreSelectedArticle(undefined);
         setIsArticleModalOpen(false);
       }
     },
     [formData.id, formData.activeVersionId, selectedParentNodeId, onAddArticle, saveBudget]
   );
+
+  const handleConsumeInitialArticle = useCallback(() => {
+    setPreSelectedArticle(undefined);
+  }, []);
 
   const handleDuplicateNode = useCallback(
     async (node: AssemblyNode) => {
@@ -639,6 +644,7 @@ export function AssemblyBudgetDetail({
         onCreateNew={handleOpenCreateArticle}
         onEditArticle={handleEditArticle}
         initialArticle={preSelectedArticle}
+        onInitialArticleConsumed={handleConsumeInitialArticle}
         t={t}
       />
 

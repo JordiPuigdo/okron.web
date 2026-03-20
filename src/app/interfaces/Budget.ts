@@ -128,6 +128,7 @@ interface AssemblyNodeBase {
   id: string;
   code: string;
   description: string;
+  secondaryDescription: string;
   sortOrder: number;
   totalAmount: number;
 }
@@ -211,6 +212,7 @@ export interface UpdateAssemblyNodeRequest {
   versionId?: string;
   nodeId: string;
   description?: string;
+  secondaryDescription?: string;
   quantity?: number;
   unitPrice?: number;
   marginPercentage?: number;

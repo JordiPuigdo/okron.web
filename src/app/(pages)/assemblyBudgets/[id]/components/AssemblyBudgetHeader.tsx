@@ -71,7 +71,7 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold text-gray-900 leading-tight">
-                {budget.code}
+                {budget.code} 
               </h1>
               {budget.activeVersionNumber != null && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">

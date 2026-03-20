@@ -87,7 +87,8 @@ const POINTER_SENSOR_OPTIONS = {
 type MoveDirection = 'up' | 'down';
 const DESCRIPTION_WORD_LIMIT = 40;
 
-function truncateDescriptionWords(description: string): string {
+function truncateDescriptionWords(description?: string): string {
+  if (!description?.trim()) return '';
   const words = description.trim().split(/\s+/).filter(Boolean);
   if (words.length <= DESCRIPTION_WORD_LIMIT) {
     return description.trim();
@@ -95,7 +96,8 @@ function truncateDescriptionWords(description: string): string {
   return `${words.slice(0, DESCRIPTION_WORD_LIMIT).join(' ')}...`;
 }
 
-function shouldShowDescriptionDialog(description: string): boolean {
+function shouldShowDescriptionDialog(description?: string): boolean {
+  if (!description?.trim()) return false;
   const words = description.trim().split(/\s+/).filter(Boolean);
   return words.length > DESCRIPTION_WORD_LIMIT;
 }
@@ -107,6 +109,32 @@ function calculateAmountWithMargin(
   const divisor = 1 - marginPercentage / 100;
   if (divisor <= 0) return baseAmount;
   return baseAmount / divisor;
+}
+
+function parseLocaleNumber(rawValue: string, fallback = 0): number {
+  const trimmed = rawValue.trim();
+  if (!trimmed) return 0;
+
+  let normalized = trimmed.replace(/\s+/g, '');
+  const hasComma = normalized.includes(',');
+  const hasDot = normalized.includes('.');
+
+  if (hasComma && hasDot) {
+    const lastCommaIndex = normalized.lastIndexOf(',');
+    const lastDotIndex = normalized.lastIndexOf('.');
+
+    // Use the right-most separator as decimal separator.
+    if (lastCommaIndex > lastDotIndex) {
+      normalized = normalized.replace(/\./g, '').replace(',', '.');
+    } else {
+      normalized = normalized.replace(/,/g, '');
+    }
+  } else if (hasComma) {
+    normalized = normalized.replace(',', '.');
+  }
+
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
 
 function calculateArticleDisplayTotal(article: AssemblyArticle): number {
@@ -497,6 +525,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
                     canMoveNode={canMoveNode}
                     onMoveNodeByOffset={handleMoveNodeByOffset}
                     onDuplicateNode={handleDuplicateRequest}
+                    t={t}
                   />
                 ))}
               </div>
@@ -646,6 +675,7 @@ interface TreeNodeProps {
     direction: MoveDirection
   ) => Promise<void>;
   onDuplicateNode: (node: AssemblyNode) => Promise<void>;
+  t: (key: string) => string;
 }
 
 function TreeNode({
@@ -667,25 +697,32 @@ function TreeNode({
   canMoveNode,
   onMoveNodeByOffset,
   onDuplicateNode,
+  t,
 }: TreeNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingSecondary, setIsEditingSecondary] = useState(false);
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
   const [isSavingDescription, setIsSavingDescription] = useState(false);
   const [editValue, setEditValue] = useState(node.description);
+  const [editSecondaryValue, setEditSecondaryValue] = useState(node.secondaryDescription);
   const [isEditingArticle, setIsEditingArticle] = useState(false);
   const [editQuantity, setEditQuantity] = useState(0);
   const [editUnitPrice, setEditUnitPrice] = useState(0);
   const [editMargin, setEditMargin] = useState(0);
   const isConfirmedRef = useRef(false);
+  const isSecondaryConfirmedRef = useRef(false);
   const isArticleConfirmedRef = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const secondaryInputRef = useRef<HTMLInputElement>(null);
   const quantityInputRef = useRef<HTMLInputElement>(null);
   const isFolder = node.nodeType === BudgetNodeType.Folder;
   const folder = isFolder ? (node as AssemblyFolder) : null;
   const article = !isFolder ? (node as AssemblyArticle) : null;
-  const canOpenDescription = shouldShowDescriptionDialog(node.description);
+  const canOpenDescription = shouldShowDescriptionDialog(node.description) || shouldShowDescriptionDialog(node.secondaryDescription);
   const collapsedDescription = truncateDescriptionWords(node.description);
+  const collapsedSecondaryDescription = truncateDescriptionWords(node.secondaryDescription);
+  const hasSecondaryDescription = node.secondaryDescription?.trim().length > 0;
 
   const isDragging = draggedNodeId === node.id;
   const isDropTarget = dropIndicator?.targetNodeId === node.id;
@@ -694,9 +731,9 @@ function TreeNode({
   const canMoveUp = canMoveNode(node.id, 'up');
   const canMoveDown = canMoveNode(node.id, 'down');
   const isMoveDisabled =
-    isReadOnly || isMoving || isDuplicating || isEditing || isEditingArticle;
-  const canDuplicate = !isReadOnly && !isMoving && !isDuplicating && !isEditing && !isEditingArticle;
-  const canDrag = !isReadOnly && !isDuplicating && !isEditing && !isEditingArticle;
+    isReadOnly || isMoving || isDuplicating || isEditing || isEditingSecondary || isEditingArticle;
+  const canDuplicate = !isReadOnly && !isMoving && !isDuplicating && !isEditing && !isEditingSecondary && !isEditingArticle;
+  const canDrag = !isReadOnly && !isDuplicating && !isEditing && !isEditingSecondary && !isEditingArticle;
 
   const {
     attributes,
@@ -766,6 +803,54 @@ function TreeNode({
       }
     },
     [handleConfirmEditing, handleCancelEditing]
+  );
+
+  const handleStartSecondaryEditing = useCallback(
+    (e: React.MouseEvent) => {
+      if (isReadOnly) return;
+      e.stopPropagation();
+      setEditSecondaryValue(node.secondaryDescription);
+      setIsEditingSecondary(true);
+      requestAnimationFrame(() => secondaryInputRef.current?.select());
+    },
+    [isReadOnly, node.secondaryDescription]
+  );
+
+  const handleCancelSecondaryEditing = useCallback(() => {
+    setIsEditingSecondary(false);
+    setEditSecondaryValue(node.secondaryDescription);
+    isSecondaryConfirmedRef.current = false;
+  }, [node.secondaryDescription]);
+
+  const handleConfirmSecondaryEditing = useCallback(async () => {
+    if (isSecondaryConfirmedRef.current) return;
+    isSecondaryConfirmedRef.current = true;
+
+    const trimmed = editSecondaryValue.trim();
+    if (trimmed === node.secondaryDescription) {
+      handleCancelSecondaryEditing();
+      return;
+    }
+    setIsEditingSecondary(false);
+    await onUpdateNode({
+      budgetId,
+      versionId,
+      nodeId: node.id,
+      secondaryDescription: trimmed,
+    });
+    isSecondaryConfirmedRef.current = false;
+  }, [editSecondaryValue, node.secondaryDescription, node.id, budgetId, versionId, onUpdateNode, handleCancelSecondaryEditing]);
+
+  const handleSecondaryEditKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleConfirmSecondaryEditing();
+      } else if (e.key === 'Escape') {
+        handleCancelSecondaryEditing();
+      }
+    },
+    [handleConfirmSecondaryEditing, handleCancelSecondaryEditing]
   );
 
   const handleStartArticleEditing = useCallback(
@@ -838,11 +923,16 @@ function TreeNode({
   );
 
   const handleSaveDescription = useCallback(
-    async (description: string): Promise<boolean> => {
-      const trimmed = description.trim();
+    async (description: string, secondaryDescription?: string): Promise<boolean> => {
+      const trimmedDesc = description.trim();
+      const trimmedSecondary = secondaryDescription?.trim();
 
-      if (!trimmed) return false;
-      if (trimmed === node.description) {
+      if (!trimmedDesc) return false;
+
+      const descChanged = trimmedDesc !== node.description;
+      const secondaryChanged = trimmedSecondary !== undefined && trimmedSecondary !== node.secondaryDescription;
+
+      if (!descChanged && !secondaryChanged) {
         setIsDescriptionOpen(false);
         return true;
       }
@@ -853,7 +943,8 @@ function TreeNode({
           budgetId,
           versionId,
           nodeId: node.id,
-          description: trimmed,
+          ...(descChanged && { description: trimmedDesc }),
+          ...(secondaryChanged && { secondaryDescription: trimmedSecondary }),
         });
 
         if (result) {
@@ -866,7 +957,7 @@ function TreeNode({
         setIsSavingDescription(false);
       }
     },
-    [budgetId, versionId, node.id, node.description, onUpdateNode]
+    [budgetId, versionId, node.id, node.description, node.secondaryDescription, onUpdateNode]
   );
 
   return (
@@ -929,15 +1020,27 @@ function TreeNode({
             onClick={e => e.stopPropagation()}
             className="flex-1 text-sm font-semibold text-gray-800 bg-white border border-amber-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-amber-500 min-w-0"
           />
+        ) : isEditingSecondary ? (
+          <input
+            ref={secondaryInputRef}
+            type="text"
+            value={editSecondaryValue}
+            onChange={e => setEditSecondaryValue(e.target.value)}
+            onKeyDown={handleSecondaryEditKeyDown}
+            onBlur={handleConfirmSecondaryEditing}
+            onClick={e => e.stopPropagation()}
+            className="flex-1 text-xs text-gray-500 bg-white border border-blue-300 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-400 min-w-0"
+          />
         ) : (
-          <div className="flex-1 min-w-0 flex items-center gap-1">
-            <span
-              className={`flex-1 min-w-0 overflow-hidden break-words [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] ${
-                isFolder
-                  ? 'text-base font-semibold text-gray-800 cursor-text hover:text-amber-700'
-                  : 'text-sm text-gray-700 cursor-text hover:text-blue-700'
-              }`}
-              title={node.description}
+          <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+            <div className="flex items-center gap-1">
+              <span
+                className={`flex-1 min-w-0 overflow-hidden break-words [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] ${
+                  isFolder
+                    ? 'text-base font-semibold text-gray-800 cursor-text hover:text-amber-700'
+                    : 'text-sm text-gray-700 cursor-text hover:text-blue-700'
+                }`}
+                title={node.description}
               onDoubleClick={handleStartEditing}
             >
               {collapsedDescription}
@@ -953,6 +1056,30 @@ function TreeNode({
                 title="View full description"
               >
                 <FileText className="h-3.5 w-3.5" />
+              </button>
+            )}
+            </div>
+            {hasSecondaryDescription && (
+              <span
+                className="text-xs text-gray-400 min-w-0 overflow-hidden break-words [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] cursor-text hover:text-blue-500"
+                title={node.secondaryDescription}
+                onDoubleClick={handleStartSecondaryEditing}
+              >
+                {collapsedSecondaryDescription}
+              </span>
+            )}
+            {!hasSecondaryDescription && !isReadOnly && (
+              <button
+                type="button"
+                onClick={e => {
+                  e.stopPropagation();
+                  setEditSecondaryValue('');
+                  setIsEditingSecondary(true);
+                  requestAnimationFrame(() => secondaryInputRef.current?.focus());
+                }}
+                className="text-xs text-gray-300 hover:text-blue-400 transition-colors cursor-pointer"
+              >
+                + {t('assemblyBudget.field.secondaryDescription')}
               </button>
             )}
           </div>
@@ -1082,6 +1209,7 @@ function TreeNode({
               canMoveNode={canMoveNode}
               onMoveNodeByOffset={onMoveNodeByOffset}
               onDuplicateNode={onDuplicateNode}
+              t={t}
             />
           ))}
         </div>
@@ -1092,11 +1220,13 @@ function TreeNode({
       <DescriptionDialog
         isOpen={isDescriptionOpen}
         title={node.description}
+        secondaryDescription={node.secondaryDescription}
         subtitle={node.code}
         onClose={() => setIsDescriptionOpen(false)}
         canEdit={!isReadOnly}
         isSaving={isSavingDescription}
         onSave={handleSaveDescription}
+        t={t}
       />
     </div>
   );
@@ -1119,11 +1249,18 @@ function DragOverlayContent({ node }: { node: AssemblyNode }) {
       <span className="text-sm font-mono text-gray-400 mr-2 shrink-0">
         {node.code}
       </span>
-      <span className={`text-sm truncate max-w-[300px] ${
-        isFolder ? 'font-semibold text-gray-800' : 'text-gray-700'
-      }`}>
-        {node.description}
-      </span>
+      <div className="flex flex-col min-w-0 max-w-[300px]">
+        <span className={`text-sm truncate ${
+          isFolder ? 'font-semibold text-gray-800' : 'text-gray-700'
+        }`}>
+          {node.description}
+        </span>
+        {node.secondaryDescription?.trim() && (
+          <span className="text-xs truncate text-gray-400">
+            {node.secondaryDescription}
+          </span>
+        )}
+      </div>
       {article && (
         <span className="text-sm font-semibold text-gray-900 ml-4 shrink-0">
           {formatCurrencyServerSider(calculateArticleDisplayTotal(article))}
@@ -1298,7 +1435,11 @@ function ArticleAmounts({
             min={1}
             step={1}
             value={editQuantity}
-            onChange={e => onQuantityChange(Number(e.target.value))}
+            onChange={e =>
+              onQuantityChange(
+                parseLocaleNumber(e.target.value, editQuantity)
+              )
+            }
             onKeyDown={onKeyDown}
             className="w-16 text-sm text-center border border-blue-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
           />
@@ -1308,7 +1449,11 @@ function ArticleAmounts({
             min={0}
             step={0.01}
             value={editUnitPrice}
-            onChange={e => onUnitPriceChange(Number(e.target.value))}
+            onChange={e =>
+              onUnitPriceChange(
+                parseLocaleNumber(e.target.value, editUnitPrice)
+              )
+            }
             onKeyDown={onKeyDown}
             className="w-24 text-sm text-right border border-blue-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
           />
@@ -1321,7 +1466,9 @@ function ArticleAmounts({
             max={100}
             step={0.1}
             value={editMargin}
-            onChange={e => onMarginChange(Number(e.target.value))}
+            onChange={e =>
+              onMarginChange(parseLocaleNumber(e.target.value, editMargin))
+            }
             onKeyDown={onKeyDown}
             className="w-16 text-sm text-center border border-blue-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
           />
@@ -1585,28 +1732,34 @@ function DeleteConfirmDialog({
 function DescriptionDialog({
   isOpen,
   title,
+  secondaryDescription,
   subtitle,
   onClose,
   canEdit = false,
   isSaving = false,
   onSave,
+  t,
 }: {
   isOpen: boolean;
   title: string;
+  secondaryDescription: string;
   subtitle?: string;
   onClose: () => void;
   canEdit?: boolean;
   isSaving?: boolean;
-  onSave?: (value: string) => Promise<boolean>;
+  onSave?: (value: string, secondaryDescription?: string) => Promise<boolean>;
+  t: (key: string) => string;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(title);
+  const [editSecondaryValue, setEditSecondaryValue] = useState(secondaryDescription);
 
   useEffect(() => {
     if (!isOpen) return;
     setIsEditing(false);
     setEditValue(title);
-  }, [isOpen, title]);
+    setEditSecondaryValue(secondaryDescription);
+  }, [isOpen, title, secondaryDescription]);
 
   const handleStartEdit = useCallback(() => {
     if (!canEdit) return;
@@ -1616,15 +1769,16 @@ function DescriptionDialog({
   const handleCancelEdit = useCallback(() => {
     setIsEditing(false);
     setEditValue(title);
-  }, [title]);
+    setEditSecondaryValue(secondaryDescription);
+  }, [title, secondaryDescription]);
 
   const handleSave = useCallback(async () => {
     if (!onSave || isSaving) return;
-    const saved = await onSave(editValue);
+    const saved = await onSave(editValue, editSecondaryValue);
     if (saved) {
       setIsEditing(false);
     }
-  }, [onSave, isSaving, editValue]);
+  }, [onSave, isSaving, editValue, editSecondaryValue]);
 
   if (!isOpen) return null;
 
@@ -1641,7 +1795,7 @@ function DescriptionDialog({
           <div className="flex items-center gap-2">
             <FileText className="h-4 w-4 text-gray-500 shrink-0" />
             <h3 className="text-sm font-semibold text-gray-900">
-              {isEditing ? 'Edit description' : 'Full description'}
+              {isEditing ? t('assemblyBudget.field.editDescriptions') : t('assemblyBudget.field.fullDescriptions')}
             </h3>
             {subtitle && (
               <span className="text-xs text-gray-400 font-mono">{subtitle}</span>
@@ -1649,19 +1803,42 @@ function DescriptionDialog({
           </div>
         </div>
 
-        <div className="px-6 py-5 max-h-[60vh] overflow-auto">
-          {isEditing ? (
-            <textarea
-              value={editValue}
-              onChange={e => setEditValue(e.target.value)}
-              className="w-full min-h-[280px] text-sm text-gray-700 leading-6 whitespace-pre-wrap break-words border border-amber-300 rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 resize-y"
-              disabled={isSaving}
-            />
-          ) : (
-            <p className="text-sm text-gray-700 leading-6 whitespace-pre-wrap break-words">
-              {title}
-            </p>
-          )}
+        <div className="px-6 py-5 max-h-[60vh] overflow-auto space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">
+              {t('assemblyBudget.field.internalDescription')}
+            </label>
+            {isEditing ? (
+              <textarea
+                value={editValue}
+                onChange={e => setEditValue(e.target.value)}
+                className="w-full min-h-[140px] text-sm text-gray-700 leading-6 whitespace-pre-wrap break-words border border-amber-300 rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 resize-y"
+                disabled={isSaving}
+              />
+            ) : (
+              <p className="text-sm text-gray-700 leading-6 whitespace-pre-wrap break-words">
+                {title}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">
+              {t('assemblyBudget.field.externalDescription')}
+            </label>
+            {isEditing ? (
+              <textarea
+                value={editSecondaryValue}
+                onChange={e => setEditSecondaryValue(e.target.value)}
+                className="w-full min-h-[140px] text-sm text-gray-700 leading-6 whitespace-pre-wrap break-words border border-blue-300 rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 resize-y"
+                disabled={isSaving}
+              />
+            ) : (
+              <p className="text-sm text-gray-500 leading-6 whitespace-pre-wrap break-words">
+                {secondaryDescription || '-'}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="flex justify-end gap-2 px-6 py-4 border-t bg-gray-50">
@@ -1673,7 +1850,7 @@ function DescriptionDialog({
                 disabled={isSaving}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 type="button"
@@ -1681,7 +1858,7 @@ function DescriptionDialog({
                 disabled={isSaving}
                 className="px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors disabled:opacity-50"
               >
-                {isSaving ? 'Saving...' : 'Save'}
+                {isSaving ? t('common.saving') : t('common.save')}
               </button>
             </>
           ) : (
@@ -1692,7 +1869,7 @@ function DescriptionDialog({
                   onClick={handleStartEdit}
                   className="px-4 py-2 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
                 >
-                  Edit
+                  {t('common.edit')}
                 </button>
               )}
               <button
@@ -1701,7 +1878,7 @@ function DescriptionDialog({
                 disabled={isSaving}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
               >
-                Close
+                {t('common.close')}
               </button>
             </>
           )}
