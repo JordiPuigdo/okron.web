@@ -55,6 +55,7 @@ const useRoutes = () => {
       workOrder: '/print/workorder',
       order: '/print/order',
       budget: (id: string) => `/print/budget?id=${id}`,
+      assemblyBudget: (id: string) => `/print/assemblyBudget?id=${id}`,
     },
     accounts: '/account',
   };

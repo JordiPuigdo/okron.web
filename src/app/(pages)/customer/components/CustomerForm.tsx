@@ -305,23 +305,19 @@ export default function CustomerForm({
                       </label>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input
-                          value={initialData.address[0].address}
-                          disabled
+                          {...register('address.0.address')}
                           className="w-full border rounded p-2"
                         />
                         <input
-                          value={initialData.address[0].postalCode}
-                          disabled
+                          {...register('address.0.postalCode')}
                           className="w-full border rounded p-2"
                         />
                         <input
-                          value={initialData.address[0].city}
-                          disabled
+                          {...register('address.0.city')}
                           className="w-full border rounded p-2"
                         />
                         <input
-                          value={initialData.address[0].province}
-                          disabled
+                          {...register('address.0.province')}
                           className="w-full border rounded p-2"
                         />
                       </div>

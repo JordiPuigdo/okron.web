@@ -1032,8 +1032,8 @@ function TreeNode({
             className="flex-1 text-xs text-gray-500 bg-white border border-blue-300 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-400 min-w-0"
           />
         ) : (
-          <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-            <div className="flex items-center gap-1">
+          <div className="flex-1 min-w-0 flex flex-col gap-1 py-0.5">
+            <div className="flex items-start gap-1">
               <span
                 className={`flex-1 min-w-0 overflow-hidden break-words [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] ${
                   isFolder
@@ -1059,29 +1059,34 @@ function TreeNode({
               </button>
             )}
             </div>
-            {hasSecondaryDescription && (
-              <span
-                className="text-xs text-gray-400 min-w-0 overflow-hidden break-words [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] cursor-text hover:text-blue-500"
-                title={node.secondaryDescription}
-                onDoubleClick={handleStartSecondaryEditing}
-              >
-                {collapsedSecondaryDescription}
-              </span>
-            )}
-            {!hasSecondaryDescription && !isReadOnly && (
-              <button
-                type="button"
-                onClick={e => {
-                  e.stopPropagation();
-                  setEditSecondaryValue('');
-                  setIsEditingSecondary(true);
-                  requestAnimationFrame(() => secondaryInputRef.current?.focus());
-                }}
-                className="text-xs text-gray-300 hover:text-blue-400 transition-colors cursor-pointer"
-              >
-                + {t('assemblyBudget.field.secondaryDescription')}
-              </button>
-            )}
+            <div className="min-h-[16px]">
+              {hasSecondaryDescription && (
+                <span
+                  className="block text-xs text-gray-500 min-w-0 overflow-hidden break-words [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] cursor-text hover:text-blue-500"
+                  title={node.secondaryDescription}
+                  onDoubleClick={handleStartSecondaryEditing}
+                >
+                  {collapsedSecondaryDescription}
+                </span>
+              )}
+              {!hasSecondaryDescription && !isReadOnly && (
+                <button
+                  type="button"
+                  onClick={e => {
+                    e.stopPropagation();
+                    setEditSecondaryValue('');
+                    setIsEditingSecondary(true);
+                    requestAnimationFrame(() => secondaryInputRef.current?.focus());
+                  }}
+                  className="text-xs text-gray-300 hover:text-blue-400 transition-colors cursor-pointer"
+                >
+                  + {t('assemblyBudget.field.secondaryDescription')}
+                </button>
+              )}
+              {!hasSecondaryDescription && isReadOnly && (
+                <span className="text-xs text-gray-300">-</span>
+              )}
+            </div>
           </div>
         )}
 
@@ -1425,10 +1430,10 @@ function ArticleAmounts({
   if (isEditing) {
     return (
       <div
-        className="flex items-center gap-2 ml-4 shrink-0 pr-3"
+        className="flex items-center shrink-0 pr-3"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center gap-1">
+        <span className="w-[50px] text-right">
           <input
             ref={quantityInputRef}
             type="number"
@@ -1441,9 +1446,10 @@ function ArticleAmounts({
               )
             }
             onKeyDown={onKeyDown}
-            className="w-16 text-sm text-center border border-blue-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
+            className="w-full text-sm text-right border border-blue-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
           />
-          <span className="text-xs text-gray-400">x</span>
+        </span>
+        <span className="w-[80px] text-right">
           <input
             type="number"
             min={0}
@@ -1455,10 +1461,11 @@ function ArticleAmounts({
               )
             }
             onKeyDown={onKeyDown}
-            className="w-24 text-sm text-right border border-blue-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
+            className="w-full text-sm text-right border border-blue-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
           />
-        </div>
-        <div className="flex items-center gap-1">
+        </span>
+        <span className="w-[100px]" />
+        <span className="w-[55px] flex items-center justify-center gap-1">
           <span className="text-xs text-gray-400">+</span>
           <input
             type="number"
@@ -1470,11 +1477,12 @@ function ArticleAmounts({
               onMarginChange(parseLocaleNumber(e.target.value, editMargin))
             }
             onKeyDown={onKeyDown}
-            className="w-16 text-sm text-center border border-blue-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
+            className="w-[42px] text-sm text-right border border-blue-400 rounded px-1 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
           />
           <span className="text-xs text-gray-400">%</span>
-        </div>
-        <div className="flex items-center gap-0.5 ml-1">
+        </span>
+        <span className="w-[85px]" />
+        <span className="w-[100px] flex items-center justify-end gap-0.5">
           <button
             type="button"
             onClick={onConfirm}
@@ -1489,7 +1497,7 @@ function ArticleAmounts({
           >
             <X className="h-4 w-4" />
           </button>
-        </div>
+        </span>
       </div>
     );
   }
@@ -1503,10 +1511,11 @@ function ArticleAmounts({
 
   return (
     <div className="flex items-center shrink-0 pr-3">
-      <span className="w-[130px] flex items-center justify-end text-xs text-gray-400 tabular-nums">
-        <span className="w-[40px] text-right">{article.quantity}</span>
-        <span className="w-[16px] text-center">x</span>
-        <span className="text-right">{formatCurrencyServerSider(article.unitPrice)}</span>
+      <span className="w-[50px] text-right text-xs text-gray-400 tabular-nums">
+        {article.quantity}
+      </span>
+      <span className="w-[80px] text-right text-xs text-gray-400 tabular-nums">
+        {formatCurrencyServerSider(article.unitPrice)}
       </span>
       <span className="w-[100px] text-right">
         <span className="text-[11px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded-md tabular-nums">
@@ -1551,10 +1560,13 @@ function FolderAmounts({
 
   return (
     <div className="flex items-center shrink-0 pr-3">
-      <span className="w-[130px] text-right">
+      <span className="w-[50px] text-right">
         <span className="text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
           {folder.children.length}
         </span>
+      </span>
+      <span className="w-[80px] text-right text-[11px] text-gray-300 tabular-nums">
+        -
       </span>
       <span className="w-[100px] text-right">
         <span className="text-[11px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded-md tabular-nums">
@@ -1581,8 +1593,11 @@ function TreeColumnHeader({ t }: { t: (key: string) => string }) {
     <div className="flex items-center min-h-8 px-1 mb-1 border-b border-gray-100">
       <div className="flex-1 min-w-0" />
       <div className="flex items-center shrink-0 pr-3">
-        <span className="w-[130px] text-right text-[11px] font-medium text-gray-400 uppercase tracking-wider">
-          {t('assemblyBudget.column.qtyPrice')}
+        <span className="w-[50px] text-right text-[11px] font-medium text-gray-400 uppercase tracking-wider">
+          {t('quantity')}
+        </span>
+        <span className="w-[80px] text-right text-[11px] font-medium text-gray-400 uppercase tracking-wider">
+          {t('price')}
         </span>
         <span className="w-[100px] text-right text-[11px] font-medium text-gray-400 uppercase tracking-wider">
           {t('assemblyBudget.column.subtotal')}

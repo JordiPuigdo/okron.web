@@ -14,6 +14,7 @@ import {
   FileText,
   GitBranch,
   Percent,
+  Printer,
   User,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -109,51 +110,62 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
           isReadOnly={isReadOnly}
           onStatusChange={onStatusChange}
         />
+      </div>
 
-        <div className="h-8 w-px bg-gray-200 hidden sm:block" />
+      <div className="flex items-center justify-between pl-[52px]">
+        <div className="flex items-center gap-3 flex-wrap">
+          <DateFields
+            budgetDate={budget.budgetDate}
+            validUntil={budget.validUntil}
+            isReadOnly={isReadOnly}
+            onValidUntilChange={onValidUntilChange}
+            t={t}
+          />
 
-        <DateFields
-          budgetDate={budget.budgetDate}
-          validUntil={budget.validUntil}
-          isReadOnly={isReadOnly}
-          onValidUntilChange={onValidUntilChange}
-          t={t}
-        />
+          <div className="h-5 w-px bg-gray-200 hidden sm:block" />
+
+          <MarginPercentageField
+            value={budget.marginPercentage}
+            isReadOnly={isReadOnly}
+            onChange={onMarginPercentageChange}
+            onSave={onUpdateMargin}
+            t={t}
+          />
+
+          {!isReadOnly && (
+            <button
+              type="button"
+              onClick={onOpenMarginModal}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors"
+            >
+              <Percent className="h-3.5 w-3.5" />
+              {t('assemblyBudget.margin.applyMargins')}
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={onOpenVersionsModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors"
+          >
+            <GitBranch className="h-3.5 w-3.5" />
+            {t('assemblyBudget.versions.title')}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => window.open(routes.print.assemblyBudget(budget.id), '_blank')}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
+          >
+            <Printer className="h-3.5 w-3.5" />
+            {t('print')}
+          </button>
+        </div>
 
         <CompanyBadge
           companyName={budget.companyName}
           customerNif={budget.customerNif}
         />
-      </div>
-
-      <div className="flex items-center gap-3 pl-[52px]">
-        <MarginPercentageField
-          value={budget.marginPercentage}
-          isReadOnly={isReadOnly}
-          onChange={onMarginPercentageChange}
-          onSave={onUpdateMargin}
-          t={t}
-        />
-
-        {!isReadOnly && (
-          <button
-            type="button"
-            onClick={onOpenMarginModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors"
-          >
-            <Percent className="h-3.5 w-3.5" />
-            {t('assemblyBudget.margin.applyMargins')}
-          </button>
-        )}
-
-        <button
-          type="button"
-          onClick={onOpenVersionsModal}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors"
-        >
-          <GitBranch className="h-3.5 w-3.5" />
-          {t('assemblyBudget.versions.title')}
-        </button>
       </div>
     </div>
   );
@@ -173,7 +185,7 @@ function StatusSelector({
   if (isReadOnly) {
     return (
       <span
-        className={`px-3 py-1.5 rounded-full text-xs font-semibold ${statusConfig.className}`}
+        className={`px-8 py-1.5 rounded-full text-xs font-semibold ${statusConfig.className}`}
       >
         {statusConfig.label}
       </span>
@@ -184,7 +196,7 @@ function StatusSelector({
     <select
       value={status}
       onChange={e => onStatusChange(e.target.value)}
-      className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+      className="rounded-lg border border-gray-300 px-8 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
     >
       {Object.values(BudgetStatus)
         .filter(value => typeof value === 'number')
@@ -254,7 +266,7 @@ function CompanyBadge({
   if (!companyName) return null;
 
   return (
-    <div className="ml-auto flex items-center gap-2">
+    <div className="flex items-center gap-2">
       <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-1.5 border border-gray-100">
         <User className="h-4 w-4 text-gray-400" />
         <span className="text-sm font-medium text-gray-700">
