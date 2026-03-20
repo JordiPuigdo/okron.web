@@ -137,6 +137,14 @@ function parseLocaleNumber(rawValue: string, fallback = 0): number {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function formatNumberForEditing(value: number): string {
+  return Number.isFinite(value) ? String(value) : '';
+}
+
+function sanitizeDecimalInput(rawValue: string): string {
+  return rawValue.replace(/[^\d.,\s]/g, '');
+}
+
 function calculateArticleDisplayTotal(article: AssemblyArticle): number {
   const articleSubtotal = article.quantity * article.unitPrice;
   return calculateAmountWithMargin(articleSubtotal, article.marginPercentage);
@@ -707,8 +715,8 @@ function TreeNode({
   const [editValue, setEditValue] = useState(node.description);
   const [editSecondaryValue, setEditSecondaryValue] = useState(node.secondaryDescription);
   const [isEditingArticle, setIsEditingArticle] = useState(false);
-  const [editQuantity, setEditQuantity] = useState(0);
-  const [editUnitPrice, setEditUnitPrice] = useState(0);
+  const [editQuantity, setEditQuantity] = useState('');
+  const [editUnitPrice, setEditUnitPrice] = useState('');
   const [editMargin, setEditMargin] = useState(0);
   const isConfirmedRef = useRef(false);
   const isSecondaryConfirmedRef = useRef(false);
@@ -857,8 +865,8 @@ function TreeNode({
     (e: React.MouseEvent) => {
       if (isReadOnly || !article) return;
       e.stopPropagation();
-      setEditQuantity(article.quantity);
-      setEditUnitPrice(article.unitPrice);
+      setEditQuantity(formatNumberForEditing(article.quantity));
+      setEditUnitPrice(formatNumberForEditing(article.unitPrice));
       setEditMargin(article.marginPercentage);
       setIsEditingArticle(true);
       requestAnimationFrame(() => quantityInputRef.current?.select());
@@ -875,9 +883,18 @@ function TreeNode({
     if (isArticleConfirmedRef.current || !article) return;
     isArticleConfirmedRef.current = true;
 
-    const qty = Number(editQuantity);
-    const price = Number(editUnitPrice);
+    const qty = parseLocaleNumber(editQuantity, Number.NaN);
+    const price = parseLocaleNumber(editUnitPrice, Number.NaN);
     const margin = Number(editMargin);
+
+    if (
+      !Number.isFinite(qty) ||
+      !Number.isFinite(price) ||
+      !Number.isFinite(margin)
+    ) {
+      handleCancelArticleEditing();
+      return;
+    }
 
     const hasChanges =
       qty !== article.quantity ||
@@ -1416,11 +1433,11 @@ function ArticleAmounts({
 }: {
   article: AssemblyArticle;
   isEditing: boolean;
-  editQuantity: number;
-  editUnitPrice: number;
+  editQuantity: string;
+  editUnitPrice: string;
   editMargin: number;
-  onQuantityChange: (v: number) => void;
-  onUnitPriceChange: (v: number) => void;
+  onQuantityChange: (v: string) => void;
+  onUnitPriceChange: (v: string) => void;
   onMarginChange: (v: number) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
   onConfirm: () => void;
@@ -1436,30 +1453,32 @@ function ArticleAmounts({
         <span className="w-[50px] text-right">
           <input
             ref={quantityInputRef}
-            type="number"
-            min={1}
-            step={1}
+            type="text"
+            inputMode="decimal"
             value={editQuantity}
-            onChange={e =>
-              onQuantityChange(
-                parseLocaleNumber(e.target.value, editQuantity)
-              )
-            }
+            onChange={e => onQuantityChange(sanitizeDecimalInput(e.target.value))}
+            onBlur={e => {
+              const parsed = parseLocaleNumber(e.target.value, Number.NaN);
+              if (Number.isFinite(parsed)) {
+                onQuantityChange(formatNumberForEditing(parsed));
+              }
+            }}
             onKeyDown={onKeyDown}
             className="w-full text-sm text-right border border-blue-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
           />
         </span>
         <span className="w-[80px] text-right">
           <input
-            type="number"
-            min={0}
-            step={0.01}
+            type="text"
+            inputMode="decimal"
             value={editUnitPrice}
-            onChange={e =>
-              onUnitPriceChange(
-                parseLocaleNumber(e.target.value, editUnitPrice)
-              )
-            }
+            onChange={e => onUnitPriceChange(sanitizeDecimalInput(e.target.value))}
+            onBlur={e => {
+              const parsed = parseLocaleNumber(e.target.value, Number.NaN);
+              if (Number.isFinite(parsed)) {
+                onUnitPriceChange(formatNumberForEditing(parsed));
+              }
+            }}
             onKeyDown={onKeyDown}
             className="w-full text-sm text-right border border-blue-400 rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-blue-500 tabular-nums"
           />
