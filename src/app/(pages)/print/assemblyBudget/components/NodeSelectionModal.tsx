@@ -39,13 +39,29 @@ function getFolderState(
   node: AssemblyFolder,
   selected: Set<string>
 ): 'all' | 'some' | 'none' {
-  const childIds = getChildIds(node).filter(id => id !== node.id);
-  if (childIds.length === 0) return selected.has(node.id) ? 'all' : 'none';
+  if (selected.has(node.id)) return 'all';
 
-  const selectedCount = childIds.filter(id => selected.has(id)).length;
-  if (selectedCount === childIds.length) return 'all';
-  if (selectedCount > 0) return 'some';
+  const childIds = getChildIds(node).filter(id => id !== node.id);
+  const hasSelectedChildren = childIds.some(id => selected.has(id));
+  if (hasSelectedChildren) return 'some';
   return 'none';
+}
+
+function buildAncestorMap(nodes: AssemblyNode[]): Map<string, string[]> {
+  const ancestorMap = new Map<string, string[]>();
+
+  const walk = (items: AssemblyNode[], ancestors: string[]) => {
+    for (const node of items) {
+      ancestorMap.set(node.id, ancestors);
+
+      if (node.nodeType === BudgetNodeType.Folder) {
+        walk((node as AssemblyFolder).children || [], [...ancestors, node.id]);
+      }
+    }
+  };
+
+  walk(nodes, []);
+  return ancestorMap;
 }
 
 export function NodeSelectionModal({
@@ -54,6 +70,8 @@ export function NodeSelectionModal({
   allNodeIds,
   onConfirm,
 }: NodeSelectionModalProps) {
+  const ancestorMap = useMemo(() => buildAncestorMap(nodes), [nodes]);
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
     () => new Set(allNodeIds)
   );
@@ -85,20 +103,25 @@ export function NodeSelectionModal({
     });
   }, []);
 
-  const toggleNode = useCallback((node: AssemblyNode) => {
-    setSelectedIds(prev => {
-      const next = new Set(prev);
-      const ids = getChildIds(node);
-      const allSelected = ids.every(id => next.has(id));
+  const toggleNode = useCallback(
+    (node: AssemblyNode) => {
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        const isSelected = next.has(node.id);
 
-      if (allSelected) {
-        ids.forEach(id => next.delete(id));
-      } else {
-        ids.forEach(id => next.add(id));
-      }
-      return next;
-    });
-  }, []);
+        if (isSelected) {
+          next.delete(node.id);
+        } else {
+          next.add(node.id);
+          const ancestors = ancestorMap.get(node.id) || [];
+          ancestors.forEach(id => next.add(id));
+        }
+
+        return next;
+      });
+    },
+    [ancestorMap]
+  );
 
   const handleSelectAll = useCallback(() => {
     setSelectedIds(new Set(allNodeIds));
