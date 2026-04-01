@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
-import { InvoiceSearchFilters, InvoiceStatus } from 'app/interfaces/Invoice';
+import { InvoiceSearchFilters, InvoiceStatus, InvoiceType } from 'app/interfaces/Invoice';
 import { translateInvoiceStatus } from 'app/utils/invoiceUtils';
 import { ca } from 'date-fns/locale';
 import { Button } from 'designSystem/Button/Buttons';
@@ -102,6 +102,27 @@ export function InvoiceAdvancedSearchForm({
                     {translateInvoiceStatus(status as InvoiceStatus)}
                   </option>
                 ))}
+            </select>
+          </div>
+
+          {/* Invoice Type */}
+          <div className="space-y-2">
+            <label className="font-medium">Tipus</label>
+            <select
+              value={filters.invoiceType !== undefined ? filters.invoiceType : ''}
+              onChange={e =>
+                setFilters(prev => ({
+                  ...prev,
+                  invoiceType: e.target.value !== ''
+                    ? (Number(e.target.value) as InvoiceType)
+                    : undefined,
+                }))
+              }
+              className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm"
+            >
+              <option value="">Tots els tipus</option>
+              <option value={InvoiceType.Standard}>Estàndard</option>
+              <option value={InvoiceType.Proforma}>Proforma</option>
             </select>
           </div>
 

@@ -5,14 +5,15 @@ export function generateNameHeader(
   isPurchase: boolean,
   t: (key: string) => string,
   orderRequest?: Order,
-  code = ''
+  code = '',
+  isReturn = false
 ) {
   if (orderRequest != null) {
     return orderRequest.code;
   }
-  return isPurchase
-    ? `${t('order.create.purchase')} ${code && ' > ' + code} `
-    : t('order.create.reception');
+  if (isPurchase) return `${t('order.create.purchase')} ${code && ' > ' + code} `;
+  if (isReturn) return t('order.create.return');
+  return t('order.create.reception');
 }
 
 export function mapItems(orderSelected: Order, warehouses: WareHouse[]) {
@@ -35,6 +36,7 @@ export function mapItems(orderSelected: Order, warehouses: WareHouse[]) {
       estimatedDeliveryDate: x.estimatedDeliveryDate,
       refProvider: x.refProvider,
       discount: x.discount,
+      tax: x.tax ?? 21,
     };
   });
   return items;

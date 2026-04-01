@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
 import {
   OrderCreationRequest,
   OrderItemRequest,
@@ -41,6 +42,7 @@ export function BodyOrderForm({
   setOrderPurchase,
 }: BodyOrderFormProps) {
   const { isModalOpen } = useGlobalStore(state => state);
+  const { t } = useTranslations();
   const [isModalUnitsOpen, setIsModalUnitsOpen] = useState<boolean>(false);
   const [isModalWareHouseOpen, setIsModalWareHouseOpen] =
     useState<boolean>(false);
@@ -81,6 +83,7 @@ export function BodyOrderForm({
       unitPrice: item.unitPrice,
       refProvider: item.refProvider,
       discount: item.discount,
+      tax: item.tax ?? 21,
       wareHouseId: selectedWareHouse
         ? selectedWareHouse.warehouseId
         : defaultWarehouse?.warehouseId ?? '',
@@ -235,6 +238,7 @@ export function BodyOrderForm({
         wareHouse: exists.wareHouse,
         refProvider: exists.refProvider,
         discount: exists.discount,
+        tax: exists.tax ?? 21,
         wareHouseName: exists.wareHouseName,
         sparePartName:
           exists.sparePart.code + ' - ' + exists.sparePart.description,
@@ -261,6 +265,7 @@ export function BodyOrderForm({
           wareHouse: item.wareHouse,
           refProvider: item.refProvider,
           discount: item.discount,
+          tax: item.tax ?? 21,
           wareHouseName: item.wareHouseName,
           sparePartName: item.sparePartName,
         };
@@ -317,6 +322,12 @@ export function BodyOrderForm({
       items: items,
     });
   }
+  function handleChangeTax(items: OrderItemRequest[]) {
+    setOrder({
+      ...order,
+      items: items,
+    });
+  }
   return (
     <div className="flex flex-col h-full">
       {order.type == OrderType.Purchase &&
@@ -336,7 +347,25 @@ export function BodyOrderForm({
           onChangeEstimatedDeliveryDate={handleChangeEstimatedDeliveryDate}
           onChangeQuantity={handleChangeQuantity}
           onChangeDiscount={handleChangeDiscount}
+          onChangeTax={handleChangeTax}
         />
+      ) : order.type == OrderType.Return ? (
+        <>
+          <OrderPurchaseDetailItems
+            handleRecieveItem={handleReceiveItem}
+            items={orderPurchase?.items ?? []}
+            isOrderPurchase={true}
+            showActionButtons={order.status != OrderStatus.Completed}
+            title={t('order.return.delivery.items')}
+          />
+          <OrderPurchaseDetailItems
+            handleRecieveItem={handleReturnItem}
+            items={order.items}
+            isOrderPurchase={false}
+            showActionButtons={order.status != OrderStatus.Completed}
+            title={t('order.return.selected.items')}
+          />
+        </>
       ) : (
         <>
           <OrderPurchaseDetailItems

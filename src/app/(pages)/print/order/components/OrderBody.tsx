@@ -1,8 +1,9 @@
-import { Order, OrderItemRequest } from 'app/interfaces/Order';
+import { Order, OrderItem } from 'app/interfaces/Order';
 
 export const OrderBody = ({ order }: { order: Order }) => {
-  const calculateItemTotal = (item: OrderItemRequest) => {
-    return item.quantity * Number(item.unitPrice) * (1 - item.discount / 100);
+  const calculateItemTotal = (item: OrderItem) => {
+    const ivaFactor = 1 + (item.tax ?? 21) / 100;
+    return item.quantity * Number(item.unitPrice) * (1 - item.discount / 100) * ivaFactor;
   };
   return (
     <table className="w-full border border-gray-300 mt-2">
@@ -13,6 +14,7 @@ export const OrderBody = ({ order }: { order: Order }) => {
           <th className="p-2 border w-1/10">Quantitat</th>
           <th className="p-2 border w-1/10">Preu</th>
           <th className="p-2 border w-1/12">% Dte</th>
+          <th className="p-2 border w-1/12">IVA (%)</th>
           <th className="p-2 border w-1/10">Import</th>
         </tr>
       </thead>
@@ -37,6 +39,9 @@ export const OrderBody = ({ order }: { order: Order }) => {
               </td>
               <td className="p-2 border text-center">
                 {item.discount.toString()}
+              </td>
+              <td className="p-2 border text-center">
+                {(item.tax ?? 21).toString()}%
               </td>
               <td className="p-2 border text-center">
                 {calculateItemTotal(item).toFixed(2)}€

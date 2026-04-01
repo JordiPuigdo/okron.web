@@ -12,6 +12,7 @@ interface OrderDetailItemsProps {
   onChangeEstimatedDeliveryDate: (items: OrderItemRequest[]) => void;
   onChangeQuantity: (items: OrderItemRequest[]) => void;
   onChangeDiscount: (items: OrderItemRequest[]) => void;
+  onChangeTax: (items: OrderItemRequest[]) => void;
 }
 
 export default function OrderDetailItems({
@@ -22,6 +23,7 @@ export default function OrderDetailItems({
   onChangeEstimatedDeliveryDate,
   onChangeQuantity,
   onChangeDiscount,
+  onChangeTax,
 }: OrderDetailItemsProps) {
   const { t } = useTranslations();
   const [itemsDetail, setItemsDetail] = useState<OrderItemRequest[]>(items);
@@ -93,8 +95,20 @@ export default function OrderDetailItems({
     onChangeDiscount(newItems);
   }
 
+  function handleUpdateTax(item: OrderItemRequest, tax: string) {
+    const newItems = itemsDetail.map(x => {
+      if (x.sparePartId === item.sparePartId) {
+        return { ...x, tax: Number(tax) };
+      }
+      return x;
+    });
+    setItemsDetail(newItems);
+    onChangeTax(newItems);
+  }
+
   const calculateItemTotal = (item: OrderItemRequest) => {
-    return item.quantity * Number(item.unitPrice) * (1 - item.discount / 100);
+    const taxFactor = 1 + (item.tax ?? 21) / 100;
+    return item.quantity * Number(item.unitPrice) * (1 - item.discount / 100) * taxFactor;
   };
 
   return (
@@ -113,6 +127,7 @@ export default function OrderDetailItems({
               <th className="p-2 border w-1/10">{t('order.estimated.date')}</th>
               <th className="p-2 border w-1/10">{t('order.unit.price')}</th>
               <th className="p-2 border w-1/12">{t('order.discount.percentage')}</th>
+              <th className="p-2 border w-1/12">{t('order.tax')}</th>
               <th className="p-2 border w-1/10">{t('total')}</th>
               <th className="p-2 border w-1/10">{t('actions')}</th>
             </tr>
@@ -169,6 +184,13 @@ export default function OrderDetailItems({
                       onUpdate={newValue =>
                         handleUpdateDiscount(item, newValue)
                       }
+                      canEdit={canEdit}
+                    />
+                  </td>
+                  <td className="p-2 border text-center">
+                    <EditableCell
+                      value={(item.tax ?? 21).toString()}
+                      onUpdate={newValue => handleUpdateTax(item, newValue)}
                       canEdit={canEdit}
                     />
                   </td>

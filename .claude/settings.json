@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf*)",
+      "Bash(git push*)",
+      "Bash(git push --force*)"
+    ],
+    "allow": [
+      "Bash(npm run lint*)",
+      "Bash(npm run type-check*)",
+      "Bash(npm run build*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)"
+    ]
+  }
+}

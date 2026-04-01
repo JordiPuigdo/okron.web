@@ -21,6 +21,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { InvoiceType } from 'app/interfaces/Invoice';
 import { useInvoices } from 'app/hooks/useInvoices';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { translateDeliveryNoteStatus } from 'app/utils/deliveryNoteUtils';
@@ -30,7 +31,7 @@ import { InstallationComponent } from 'components/customer/InstallationComponent
 import { TotalComponent } from 'components/customer/TotalComponent';
 import { ca } from 'date-fns/locale';
 import dayjs from 'dayjs';
-import { FileText, GripVertical, Plus, Save, X } from 'lucide-react';
+import { FileText, GripVertical, Plus, RefreshCw, Save, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { HeaderForm } from '../../../../components/layout/HeaderForm';
@@ -184,12 +185,14 @@ interface DeliveryNoteDetailFormProps {
   deliveryNote: DeliveryNote;
   onUpdate: (deliveryNote: DeliveryNoteUpdateRequest) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onSyncCustomer: (id: string) => Promise<DeliveryNote>;
 }
 
 export function DeliveryNoteDetailForm({
   deliveryNote,
   onUpdate,
   onDelete,
+  onSyncCustomer,
 }: DeliveryNoteDetailFormProps) {
   const router = useRouter();
   const ROUTES = useRoutes();
@@ -416,6 +419,7 @@ export function DeliveryNoteDetailForm({
         deliveryNoteIds: [formData.id],
         invoiceDate: today.toISOString(),
         dueDate: dueDate.toISOString(),
+        invoiceType: InvoiceType.Standard,
       };
 
       const newInvoice = await createInvoice(invoiceData);
@@ -425,6 +429,27 @@ export function DeliveryNoteDetailForm({
     } catch (error) {
       console.error('Error creating invoice:', error);
       alert('Error al crear la factura');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSyncCustomer = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    try {
+      const updated = await onSyncCustomer(formData.id);
+      setFormData(prev => ({
+        ...prev,
+        companyName: updated.companyName,
+        customerNif: updated.customerNif,
+        customerEmail: updated.customerEmail,
+        customerPhone: updated.customerPhone,
+        customerAddress: updated.customerAddress,
+        installation: updated.installation,
+      }));
+    } catch (error) {
+      console.error('Error syncing customer:', error);
     } finally {
       setIsLoading(false);
     }
@@ -630,6 +655,17 @@ export function DeliveryNoteDetailForm({
                   <Save className="mr-2 h-4 w-4" />
                 )}
                 <p>Actualitzar</p>
+              </Button>
+              <Button
+                type="create"
+                variant="outline"
+                onClick={handleSyncCustomer}
+                className="flex-1"
+                customStyles="flex justify-center"
+                disabled={isLoading}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                <p>{t('update.customer')}</p>
               </Button>
               <Button
                 type="create"

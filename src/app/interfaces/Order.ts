@@ -58,6 +58,7 @@ export interface OrderItem extends BaseModel {
   estimatedDeliveryDate?: string;
   refProvider: string;
   discount: number;
+  tax?: number;
 }
 
 export interface OrderEvents extends BaseModel {
@@ -103,6 +104,7 @@ export interface OrderItemRequest {
   estimatedDeliveryDate?: string;
   refProvider: string;
   discount: number;
+  tax?: number;
 }
 
 export interface OrderUpdateRequest extends OrderCreationRequest {

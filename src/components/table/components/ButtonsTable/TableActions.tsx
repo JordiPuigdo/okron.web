@@ -2,7 +2,7 @@ import { memo, useCallback } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgDelete, SvgDetail } from 'app/icons/icons';
 import { LoginUser, UserPermission, UserType } from 'app/interfaces/User';
-import { Eye } from 'lucide-react';
+import { Copy, Eye } from 'lucide-react';
 import Link from 'next/link';
 
 import { TableButtons } from '../../interface/interfaceTable';
@@ -24,6 +24,7 @@ export const HeadTableActions = memo(
       tableButtons.detail ||
       tableButtons.edit ||
       tableButtons.preview ||
+      tableButtons.copy ||
       entity === EntityTable.WORKORDER;
 
     if (!showActions) return null;
@@ -48,6 +49,7 @@ interface TableButtonsComponentProps {
   onDelete?: (id: string) => void;
   onEdit?: (item: any) => void;
   onPreview?: (item: any) => void;
+  onCopy?: (item: any) => void;
 }
 
 export const TableButtonsComponent = memo(
@@ -60,12 +62,17 @@ export const TableButtonsComponent = memo(
     onDelete,
     onEdit,
     onPreview,
+    onCopy,
   }: TableButtonsComponentProps) => {
     const colorRow = item.colorRow || '';
 
     const handlePreview = useCallback(() => {
       onPreview?.(item);
     }, [onPreview, item]);
+
+    const handleCopy = useCallback(() => {
+      onCopy?.(item);
+    }, [onCopy, item]);
 
     return (
       <td className={`${colorRow} p-4`}>
@@ -76,6 +83,10 @@ export const TableButtonsComponent = memo(
               item={item}
               isCRM={loginUser?.userType === UserType.CRM}
             />
+          )}
+          {/* Copy Button */}
+          {tableButtons.copy && onCopy && (
+            <CopyButton onClick={handleCopy} />
           )}
           {/* Preview Button */}
           {tableButtons.preview && onPreview && (
@@ -212,6 +223,19 @@ const DeleteButton = memo(
   }
 );
 DeleteButton.displayName = 'DeleteButton';
+
+const CopyButton = memo(({ onClick }: { onClick: () => void }) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center justify-center w-12 h-12 font-medium text-white rounded-xl bg-blue-500 hover:bg-blue-600 transition-colors"
+    >
+      <Copy className="w-5 h-5" />
+    </button>
+  );
+});
+CopyButton.displayName = 'CopyButton';
 
 /**
  * Botón de vista previa para abrir el SlidePanel.

@@ -31,6 +31,7 @@ interface DataTableProps {
   onDelete?: (id: string) => void;
   onEdit?: (item: any) => void;
   onPreview?: (item: any) => void;
+  onCopy?: (item: any) => void;
   totalCounts?: boolean;
   enableFilterActive?: boolean;
   enableCheckbox?: boolean;
@@ -64,6 +65,7 @@ const DataTable: React.FC<DataTableProps> = ({
   onDelete,
   onEdit,
   onPreview,
+  onCopy,
   totalCounts = false,
   enableFilterActive = true,
   enableCheckbox = false,
@@ -245,6 +247,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 onDelete={onDelete ? onDelete : undefined}
                 onEdit={onEdit}
                 onPreview={onPreview}
+                onCopy={onCopy}
                 totalCounts={totalCounts}
                 totalQuantity={formattedPrice ?? 0}
                 filtersApplied={tableFilters.filtersApplied}

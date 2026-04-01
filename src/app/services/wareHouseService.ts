@@ -162,7 +162,7 @@ export class WareHouseService implements IWareHouseService {
   async warehouseSpareParts(wareHouseId: string): Promise<SparePart[]> {
     try {
       const response = await fetch(
-        `${this.baseUrl}warehouse/warehouseSpareParts?id=`
+        `${this.baseUrl}warehouse/warehouseSpareParts?warehouseId=${wareHouseId}`
       );
       if (!response.ok) {
         throw new Error(`Failed to fetch spare parts: ${response.statusText}`);

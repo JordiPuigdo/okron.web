@@ -1,5 +1,5 @@
 ﻿import { SystemConfiguration } from 'app/interfaces/Config';
-import { Invoice } from 'app/interfaces/Invoice';
+import { Invoice, InvoiceType } from 'app/interfaces/Invoice';
 import dayjs from 'dayjs';
 
 import { CompanyInformationHeader } from '../../components/CompanyInformationHeader';
@@ -22,7 +22,11 @@ export const InvoiceHeader = ({
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-gray-200">
           <div className="text-center p-2 bg-blue-100 rounded-md align-bottom">
-            <p className="text-xs font-medium text-gray-600">Número Factura</p>
+            <p className="text-xs font-medium text-gray-600">
+              {invoice.invoiceType === InvoiceType.Proforma
+                ? 'Factura Proforma'
+                : 'Número Factura'}
+            </p>
             <p className="text-lg font-bold text-gray-800">{invoice.code}</p>
           </div>
           <div className="text-center p-2 bg-blue-100 rounded-md">

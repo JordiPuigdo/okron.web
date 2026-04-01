@@ -95,6 +95,18 @@ export class DeliveryNoteService {
     return response.json();
   }
 
+  async syncCustomer(id: string): Promise<DeliveryNote> {
+    const response = await fetch(`${this.baseUrl}deliverynotes/${id}/sync-customer`, {
+      method: 'PATCH',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to sync customer data');
+    }
+
+    return response.json();
+  }
+
   async searchDeliveryNotes(filters: DeliveryNoteSearchFilters): Promise<DeliveryNote[]> {
     const response = await fetch(`${this.baseUrl}GetDeliveryNotesWithFilters`, {
       method: 'POST',

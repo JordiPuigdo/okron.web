@@ -37,6 +37,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
   enableDelete,
   enableFinalizeWorkOrdersDayBefore = false,
   operatorId,
+  assetId,
 }) => {
   const { workOrderColumns } = usePermissions();
 
@@ -49,7 +50,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     validStates,
     workOrderTypeCount,
     isLoading,
-  } = useWorkOrdersList(operatorId);
+  } = useWorkOrdersList(operatorId, assetId);
 
   // State para el panel de preview
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(

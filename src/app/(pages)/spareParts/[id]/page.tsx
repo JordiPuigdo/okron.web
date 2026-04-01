@@ -96,7 +96,7 @@ export default function page({ params }: { params: { id: string } }) {
                     sparePartId={sparePart?.sparePart.id}
                     title=""
                     hideShadow
-                    enableFilters={false}
+                    enableFilters={true}
                   />
                 </div>
               )}

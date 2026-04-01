@@ -13,6 +13,7 @@ import {
   Budget,
   BudgetNodeType,
   BudgetStatus,
+  ImportAssemblyNodesRequest,
   RemoveAssemblyNodeRequest,
   ReorganizeAssemblyNodesRequest,
   UpdateAssemblyBudgetRequest,
@@ -34,6 +35,7 @@ import { AssemblyBudgetTotalsCard } from './AssemblyBudgetTotalsCard';
 import { generateNextCode } from './assemblyCodeUtils';
 import { AssemblyTreePanel } from './AssemblyTreePanel';
 import { BudgetVersionsModal } from './BudgetVersionsModal';
+import { ImportFromBudgetModal } from './ImportFromBudgetModal';
 
 interface AssemblyBudgetDetailProps {
   budget: Budget;
@@ -57,6 +59,9 @@ interface AssemblyBudgetDetailProps {
   ) => Promise<Budget | undefined>;
   onUpdateMargin: (
     request: UpdateAssemblyMarginRequest
+  ) => Promise<Budget | undefined>;
+  onImportNodes: (
+    request: ImportAssemblyNodesRequest
   ) => Promise<Budget | undefined>;
   onRefreshBudget: () => Promise<void>;
 }
@@ -158,6 +163,7 @@ export function AssemblyBudgetDetail({
   onRemoveNode,
   onUpdateNode,
   onUpdateMargin,
+  onImportNodes,
   onRefreshBudget,
 }: AssemblyBudgetDetailProps) {
   const { t } = useTranslations();
@@ -174,6 +180,7 @@ export function AssemblyBudgetDetail({
   const [isCreateArticleOpen, setIsCreateArticleOpen] = useState(false);
   const [isMarginModalOpen, setIsMarginModalOpen] = useState(false);
   const [isVersionsModalOpen, setIsVersionsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedParentNodeId, setSelectedParentNodeId] = useState<
     string | undefined
   >(undefined);
@@ -485,6 +492,20 @@ export function AssemblyBudgetDetail({
     onRefreshBudget();
   }, [onRefreshBudget]);
 
+  const handleOpenImportModal = useCallback(() => {
+    setIsImportModalOpen(true);
+  }, []);
+
+  const handleImportNodes = useCallback(
+    async (request: ImportAssemblyNodesRequest) => {
+      const updated = await onImportNodes(request);
+      if (updated) {
+        setIsImportModalOpen(false);
+      }
+    },
+    [onImportNodes]
+  );
+
   const handleVersionRestored = useCallback(
     (restoredBudget: Budget) => {
       setFormData(restoredBudget);
@@ -585,6 +606,7 @@ export function AssemblyBudgetDetail({
           onUpdateMargin={handleUpdateMargin}
           onOpenMarginModal={handleOpenMarginModal}
           onOpenVersionsModal={handleOpenVersionsModal}
+          onOpenImportModal={handleOpenImportModal}
           t={t}
         />
 
@@ -670,6 +692,13 @@ export function AssemblyBudgetDetail({
         onVersionRestored={handleVersionRestored}
         onVersionPreview={handleVersionPreview}
         t={t}
+      />
+
+      <ImportFromBudgetModal
+        isVisible={isImportModalOpen}
+        targetBudget={formData}
+        onImport={handleImportNodes}
+        onCancel={() => setIsImportModalOpen(false)}
       />
     </div>
   );

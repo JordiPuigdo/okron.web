@@ -9,7 +9,7 @@ import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
 import { Customer } from 'app/interfaces/Customer';
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
-import { InvoiceCreateRequest } from 'app/interfaces/Invoice';
+import { InvoiceCreateRequest, InvoiceType } from 'app/interfaces/Invoice';
 import { cn } from 'app/lib/utils';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import ChooseElement from 'components/ChooseElement';
@@ -31,7 +31,8 @@ export function InvoiceCreateForm() {
     invoiceDate: new Date().toISOString().split('T')[0],
     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
       .toISOString()
-      .split('T')[0], // 30 days from now
+      .split('T')[0],
+    invoiceType: InvoiceType.Standard,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -57,6 +58,8 @@ export function InvoiceCreateForm() {
   const invoiceService = new InvoiceService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
+
+  const isProforma = formData.invoiceType === InvoiceType.Proforma;
 
   const handleSelectedCustomer = (id: string) => {
     setSelectedCustomerId(id);
@@ -154,19 +157,19 @@ export function InvoiceCreateForm() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.invoiceDate?.trim()) {
-      newErrors.invoiceDate = 'La data es obligatoria';
+      newErrors.invoiceDate = t('invoiceCreate.errorDate');
     }
 
     if (!formData.dueDate?.trim()) {
-      newErrors.dueDate = 'La data de venciment es obligatoria';
+      newErrors.dueDate = t('invoiceCreate.errorDueDate');
     }
 
-    if (!selectedCustomerId) {
-      newErrors.customerId = 'Cal seleccionar un client';
+    if (!isProforma && !selectedCustomerId) {
+      newErrors.customerId = t('invoiceCreate.errorCustomer');
     }
 
-    if (!formData.deliveryNoteIds) {
-      newErrors.deliveryNoteId = 'Cal seleccionar un albarà';
+    if (!isProforma && (!formData.deliveryNoteIds || formData.deliveryNoteIds.length === 0)) {
+      newErrors.deliveryNoteId = t('invoiceCreate.errorDeliveryNote');
     }
 
     setErrors(newErrors);
@@ -176,7 +179,10 @@ export function InvoiceCreateForm() {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto space-y-8">
-        <HeaderForm header="Crear Factura" isCreate={true} />
+        <HeaderForm
+          header={isProforma ? t('invoice.createProforma') : t('invoice.createStandard')}
+          isCreate={true}
+        />
 
         <div className="bg-white rounded-xl p-6 shadow-lg">
           <form
@@ -192,6 +198,52 @@ export function InvoiceCreateForm() {
               }
             }}
           >
+            {/* Invoice Type */}
+            <div className="space-y-2">
+              <label className="font-semibold">{t('invoice.createStandard')}</label>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData(prev => ({
+                      ...prev,
+                      invoiceType: InvoiceType.Standard,
+                    }))
+                  }
+                  className={cn(
+                    'flex-1 py-2 px-4 rounded-md border text-sm font-medium transition-colors',
+                    formData.invoiceType === InvoiceType.Standard
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  )}
+                >
+                  {t('invoice.type.standard')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData(prev => ({
+                      ...prev,
+                      invoiceType: InvoiceType.Proforma,
+                    }))
+                  }
+                  className={cn(
+                    'flex-1 py-2 px-4 rounded-md border text-sm font-medium transition-colors',
+                    formData.invoiceType === InvoiceType.Proforma
+                      ? 'bg-amber-500 text-white border-amber-500'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  )}
+                >
+                  {t('invoice.type.proforma')}
+                </button>
+              </div>
+              {isProforma && (
+                <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+                  {t('invoice.proformaInfo')}
+                </p>
+              )}
+            </div>
+
             {/* Date Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">

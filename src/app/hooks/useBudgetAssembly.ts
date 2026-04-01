@@ -4,6 +4,7 @@ import {
   AddAssemblyFolderRequest,
   AssemblyBudgetCreationRequest,
   Budget,
+  ImportAssemblyNodesRequest,
   MoveAssemblyNodeRequest,
   RemoveAssemblyNodeRequest,
   ReorganizeAssemblyNodesRequest,
@@ -116,6 +117,12 @@ export function useBudgetAssembly() {
     [executeAction]
   );
 
+  const importNodes = useCallback(
+    (request: ImportAssemblyNodesRequest) =>
+      executeAction(() => serviceRef.current.importNodes(request)),
+    [executeAction]
+  );
+
   return {
     budget,
     loading,
@@ -133,5 +140,6 @@ export function useBudgetAssembly() {
     updateMargin,
     updateNodesMargin,
     reorganizeNodes,
+    importNodes,
   };
 }

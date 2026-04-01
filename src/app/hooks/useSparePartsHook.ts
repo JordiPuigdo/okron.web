@@ -32,18 +32,13 @@ const fetchAllSpareParts = async (): Promise<SparePart[]> => {
 const fetchSparePartByRequest = async (
   sparePartDetailRequest: SparePartDetailRequest
 ): Promise<SparePart> => {
-  sparePartService
-    .getSparePart(sparePartDetailRequest)
-    .then(response => {
-      if (response) {
-        return response;
-      }
-    })
-    .catch(error => {
-      console.log(error);
-      throw error;
-    });
-  return {} as SparePart;
+  try {
+    const response = await sparePartService.getSparePart(sparePartDetailRequest);
+    return response.sparePart;
+  } catch (error) {
+    console.error('Error fetching spare part by request:', error);
+    throw error;
+  }
 };
 
 const fetchSparePartsConsumeds = async (

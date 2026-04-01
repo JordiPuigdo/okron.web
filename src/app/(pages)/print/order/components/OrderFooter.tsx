@@ -23,16 +23,17 @@ export const OrderFooter = ({ order }: { order: Order }) => {
         <div className="flex flex-row justify-between">
           <div className="font-bold">Total (IVA Inclòs):</div>
           <div className="font-bold">
-            {(
-              order.items.reduce(
+            {order.items
+              .reduce(
                 (acc, item) =>
                   acc +
                   Number(item.unitPrice) *
                     item.quantity *
-                    (1 - item.discount / 100),
+                    (1 - item.discount / 100) *
+                    (1 + (item.tax ?? 21) / 100),
                 0
-              ) * 1.21
-            ).toFixed(2)}
+              )
+              .toFixed(2)}
             €
           </div>
         </div>

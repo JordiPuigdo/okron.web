@@ -56,6 +56,10 @@ const STATUS_CONFIG: Record<
     label: 'Facturada',
     className: 'bg-green-100 text-green-700',
   },
+  [InvoiceStatus.Credited]: {
+    label: 'Abonada',
+    className: 'bg-blue-100 text-blue-700',
+  },
 };
 
 // ============================================================================

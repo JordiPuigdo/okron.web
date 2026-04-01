@@ -1,3 +1,4 @@
+import { useTranslations } from 'app/hooks/useTranslations';
 import { OrderItemRequest } from 'app/interfaces/Order';
 
 interface OrderPurchaseDetailItemsProps {
@@ -9,6 +10,7 @@ interface OrderPurchaseDetailItemsProps {
   ) => void;
   isOrderPurchase: boolean;
   showActionButtons?: boolean;
+  title?: string;
 }
 
 export default function OrderPurchaseDetailItems({
@@ -16,13 +18,15 @@ export default function OrderPurchaseDetailItems({
   handleRecieveItem,
   isOrderPurchase,
   showActionButtons = true,
+  title,
 }: OrderPurchaseDetailItemsProps) {
+  const { t } = useTranslations();
   const disableReceiveAll = items.some(x => x.quantityPendient ?? 0 > 0);
   return (
     <div>
       <div className="border-t pt-4">
         <h3 className="text-lg font-semibold">
-          {isOrderPurchase ? 'Llista de Recanvis' : 'Recepció'}
+          {title ?? (isOrderPurchase ? 'Llista de Recanvis' : 'Recepció')}
         </h3>
         <table className="w-full border border-gray-300 mt-2 ">
           <thead>
@@ -44,6 +48,7 @@ export default function OrderPurchaseDetailItems({
                 <th className="p-2 border w-[10%]">Quantitat Pend.</th>
               )}
               <th className="p-2 border w-[10%]">Preu Unitari</th>
+              <th className="p-2 border w-[8%]">{t('order.tax')}</th>
               <th
                 className={`p-2 ${
                   showActionButtons ? 'w-[10%]' : 'w-[20%]'
@@ -100,21 +105,20 @@ export default function OrderPurchaseDetailItems({
                     {item.unitPrice}€
                   </td>
 
+                  <td className="p-2 border text-center w-[8%]">
+                    {item.tax ?? 21}%
+                  </td>
+
                   <td className="p-2 border text-center w-[10%]">
-                    {item.discount > 0 ? (
-                      <span>
-                        {(
-                          item.quantity *
-                          Number(item.unitPrice) *
-                          (1 - item.discount / 100)
-                        ).toFixed(2)}
-                        €
-                      </span>
-                    ) : (
-                      <span>
-                        {(item.quantity * Number(item.unitPrice)).toFixed(2)}€
-                      </span>
-                    )}
+                    <span>
+                      {(
+                        item.quantity *
+                        Number(item.unitPrice) *
+                        (1 - item.discount / 100) *
+                        (1 + (item.tax ?? 21) / 100)
+                      ).toFixed(2)}
+                      €
+                    </span>
                   </td>
 
                   {showActionButtons && (

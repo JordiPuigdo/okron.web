@@ -14,7 +14,7 @@ import {
   SlidePanelActions,
   SlidePanelSection,
 } from 'components/SlidePanel';
-import { Edit2, MessageCircle, Printer, Truck } from 'lucide-react';
+import { Edit2, MessageCircle, Printer, RotateCcw, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { ORDER_TYPE_CONFIG, STATUS_CONFIG } from './constants';
@@ -63,7 +63,9 @@ export function OrderPreviewPanel({
 
   // Flags de estado
   const isPurchaseOrder = displayOrder?.type === OrderType.Purchase;
+  const isDeliveryOrder = displayOrder?.type === OrderType.Delivery;
   const isCompleted = displayOrder?.status === OrderStatus.Completed;
+  const isCancelled = displayOrder?.status === OrderStatus.Cancelled;
 
   // Handlers
   const handleEdit = () => {
@@ -73,6 +75,11 @@ export function OrderPreviewPanel({
 
   const handleCreateDeliveryNote = () => {
     router.push(`${ROUTES.orders.order}/orderForm?purchaseOrderId=${order.id}`);
+    onClose();
+  };
+
+  const handleCreateReturn = () => {
+    router.push(`${ROUTES.orders.order}/orderForm?returnOrderId=${order.id}`);
     onClose();
   };
 
@@ -120,9 +127,12 @@ export function OrderPreviewPanel({
           relatedOrders={relatedOrders}
           receptionProgress={receptionProgress}
           isPurchaseOrder={isPurchaseOrder}
+          isDeliveryOrder={isDeliveryOrder}
           isCompleted={isCompleted}
+          isCancelled={isCancelled}
           onEdit={handleEdit}
           onCreateDeliveryNote={handleCreateDeliveryNote}
+          onCreateReturn={handleCreateReturn}
           onPrint={handlePrint}
           onWhatsApp={handleWhatsApp}
           hasProviderPhone={!!displayOrder?.provider?.phoneNumber}
@@ -156,9 +166,12 @@ interface OrderPreviewContentProps {
   relatedOrders: ReturnType<typeof useOrderPreview>['relatedOrders'];
   receptionProgress: number;
   isPurchaseOrder: boolean;
+  isDeliveryOrder: boolean;
   isCompleted: boolean;
+  isCancelled: boolean;
   onEdit: () => void;
   onCreateDeliveryNote: () => void;
+  onCreateReturn: () => void;
   onPrint: () => void;
   onWhatsApp: () => void;
   hasProviderPhone: boolean;
@@ -172,9 +185,12 @@ function OrderPreviewContent({
   relatedOrders,
   receptionProgress,
   isPurchaseOrder,
+  isDeliveryOrder,
   isCompleted,
+  isCancelled,
   onEdit,
   onCreateDeliveryNote,
+  onCreateReturn,
   onPrint,
   onWhatsApp,
   hasProviderPhone,
@@ -241,6 +257,15 @@ function OrderPreviewContent({
             icon={Truck}
             label="Crear Albarà Recepció"
             variant="success"
+          />
+        )}
+
+        {isDeliveryOrder && !isCancelled && (
+          <ActionButton
+            onClick={onCreateReturn}
+            icon={RotateCcw}
+            label="Crear Devolució"
+            variant="secondary"
           />
         )}
 

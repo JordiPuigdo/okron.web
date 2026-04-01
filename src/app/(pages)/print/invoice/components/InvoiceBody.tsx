@@ -67,29 +67,32 @@ export const InvoiceBody = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {workOrder.items.map((item, itemIndex) => (
+                  {workOrder.items.map((item, itemIndex) => {
+                    const isEmptyLine = item.quantity === 0 && item.unitPrice === 0;
+                    return (
                     <tr
                       key={itemIndex}
                       className="border-b border-gray-200 last:border-b-0"
                     >
                       <td className="p-2 text-sm">{item.description}</td>
                       <td className="p-2 text-center text-sm">
-                        {item.quantity}
+                        {isEmptyLine ? '' : item.quantity}
                       </td>
                       <td className="p-2 text-center text-sm">
-                        {formatEuropeanCurrency(item.unitPrice, t)}
+                        {isEmptyLine ? '' : formatEuropeanCurrency(item.unitPrice, t)}
                       </td>
                       <td className="p-2 text-center text-sm">
-                        {item.discountPercentage}%
+                        {isEmptyLine ? '' : `${item.discountPercentage}%`}
                       </td>
                       <td className="p-2 text-center text-sm">
-                        {formatEuropeanCurrency(item.discountAmount, t)}
+                        {isEmptyLine ? '' : formatEuropeanCurrency(item.discountAmount, t)}
                       </td>
                       <td className="p-2 text-center text-sm font-medium">
-                        {formatEuropeanCurrency(item.lineTotal, t)}
+                        {isEmptyLine ? '' : formatEuropeanCurrency(item.lineTotal, t)}
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

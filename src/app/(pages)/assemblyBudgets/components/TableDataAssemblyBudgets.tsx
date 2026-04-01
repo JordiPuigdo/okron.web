@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { Budget, BudgetStatus, BudgetType } from 'app/interfaces/Budget';
+import { BudgetAssemblyService } from 'app/services/budgetAssemblyService';
 import { BudgetService } from 'app/services/budgetService';
+import useRoutes from 'app/utils/useRoutes';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
 import DataTable from 'components/table/DataTable';
 import {
@@ -15,6 +17,8 @@ import {
   TableButtons,
 } from 'components/table/interface/interfaceTable';
 import { EntityTable } from 'components/table/interface/tableEntitys';
+import { useRouter } from 'next/navigation';
+import { AssemblyBudgetFormModal } from './AssemblyBudgetFormModal';
 
 interface TableDataAssemblyBudgetsProps {
   className?: string;
@@ -32,6 +36,7 @@ const DEFAULT_STATUSES = [
 const TABLE_BUTTONS: TableButtons = {
   edit: true,
   detail: true,
+  copy: true,
 };
 
 const getColumns = (t: (key: string) => string): Column[] => [
@@ -67,15 +72,24 @@ export const TableDataAssemblyBudgets = ({
   refreshKey = 0,
 }: TableDataAssemblyBudgetsProps) => {
   const { t } = useTranslations();
+  const router = useRouter();
+  const routes = useRoutes();
+
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [dateFilters, setDateFilters] = useState<DateFilters>(getDefaultDateRange);
+  const [copySourceBudget, setCopySourceBudget] = useState<Budget | undefined>(undefined);
+  const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
+  const [isCopyLoading, setIsCopyLoading] = useState(false);
 
   const columns = useMemo(() => getColumns(t), [t]);
   const filters = useMemo(() => getFilters(t), [t]);
 
-  const serviceRef = useRef(
+  const budgetServiceRef = useRef(
     new BudgetService(process.env.NEXT_PUBLIC_API_BASE_URL || '')
+  );
+  const assemblyServiceRef = useRef(
+    new BudgetAssemblyService(process.env.NEXT_PUBLIC_API_BASE_URL!)
   );
 
   const fetchBudgets = useCallback(async () => {
@@ -86,7 +100,7 @@ export const TableDataAssemblyBudgets = ({
         startDate: dateFilters.startDate.toISOString(),
         endDate: dateFilters.endDate.toISOString(),
       };
-      const allBudgets = await serviceRef.current.getAll(search);
+      const allBudgets = await budgetServiceRef.current.getAll(search);
       setBudgets(
         allBudgets.filter(b => b.budgetType === BudgetType.Assembly)
       );
@@ -112,6 +126,30 @@ export const TableDataAssemblyBudgets = ({
     }
   }, [dateFilters, fetchBudgets, isInitialLoad]);
 
+  const handleCopyClick = useCallback(async (budget: Budget) => {
+    setIsCopyLoading(true);
+    try {
+      const fullBudget = await assemblyServiceRef.current.getById(budget.id);
+      setCopySourceBudget(fullBudget);
+      setIsCopyModalOpen(true);
+    } catch {
+      console.error('Error loading budget for copy');
+    } finally {
+      setIsCopyLoading(false);
+    }
+  }, []);
+
+  const handleCopySuccess = useCallback((newBudget: Budget) => {
+    setIsCopyModalOpen(false);
+    setCopySourceBudget(undefined);
+    router.push(routes.assemblyBudget.detail(newBudget.id));
+  }, [router, routes.assemblyBudget]);
+
+  const handleCopyCancel = useCallback(() => {
+    setIsCopyModalOpen(false);
+    setCopySourceBudget(undefined);
+  }, []);
+
   const filteredBudgets = budgets.filter(
     budget => DEFAULT_STATUSES.includes(budget.status)
   );
@@ -133,6 +171,14 @@ export const TableDataAssemblyBudgets = ({
         tableButtons={TABLE_BUTTONS}
         filters={filters}
         totalCounts
+        onCopy={handleCopyClick}
+      />
+
+      <AssemblyBudgetFormModal
+        isVisible={isCopyModalOpen}
+        sourceBudget={copySourceBudget}
+        onSuccess={handleCopySuccess}
+        onCancel={handleCopyCancel}
       />
     </div>
   );

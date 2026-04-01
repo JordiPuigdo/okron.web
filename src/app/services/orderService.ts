@@ -151,4 +151,6 @@ export class OrderService implements IOrderService {
     return true;
   }
 }
+
+export const orderService = new OrderService(process.env.NEXT_PUBLIC_API_BASE_URL!);
 export default OrderService;

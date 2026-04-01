@@ -158,6 +158,18 @@ export interface AssemblyBudgetCreationRequest {
   customerInstallationId?: string;
   externalComments?: string;
   internalComments?: string;
+  sourceBudgetId?: string;
+  sourceNodeIds?: string[];
+  keepMargins?: boolean;
+}
+
+export interface ImportAssemblyNodesRequest {
+  budgetId: string;
+  versionId?: string;
+  sourceBudgetId: string;
+  sourceNodeIds?: string[];
+  targetParentNodeId?: string;
+  keepMargins?: boolean;
 }
 
 export interface UpdateAssemblyBudgetRequest {

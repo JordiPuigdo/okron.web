@@ -22,12 +22,14 @@ import { SvgSpinner } from '../../../icons/icons';
 import {
   Invoice,
   InvoiceStatus,
+  InvoiceType,
   InvoiceUpdateRequest,
 } from '../../../interfaces/Invoice';
 import { DeliveryNoteService } from '../../../services/deliveryNoteService';
 import useRoutes from '../../../utils/useRoutes';
 import { DeliveryNotePreviewPanel } from '../../deliveryNotes/components/DeliveryNotePreviewPanel';
 import { WorkOrderPreviewPanel } from '../../workOrders/components/WorkOrderPreviewPanel';
+import { SuccessfulMessage } from 'components/Alerts/SuccesfullMessage';
 import { CreditNoteCreateModal } from './CreditNoteCreateModal';
 
 interface InvoiceDetailFormProps {
@@ -44,6 +46,7 @@ export function InvoiceDetailForm({
 
   const [formData, setFormData] = useState<Invoice>(invoice);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { t } = useTranslations();
 
@@ -116,8 +119,8 @@ export function InvoiceDetailForm({
         setFormData(prev => ({
           ...prev,
           deliveryNotes: [...(prev.deliveryNotes || []), deliveryNote],
-          deliveryNoteIds: [
-            ...(prev.deliveryNoteIds || []),
+          deliveryNotesIds: [
+            ...(prev.deliveryNotesIds || []),
             deliveryNoteId,
           ],
         }));
@@ -133,7 +136,7 @@ export function InvoiceDetailForm({
       deliveryNotes: (prev.deliveryNotes || []).filter(
         dn => dn.id !== deliveryNoteId
       ),
-      deliveryNoteIds: (prev.deliveryNoteIds || []).filter(
+      deliveryNotesIds: (prev.deliveryNotesIds || []).filter(
         id => id !== deliveryNoteId
       ),
     }));
@@ -141,12 +144,12 @@ export function InvoiceDetailForm({
 
   const addedDeliveryNoteIds = useMemo(() => {
     const originalIds = new Set(
-      invoice.deliveryNoteIds || invoice.deliveryNotes?.map(dn => dn.id) || []
+      invoice.deliveryNotesIds || invoice.deliveryNotes?.map(dn => dn.id) || []
     );
     return (
-      formData.deliveryNoteIds?.filter(id => !originalIds.has(id)) || []
+      formData.deliveryNotesIds?.filter(id => !originalIds.has(id)) || []
     );
-  }, [formData.deliveryNoteIds, invoice.deliveryNoteIds, invoice.deliveryNotes]);
+  }, [formData.deliveryNotesIds, invoice.deliveryNotesIds, invoice.deliveryNotes]);
 
   const handlePreviewDeliveryNote = (dn: DeliveryNote) => {
     setPreviewDeliveryNote(dn);
@@ -252,11 +255,9 @@ export function InvoiceDetailForm({
       };
 
       await onUpdate(updateRequest);
-
-      setTimeout(() => {
-        setIsLoading(false);
-        router.push(ROUTES.invoices.list);
-      }, 500);
+      setShowSuccess(true);
+      setIsLoading(false);
+      setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       console.error('Error updating invoice:', error);
       setIsLoading(false);
@@ -272,6 +273,16 @@ export function InvoiceDetailForm({
           isCreate={false}
           canPrint={`invoice?id=${formData.id}`}
         />
+        {formData.invoiceType === InvoiceType.Proforma && (
+          <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-300 rounded-lg">
+            <span className="text-xs font-bold text-amber-700 tracking-widest">
+              PROFORMA
+            </span>
+            <span className="text-xs text-amber-600">
+              {t('invoice.proformaInfo')}
+            </span>
+          </div>
+        )}
 
         <div className="bg-white rounded-xl p-6 shadow-lg">
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -493,6 +504,10 @@ export function InvoiceDetailForm({
               total={total || 0}
               taxBreakdowns={taxBreakdowns}
             />
+
+            {showSuccess && (
+              <SuccessfulMessage title="" message={t('common.update')} />
+            )}
 
             {/* Action Buttons */}
             <div className="flex gap-3 pt-6 border-t">

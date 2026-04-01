@@ -17,7 +17,7 @@ export default function AssemblyBudgetDetailPage({
   params,
 }: AssemblyBudgetDetailPageProps) {
   const { t } = useTranslations();
-  const { budget, loading, error, fetchBudgetById, updateAssemblyBudget, addFolder, addArticle, reorganizeNodes, removeNode, updateNode, updateMargin } =
+  const { budget, loading, error, fetchBudgetById, updateAssemblyBudget, addFolder, addArticle, reorganizeNodes, removeNode, updateNode, updateMargin, importNodes } =
     useBudgetAssembly();
 
   const handleRefreshBudget = useCallback(async () => {
@@ -66,6 +66,7 @@ export default function AssemblyBudgetDetailPage({
           onRemoveNode={removeNode}
           onUpdateNode={updateNode}
           onUpdateMargin={updateMargin}
+          onImportNodes={importNodes}
           onRefreshBudget={handleRefreshBudget}
         />
       </Container>

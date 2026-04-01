@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
+import { Budget } from 'app/interfaces/Budget';
 import Container from 'components/layout/Container';
 import { HeaderTable } from 'components/layout/HeaderTable';
 import MainLayout from 'components/layout/MainLayout';
@@ -14,7 +15,7 @@ export default function AssemblyBudgetsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const handleCreated = () => {
+  const handleCreated = (_budget: Budget) => {
     setIsFormOpen(false);
     setRefreshKey(prev => prev + 1);
   };

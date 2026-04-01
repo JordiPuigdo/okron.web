@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import useSWR from 'swr';
 import { Order } from 'app/interfaces/Order';
-import { OrderService } from 'app/services/orderService';
+import { orderService } from 'app/services/orderService';
 
-// ============================================================================
-// HOOK: Gestión de carga de orden completa
-// ============================================================================
+const SWR_OPTIONS = {
+  revalidateOnFocus: false,
+  revalidateIfStale: false,
+  revalidateOnReconnect: false,
+};
 
 interface UseOrderPreviewOptions {
   order: Order | null;
@@ -17,63 +19,32 @@ interface UseOrderPreviewReturn {
   isLoading: boolean;
 }
 
-/**
- * Hook para gestionar la carga de la orden completa y sus relacionadas.
- * SRP: Solo maneja la lógica de fetch y estado de carga.
- */
 export function useOrderPreview({
   order,
   isOpen,
 }: UseOrderPreviewOptions): UseOrderPreviewReturn {
-  const [fullOrder, setFullOrder] = useState<Order | null>(null);
-  const [relatedOrders, setRelatedOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const orderId = isOpen && order?.id ? order.id : null;
 
-  useEffect(() => {
-    if (isOpen && order?.id) {
-      fetchFullOrderAndRelated(order);
-    } else if (!isOpen) {
-      setFullOrder(null);
-      setRelatedOrders([]);
-    }
-  }, [isOpen, order?.id]);
+  const { data: fullOrder, isLoading: isLoadingOrder } = useSWR(
+    orderId ? ['order', orderId] : null,
+    ([, id]: [string, string]) => orderService.getById(id),
+    SWR_OPTIONS
+  );
 
-  async function fetchFullOrderAndRelated(partialOrder: Order) {
-    setIsLoading(true);
+  const relationOrderIds =
+    fullOrder?.relationOrders?.map(rel => rel.relationOrderId) ?? [];
 
-    try {
-      const orderService = new OrderService(
-        process.env.NEXT_PUBLIC_API_BASE_URL || ''
-      );
+  const { data: relatedOrders, isLoading: isLoadingRelated } = useSWR(
+    orderId && relationOrderIds.length > 0
+      ? ['relatedOrders', ...relationOrderIds]
+      : null,
+    () => orderService.getWithFilters({ ids: relationOrderIds }),
+    SWR_OPTIONS
+  );
 
-      // Cargar orden principal
-      const data = await orderService.getById(partialOrder.id);
-      setFullOrder(data);
-
-      // Cargar órdenes relacionadas (albarans de recepción)
-      if (data.relationOrders && data.relationOrders.length > 0) {
-        const relationOrderIds = data.relationOrders.map(
-          rel => rel.relationOrderId
-        );
-        const relatedData = await orderService.getWithFilters({
-          ids: relationOrderIds,
-        });
-        setRelatedOrders(relatedData);
-      } else {
-        setRelatedOrders([]);
-      }
-    } catch (error) {
-      console.error('Error fetching order details:', error);
-      // Fallback a la orden parcial si falla
-      setFullOrder(partialOrder);
-      setRelatedOrders([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  // Usar la orden completa si está disponible, sino la parcial
-  const displayOrder = fullOrder || order;
-
-  return { displayOrder, relatedOrders, isLoading };
+  return {
+    displayOrder: fullOrder ?? order,
+    relatedOrders: relatedOrders ?? [],
+    isLoading: isLoadingOrder || (relationOrderIds.length > 0 && !!isLoadingRelated),
+  };
 }

@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useEffect, useState } from 'react';
-import { Invoice } from 'app/interfaces/Invoice';
+import { Invoice, InvoiceType } from 'app/interfaces/Invoice';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
 import DataTable from 'components/table/DataTable';
 import {
@@ -22,6 +22,7 @@ interface TableDataInvoicesProps {
   title?: string;
   hideShadow?: boolean;
   enableFilters?: boolean;
+  defaultInvoiceType?: InvoiceType;
 }
 
 export const TableDataInvoices = ({
@@ -29,6 +30,7 @@ export const TableDataInvoices = ({
   title = '',
   hideShadow = false,
   enableFilters = true,
+  defaultInvoiceType,
 }: TableDataInvoicesProps) => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,11 +75,19 @@ export const TableDataInvoices = ({
 
   const fetchInvoices = async () => {
     try {
-      const search = {
-        startDate: dateFilters.startDate!,
-        endDate: dateFilters.endDate!,
-      };
-      const invoices = await invoiceService.getAll(search);
+      let invoices: Invoice[];
+      if (defaultInvoiceType !== undefined) {
+        invoices = await invoiceService.searchInvoices({
+          startDate: dateFilters.startDate?.toISOString().split('T')[0],
+          endDate: dateFilters.endDate?.toISOString().split('T')[0],
+          invoiceType: defaultInvoiceType,
+        });
+      } else {
+        invoices = await invoiceService.getAll({
+          startDate: dateFilters.startDate!,
+          endDate: dateFilters.endDate!,
+        });
+      }
       setInvoices(invoices);
     } catch (error) {
       console.error('Error fetching invoices:', error);
@@ -98,13 +108,17 @@ export const TableDataInvoices = ({
     }
   }, [invoices]);
 
-  const getFilteredInvoices = (): Invoice[] => {
-    return invoices.filter(invoice => {
-      const statusMatches =
-        filters.status.length === 0 || filters.status.includes(invoice.status);
-
-      return statusMatches;
-    });
+  const getFilteredInvoices = () => {
+    return invoices
+      .filter(invoice => {
+        const statusMatches =
+          filters.status.length === 0 || filters.status.includes(invoice.status);
+        return statusMatches;
+      })
+      .map(invoice => ({
+        ...invoice,
+        invoiceType: invoice.invoiceType === InvoiceType.Proforma ? 'PROFORMA' : '',
+      }));
   };
 
   const filteredInvoices = getFilteredInvoices();

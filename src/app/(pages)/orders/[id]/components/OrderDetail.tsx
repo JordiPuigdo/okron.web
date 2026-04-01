@@ -1,8 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useOrder } from 'app/hooks/useOrder';
+import useSWR from 'swr';
 import { SvgSpinner } from 'app/icons/icons';
-import { Order } from 'app/interfaces/Order';
+import { orderService } from 'app/services/orderService';
 
 import OrderForm from '../../orderForm/components/OrderForm';
 
@@ -11,18 +10,12 @@ interface OrderDetailProps {
 }
 
 export default function OrderDetail({ id }: OrderDetailProps) {
-  const { fetchOrderById } = useOrder();
-  const [order, setOrder] = useState<Order | null>(null);
+  const { data: order } = useSWR(
+    ['order', id],
+    ([, orderId]: [string, string]) => orderService.getById(orderId),
+    { revalidateOnFocus: false, revalidateIfStale: false, revalidateOnReconnect: false }
+  );
 
-  const fetchOrder = async () => {
-    const response = await fetchOrderById(id);
-    setOrder(response);
-  };
-
-  useEffect(() => {
-    fetchOrder();
-  }, [id]);
-
-  if (order) return <OrderForm isPurchase={false} orderRequest={order!} />;
+  if (order) return <OrderForm isPurchase={false} orderRequest={order} />;
   return <SvgSpinner className="w-full" />;
 }

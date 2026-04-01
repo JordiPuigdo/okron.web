@@ -43,7 +43,7 @@ dayjs.extend(timezone);
 export default function EditPreventive({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [preventiveData, setPreventiveData] = useState<Preventive | null>(null);
-  const { register, handleSubmit, setValue } = useForm<Preventive>();
+  const { register, handleSubmit, setValue, watch } = useForm<Preventive>();
   const [availableSpareParts, setAvailableSpareParts] = useState<SparePart[]>(
     []
   );
@@ -257,7 +257,7 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
                   <BasicInfoSection register={register} />
 
                   <ScheduleSection
-                    preventiveDays={preventiveData?.days || 0}
+                    preventiveDays={watch('days') ?? 0}
                     startDate={startDate}
                     lastExecution={
                       preventiveData?.lastExecution

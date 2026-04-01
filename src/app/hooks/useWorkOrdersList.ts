@@ -24,7 +24,7 @@ import { useQueryParams } from './useFilters';
  * - Single Responsibility: Solo maneja la obtención y filtrado de listados de WorkOrders
  * - Separation of Concerns: Lógica de negocio separada del servicio HTTP
  */
-export const useWorkOrdersList = (operatorId?: string) => {
+export const useWorkOrdersList = (operatorId?: string, assetId?: string) => {
   const { loginUser, operatorLogged } = useSessionStore(state => state);
   const { updateQueryParams, queryParams } = useQueryParams();
 
@@ -96,7 +96,7 @@ export const useWorkOrdersList = (operatorId?: string) => {
 
     try {
       const searchFilters: SearchWorkOrderFilters = {
-        assetId: '',
+        assetId: assetId ?? '',
         operatorId: !filters.useOperatorLogged
           ? ''
           : operatorLogged?.idOperatorLogged || '',

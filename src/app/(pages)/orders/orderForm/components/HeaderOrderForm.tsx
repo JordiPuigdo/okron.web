@@ -18,6 +18,8 @@ import { ProgressBar } from 'components/ProgressBar';
 import ca from 'date-fns/locale/ca';
 import dayjs from 'dayjs';
 
+import { cn } from 'lib/utils';
+
 import AccountSelection from './AccountSelection';
 import SearchOrderComponent from './SearchOrderComponent';
 import SearchProviderComponent from './SearchProviderComponent';
@@ -31,6 +33,7 @@ export interface HeaderOrderFormProps {
   disabledSearchPurchaseOrder?: boolean;
   setSelectedAccount: (Account: Account) => void;
   valueProgressBar?: number;
+  deliveryProviderCodeError?: string;
 }
 
 export default function HeaderOrderForm({
@@ -42,6 +45,7 @@ export default function HeaderOrderForm({
   disabledSearchPurchaseOrder = false,
   setSelectedAccount,
   valueProgressBar,
+  deliveryProviderCodeError,
 }: HeaderOrderFormProps) {
   const { t } = useTranslations();
   
@@ -150,7 +154,10 @@ export default function HeaderOrderForm({
               </label>
               <input
                 type="text"
-                className="p-2 border rounded-md"
+                className={cn(
+                  'p-2 border rounded-md',
+                  deliveryProviderCodeError && 'border-red-500'
+                )}
                 value={order.deliveryProviderCode}
                 onChange={e =>
                   setOrder({
@@ -159,6 +166,11 @@ export default function HeaderOrderForm({
                   })
                 }
               />
+              {deliveryProviderCodeError && (
+                <span className="text-red-500 text-xs">
+                  {deliveryProviderCodeError}
+                </span>
+              )}
             </div>
           </div>
         )}

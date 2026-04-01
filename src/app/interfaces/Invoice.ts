@@ -5,6 +5,12 @@ import { DeliveryNote } from './DeliveryNote';
 export enum InvoiceStatus {
   Pending,
   Invoiced,
+  Credited,
+}
+
+export enum InvoiceType {
+  Standard,
+  Proforma,
 }
 
 export enum InvoiceItemType {
@@ -16,8 +22,9 @@ export enum InvoiceItemType {
 export interface Invoice extends BaseModel {
   code: string;
   status: InvoiceStatus;
+  invoiceType: InvoiceType;
   dueDate: Date;
-  deliveryNoteIds: string[];
+  deliveryNotesIds: string[];
   deliveryNotes: DeliveryNote[];
   paymentMethod: PaymentMethod;
 }
@@ -26,6 +33,7 @@ export interface InvoiceCreateRequest {
   deliveryNoteIds: string[];
   invoiceDate: string;
   dueDate: string;
+  invoiceType: InvoiceType;
 }
 
 export interface InvoiceUpdateRequest {
@@ -41,6 +49,7 @@ export interface InvoiceSearchFilters {
   startDate?: string;
   endDate?: string;
   status?: InvoiceStatus;
+  invoiceType?: InvoiceType;
   deliveryNoteId?: string;
   invoiceCode?: string;
   minAmount?: number;

@@ -25,6 +25,7 @@ export interface TableButtons {
   delete?: boolean;
   detail?: boolean;
   preview?: boolean;
+  copy?: boolean;
 }
 
 export enum ColumnFormat {

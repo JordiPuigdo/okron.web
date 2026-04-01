@@ -45,7 +45,7 @@ export default async function OrderPage({ searchParams }: OrderPageProps) {
   return (
     <div className="min-h-screen flex flex-col items-center">
       {/* PrintTrigger se encarga de hacer window.print() en el cliente */}
-      <PrintTrigger />
+      <PrintTrigger documentTitle={`${order.code}`} />
       <div className="flex flex-col bg-white gap-4 p-4 w-full">
         <OrderHeader order={order} company={config.company} />
         <OrderBody order={order} />

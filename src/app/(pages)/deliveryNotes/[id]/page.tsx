@@ -54,6 +54,17 @@ export default function DeliveryNoteDetailPage({
     }
   };
 
+  const handleSyncCustomer = async (id: string): Promise<DeliveryNote> => {
+    try {
+      const updatedDeliveryNote = await deliveryNoteService.syncCustomer(id);
+      setDeliveryNote(updatedDeliveryNote);
+      return updatedDeliveryNote;
+    } catch (error) {
+      console.error('Error syncing customer:', error);
+      throw error;
+    }
+  };
+
   const handleDelete = async (id: string) => {
     try {
       await deliveryNoteService.delete(id);
@@ -94,6 +105,7 @@ export default function DeliveryNoteDetailPage({
           deliveryNote={deliveryNote}
           onUpdate={handleUpdate}
           onDelete={handleDelete}
+          onSyncCustomer={handleSyncCustomer}
         />
       </Container>
     </MainLayout>

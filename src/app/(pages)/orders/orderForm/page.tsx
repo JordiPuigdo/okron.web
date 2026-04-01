@@ -10,10 +10,12 @@ function OrderFormContent() {
   const searchParams = useSearchParams();
   const isPurchase = searchParams.get('isPurchase') === 'true';
   const purchaseOrderId = searchParams.get('purchaseOrderId');
+  const returnOrderId = searchParams.get('returnOrderId');
   return (
     <OrderForm
       isPurchase={isPurchase}
-      purchaseOrderId={purchaseOrderId ? purchaseOrderId : undefined}
+      purchaseOrderId={purchaseOrderId ?? undefined}
+      returnOrderId={returnOrderId ?? undefined}
     />
   );
 }

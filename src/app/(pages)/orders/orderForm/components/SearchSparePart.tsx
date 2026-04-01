@@ -44,6 +44,7 @@ export default function SearchSparePartOrderPurchase({
           selectedSparePart.providers.find(
             x => x.providerId == selectedProvider?.id
           )?.discount || 0,
+        tax: 21,
         wareHouseName: '',
       });
       setSelectedSparePart(undefined);

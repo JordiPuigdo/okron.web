@@ -24,6 +24,7 @@ interface TableRowComponentProps {
   onDelete?: (id: string) => void;
   onEdit?: (item: any) => void;
   onPreview?: (item: any) => void;
+  onCopy?: (item: any) => void;
   filtersApplied: FilterValue;
 }
 
@@ -42,6 +43,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
   onDelete,
   onEdit,
   onPreview,
+  onCopy,
   filtersApplied,
 }) => {
   if (rowData.length === 0) return null;
@@ -168,6 +170,7 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
         onDelete={onDelete}
         onEdit={onEdit}
         onPreview={onPreview}
+        onCopy={onCopy}
       />
     </tr>
   );

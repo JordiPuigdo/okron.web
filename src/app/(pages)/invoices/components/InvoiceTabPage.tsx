@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { TableDataDeliveryNotes } from 'app/(pages)/deliveryNotes/components/TableDataDeliveryNotes';
 import { useTranslations } from 'app/hooks/useTranslations';
+import { InvoiceType } from 'app/interfaces/Invoice';
 import { HeaderTable } from 'components/layout/HeaderTable';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -97,12 +98,32 @@ function BillingSummary() {
   );
 }
 
+function ProformaInvoices() {
+  const { t } = useTranslations();
+
+  return (
+    <>
+      <HeaderTable
+        title={t('invoices.tabs.proforma')}
+        subtitle={`${t('start')} - ${t('invoices.tabs.proforma')}`}
+        createButton={t('create.invoice')}
+        urlCreateButton="/invoices/create"
+      />
+      <TableDataInvoices
+        className="bg-white p-4 rounded-xl shadow-md"
+        defaultInvoiceType={InvoiceType.Proforma}
+      />
+    </>
+  );
+}
+
 type TabKey =
   | 'Invoices'
   | 'DeliveryNotes'
   | 'Budgets'
   | 'CreditNotes'
-  | 'BillingSummary';
+  | 'BillingSummary'
+  | 'ProformaInvoices';
 
 const labels: Record<TabKey, string> = {
   Budgets: 'budgets',
@@ -110,12 +131,14 @@ const labels: Record<TabKey, string> = {
   Invoices: 'invoices.tabs.invoices',
   CreditNotes: 'invoices.tabs.creditNotes',
   BillingSummary: 'invoices.tabs.billingSummary',
+  ProformaInvoices: 'invoices.tabs.proforma',
 };
 
 const tabs: TabKey[] = [
   'Budgets',
   'DeliveryNotes',
   'Invoices',
+  'ProformaInvoices',
   'CreditNotes',
   'BillingSummary',
 ];
@@ -187,6 +210,8 @@ export default function InvoiceTabPage() {
         );
       case 'BillingSummary':
         return <BillingSummary />;
+      case 'ProformaInvoices':
+        return <ProformaInvoices />;
       default:
         return null;
     }

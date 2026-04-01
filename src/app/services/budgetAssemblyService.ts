@@ -3,6 +3,7 @@ import {
   AddAssemblyFolderRequest,
   AssemblyBudgetCreationRequest,
   Budget,
+  ImportAssemblyNodesRequest,
   MoveAssemblyNodeRequest,
   RemoveAssemblyNodeRequest,
   ReorganizeAssemblyNodesRequest,
@@ -149,5 +150,15 @@ export class BudgetAssemblyService {
       method: 'PUT',
       body: JSON.stringify(request),
     });
+  }
+
+  async importNodes(request: ImportAssemblyNodesRequest): Promise<Budget> {
+    return this.request<Budget>(
+      `budgets/assembly/${request.budgetId}/import-nodes`,
+      {
+        method: 'POST',
+        body: JSON.stringify(request),
+      }
+    );
   }
 }

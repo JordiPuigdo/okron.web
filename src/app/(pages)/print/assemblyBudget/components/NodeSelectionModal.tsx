@@ -1,21 +1,9 @@
 'use client';
 
-import React, { useCallback, useMemo, useState } from 'react';
-import {
-  AssemblyFolder,
-  AssemblyNode,
-  BudgetNodeType,
-} from 'app/interfaces/Budget';
-import { formatCurrencyServerSider } from 'app/utils/utils';
-import {
-  Check,
-  ChevronDown,
-  ChevronRight,
-  FolderOpen,
-  Minus,
-  Package,
-  Printer,
-} from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { AssemblyNode } from 'app/interfaces/Budget';
+import { AssemblyNodeSelector } from '../../../assemblyBudgets/components/AssemblyNodeSelector';
+import { Printer } from 'lucide-react';
 
 interface NodeSelectionModalProps {
   isVisible: boolean;
@@ -24,120 +12,13 @@ interface NodeSelectionModalProps {
   onConfirm: (selectedIds: string[]) => void;
 }
 
-function getChildIds(node: AssemblyNode): string[] {
-  const ids: string[] = [node.id];
-  if (node.nodeType === BudgetNodeType.Folder) {
-    const folder = node as AssemblyFolder;
-    for (const child of folder.children || []) {
-      ids.push(...getChildIds(child));
-    }
-  }
-  return ids;
-}
-
-function getFolderState(
-  node: AssemblyFolder,
-  selected: Set<string>
-): 'all' | 'some' | 'none' {
-  if (selected.has(node.id)) return 'all';
-
-  const childIds = getChildIds(node).filter(id => id !== node.id);
-  const hasSelectedChildren = childIds.some(id => selected.has(id));
-  if (hasSelectedChildren) return 'some';
-  return 'none';
-}
-
-function buildAncestorMap(nodes: AssemblyNode[]): Map<string, string[]> {
-  const ancestorMap = new Map<string, string[]>();
-
-  const walk = (items: AssemblyNode[], ancestors: string[]) => {
-    for (const node of items) {
-      ancestorMap.set(node.id, ancestors);
-
-      if (node.nodeType === BudgetNodeType.Folder) {
-        walk((node as AssemblyFolder).children || [], [...ancestors, node.id]);
-      }
-    }
-  };
-
-  walk(nodes, []);
-  return ancestorMap;
-}
-
 export function NodeSelectionModal({
   isVisible,
   nodes,
   allNodeIds,
   onConfirm,
 }: NodeSelectionModalProps) {
-  const ancestorMap = useMemo(() => buildAncestorMap(nodes), [nodes]);
-
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(
-    () => new Set(allNodeIds)
-  );
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
-    () => {
-      const folderIds = new Set<string>();
-      const walk = (items: AssemblyNode[]) => {
-        for (const node of items) {
-          if (node.nodeType === BudgetNodeType.Folder) {
-            folderIds.add(node.id);
-            walk((node as AssemblyFolder).children || []);
-          }
-        }
-      };
-      walk(nodes);
-      return folderIds;
-    }
-  );
-
-  const toggleFolder = useCallback((folderId: string) => {
-    setExpandedFolders(prev => {
-      const next = new Set(prev);
-      if (next.has(folderId)) {
-        next.delete(folderId);
-      } else {
-        next.add(folderId);
-      }
-      return next;
-    });
-  }, []);
-
-  const toggleNode = useCallback(
-    (node: AssemblyNode) => {
-      setSelectedIds(prev => {
-        const next = new Set(prev);
-        const isSelected = next.has(node.id);
-
-        if (isSelected) {
-          next.delete(node.id);
-        } else {
-          next.add(node.id);
-          const ancestors = ancestorMap.get(node.id) || [];
-          ancestors.forEach(id => next.add(id));
-        }
-
-        return next;
-      });
-    },
-    [ancestorMap]
-  );
-
-  const handleSelectAll = useCallback(() => {
-    setSelectedIds(new Set(allNodeIds));
-  }, [allNodeIds]);
-
-  const handleSelectNone = useCallback(() => {
-    setSelectedIds(new Set());
-  }, []);
-
-  const selectedCount = useMemo(() => {
-    return allNodeIds.filter(id => selectedIds.has(id)).length;
-  }, [allNodeIds, selectedIds]);
-
-  const handleConfirm = useCallback(() => {
-    onConfirm(Array.from(selectedIds));
-  }, [selectedIds, onConfirm]);
+  const [selectedIds, setSelectedIds] = useState<string[]>(allNodeIds);
 
   if (!isVisible) return null;
 
@@ -149,181 +30,31 @@ export function NodeSelectionModal({
             <Printer className="h-5 w-5 text-blue-600" />
             Selecciona els elements a imprimir
           </h2>
-          <p className="text-sm text-gray-500 mt-1">
-            {selectedCount} de {allNodeIds.length} elements seleccionats
-          </p>
         </div>
 
-        <div className="px-6 py-2 flex gap-2 border-b border-gray-100">
-          <button
-            type="button"
-            onClick={handleSelectAll}
-            className="text-xs px-3 py-1.5 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors font-medium"
-          >
-            Seleccionar tot
-          </button>
-          <button
-            type="button"
-            onClick={handleSelectNone}
-            className="text-xs px-3 py-1.5 rounded-md bg-gray-50 text-gray-700 hover:bg-gray-100 transition-colors font-medium"
-          >
-            Deseleccionar tot
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto px-6 py-3">
-          <NodeTree
+        <div className="flex-1 overflow-hidden px-6 py-4">
+          <AssemblyNodeSelector
             nodes={nodes}
-            selectedIds={selectedIds}
-            expandedFolders={expandedFolders}
-            onToggleNode={toggleNode}
-            onToggleFolder={toggleFolder}
-            depth={0}
+            allNodeIds={allNodeIds}
+            selectAllLabel="Seleccionar tot"
+            selectNoneLabel="Deseleccionar tot"
+            countLabel={(s, t) => `${s} de ${t} elements seleccionats`}
+            onChange={setSelectedIds}
           />
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
           <button
             type="button"
-            onClick={handleConfirm}
-            disabled={selectedCount === 0}
+            onClick={() => onConfirm(selectedIds)}
+            disabled={selectedIds.length === 0}
             className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Printer className="h-4 w-4" />
-            Imprimir ({selectedCount})
+            Imprimir ({selectedIds.length})
           </button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function NodeTree({
-  nodes,
-  selectedIds,
-  expandedFolders,
-  onToggleNode,
-  onToggleFolder,
-  depth,
-}: {
-  nodes: AssemblyNode[];
-  selectedIds: Set<string>;
-  expandedFolders: Set<string>;
-  onToggleNode: (node: AssemblyNode) => void;
-  onToggleFolder: (folderId: string) => void;
-  depth: number;
-}) {
-  return (
-    <div className="space-y-0.5">
-      {nodes.map(node => (
-        <NodeRow
-          key={node.id}
-          node={node}
-          selectedIds={selectedIds}
-          expandedFolders={expandedFolders}
-          onToggleNode={onToggleNode}
-          onToggleFolder={onToggleFolder}
-          depth={depth}
-        />
-      ))}
-    </div>
-  );
-}
-
-function NodeRow({
-  node,
-  selectedIds,
-  expandedFolders,
-  onToggleNode,
-  onToggleFolder,
-  depth,
-}: {
-  node: AssemblyNode;
-  selectedIds: Set<string>;
-  expandedFolders: Set<string>;
-  onToggleNode: (node: AssemblyNode) => void;
-  onToggleFolder: (folderId: string) => void;
-  depth: number;
-}) {
-  const isFolder = node.nodeType === BudgetNodeType.Folder;
-  const folder = isFolder ? (node as AssemblyFolder) : null;
-  const isExpanded = isFolder && expandedFolders.has(node.id);
-
-  const isSelected = selectedIds.has(node.id);
-  const folderState = folder ? getFolderState(folder, selectedIds) : null;
-  const checkState = isFolder ? folderState : isSelected ? 'all' : 'none';
-
-  return (
-    <div>
-      <div
-        className="flex items-center gap-2 py-1.5 px-2 rounded-md hover:bg-gray-50 cursor-pointer transition-colors"
-        style={{ paddingLeft: `${depth * 24 + 8}px` }}
-        onClick={() => onToggleNode(node)}
-      >
-        {isFolder && (
-          <button
-            type="button"
-            onClick={e => {
-              e.stopPropagation();
-              onToggleFolder(node.id);
-            }}
-            className="p-0.5 text-gray-400 hover:text-gray-600"
-          >
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-          </button>
-        )}
-
-        {!isFolder && <div className="w-5" />}
-
-        <div
-          className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-            checkState === 'all'
-              ? 'bg-blue-600 border-blue-600'
-              : checkState === 'some'
-                ? 'bg-blue-200 border-blue-400'
-                : 'border-gray-300'
-          }`}
-        >
-          {checkState === 'all' && <Check className="h-3 w-3 text-white" />}
-          {checkState === 'some' && <Minus className="h-3 w-3 text-blue-700" />}
-        </div>
-
-        {isFolder ? (
-          <FolderOpen className="h-4 w-4 text-amber-500 shrink-0" />
-        ) : (
-          <Package className="h-4 w-4 text-blue-500 shrink-0" />
-        )}
-
-        <div className="flex-1 min-w-0">
-          <span className="text-sm font-medium text-gray-800 truncate block">
-            {node.code} — {node.description}
-          </span>
-          {node.secondaryDescription && (
-            <span className="text-xs text-gray-400 truncate block">
-              {node.secondaryDescription}
-            </span>
-          )}
-        </div>
-
-        <span className="text-xs text-gray-500 tabular-nums shrink-0">
-          {formatCurrencyServerSider(node.totalAmount)}
-        </span>
-      </div>
-
-      {isFolder && isExpanded && folder?.children && (
-        <NodeTree
-          nodes={folder.children}
-          selectedIds={selectedIds}
-          expandedFolders={expandedFolders}
-          onToggleNode={onToggleNode}
-          onToggleFolder={onToggleFolder}
-          depth={depth + 1}
-        />
-      )}
     </div>
   );
 }

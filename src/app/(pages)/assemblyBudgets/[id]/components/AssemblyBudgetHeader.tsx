@@ -11,6 +11,7 @@ import {
   ArrowLeft,
   Calendar,
   Check,
+  Download,
   FileText,
   GitBranch,
   Percent,
@@ -31,6 +32,7 @@ interface AssemblyBudgetHeaderProps {
   onUpdateMargin: (marginPercentage: number) => Promise<void>;
   onOpenMarginModal: () => void;
   onOpenVersionsModal: () => void;
+  onOpenImportModal: () => void;
   t: (key: string) => string;
 }
 
@@ -44,6 +46,7 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
   onUpdateMargin,
   onOpenMarginModal,
   onOpenVersionsModal,
+  onOpenImportModal,
   t,
 }: AssemblyBudgetHeaderProps) {
   const router = useRouter();
@@ -150,6 +153,15 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
           >
             <GitBranch className="h-3.5 w-3.5" />
             {t('assemblyBudget.versions.title')}
+          </button>
+
+          <button
+            type="button"
+            onClick={onOpenImportModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition-colors"
+          >
+            <Download className="h-3.5 w-3.5" />
+            {t('assemblyBudget.import.buttonLabel')}
           </button>
 
           <button

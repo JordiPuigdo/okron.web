@@ -37,12 +37,14 @@ export interface OrderFormProps {
   isPurchase?: boolean;
   orderRequest?: Order;
   purchaseOrderId?: string;
+  returnOrderId?: string;
 }
 
 export default function OrderForm({
   isPurchase,
   orderRequest,
   purchaseOrderId,
+  returnOrderId,
 }: OrderFormProps) {
   const {
     createOrder,
@@ -60,7 +62,7 @@ export default function OrderForm({
     providerId: '',
     items: [],
     status: OrderStatus.Pending,
-    type: isPurchase ? OrderType.Purchase : OrderType.Delivery,
+    type: isPurchase ? OrderType.Purchase : returnOrderId ? OrderType.Return : OrderType.Delivery,
     comment: '',
     date: new Date().toISOString().split('T')[0],
     operatorId: '66156dc51a7347dfd58d8ca8',
@@ -84,17 +86,23 @@ export default function OrderForm({
   >(undefined);
   const [message, setMessage] = useState<string | undefined>(undefined);
   const [isSuccess, setIsSuccess] = useState<boolean | undefined>(undefined);
+  const [deliveryProviderCodeError, setDeliveryProviderCodeError] = useState<
+    string | undefined
+  >(undefined);
   const [showWorkOrderModal, setShowWorkOrderModal] = useState(false);
   const ROUTES = useRoutes();
 
   const fetchCode = async () => {
     try {
-      const code = await getNextCode(
-        isPurchase ? OrderType.Purchase : OrderType.Delivery
-      );
-      if (purchaseOrderId) {
-        const orderResponse = await fetchOrderById(purchaseOrderId!);
+      const orderType = isPurchase
+        ? OrderType.Purchase
+        : returnOrderId
+        ? OrderType.Return
+        : OrderType.Delivery;
+      const code = await getNextCode(orderType);
 
+      if (purchaseOrderId) {
+        const orderResponse = await fetchOrderById(purchaseOrderId);
         setOrder({
           ...order,
           code: code,
@@ -104,13 +112,35 @@ export default function OrderForm({
           relationOrderCode: orderResponse.code,
           status: orderResponse.status,
           relationOrders: orderResponse.relationOrders,
+          accountId: orderResponse.accountId,
+          account: orderResponse.account,
         });
         setOrderPurchase({
           ...orderResponse,
           items: orderResponse.items.map(x => ({
             ...x,
-            refProvider: x.sparePart.providers[0].refProvider,
+            refProvider: x.sparePart.providers.find(p => p.providerId === orderResponse.providerId)?.refProvider ?? x.sparePart.providers[0]?.refProvider ?? '',
             quantityPendient: x.quantity - (x.quantityReceived ?? 0),
+          })),
+        });
+      } else if (returnOrderId) {
+        const deliveryOrder = await fetchOrderById(returnOrderId);
+        setOrder({
+          ...order,
+          code: code,
+          type: OrderType.Return,
+          providerId: deliveryOrder.providerId,
+          providerName: deliveryOrder.provider?.name,
+          relationOrderId: deliveryOrder.id,
+          relationOrderCode: deliveryOrder.code,
+          accountId: deliveryOrder.accountId,
+          account: deliveryOrder.account,
+        });
+        setOrderPurchase({
+          ...deliveryOrder,
+          items: deliveryOrder.items.map(x => ({
+            ...x,
+            quantityPendient: x.quantityReceived ?? 0,
           })),
         });
       } else {
@@ -127,7 +157,7 @@ export default function OrderForm({
 
   useEffect(() => {
     if (orderRequest == null) fetchCode();
-  }, [isPurchase, orderRequest, purchaseOrderId]);
+  }, [isPurchase, orderRequest, purchaseOrderId, returnOrderId]);
 
   useEffect(() => {
     if (orderRequest != null) {
@@ -135,7 +165,21 @@ export default function OrderForm({
     }
   }, [orderRequest]);
 
+  useEffect(() => {
+    if (deliveryProviderCodeError && order.deliveryProviderCode?.trim()) {
+      setDeliveryProviderCodeError(undefined);
+    }
+  }, [order.deliveryProviderCode]);
+
   const handleCreateOrder = async () => {
+    if (
+      order.type === OrderType.Delivery &&
+      !order.deliveryProviderCode?.trim()
+    ) {
+      setDeliveryProviderCodeError(t('order.delivery.provider.code.required'));
+      return;
+    }
+    setDeliveryProviderCodeError(undefined);
     try {
       if (orderRequest == null) {
         const orderResponse = await createOrder(order);
@@ -277,7 +321,8 @@ export default function OrderForm({
     isPurchase!,
     t,
     orderRequest,
-    order && order.code
+    order && order.code,
+    !!returnOrderId
   );
 
   function handleLoadOrderFromScratch(orderRequest: Order) {
@@ -294,12 +339,12 @@ export default function OrderForm({
     }));
   }
 
-  function handleSelectedAccount(Account: Account) {
+  function handleSelectedAccount(selectedAccount: Account) {
     if (isLoading) return;
     setOrder(prev => ({
       ...prev,
-      Account: Account.code + ' - ' + Account.description,
-      AccountId: Account.id,
+      account: selectedAccount.code + ' - ' + selectedAccount.description,
+      accountId: selectedAccount.id,
     }));
   }
 
@@ -336,6 +381,7 @@ export default function OrderForm({
             disabledSearchPurchaseOrder={purchaseOrderId != null}
             setSelectedAccount={handleSelectedAccount}
             valueProgressBar={valueProgressBar}
+            deliveryProviderCodeError={deliveryProviderCodeError}
           />
         )}
 
@@ -378,16 +424,17 @@ export default function OrderForm({
             <div className="flex flex-row justify-between">
               <div className="font-bold">{t('order.total.vat.included')}</div>
               <div className="font-bold">
-                {(
-                  order.items.reduce(
+                {order.items
+                  .reduce(
                     (acc, item) =>
                       acc +
                       Number(item.unitPrice) *
                         item.quantity *
-                        (1 - item.discount / 100),
+                        (1 - item.discount / 100) *
+                        (1 + (item.tax ?? 21) / 100),
                     0
-                  ) * 1.21
-                ).toFixed(2)}
+                  )
+                  .toFixed(2)}
                 €
               </div>
             </div>
