@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@tremor/react';
 import Downtimes from 'app/(pages)/machines/downtimes/downtime';
 import PreventiveTable from 'app/(pages)/preventive/preventiveTable/preventiveTable';
@@ -17,6 +16,7 @@ import Container from 'components/layout/Container';
 import { HeaderForm } from 'components/layout/HeaderForm';
 import MainLayout from 'components/layout/MainLayout';
 import { EntityTable } from 'components/table/interface/tableEntitys';
+import { useRouter } from 'next/navigation';
 
 import AssetForm, { AssetFormData } from '../components/assetForm';
 

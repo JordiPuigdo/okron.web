@@ -5,12 +5,12 @@ import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgCreate, SvgMachines, SvgSpinner } from 'app/icons/icons';
 import { Asset, AssetType } from 'app/interfaces/Asset';
 import { assetService } from 'app/services/assetService';
+import { Button } from 'designSystem/Button/Buttons';
+import { Modal2 } from 'designSystem/Modals/Modal';
 import { cn } from 'lib/utils';
 import { ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Modal2 } from 'designSystem/Modals/Modal';
-import { Button } from 'designSystem/Button/Buttons';
 
 import AssetTypeBadge from './AssetTypeBadge';
 import AssetTypeIcon from './AssetTypeIcon';

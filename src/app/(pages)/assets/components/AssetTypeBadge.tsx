@@ -1,5 +1,5 @@
-import { AssetType } from 'app/interfaces/Asset';
 import { useTranslations } from 'app/hooks/useTranslations';
+import { AssetType } from 'app/interfaces/Asset';
 
 interface AssetTypeBadgeProps {
   assetType: AssetType;
