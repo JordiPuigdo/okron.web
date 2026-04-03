@@ -163,7 +163,7 @@ export function OrderPreviewPanel({
           onCancel={handleCancel}
           isCanceling={isCanceling}
           cancelError={cancelError}
-          cancelLabel={t('order.cancel')}
+          cancelLabel={t('cancel')}
         />
       )}
     </SlidePanel>

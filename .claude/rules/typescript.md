@@ -113,3 +113,34 @@ import { workOrderService } from 'app/services/workOrderService';
 // Bad
 import WorkOrder from '../../interfaces/workOrder';
 ```
+
+### Import order — enforced by `simple-import-sort` (ESLint error)
+
+Always place imports in this order, with a blank line between each group:
+
+1. **Side-effect imports** — `import 'some-polyfill'`
+2. **Packages** — `react`, `next/*`, third-party libraries (`dayjs`, `lucide-react`, `swr`, `@mui/material`…), and internal `app/` / `components/` / `lib/` / `designSystem/` paths
+3. **Relative imports** — `./Foo`, `../utils`
+
+Within group 2, `simple-import-sort` sorts alphabetically — do not fight it, just place new imports inside the group and let ESLint sort.
+
+```typescript
+// Good
+import { useState } from 'react';
+import { useTranslations } from 'app/hooks/useTranslations';
+import { OrderStatus, OrderType } from 'app/interfaces/Order';
+import { orderService } from 'app/services/orderService';
+import { Ban } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
+import { useOrderPreview } from './useOrderPreview';
+
+// Bad — mixing groups without blank line separation, or adding after relative imports
+import { orderService } from 'app/services/orderService'; // ← added at the top after react
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useOrderPreview } from './useOrderPreview';
+import { OrderStatus } from 'app/interfaces/Order'; // ← added at the bottom, wrong group
+```
+
+**When adding a new import to an existing file**, place it inside the correct group. Never append it at the top or bottom of the import block without checking which group it belongs to.
