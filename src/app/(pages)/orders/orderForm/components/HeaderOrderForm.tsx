@@ -17,7 +17,6 @@ import { translateOrderStatus } from 'app/utils/utilsOrder';
 import { ProgressBar } from 'components/ProgressBar';
 import ca from 'date-fns/locale/ca';
 import dayjs from 'dayjs';
-
 import { cn } from 'lib/utils';
 
 import AccountSelection from './AccountSelection';

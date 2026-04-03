@@ -7,6 +7,7 @@ import { useTranslations } from 'app/hooks/useTranslations';
 import { DeliveryNote, TaxBreakdown } from 'app/interfaces/DeliveryNote';
 import { WorkOrder } from 'app/interfaces/workOrder';
 import { formatEuropeanCurrency } from 'app/utils/utils';
+import { SuccessfulMessage } from 'components/Alerts/SuccesfullMessage';
 import ChooseElement from 'components/ChooseElement';
 import { CustomerInformationComponent } from 'components/customer/CustomerInformationComponent';
 import { InstallationComponent } from 'components/customer/InstallationComponent';
@@ -29,7 +30,6 @@ import { DeliveryNoteService } from '../../../services/deliveryNoteService';
 import useRoutes from '../../../utils/useRoutes';
 import { DeliveryNotePreviewPanel } from '../../deliveryNotes/components/DeliveryNotePreviewPanel';
 import { WorkOrderPreviewPanel } from '../../workOrders/components/WorkOrderPreviewPanel';
-import { SuccessfulMessage } from 'components/Alerts/SuccesfullMessage';
 import { CreditNoteCreateModal } from './CreditNoteCreateModal';
 
 interface InvoiceDetailFormProps {

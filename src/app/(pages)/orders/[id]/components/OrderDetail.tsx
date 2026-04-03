@@ -1,7 +1,7 @@
 'use client';
-import useSWR from 'swr';
 import { SvgSpinner } from 'app/icons/icons';
 import { orderService } from 'app/services/orderService';
+import useSWR from 'swr';
 
 import OrderForm from '../../orderForm/components/OrderForm';
 

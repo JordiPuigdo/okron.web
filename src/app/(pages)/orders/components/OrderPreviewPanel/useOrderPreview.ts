@@ -1,6 +1,6 @@
-import useSWR from 'swr';
 import { Order } from 'app/interfaces/Order';
 import { orderService } from 'app/services/orderService';
+import useSWR from 'swr';
 
 const SWR_OPTIONS = {
   revalidateOnFocus: false,

@@ -21,9 +21,9 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { InvoiceType } from 'app/interfaces/Invoice';
 import { useInvoices } from 'app/hooks/useInvoices';
 import { useTranslations } from 'app/hooks/useTranslations';
+import { InvoiceType } from 'app/interfaces/Invoice';
 import { translateDeliveryNoteStatus } from 'app/utils/deliveryNoteUtils';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import { CustomerInformationComponent } from 'components/customer/CustomerInformationComponent';

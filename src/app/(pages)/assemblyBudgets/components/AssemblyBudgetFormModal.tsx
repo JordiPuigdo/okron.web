@@ -8,12 +8,13 @@ import { useBudgetAssembly } from 'app/hooks/useBudgetAssembly';
 import { useCustomers } from 'app/hooks/useCustomers';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
-import { Customer } from 'app/interfaces/Customer';
 import { AssemblyFolder, AssemblyNode, Budget, BudgetNodeType } from 'app/interfaces/Budget';
+import { Customer } from 'app/interfaces/Customer';
 import ChooseElement from 'components/ChooseElement';
 import { Button } from 'designSystem/Button/Buttons';
 import { Modal2 } from 'designSystem/Modals/Modal';
 import { Calendar, Copy, FileText, User } from 'lucide-react';
+
 import { AssemblyNodeSelector } from './AssemblyNodeSelector';
 
 interface AssemblyBudgetFormModalProps {

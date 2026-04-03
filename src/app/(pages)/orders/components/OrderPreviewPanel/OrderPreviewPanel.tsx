@@ -1,7 +1,8 @@
 'use client';
 
-import { OrderStatus, OrderType } from 'app/interfaces/Order';
+import { useState } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
+import { OrderStatus, OrderType } from 'app/interfaces/Order';
 import { orderService } from 'app/services/orderService';
 import useRoutes from 'app/utils/useRoutes';
 import Loader from 'components/Loader/loader';
@@ -18,7 +19,6 @@ import {
 } from 'components/SlidePanel';
 import { Ban, Edit2, MessageCircle, Printer, RotateCcw, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 
 import { ORDER_TYPE_CONFIG, STATUS_CONFIG } from './constants';
 import { OrderItemsList } from './OrderItemsList';

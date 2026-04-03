@@ -2,8 +2,9 @@
 
 import { useCallback, useState } from 'react';
 import { AssemblyNode } from 'app/interfaces/Budget';
-import { AssemblyNodeSelector } from '../../../assemblyBudgets/components/AssemblyNodeSelector';
 import { Printer } from 'lucide-react';
+
+import { AssemblyNodeSelector } from '../../../assemblyBudgets/components/AssemblyNodeSelector';
 
 interface NodeSelectionModalProps {
   isVisible: boolean;
