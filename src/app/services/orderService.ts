@@ -14,6 +14,7 @@ export interface IOrderService {
   getNextCode(orderType: OrderType): Promise<string>;
   getWithFilters(filters: GetOrderWithFiltersRequest): Promise<Order[]>;
   update(updateOrderRequest: OrderUpdateRequest): Promise<Order>;
+  cancel(id: string, reason?: string): Promise<Order>;
   getLowStockOrders(): Promise<PurchaseProposal[]>;
   createLowStockOrders(purchaseProposal: PurchaseProposal[]): Promise<boolean>;
 }
@@ -127,6 +128,23 @@ export class OrderService implements IOrderService {
       return await response.json();
     } catch (error) {
       console.error('Error updating order:', error);
+      throw error;
+    }
+  }
+
+  async cancel(id: string, reason?: string): Promise<Order> {
+    try {
+      const params = reason ? `?reason=${encodeURIComponent(reason)}` : '';
+      const response = await fetch(`${this.baseUrl}orders/${id}/cancel${params}`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body?.error ?? `Failed to cancel order: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error canceling order:', error);
       throw error;
     }
   }

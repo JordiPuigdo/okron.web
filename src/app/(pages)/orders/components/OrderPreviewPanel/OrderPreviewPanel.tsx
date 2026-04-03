@@ -1,6 +1,8 @@
 'use client';
 
 import { OrderStatus, OrderType } from 'app/interfaces/Order';
+import { useTranslations } from 'app/hooks/useTranslations';
+import { orderService } from 'app/services/orderService';
 import useRoutes from 'app/utils/useRoutes';
 import Loader from 'components/Loader/loader';
 import {
@@ -14,8 +16,9 @@ import {
   SlidePanelActions,
   SlidePanelSection,
 } from 'components/SlidePanel';
-import { Edit2, MessageCircle, Printer, RotateCcw, Truck } from 'lucide-react';
+import { Ban, Edit2, MessageCircle, Printer, RotateCcw, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import { ORDER_TYPE_CONFIG, STATUS_CONFIG } from './constants';
 import { OrderItemsList } from './OrderItemsList';
@@ -45,10 +48,13 @@ export function OrderPreviewPanel({
 }: OrderPreviewPanelProps) {
   const router = useRouter();
   const ROUTES = useRoutes();
+  const { t } = useTranslations();
   const { displayOrder, relatedOrders, isLoading } = useOrderPreview({
     order,
     isOpen,
   });
+  const [isCanceling, setIsCanceling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   if (!order) return null;
 
@@ -104,6 +110,21 @@ export function OrderPreviewPanel({
     onClose();
   };
 
+  const handleCancel = async () => {
+    if (!order?.id) return;
+    setIsCanceling(true);
+    setCancelError(null);
+    try {
+      await orderService.cancel(order.id);
+      onClose();
+      window.location.reload();
+    } catch (error) {
+      setCancelError(error instanceof Error ? error.message : t('order.cancel.error'));
+    } finally {
+      setIsCanceling(false);
+    }
+  };
+
   return (
     <SlidePanel
       isOpen={isOpen}
@@ -137,6 +158,10 @@ export function OrderPreviewPanel({
           onWhatsApp={handleWhatsApp}
           hasProviderPhone={!!displayOrder?.provider?.phoneNumber}
           onNavigateToRelatedOrder={handleNavigateToRelatedOrder}
+          onCancel={handleCancel}
+          isCanceling={isCanceling}
+          cancelError={cancelError}
+          cancelLabel={t('order.cancel')}
         />
       )}
     </SlidePanel>
@@ -176,6 +201,10 @@ interface OrderPreviewContentProps {
   onWhatsApp: () => void;
   hasProviderPhone: boolean;
   onNavigateToRelatedOrder: (orderId: string) => void;
+  onCancel: () => void;
+  isCanceling: boolean;
+  cancelError: string | null;
+  cancelLabel: string;
 }
 
 function OrderPreviewContent({
@@ -195,6 +224,10 @@ function OrderPreviewContent({
   onWhatsApp,
   hasProviderPhone,
   onNavigateToRelatedOrder,
+  onCancel,
+  isCanceling,
+  cancelError,
+  cancelLabel,
 }: OrderPreviewContentProps) {
   return (
     <>
@@ -249,6 +282,13 @@ function OrderPreviewContent({
         </SlidePanelSection>
       )}
 
+      {/* Error de cancelació */}
+      {cancelError && (
+        <p className="text-red-600 text-sm px-4 py-2 bg-red-50 rounded-lg mx-4">
+          {cancelError}
+        </p>
+      )}
+
       {/* Acciones */}
       <SlidePanelActions>
         {isPurchaseOrder && !isCompleted && (
@@ -291,6 +331,15 @@ function OrderPreviewContent({
           label="Imprimir"
           variant="secondary"
         />
+
+        {!isCancelled && (
+          <ActionButton
+            onClick={onCancel}
+            icon={Ban}
+            label={isCanceling ? '...' : cancelLabel}
+            variant="warning"
+          />
+        )}
       </SlidePanelActions>
     </>
   );

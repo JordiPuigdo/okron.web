@@ -78,6 +78,16 @@ export const useOrder = (orderService: IOrderService = new OrderService()) => {
     }
   };
 
+  const cancelOrder = async (id: string, reason?: string): Promise<Order> => {
+    try {
+      const response = await orderService.cancel(id, reason);
+      return response;
+    } catch (error) {
+      console.error('Error canceling order:', error);
+      throw error;
+    }
+  };
+
   const createLowStockOrders = async (purchaseProposal: PurchaseProposal[]) => {
     return await orderService.createLowStockOrders(purchaseProposal);
   };
@@ -90,6 +100,7 @@ export const useOrder = (orderService: IOrderService = new OrderService()) => {
     getOrderWithFilters,
     orders,
     updateOrder,
+    cancelOrder,
     fetchLowStockOrders,
     createLowStockOrders,
   };

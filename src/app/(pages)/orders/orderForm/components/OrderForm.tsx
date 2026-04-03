@@ -465,6 +465,16 @@ export default function OrderForm({
               )}
             {order.type == OrderType.Delivery &&
               orderRequest?.id !== undefined &&
+              orderRequest?.status !== OrderStatus.Cancelled && (
+                <Link
+                  href={ROUTES.orders.order + '/orderForm?returnOrderId=' + orderRequest.id}
+                  className="w-full bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600 text-center"
+                >
+                  {t('order.create.return')}
+                </Link>
+              )}
+            {order.type == OrderType.Delivery &&
+              orderRequest?.id !== undefined &&
               order.items.length > 0 && (
                 <button
                   onClick={() => setShowWorkOrderModal(true)}
