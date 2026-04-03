@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useOrder } from 'app/hooks/useOrder';
 import { useTranslations } from 'app/hooks/useTranslations';
+import { orderService } from 'app/services/orderService';
 import { useWareHouses } from 'app/hooks/useWareHouses';
 import { Account } from 'app/interfaces/Account';
 import {
@@ -90,6 +91,7 @@ export default function OrderForm({
     string | undefined
   >(undefined);
   const [showWorkOrderModal, setShowWorkOrderModal] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
   const ROUTES = useRoutes();
 
   const fetchCode = async () => {
@@ -358,6 +360,26 @@ export default function OrderForm({
     return Math.round((received / total) * 100);
   }
 
+  const handleCancelOrder = async () => {
+    if (!orderRequest?.id) return;
+    setIsCanceling(true);
+    try {
+      await orderService.cancel(orderRequest.id);
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsCanceling(false);
+    }
+  };
+
+  const hasActiveDeliveries = orders?.some(o => o.status !== OrderStatus.Cancelled) ?? false;
+  const canCancel =
+    orderRequest?.type === OrderType.Purchase &&
+    orderRequest?.status === OrderStatus.Pending &&
+    orderRequest?.id !== undefined &&
+    !hasActiveDeliveries;
+
   return (
     <div className="flex flex-col h-full pb-4">
       <HeaderForm
@@ -449,6 +471,16 @@ export default function OrderForm({
             >
               {orderRequest == null ? headerName : t('order.update')}
             </button>
+            {canCancel && (
+              <button
+                onClick={handleCancelOrder}
+                disabled={isCanceling}
+                className="w-full bg-red-500 text-white p-2 rounded-md hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                type="button"
+              >
+                {isCanceling ? '...' : t('cancel')}
+              </button>
+            )}
             {order.type == OrderType.Purchase &&
               orderRequest?.status != OrderStatus.Completed &&
               orderRequest?.id !== undefined && (
