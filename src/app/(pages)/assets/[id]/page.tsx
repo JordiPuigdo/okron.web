@@ -8,20 +8,17 @@ import SparePartTable from 'app/(pages)/spareParts/components/SparePartTable';
 import WorkOrderTable from 'app/(pages)/workOrders/components/WorkOrderTable';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
-import {
-  Asset,
-  CreateAssetRequest,
-  UpdateAssetRequest,
-} from 'app/interfaces/Asset';
-import AssetService from 'app/services/assetService';
+import { Asset, AssetType, CreateAssetRequest, UpdateAssetRequest } from 'app/interfaces/Asset';
+import { assetService } from 'app/services/assetService';
 import { useSessionStore } from 'app/stores/globalStore';
 import { CostsObjectComponent } from 'components/Costs/CostsObject';
 import Container from 'components/layout/Container';
 import { HeaderForm } from 'components/layout/HeaderForm';
 import MainLayout from 'components/layout/MainLayout';
 import { EntityTable } from 'components/table/interface/tableEntitys';
+import { useRouter } from 'next/navigation';
 
-import AssetForm from '../components/assetForm';
+import AssetForm, { AssetFormData } from '../components/assetForm';
 
 export default function AssetDetailsPage({
   params,
@@ -30,146 +27,124 @@ export default function AssetDetailsPage({
 }) {
   const id = params.id;
   const { t } = useTranslations();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
-  const [isloading, setIsloading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentAsset, setCurrentAsset] = useState<Asset | null>(null);
   const [parentAsset, setParentAsset] = useState<Asset | null>(null);
   const [parentId, setParentId] = useState<string | null>(null);
   const [levelGetted, setLevelGetted] = useState<number | null>(null);
   const [message, setMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [loadError, setLoadError] = useState(false);
   const [code, setCode] = useState<string>('');
   const [description, setDescription] = useState<string>('');
 
   const { config, loginUser } = useSessionStore();
 
   useEffect(() => {
-    fetch();
+    loadAsset();
   }, [id, parentId]);
 
-  async function fetch() {
+  async function loadAsset() {
     if (id !== '0') {
       setLoading(true);
-      assetService
-        .getAssetById(id as string)
-        .then((asset: Asset) => {
-          setCurrentAsset(asset);
-          setDescription(asset.description);
-          setCode(asset.code);
-          setLoading(false);
-        })
-        .catch(error => {
-          console.error('Error fetching asset data:', error);
-          setLoading(false);
-        });
+      setLoadError(false);
+      try {
+        const asset = await assetService.getAssetById(id);
+        setCurrentAsset(asset);
+        setDescription(asset.description);
+        setCode(asset.code);
+      } catch (error) {
+        console.error('Error fetching asset data:', error);
+        setLoadError(true);
+      } finally {
+        setLoading(false);
+      }
     }
     if (parentId) {
-      assetService.getAssetById(parentId as string).then((asset: Asset) => {
+      try {
+        const asset = await assetService.getAssetById(parentId);
         setParentAsset(asset);
-      });
+      } catch (error) {
+        console.error('Error fetching parent asset:', error);
+      }
     }
-    setIsloading(false);
+    setIsLoading(false);
   }
+
+  const [returnSearch, setReturnSearch] = useState<string>('');
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const parentId = urlParams.get('parentId');
+    const parentIdParam = urlParams.get('parentId');
     const level = urlParams.get('level');
-
-    setParentId(parentId);
-    setLevelGetted(level?.toString() ? parseInt(level) : 1);
+    const search = urlParams.get('search') ?? '';
+    setParentId(parentIdParam);
+    setLevelGetted(level ? parseInt(level) : 1);
+    setReturnSearch(search);
   }, []);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: AssetFormData) => {
+    setLoading(true);
     try {
-      setLoading(true);
       if (id !== '0') {
-        const newData: UpdateAssetRequest = {
+        const updateData: UpdateAssetRequest = {
           code: data.code,
           description: data.description,
-          id: id,
+          id,
           active: data.active,
-          level: data.level,
-          parentId: data.parentId,
+          level: currentAsset?.level ?? 1,
+          parentId: currentAsset?.parentId ?? '',
           createWorkOrder: data.createWorkOrder,
+          brand: data.brand,
+          assetType: data.assetType,
         };
-        await assetService.updateAsset(id, newData).then(data => {
-          if (data) {
-            setMessage(t('updated.successfully'));
-            setTimeout(() => {
-              history.back();
-            }, 2000);
-          } else {
-            setErrorMessage(t('error.updating.equipment'));
-          }
-        });
+        await assetService.updateAsset(updateData);
+        setMessage(t('updated.successfully'));
+        setTimeout(() => router.push(`/assets?search=${encodeURIComponent(returnSearch)}&id=${id}`), 2000);
       } else {
-        const newData: CreateAssetRequest = {
+        const createData: CreateAssetRequest = {
           code: data.code,
           description: data.description,
           level: levelGetted!,
-          parentId: parentId!,
+          parentId: parentId ?? '',
           createWorkOrder: data.createWorkOrder,
+          brand: data.brand,
+          assetType: data.assetType ?? AssetType.Default,
         };
-        await assetService
-          .createAsset(newData)
-          .then(data => {
-            if (data) {
-              setMessage(t('created.successfully'));
-              setTimeout(() => {
-                history.back();
-              }, 2000);
-            } else {
-              setErrorMessage(t('error.creating.equipment'));
-            }
-          })
-          .catch(x => {
-            setErrorMessage(t('error') + ': ' + x.message);
-          });
+        await assetService.createAsset(createData);
+        setMessage(t('created.successfully'));
+        setTimeout(() => history.back(), 2000);
       }
-
-      setLoading(false);
     } catch (error) {
-      console.error('Error submitting form:', error);
+      const err = error as Error;
+      setErrorMessage(t('error') + ': ' + err.message);
+    } finally {
       setLoading(false);
     }
   };
 
-  /*const renderHeader = () => {
-    return (
-      <div className="flex w-full py-4">
-        <div className="w-full flex flex-col gap-2 items">
-          <h2 className="text-2xl font-bold text-black flex gap-2">
-            <SvgMachines />
-            {currentAsset
-              ? currentAsset?.path
-              : parentAsset && parentAsset?.path + '/' + description}
-          </h2>
-          <span className="text-l">
-            Equip: {code} - {description}
-          </span>
-        </div>
-      </div>
-    );
-  };*/
-
   const handleOnChange = async (header: string, value: string) => {
-    if (header === 'code') {
-      setCode(value);
-    }
-    if (header === 'description') {
-      setDescription(value);
-    }
-    // setDescription(data.description);
-    // setCode(data.code);
+    if (header === 'code') setCode(value);
+    if (header === 'description') setDescription(value);
   };
 
   return (
     <MainLayout>
       <Container>
-        {isloading ? (
+        {isLoading ? (
           <SvgSpinner className="items-center justify-center" />
+        ) : id !== '0' && loadError ? (
+          <div className="flex flex-col items-center gap-3 mt-8 text-gray-500">
+            <p className="text-red-500">{t('error')}</p>
+            <button
+              onClick={loadAsset}
+              className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            >
+              {t('asset.list.retry')}
+            </button>
+          </div>
         ) : (
           <>
             <HeaderForm
@@ -190,12 +165,12 @@ export default function AssetDetailsPage({
                   <AssetForm
                     id={id}
                     loading={loading}
-                    assetData={currentAsset != null ? currentAsset : undefined}
+                    assetData={currentAsset ?? undefined}
                     level={levelGetted!}
-                    parentId={parentId != null ? parentId : ''}
+                    parentId={parentId ?? ''}
                     onSubmit={onSubmit}
                     onChange={handleOnChange}
-                    onReload={fetch}
+                    onReload={loadAsset}
                   />
                   <div>
                     {message && (
@@ -220,7 +195,7 @@ export default function AssetDetailsPage({
                 </div>
               )}
             </div>
-            {id != '0' && (
+            {id !== '0' && (
               <div className="flex flex-col gap-4">
                 <div>
                   <TabGroup className="bord">

@@ -39,7 +39,7 @@ interface TableDataOrdersProps {
 }
 
 const DEFAULT_STATUS_FILTERS = [OrderStatus.Pending, OrderStatus.InProgress];
-const DEFAULT_DATE_START = new Date(new Date().getFullYear(), 0, 1);
+const DEFAULT_DATE_START = dayjs().subtract(1, 'year').toDate();
 const DEFAULT_DATE_END = new Date();
 
 export const TableDataOrders = ({
