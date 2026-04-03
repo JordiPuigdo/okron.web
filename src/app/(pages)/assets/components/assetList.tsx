@@ -1,252 +1,282 @@
 'use client';
+
 import { useEffect, useState } from 'react';
-import { useQueryParams } from 'app/hooks/useFilters';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgCreate, SvgMachines, SvgSpinner } from 'app/icons/icons';
-import { Asset } from 'app/interfaces/Asset';
-import AssetService from 'app/services/assetService';
-import { LoadingState } from 'app/types/loadingState';
-import { ButtonTypesTable } from 'components/table/DataTable';
-import { Button } from 'designSystem/Button/Buttons';
+import { Asset, AssetType } from 'app/interfaces/Asset';
+import { assetService } from 'app/services/assetService';
+import { cn } from 'lib/utils';
+import { ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Modal2 } from 'designSystem/Modals/Modal';
+import { Button } from 'designSystem/Button/Buttons';
 
-interface Props {
-  asset: Asset;
-  onDelete: (id: string) => void;
-  searchTerm?: string;
-  expandedTargetId?: string;
+import AssetTypeBadge from './AssetTypeBadge';
+import AssetTypeIcon from './AssetTypeIcon';
+
+interface HighlightedTextProps {
+  text: string;
+  term: string;
 }
 
-const AssetListItem: React.FC<Props> = ({
+const HighlightedText: React.FC<HighlightedTextProps> = ({ text, term }) => {
+  if (!term) return <span>{text}</span>;
+  const idx = text.toLowerCase().indexOf(term.toLowerCase());
+  if (idx === -1) return <span>{text}</span>;
+  return (
+    <span>
+      {text.slice(0, idx)}
+      <mark className="bg-yellow-200 rounded-sm px-0.5">{text.slice(idx, idx + term.length)}</mark>
+      {text.slice(idx + term.length)}
+    </span>
+  );
+};
+
+interface DeleteModalProps {
+  isVisible: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+const DeleteModal: React.FC<DeleteModalProps> = ({ isVisible, onConfirm, onCancel }) => {
+  const { t } = useTranslations();
+  return (
+    <Modal2 isVisible={isVisible} setIsVisible={onCancel} type="center" width="w-96" closeOnEsc>
+      <div className="p-6 flex flex-col gap-4">
+        <h3 className="text-lg font-semibold text-gray-900">{t('asset.delete.title')}</h3>
+        <p className="text-gray-600 text-sm">{t('asset.delete.message')}</p>
+        <div className="flex gap-3 justify-end mt-2">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            {t('asset.delete.cancel')}
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 text-sm rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+          >
+            {t('asset.delete.confirm')}
+          </button>
+        </div>
+      </div>
+    </Modal2>
+  );
+};
+
+interface AssetListItemProps {
+  asset: Asset;
+  onDelete: (id: string) => void;
+  searchTerm: string;
+  expandedTargetId: string;
+  depth?: number;
+}
+
+const AssetListItem: React.FC<AssetListItemProps> = ({
   asset,
   onDelete,
   searchTerm,
   expandedTargetId,
+  depth = 0,
 }) => {
   const { t } = useTranslations();
-  const [expanded, setExpanded] = useState<boolean>(false);
-
-  const [loadingState, setLoadingState] = useState<LoadingState>({});
-
-  const handleDelete = async (id: string) => {
-    toggleLoading(id, ButtonTypesTable.Delete, true);
-    onDelete && onDelete(id);
-    toggleLoading(id, ButtonTypesTable.Delete, false);
-  };
-  const toggleLoading = (
-    id: string,
-    buttonType: ButtonTypesTable,
-    isLoading: boolean
-  ) => {
-    const loadingKey = `${id}_${buttonType}`;
-    setLoadingState(prevLoadingState => ({
-      ...prevLoadingState,
-      [loadingKey]: isLoading,
-    }));
-  };
-
-  const toggleExpanded = () => {
-    setExpanded(!expanded);
-  };
+  const [expanded, setExpanded] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const isHighlighted = asset.id === expandedTargetId;
+  const hasChildren = asset.childs?.length > 0;
 
   useEffect(() => {
-    if (expandedTargetId) {
-      const hasDescendantWithId = (asset: Asset): boolean => {
-        if (asset.id === expandedTargetId) return true;
-        return asset.childs?.some(child => hasDescendantWithId(child));
-      };
-
-      if (hasDescendantWithId(asset)) {
-        setExpanded(true);
-      }
-    }
+    if (!expandedTargetId) return;
+    const hasDescendant = (a: Asset): boolean => {
+      if (a.id === expandedTargetId) return true;
+      return a.childs?.some(hasDescendant) ?? false;
+    };
+    if (hasDescendant(asset)) setExpanded(true);
   }, [expandedTargetId, asset]);
 
+  const handleDeleteConfirm = async () => {
+    setShowDeleteModal(false);
+    setIsDeleting(true);
+    onDelete(asset.id);
+  };
+
   return (
-    <div
-      className={`mt-4 bg-white rounded-xl ${
-        asset.id === expandedTargetId ? 'border-4 border-blue-400' : ''
-      }`}
-    >
-      <li className=" p-4 flex flex-col border-2 ">
-        <div className="flex items-center mb-2">
-          {asset.childs.length > 0 && (
-            <button
-              onClick={toggleExpanded}
-              className="mr-2 focus:outline-none rounded-full bg-blue-500 text-white px-2 py-1"
-            >
-              {expanded ? '-' : '+'}
-            </button>
+    <div className={cn('relative', depth > 0 && 'ml-6 border-l-2 border-gray-200')}>
+      <div
+        onClick={() => hasChildren && setExpanded(v => !v)}
+        className={cn(
+          'flex items-center gap-3 px-4 py-3 bg-white rounded-lg border transition-all',
+          isHighlighted
+            ? 'border-blue-400 border-l-4 bg-blue-50'
+            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50',
+          hasChildren && 'cursor-pointer'
+        )}
+      >
+        <button
+          onClick={e => { e.stopPropagation(); setExpanded(v => !v); }}
+          className={cn(
+            'flex-shrink-0 w-6 h-6 flex items-center justify-center rounded transition-colors',
+            hasChildren ? 'text-gray-500 hover:text-gray-700 hover:bg-gray-200' : 'invisible'
           )}
-          <div className="flex-grow">
-            <strong>{t('code')}:</strong> {asset.code} |{' '}
-            <strong>{t('description')}:</strong> {asset.description} |{' '}
-            {asset.brand && (
-              <>
-                <strong>{t('brand')}:</strong> {asset.brand} |{' '}
-              </>
-            )}
-            <strong>{t('level')}:</strong> {asset.level}
-          </div>
-          <div className="flex flex-row">
-            {asset.level < 7 && (
-              <Link
-                href={`/assets/0?parentId=${asset.id}&level=${asset.level + 1}`}
-                passHref
-              >
-                <button
-                  onClick={e => {
-                    toggleLoading(asset.id, ButtonTypesTable.Create, true);
-                  }}
-                  className="flex items-center mr-2 bg-okron-btCreate text-white px-2 py-1 rounded hover:bg-okron-btCreateHover"
-                >
-                  {t('add.asset')}
-                  {loadingState[`${asset.id}_${ButtonTypesTable.Create}`] && (
-                    <span className="items-center ml-2 text-white">
-                      <SvgSpinner className="w-6 h-6" />
-                    </span>
-                  )}
-                </button>
-              </Link>
-            )}
-            <Link
-              href={`/assets/${asset.id}?search=${encodeURIComponent(
-                searchTerm ?? ''
-              )}&id=${asset.id}`}
-              passHref
-            >
+        >
+          {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+        </button>
+
+        <div className="flex-shrink-0">
+          <AssetTypeIcon assetType={asset.assetType ?? AssetType.Default} size={22} />
+        </div>
+
+        <div className="flex-1 min-w-0 flex items-center gap-3 flex-wrap">
+          <span className="font-mono font-semibold text-sm text-gray-800">
+            <HighlightedText text={asset.code} term={searchTerm} />
+          </span>
+          <span className="text-gray-400 text-sm">—</span>
+          <span className="text-sm text-gray-700">
+            <HighlightedText text={asset.description} term={searchTerm} />
+          </span>
+          {asset.brand && (
+            <span className="text-xs text-gray-500 italic">{asset.brand}</span>
+          )}
+          <AssetTypeBadge assetType={asset.assetType ?? AssetType.Default} />
+        </div>
+
+        <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
+          {asset.level < 7 && (
+            <Link href={`/assets/0?parentId=${asset.id}&level=${asset.level + 1}`}>
               <button
-                onClick={e => {
-                  toggleLoading(asset.id, ButtonTypesTable.Edit, true);
-                }}
-                className="flex items-center mr-2 bg-okron-btEdit text-white px-2 py-1 rounded hover:bg-okron-btEditHover"
+                title={t('add.asset')}
+                className="p-1.5 rounded text-green-600 hover:bg-green-50 transition-colors"
               >
-                {t('edit')}
-                {loadingState[`${asset.id}_${ButtonTypesTable.Edit}`] && (
-                  <span className="items-center ml-2 text-white">
-                    <SvgSpinner className="w-6 h-6" />
-                  </span>
-                )}
+                <Plus size={16} />
               </button>
             </Link>
+          )}
+          <Link href={`/assets/${asset.id}?search=${encodeURIComponent(searchTerm)}&id=${asset.id}`}>
             <button
-              className="flex bg-okron-btDelete text-white px-2 py-1 rounded hover:bg-okron-btDeleteHover"
-              onClick={e => {
-                handleDelete(asset.id);
-              }}
+              title={t('edit')}
+              className="p-1.5 rounded text-blue-600 hover:bg-blue-50 transition-colors"
             >
-              {t('delete')}
-              {loadingState[`${asset.id}_${ButtonTypesTable.Delete}`] && (
-                <span className="items-center ml-2 text-white">
-                  <SvgSpinner className="w-6 h-6" />
-                </span>
-              )}
+              <Pencil size={16} />
             </button>
-          </div>
+          </Link>
+          <button
+            title={t('delete')}
+            disabled={isDeleting}
+            onClick={() => setShowDeleteModal(true)}
+            className="p-1.5 rounded text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
+          >
+            {isDeleting ? <SvgSpinner className="w-4 h-4" /> : <Trash2 size={16} />}
+          </button>
         </div>
-        {expanded && asset.childs.length > 0 && (
-          <ul className="pl-4 ">
-            {asset.childs.map(child => (
-              <AssetListItem
-                key={child.id}
-                asset={child}
-                onDelete={onDelete}
-                searchTerm={searchTerm}
-                expandedTargetId={expandedTargetId || ''}
-              />
-            ))}
-          </ul>
-        )}
-      </li>
+      </div>
+
+      {expanded && hasChildren && (
+        <div className="mt-1 flex flex-col gap-1">
+          {asset.childs.map(child => (
+            <AssetListItem
+              key={child.id}
+              asset={child}
+              onDelete={onDelete}
+              searchTerm={searchTerm}
+              expandedTargetId={expandedTargetId}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
+
+      <DeleteModal
+        isVisible={showDeleteModal}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 };
 
+const AssetListSkeleton: React.FC = () => (
+  <div className="flex flex-col gap-3 mt-4">
+    {[1, 2, 3, 4].map(i => (
+      <div key={i} className="h-14 bg-gray-100 rounded-lg animate-pulse" />
+    ))}
+  </div>
+);
+
 const AssetList: React.FC = () => {
   const { t } = useTranslations();
+  const searchParams = useSearchParams();
+
+  const initialSearch = searchParams.get('search') ?? '';
+  const expandedTargetId = searchParams.get('id') ?? '';
+
   const [assets, setAssets] = useState<Asset[]>([]);
-  const assetService = new AssetService(process.env.NEXT_PUBLIC_API_BASE_URL!);
-  const [message, setMessage] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
-  const { queryParams } = useQueryParams();
-
-  const initialSearch = (queryParams.search as string) ?? '';
-  const expandedTargetId = (queryParams.id as string) ?? '';
-
-  const [searchTerm, setSearchTerm] = useState<string>(initialSearch);
+  const loadAssets = async () => {
+    setIsLoading(true);
+    setLoadError(false);
+    try {
+      const data = await assetService.getAll();
+      setAssets(data);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (queryParams.search !== undefined && queryParams.search != searchTerm)
-      setSearchTerm(queryParams.search as string);
-  }, [searchTerm]);
-
-  useEffect(() => {
-    assetService
-      .getAll()
-      .then((assets: Asset[]) => {
-        setAssets(assets);
-      })
-      .catch((error: any) => {
-        console.error('Error al obtener activos:', error);
-      });
+    loadAssets();
   }, []);
 
-  const handleDelete = (id: string) => {
-    const confirm = window.confirm(t('confirm.delete.equipment'));
-    if (!confirm) return;
-    assetService
-      .deleteAsset(id)
-      .then(data => {
-        if (data) {
-          window.location.reload();
-        }
-      })
-      .catch(error => {
-        console.error('Error al eliminar activo:', error);
-        setMessage(t('error.deleting.asset'));
-        setTimeout(() => {
-          setMessage('');
-        }, 3000);
-      });
+  const handleDelete = async (id: string) => {
+    try {
+      await assetService.deleteAsset(id);
+      setAssets(prev => removeAssetRecursive(prev, id));
+    } catch {
+      setDeleteError(t('error.deleting.asset'));
+      setTimeout(() => setDeleteError(''), 3000);
+    }
   };
-  const filterAssetsRecursive = (assets: Asset[], term: string): Asset[] => {
-    return assets.reduce((filtered: Asset[], asset) => {
-      const includesTerm =
+
+  const removeAssetRecursive = (list: Asset[], id: string): Asset[] =>
+    list
+      .filter(a => a.id !== id)
+      .map(a => ({ ...a, childs: removeAssetRecursive(a.childs ?? [], id) }));
+
+  const filterAssetsRecursive = (list: Asset[], term: string): Asset[] =>
+    list.reduce<Asset[]>((acc, asset) => {
+      const matches =
         asset.code.toLowerCase().includes(term.toLowerCase()) ||
         asset.description.toLowerCase().includes(term.toLowerCase()) ||
-        (asset.brand &&
-          asset.brand?.length > 0 &&
-          asset.brand.toLowerCase().includes(term.toLowerCase()));
-
-      const filteredChildren = filterAssetsRecursive(asset.childs, term);
-
-      if (includesTerm || filteredChildren.length > 0) {
-        filtered.push({
-          ...asset,
-          childs: filteredChildren,
-        });
+        (asset.brand?.toLowerCase().includes(term.toLowerCase()) ?? false);
+      const filteredChildren = filterAssetsRecursive(asset.childs ?? [], term);
+      if (matches || filteredChildren.length > 0) {
+        acc.push({ ...asset, childs: filteredChildren });
       }
-
-      return filtered;
+      return acc;
     }, []);
-  };
 
-  const filteredAssets = filterAssetsRecursive(assets, searchTerm);
+  const displayed = searchTerm ? filterAssetsRecursive(assets, searchTerm) : assets;
 
-  const renderHeader = () => {
-    return (
-      <div className="flex w-full">
-        <div className="w-full flex flex-col gap-2 items">
-          <h2 className="text-2xl font-bold text-black flex gap-2">
+  return (
+    <div className="w-full mx-auto py-4">
+      <div className="flex w-full mb-6">
+        <div className="w-full flex flex-col gap-2">
+          <h2 className="text-2xl font-bold text-black flex gap-2 items-center">
             <SvgMachines />
             {t('assets.equipment')}
           </h2>
-          <span className="text-l">
+          <span className="text-gray-500 text-sm">
             {t('start')} - {t('assets.equipment.list')}
           </span>
         </div>
-        <div className="w-full flex justify-end items-center">
+        <div className="flex justify-end items-center">
           <Link href="/assets/0" passHref>
             <Button className="py-4" customStyles="flex gap-2">
               <SvgCreate className="text-white" />
@@ -255,34 +285,56 @@ const AssetList: React.FC = () => {
           </Link>
         </div>
       </div>
-    );
-  };
 
-  return (
-    <div className="w-full mx-auto py-4">
-      {renderHeader()}
-      <div className="bg-white rounded-sm p-4 m-4 border-2">
+      <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
         <input
           type="text"
           placeholder={t('search.by.code.description')}
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          className="flex w-full border border-gray-300 rounded"
+          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-blue-500"
         />
       </div>
 
-      <ul>
-        {filteredAssets.map(asset => (
-          <AssetListItem
-            key={asset.id}
-            asset={asset}
-            onDelete={handleDelete}
-            searchTerm={searchTerm}
-            expandedTargetId={expandedTargetId || ''}
-          />
-        ))}
-      </ul>
-      {message != '' && <span className="text-red-500">{message}</span>}
+      {isLoading && <AssetListSkeleton />}
+
+      {!isLoading && loadError && (
+        <div className="flex flex-col items-center gap-3 mt-8 text-gray-500">
+          <p className="text-red-500">{t('asset.list.error')}</p>
+          <button
+            onClick={loadAssets}
+            className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+          >
+            {t('asset.list.retry')}
+          </button>
+        </div>
+      )}
+
+      {!isLoading && !loadError && displayed.length === 0 && (
+        <div className="mt-8 text-center text-gray-400 text-sm">
+          {t('asset.list.empty')}
+        </div>
+      )}
+
+      {!isLoading && !loadError && displayed.length > 0 && (
+        <ul className="flex flex-col gap-2">
+          {displayed.map(asset => (
+            <AssetListItem
+              key={asset.id}
+              asset={asset}
+              onDelete={handleDelete}
+              searchTerm={searchTerm}
+              expandedTargetId={expandedTargetId}
+            />
+          ))}
+        </ul>
+      )}
+
+      {deleteError && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-red-100 text-red-700 px-4 py-2 rounded-lg shadow-md text-sm">
+          {deleteError}
+        </div>
+      )}
     </div>
   );
 };
