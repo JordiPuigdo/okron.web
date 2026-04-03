@@ -67,7 +67,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ isVisible, onConfirm, onCance
 
 interface AssetListItemProps {
   asset: Asset;
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => Promise<void>;
   searchTerm: string;
   expandedTargetId: string;
   depth?: number;
@@ -99,7 +99,11 @@ const AssetListItem: React.FC<AssetListItemProps> = ({
   const handleDeleteConfirm = async () => {
     setShowDeleteModal(false);
     setIsDeleting(true);
-    onDelete(asset.id);
+    try {
+      await onDelete(asset.id);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (

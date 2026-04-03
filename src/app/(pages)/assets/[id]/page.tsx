@@ -36,6 +36,7 @@ export default function AssetDetailsPage({
   const [levelGetted, setLevelGetted] = useState<number | null>(null);
   const [message, setMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [loadError, setLoadError] = useState(false);
   const [code, setCode] = useState<string>('');
   const [description, setDescription] = useState<string>('');
 
@@ -48,6 +49,7 @@ export default function AssetDetailsPage({
   async function loadAsset() {
     if (id !== '0') {
       setLoading(true);
+      setLoadError(false);
       try {
         const asset = await assetService.getAssetById(id);
         setCurrentAsset(asset);
@@ -55,6 +57,7 @@ export default function AssetDetailsPage({
         setCode(asset.code);
       } catch (error) {
         console.error('Error fetching asset data:', error);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -132,6 +135,16 @@ export default function AssetDetailsPage({
       <Container>
         {isLoading ? (
           <SvgSpinner className="items-center justify-center" />
+        ) : id !== '0' && loadError ? (
+          <div className="flex flex-col items-center gap-3 mt-8 text-gray-500">
+            <p className="text-red-500">{t('error')}</p>
+            <button
+              onClick={loadAsset}
+              className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            >
+              {t('asset.list.retry')}
+            </button>
+          </div>
         ) : (
           <>
             <HeaderForm
