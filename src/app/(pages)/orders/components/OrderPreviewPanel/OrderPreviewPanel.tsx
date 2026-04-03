@@ -70,6 +70,7 @@ export function OrderPreviewPanel({
   // Flags de estado
   const isPurchaseOrder = displayOrder?.type === OrderType.Purchase;
   const isDeliveryOrder = displayOrder?.type === OrderType.Delivery;
+  const isPending = displayOrder?.status === OrderStatus.Pending;
   const isCompleted = displayOrder?.status === OrderStatus.Completed;
   const isCancelled = displayOrder?.status === OrderStatus.Cancelled;
 
@@ -149,6 +150,7 @@ export function OrderPreviewPanel({
           receptionProgress={receptionProgress}
           isPurchaseOrder={isPurchaseOrder}
           isDeliveryOrder={isDeliveryOrder}
+          isPending={isPending}
           isCompleted={isCompleted}
           isCancelled={isCancelled}
           onEdit={handleEdit}
@@ -192,6 +194,7 @@ interface OrderPreviewContentProps {
   receptionProgress: number;
   isPurchaseOrder: boolean;
   isDeliveryOrder: boolean;
+  isPending: boolean;
   isCompleted: boolean;
   isCancelled: boolean;
   onEdit: () => void;
@@ -215,6 +218,7 @@ function OrderPreviewContent({
   receptionProgress,
   isPurchaseOrder,
   isDeliveryOrder,
+  isPending,
   isCompleted,
   isCancelled,
   onEdit,
@@ -332,14 +336,18 @@ function OrderPreviewContent({
           variant="secondary"
         />
 
-        {!isCancelled && (
-          <ActionButton
-            onClick={onCancel}
-            icon={Ban}
-            label={isCanceling ? '...' : cancelLabel}
-            variant="warning"
-          />
-        )}
+        {isPurchaseOrder &&
+          isPending &&
+          !relatedOrders.some(
+            o => o.type === OrderType.Delivery && o.status !== OrderStatus.Cancelled
+          ) && (
+            <ActionButton
+              onClick={onCancel}
+              icon={Ban}
+              label={isCanceling ? '...' : cancelLabel}
+              variant="warning"
+            />
+          )}
       </SlidePanelActions>
     </>
   );
