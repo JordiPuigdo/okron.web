@@ -116,7 +116,7 @@ export const TableDataOrders = ({
         const startDateStr = queryParams.startDate?.toString();
         const endDateStr = queryParams.endDate?.toString();
 
-        if (startDateStr && endDateStr) {
+        if (startDateStr && endDateStr && !sparePartId) {
           const startDate = dayjs(startDateStr).toDate();
           const endDate = dayjs(endDateStr).toDate();
 
