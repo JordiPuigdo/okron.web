@@ -1,3 +1,4 @@
+import { FamilyHierarchyInfo } from 'app/interfaces/Family';
 import SparePart, {
   ConsumeSparePart,
   CreateSparePartRequest,
@@ -228,6 +229,34 @@ class SparePartService {
       return sparePart.sparePart;
     } catch (error) {
       console.error('Error fetching spare part by id:', error);
+      throw error;
+    }
+  }
+
+  async generateNextCode(familyId: string): Promise<FamilyHierarchyInfo> {
+    try {
+      const url = `${this.baseUrl}sparepart/generate-code/${familyId}`;
+      const response = await fetch(url, { method: 'POST' });
+      if (!response.ok) {
+        throw new Error('Failed to generate spare part code');
+      }
+      return response.json();
+    } catch (error) {
+      console.error('Error generating spare part code:', error);
+      throw error;
+    }
+  }
+
+  async previewNextCode(familyId: string): Promise<FamilyHierarchyInfo> {
+    try {
+      const url = `${this.baseUrl}sparepart/preview-code/${familyId}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to preview spare part code');
+      }
+      return response.json();
+    } catch (error) {
+      console.error('Error previewing spare part code:', error);
       throw error;
     }
   }

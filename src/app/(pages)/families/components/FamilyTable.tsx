@@ -35,7 +35,7 @@ const getColumnsFamily = (t: (key: string) => string): Column[] => [
   },
   {
     label: t('parent.family'),
-    key: 'parentFamilyId',
+    key: 'parentFamilyName',
     format: ColumnFormat.TEXT,
   },
   {
@@ -79,10 +79,15 @@ export const FamilyTable = ({ onEdit }: FamilyTableProps) => {
   if (loading) return <div>{t('loading.families')}</div>;
   if (error) return <div className="text-red-500">{t('error')}: {error}</div>;
 
+  const familiesWithParentName = families.map(family => ({
+    ...family,
+    parentFamilyName: families.find(f => f.id === family.parentFamilyId)?.name ?? '—',
+  }));
+
   return (
     <div className="w-full">
       <DataTable
-        data={families}
+        data={familiesWithParentName}
         columns={getColumnsFamily(t)}
         entity={EntityTable.FAMILY}
         tableButtons={tableButtons}

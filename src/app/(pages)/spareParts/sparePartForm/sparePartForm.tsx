@@ -1,14 +1,16 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Autocomplete, TextField } from '@mui/material';
 import ProviderToSparePartRequest, {
   ProviderToSparePartRequestRef,
 } from 'app/(pages)/providers/[id]/Components/ProviderToSparePartRequest';
+import { useFamilies } from 'app/hooks/useFamilies';
 import { usePermissions } from 'app/hooks/usePermissions';
 import { useProviders } from 'app/hooks/useProviders';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { useWareHouses } from 'app/hooks/useWareHouses';
+import { Family } from 'app/interfaces/Family';
 import SparePart, { QuantityMode } from 'app/interfaces/SparePart';
 import SparePartService from 'app/services/sparePartService';
 import { useSessionStore } from 'app/stores/globalStore';
@@ -16,6 +18,7 @@ import { HeaderForm } from 'components/layout/HeaderForm';
 import { EntityTable } from 'components/table/interface/tableEntitys';
 import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
 
 import DocumentationSparePart from './Components/DocumentationSparePart';
 import SparePartProvidersSelected from './Components/SparePartProvidersSelected';
@@ -39,6 +42,10 @@ const SparePartForm: React.FC<SparePartForm> = ({
   );
 
   const { operatorLogged } = useSessionStore(state => state);
+  const { families } = useFamilies();
+  const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
+  const [previewCode, setPreviewCode] = useState<string | null>(null);
+  const [isPreviewingCode, setIsPreviewingCode] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState('');
   const {
@@ -159,6 +166,12 @@ const SparePartForm: React.FC<SparePartForm> = ({
     }
   }, [SparePartForm, setValue, sparePartLoaded]);
 
+  useEffect(() => {
+    if (!sparePartLoaded?.familyId || !families) return;
+    const loadedFamily = families.find(f => f.id === sparePartLoaded.familyId) ?? null;
+    setSelectedFamily(loadedFamily);
+  }, [families, sparePartLoaded?.familyId]);
+
   function createSparePart() {
     const newSparePart: SparePart = {
       id: '',
@@ -189,9 +202,10 @@ const SparePartForm: React.FC<SparePartForm> = ({
   }
 
   function validateForm() {
+    const codeIsValid = sparePart?.familyId ? true : (sparePart?.code?.length ?? 0) > 0;
     return (
       sparePart != null &&
-      sparePart.code.length > 0 &&
+      codeIsValid &&
       sparePart.description.length > 0 &&
       sparePart.providers.length > 0
     );
@@ -219,9 +233,9 @@ const SparePartForm: React.FC<SparePartForm> = ({
     }
   };
 
-  const onSubmit = async (sparePart: SparePart) => {
+  const onSubmit = async (_: SparePart) => {
     const isValid = validateForm();
-    if (!isValid) {
+    if (!isValid || !sparePart) {
       alert(t('spareParts.missingInfoToCreate'));
       return;
     }
@@ -270,6 +284,31 @@ const SparePartForm: React.FC<SparePartForm> = ({
 
   function handleBack() {
     router.back();
+  }
+
+  async function handleFamilyChange(family: Family | null) {
+    setSelectedFamily(family);
+    setPreviewCode(null);
+    setSparePart(prev => ({
+      ...prev!,
+      familyId: family?.id ?? null,
+      familyName: family?.name ?? null,
+      familyCode: family?.codePrefix ?? null,
+      familyPath: null,
+      fullFamilyCode: null,
+    }));
+    if (family && family.id !== sparePartLoaded?.familyId) {
+      setIsPreviewingCode(true);
+      try {
+        const hierarchyInfo = await sparePartService.previewNextCode(family.id);
+        setPreviewCode(hierarchyInfo.generatedCode);
+      } catch {
+        setShowErrorMessage(t('spareParts.errorGeneratingCode'));
+        setTimeout(() => setShowErrorMessage(''), 5000);
+      } finally {
+        setIsPreviewingCode(false);
+      }
+    }
   }
 
   function handleRemoveProvider(providerId: string) {
@@ -367,11 +406,45 @@ const SparePartForm: React.FC<SparePartForm> = ({
                 ? sparePartLoaded.code + ' - ' + sparePartLoaded.description
                 : t('spareParts.newSparePart')}
             </h2>
-            <div className="flex flex-row gap-4 items-start w-full">
-              <div className="mb-4 w-full">
-                <label className="block text-sm font-medium text-gray-600">
-                  {t('spareParts.code')}
-                </label>
+            <div className="mb-4 w-full">
+              <label className="block text-sm font-medium text-gray-600">
+                {t('spareParts.family')}
+              </label>
+              <div className="mt-1">
+                <Autocomplete
+                  options={families ?? []}
+                  getOptionLabel={(option: Family) => `${option.codePrefix} — ${option.name}`}
+                  value={selectedFamily}
+                  onChange={(_, value) => handleFamilyChange(value)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder={t('spareParts.selectFamily')}
+                      size="small"
+                    />
+                  )}
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                />
+              </div>
+            </div>
+            <div className="mb-4 w-full">
+              <label className="block text-sm font-medium text-gray-600">
+                {t('spareParts.code')}
+              </label>
+              {selectedFamily ? (
+                <div className="flex gap-2 items-center mt-1">
+                  <input
+                    readOnly
+                    value={
+                      sparePartLoaded && selectedFamily.id === sparePartLoaded.familyId
+                        ? sparePart?.code ?? ''
+                        : isPreviewingCode ? '' : (previewCode ?? '')
+                    }
+                    placeholder={isPreviewingCode ? t('spareParts.generatingCode') : t('spareParts.codeWillBeGenerated')}
+                    className="p-2 flex-1 border rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
+                  />
+                </div>
+              ) : (
                 <input
                   {...register('code')}
                   id="code"
@@ -381,7 +454,7 @@ const SparePartForm: React.FC<SparePartForm> = ({
                     setSparePart({ ...sparePart!, code: e.target.value })
                   }
                 />
-              </div>
+              )}
             </div>
             <div className="flex-grow mb-4">
               <label className="block text-sm font-medium text-gray-600">
@@ -463,18 +536,20 @@ const SparePartForm: React.FC<SparePartForm> = ({
               />
             )}
             <div className="flex flex-row gap-4 items-start w-full">
-              <div className="flex-grow mb-4">
-                <label className="block text-sm font-medium text-gray-600">
-                  {t('spareParts.family')}
-                </label>
-                <input
-                  {...register('family')}
-                  className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-                  onChange={e =>
-                    setSparePart({ ...sparePart!, family: e.target.value })
-                  }
-                />
-              </div>
+              {!sparePart?.familyId && (
+                <div className="flex-grow mb-4">
+                  <label className="block text-sm font-medium text-gray-600">
+                    {t('spareParts.familyLegacy')}
+                  </label>
+                  <input
+                    {...register('family')}
+                    className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                    onChange={e =>
+                      setSparePart({ ...sparePart!, family: e.target.value })
+                    }
+                  />
+                </div>
+              )}
               <div className="flex-grow mb-4">
                 <label className="block text-sm font-medium text-gray-600">
                   {t('brand')}
