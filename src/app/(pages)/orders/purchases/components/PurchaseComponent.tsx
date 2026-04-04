@@ -20,6 +20,7 @@ export default function PurchaseComponent() {
       <TableDataOrders
         orderType={OrderType.Purchase}
         className="bg-white p-4 rounded-xl shadow-md"
+        initialYears={1}
       />
     </div>
   );

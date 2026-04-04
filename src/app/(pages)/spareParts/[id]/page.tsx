@@ -96,11 +96,7 @@ export default function page({ params }: { params: { id: string } }) {
                     sparePartId={sparePart?.sparePart.id}
                     title=""
                     hideShadow
-                    enableFilters={true}
-                    dateFilterProps={{
-                      startDate: new Date(new Date().setFullYear(new Date().getFullYear() - 2)),
-                      endDate: new Date(),
-                    }}
+                    initialYears={2}
                   />
                 </div>
               )}

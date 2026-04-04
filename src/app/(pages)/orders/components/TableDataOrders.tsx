@@ -1,7 +1,7 @@
 'use client';
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQueryParams } from 'app/hooks/useFilters';
 import { useOrder } from 'app/hooks/useOrder';
 import { useTranslations } from 'app/hooks/useTranslations';
@@ -34,12 +34,10 @@ interface TableDataOrdersProps {
   title?: string;
   hideShadow?: boolean;
   sparePartId?: string;
-  enableFilters?: boolean;
-  dateFilterProps?: DateFilters;
+  initialYears?: number;
 }
 
 const DEFAULT_STATUS_FILTERS = [OrderStatus.Pending, OrderStatus.InProgress];
-const DEFAULT_DATE_START = dayjs().subtract(1, 'year').toDate();
 const DEFAULT_DATE_END = new Date();
 
 export const TableDataOrders = ({
@@ -49,17 +47,21 @@ export const TableDataOrders = ({
   title = '',
   hideShadow = false,
   sparePartId,
-  enableFilters = true,
-  dateFilterProps,
+  initialYears,
 }: TableDataOrdersProps) => {
+  const showFilters = initialYears !== undefined;
+  const yearsBack = initialYears ?? 1;
+  const defaultDateStartRef = useRef(dayjs().subtract(yearsBack, 'year').toDate());
+  const defaultDateStart = defaultDateStartRef.current;
+
   const { t } = useTranslations();
   const { orders, getOrderWithFilters } = useOrder();
   const [isLoading, setIsLoading] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
   const { updateQueryParams, queryParams } = useQueryParams();
   const [dateFilters, setDateFilters] = useState<DateFilters>({
-    startDate: dateFilterProps?.startDate ?? DEFAULT_DATE_START,
-    endDate: dateFilterProps?.endDate ?? DEFAULT_DATE_END,
+    startDate: defaultDateStart,
+    endDate: DEFAULT_DATE_END,
   });
 
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -90,28 +92,21 @@ export const TableDataOrders = ({
   }, []);
 
   useEffect(() => {
-    if (
-      !dateFilterProps ||
-      (!dateFilterProps?.startDate &&
-        !dateFilterProps?.endDate &&
-        !selectedProviderId)
-    )
-      return;
-    console.log('dateFilterProps', dateFilterProps);
+    if (!selectedProviderId) return;
     getOrderWithFilters({
       orderType: orderType,
-      from: dateFilterProps!.startDate!,
-      to: dateFilterProps!.endDate!,
+      from: dateFilters.startDate!,
+      to: dateFilters.endDate!,
       providerId: selectedProviderId,
       sparePartId: sparePartId,
     });
-  }, [selectedProviderId, dateFilterProps]);
+  }, [selectedProviderId]);
 
   useEffect(() => {
     if (!isInitialized) {
       const newFilters: FilterValue = { ...filters };
       if (Object.keys(queryParams).length === 0) {
-        newFilters.status = enableFilters
+        newFilters.status = showFilters
           ? [OrderStatus.Pending, OrderStatus.InProgress]
           : [];
       }
@@ -125,7 +120,6 @@ export const TableDataOrders = ({
           const startDate = dayjs(startDateStr).toDate();
           const endDate = dayjs(endDateStr).toDate();
 
-          // Validar que las fechas son válidas
           if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
             setDateFilters(prev => ({
               ...prev,
@@ -136,13 +130,13 @@ export const TableDataOrders = ({
         } else {
           setDateFilters(prev => ({
             ...prev,
-            startDate: DEFAULT_DATE_START,
+            startDate: defaultDateStart,
             endDate: DEFAULT_DATE_END,
           }));
 
           setFilters(prev => ({
             ...prev,
-            status: enableFilters
+            status: showFilters
               ? [OrderStatus.Pending, OrderStatus.InProgress]
               : [],
           }));
@@ -209,7 +203,7 @@ export const TableDataOrders = ({
       const timeoutId = setTimeout(() => {
         const filtersApplied: Record<string, string> = {
           startDate:
-            dateFilters.startDate == DEFAULT_DATE_START
+            dateFilters.startDate == defaultDateStart
               ? ''
               : dayjs(dateFilters.startDate).format('YYYY-MM-DD'),
           endDate:
@@ -289,7 +283,7 @@ export const TableDataOrders = ({
           <span className="font-semibold">{title}</span>
         </>
       )}
-      {enableFilters && (
+      {showFilters && (
         <div className={`flex ${className}`}>
           <div className="flex gap-4 w-full">
             <DateFilter

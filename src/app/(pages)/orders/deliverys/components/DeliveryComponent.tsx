@@ -19,6 +19,7 @@ export default function DeliveryComponent() {
       <TableDataOrders
         orderType={OrderType.Delivery}
         className="bg-white p-4 rounded-xl shadow-md"
+        initialYears={1}
       />
     </div>
   );
