@@ -26,6 +26,11 @@ interface SparePart {
   rrp: number;
   quantityMode: QuantityMode;
   managesStock: boolean;
+  familyId?: string | null;
+  familyName?: string | null;
+  familyCode?: string | null;
+  familyPath?: string | null;
+  fullFamilyCode?: string | null;
 }
 
 export enum QuantityMode {

@@ -29,3 +29,11 @@ export interface UpdateFamilyRequest {
 export interface GenerateCodeResponse {
   code: string;
 }
+
+export interface FamilyHierarchyInfo {
+  generatedCode: string;
+  familyPath: string;
+  fullFamilyCode: string;
+  familyId: string;
+  familyName: string;
+}

@@ -268,8 +268,8 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
         titleKey: 'sidebar.families',
         path: '/families',
         icon: SvgMenu,
-        permission: [UserPermission.AdminCRM],
-        userType: [UserType.CRM],
+        permission: [UserPermission.AdminCRM, UserPermission.Administrator],
+        userType: [UserType.CRM, UserType.Maintenance],
       },
       {
         key: generateKey(),
