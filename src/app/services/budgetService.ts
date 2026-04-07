@@ -37,6 +37,9 @@ export class BudgetService {
     if (filters?.status !== undefined) {
       queryParams.append('status', filters.status.toString());
     }
+    if (filters?.budgetType !== undefined) {
+      queryParams.append('budgetType', filters.budgetType.toString());
+    }
     if (filters?.companyName) {
       queryParams.append('companyName', filters.companyName);
     }

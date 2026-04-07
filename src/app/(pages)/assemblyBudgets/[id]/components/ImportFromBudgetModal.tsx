@@ -106,18 +106,15 @@ export function ImportFromBudgetModal({
       const all = await budgetServiceRef.current.getAll({
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
+        budgetType: BudgetType.Assembly,
       });
-      setBudgets(
-        all.filter(
-          b => b.budgetType === BudgetType.Assembly && b.id !== targetBudget.id
-        )
-      );
+      setBudgets(all);
     } catch {
       setBudgets([]);
     } finally {
       setIsLoadingBudgets(false);
     }
-  }, [targetBudget.id]);
+  }, []);
 
   const handleSelectBudget = useCallback(async (budget: Budget) => {
     setIsLoadingSource(true);

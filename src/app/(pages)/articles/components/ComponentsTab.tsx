@@ -28,13 +28,13 @@ export function ComponentsTab({
   const [selectedArticleId, setSelectedArticleId] = useState<string>('');
   const [quantity, setQuantity] = useState<string>('1');
 
-  const billOfMaterialsArticles = allArticles.filter(
+  const componentArticles = allArticles.filter(
     a =>
-      a.articleType === ArticleType.BillOfMaterials &&
+      a.articleType === ArticleType.Component &&
       a.id !== currentArticleId
   );
 
-  const availableArticles = billOfMaterialsArticles.filter(
+  const availableArticles = componentArticles.filter(
     a => !components.some(c => c.articleId === a.id)
   );
 
@@ -75,24 +75,24 @@ export function ComponentsTab({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">
-          {t('bill.of.materials.of.component')} ({components.length})
+          {t('components.of.bom')} ({components.length})
         </h3>
       </div>
 
       {/* Search and add */}
       <div className="p-4 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border-2 border-purple-200 shadow-sm space-y-4">
         <h4 className="font-semibold text-gray-900">
-          {t('add.bill.of.materials')}
+          {t('add.component')}
         </h4>
         <div className="flex items-end gap-4">
           <div className="flex-1">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {t('bill.of.materials')} <span className="text-red-500">*</span>
+              {t('component')} <span className="text-red-500">*</span>
             </label>
             <AutocompleteSearchBar
               elements={articleElements}
               setCurrentId={setSelectedArticleId}
-              placeholder={t('search.bill.of.materials')}
+              placeholder={t('search.component')}
             />
             {selectedArticle && (
               <div className="mt-2 text-sm text-gray-600 bg-white p-2 rounded border border-gray-200">

@@ -112,6 +112,7 @@ export interface BudgetSearchFilters {
   startDate?: string;
   endDate?: string;
   status?: BudgetStatus;
+  budgetType?: BudgetType;
   budgetCode?: string;
   minAmount?: number;
   maxAmount?: number;
