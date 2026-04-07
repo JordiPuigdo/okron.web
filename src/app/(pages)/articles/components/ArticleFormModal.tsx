@@ -194,8 +194,8 @@ export function ArticleFormModal({
   const tabs = [
     { id: 'basic' as TabType, label: t('basic.info'), icon: Package },
     { id: 'providers' as TabType, label: t('providers'), icon: Users },
-    ...(selectedArticleType === ArticleType.Component
-      ? [{ id: 'components' as TabType, label: t('bill.of.materials'), icon: Layers }]
+    ...(selectedArticleType === ArticleType.BillOfMaterials
+      ? [{ id: 'components' as TabType, label: t('components'), icon: Layers }]
       : []),
   ];
 
