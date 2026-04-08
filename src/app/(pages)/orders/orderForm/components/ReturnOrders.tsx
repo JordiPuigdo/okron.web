@@ -113,7 +113,7 @@ export default function ReturnOrders({ returnOrders }: Props) {
                 {returnOrder.totalAmount.toFixed(2)}€
               </span>
               <span className="text-muted-foreground text-sm">
-                → {t('order.delivery')}: {returnOrder.deliveryOrderCode}
+                → {t('reception')}: {returnOrder.deliveryOrderCode}
               </span>
             </div>
 
