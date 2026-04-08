@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
-import { Order, ReturnOrder } from 'app/interfaces/Order';
+import { Order, OrderStatus, ReturnOrder } from 'app/interfaces/Order';
 import { orderService } from 'app/services/orderService';
 import useRoutes from 'app/utils/useRoutes';
 import { Input } from 'components/ui/input';
 import dayjs from 'dayjs';
+import { cn } from 'lib/utils';
 import { CircleArrowUp, PlusCircle, ReceiptText, Search } from 'lucide-react';
 import Link from 'next/link';
 
@@ -98,7 +99,7 @@ export default function ReturnOrders({ returnOrders }: Props) {
       <div className="w-full p-2 flex flex-col gap-4 items-center mt-4">
         {filteredOrders.map(returnOrder => (
           <div key={returnOrder.id} className="w-full">
-            <div className="flex gap-4 items-center">
+            <div className={cn('flex gap-4 items-center', returnOrder.status === OrderStatus.Cancelled && 'line-through opacity-50')}>
               {RenderExpand(returnOrder)}
               <Link
                 href={ROUTES.orders.order + '/' + returnOrder.returnOrderId}

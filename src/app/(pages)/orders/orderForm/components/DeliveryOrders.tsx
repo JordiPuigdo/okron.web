@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Order } from 'app/interfaces/Order';
+import { Order, OrderStatus } from 'app/interfaces/Order';
 import useRoutes from 'app/utils/useRoutes';
 import { Input } from 'components/ui/input';
 import dayjs from 'dayjs';
+import { cn } from 'lib/utils';
 import { CircleArrowUp, Plus, PlusCircle, Search, Truck } from 'lucide-react';
 import Link from 'next/link';
 
@@ -72,7 +73,7 @@ export default function DeliveryOrders({ deliveryOrders }: Props) {
       <div className="w-full p-2 flex flex-col gap-4 items-center mt-4">
         {filteredOrders.map(x => (
           <div key={x.id} className="w-full ">
-            <div className="flex gap-4">
+            <div className={cn('flex gap-4', x.status === OrderStatus.Cancelled && 'line-through opacity-50')}>
               {RenderExpan(x.id)}
               <Link
                 href={ROUTES.orders.order + '/' + x.id}

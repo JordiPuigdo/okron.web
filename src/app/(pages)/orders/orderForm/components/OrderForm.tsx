@@ -509,6 +509,7 @@ export default function OrderForm({
                 </Link>
               )}
             {order.type === OrderType.Delivery &&
+              order.status !== OrderStatus.Cancelled &&
               orderRequest?.id !== undefined &&
               order.items.length > 0 && (
                 <button

@@ -13,6 +13,7 @@ function OrderFormContent() {
   const returnOrderId = searchParams.get('returnOrderId');
   return (
     <OrderForm
+      key={`${purchaseOrderId ?? 'none'}-${returnOrderId ?? 'none'}`}
       isPurchase={isPurchase}
       purchaseOrderId={purchaseOrderId ?? undefined}
       returnOrderId={returnOrderId ?? undefined}
