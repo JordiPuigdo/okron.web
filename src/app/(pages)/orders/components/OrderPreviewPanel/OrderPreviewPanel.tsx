@@ -67,12 +67,25 @@ export function OrderPreviewPanel({
   const totals = calculateOrderTotals(items);
   const receptionProgress = calculateReceptionProgress(items);
 
+  // Filtrar órdenes relacionadas por tipo
+  const deliveryOrders = relatedOrders.filter(
+    order => order.type === OrderType.Delivery
+  );
+  const returnOrders = relatedOrders.filter(
+    order => order.type === OrderType.Return
+  );
+
   // Flags de estado
   const isPurchaseOrder = displayOrder?.type === OrderType.Purchase;
   const isDeliveryOrder = displayOrder?.type === OrderType.Delivery;
   const isPending = displayOrder?.status === OrderStatus.Pending;
   const isCompleted = displayOrder?.status === OrderStatus.Completed;
   const isCancelled = displayOrder?.status === OrderStatus.Cancelled;
+
+  // Verificar si hay albaranes activos (no cancelados)
+  const hasActiveDeliveries = deliveryOrders.some(
+    order => order.status !== OrderStatus.Cancelled
+  );
 
   // Handlers
   const handleEdit = () => {
@@ -146,13 +159,15 @@ export function OrderPreviewPanel({
           displayOrder={displayOrder!}
           totals={totals}
           items={items}
-          relatedOrders={relatedOrders}
+          deliveryOrders={deliveryOrders}
+          returnOrders={returnOrders}
           receptionProgress={receptionProgress}
           isPurchaseOrder={isPurchaseOrder}
           isDeliveryOrder={isDeliveryOrder}
           isPending={isPending}
           isCompleted={isCompleted}
           isCancelled={isCancelled}
+          hasActiveDeliveries={hasActiveDeliveries}
           onEdit={handleEdit}
           onCreateDeliveryNote={handleCreateDeliveryNote}
           onCreateReturn={handleCreateReturn}
@@ -190,13 +205,15 @@ interface OrderPreviewContentProps {
       ? I
       : never
     : never;
-  relatedOrders: ReturnType<typeof useOrderPreview>['relatedOrders'];
+  deliveryOrders: ReturnType<typeof useOrderPreview>['relatedOrders'];
+  returnOrders: ReturnType<typeof useOrderPreview>['relatedOrders'];
   receptionProgress: number;
   isPurchaseOrder: boolean;
   isDeliveryOrder: boolean;
   isPending: boolean;
   isCompleted: boolean;
   isCancelled: boolean;
+  hasActiveDeliveries: boolean;
   onEdit: () => void;
   onCreateDeliveryNote: () => void;
   onCreateReturn: () => void;
@@ -214,13 +231,15 @@ function OrderPreviewContent({
   displayOrder,
   totals,
   items,
-  relatedOrders,
+  deliveryOrders,
+  returnOrders,
   receptionProgress,
   isPurchaseOrder,
   isDeliveryOrder,
   isPending,
   isCompleted,
   isCancelled,
+  hasActiveDeliveries,
   onEdit,
   onCreateDeliveryNote,
   onCreateReturn,
@@ -267,11 +286,21 @@ function OrderPreviewContent({
         <OrderItemsList items={items} />
       </SlidePanelSection>
 
-      {/* Albaranes de recepción (solo para órdenes de compra) */}
-      {isPurchaseOrder && (
+      {/* Albaranes de recepción */}
+      {deliveryOrders.length > 0 && (
         <SlidePanelSection title="Albarans de Recepció">
           <RelatedOrdersList
-            relatedOrders={relatedOrders}
+            relatedOrders={deliveryOrders}
+            onNavigate={onNavigateToRelatedOrder}
+          />
+        </SlidePanelSection>
+      )}
+
+      {/* Devoluciones */}
+      {returnOrders.length > 0 && (
+        <SlidePanelSection title="Devolucions">
+          <RelatedOrdersList
+            relatedOrders={returnOrders}
             onNavigate={onNavigateToRelatedOrder}
           />
         </SlidePanelSection>
@@ -336,18 +365,14 @@ function OrderPreviewContent({
           variant="secondary"
         />
 
-        {isPurchaseOrder &&
-          isPending &&
-          !relatedOrders.some(
-            o => o.type === OrderType.Delivery && o.status !== OrderStatus.Cancelled
-          ) && (
-            <ActionButton
-              onClick={onCancel}
-              icon={Ban}
-              label={isCanceling ? '...' : cancelLabel}
-              variant="warning"
-            />
-          )}
+        {isPurchaseOrder && isPending && !hasActiveDeliveries && (
+          <ActionButton
+            onClick={onCancel}
+            icon={Ban}
+            label={isCanceling ? '...' : cancelLabel}
+            variant="warning"
+          />
+        )}
       </SlidePanelActions>
     </>
   );

@@ -30,6 +30,7 @@ import DeliveryOrders from './DeliveryOrders';
 import HeaderOrderForm from './HeaderOrderForm';
 import OrderPurchase from './OrderPurchase';
 import ProviderInfo from './ProviderInfo';
+import ReturnOrders from './ReturnOrders';
 import { generateNameHeader, mapItems } from './utilsOrder';
 
 dayjs.extend(utc);
@@ -112,7 +113,7 @@ export default function OrderForm({
           providerName: orderResponse.provider?.name,
           relationOrderId: orderResponse.id,
           relationOrderCode: orderResponse.code,
-          status: orderResponse.status,
+          status: OrderStatus.Pending,
           relationOrders: orderResponse.relationOrders,
           accountId: orderResponse.accountId,
           account: orderResponse.account,
@@ -291,6 +292,7 @@ export default function OrderForm({
           comment: orderSelected.comment,
           date: orderSelected.date,
           active: orderSelected.active,
+          type: orderSelected.type,
           deliveryProviderDate: orderSelected.deliveryProviderDate,
           deliveryProviderCode: orderSelected.deliveryProviderCode,
           providerId: orderSelected.providerId,
@@ -373,12 +375,9 @@ export default function OrderForm({
     }
   };
 
-  const hasActiveDeliveries = orders?.some(o => o.status !== OrderStatus.Cancelled) ?? false;
   const canCancel =
-    orderRequest?.type === OrderType.Purchase &&
-    orderRequest?.status === OrderStatus.Pending &&
     orderRequest?.id !== undefined &&
-    !hasActiveDeliveries;
+    orderRequest?.status !== OrderStatus.Cancelled;
 
   return (
     <div className="flex flex-col h-full pb-4">
@@ -408,6 +407,10 @@ export default function OrderForm({
         )}
 
         <DeliveryOrders deliveryOrders={orders} />
+
+        {orderRequest?.returnOrders && orderRequest.returnOrders.length > 0 && (
+          <ReturnOrders returnOrders={orderRequest.returnOrders} />
+        )}
 
         {orderPurchase && <OrderPurchase order={orderPurchase} />}
         {!orderRequest?.id &&
@@ -495,7 +498,7 @@ export default function OrderForm({
                   {t('order.create.delivery.note')}
                 </Link>
               )}
-            {order.type == OrderType.Delivery &&
+            {order.type === OrderType.Delivery &&
               orderRequest?.id !== undefined &&
               orderRequest?.status !== OrderStatus.Cancelled && (
                 <Link
@@ -505,7 +508,7 @@ export default function OrderForm({
                   {t('order.create.return')}
                 </Link>
               )}
-            {order.type == OrderType.Delivery &&
+            {order.type === OrderType.Delivery &&
               orderRequest?.id !== undefined &&
               order.items.length > 0 && (
                 <button

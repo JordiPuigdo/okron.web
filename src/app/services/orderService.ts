@@ -123,7 +123,8 @@ export class OrderService implements IOrderService {
         body: JSON.stringify(updateOrderRequest),
       });
       if (!response.ok) {
-        throw new Error(`Failed to update order: ${response.statusText}`);
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body?.error ?? `Failed to update order: ${response.statusText}`);
       }
       return await response.json();
     } catch (error) {

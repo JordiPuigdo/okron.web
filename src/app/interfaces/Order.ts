@@ -27,8 +27,19 @@ export interface RelationOrder {
   relationOrderCode: string;
 }
 
+export interface ReturnOrder extends BaseModel {
+  returnOrderId: string;
+  returnOrderCode: string;
+  status: OrderStatus;
+  date: string;
+  totalAmount: number;
+  deliveryOrderId: string;
+  deliveryOrderCode: string;
+}
+
 export interface Order extends OrderSimple {
   orderEvents: OrderEvents[];
+  returnOrders?: ReturnOrder[];
 }
 
 export enum OrderStatus {

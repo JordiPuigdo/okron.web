@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Order, OrderItem } from 'app/interfaces/Order';
+import { Order, OrderItem, OrderType } from 'app/interfaces/Order';
 import dayjs from 'dayjs';
-import { ChevronDown, ChevronUp, Truck } from 'lucide-react';
+import { ChevronDown, ChevronUp, RotateCcw, Truck } from 'lucide-react';
 
-import { STATUS_CONFIG } from './constants';
+import { ORDER_TYPE_CONFIG, STATUS_CONFIG } from './constants';
 import { RelatedOrdersListProps } from './types';
 import { calculateOrderTotals } from './utils';
 
@@ -56,6 +56,9 @@ function RelatedOrderCard({ order, onNavigate }: RelatedOrderCardProps) {
   const statusConfig = STATUS_CONFIG[order.status];
   const totals = calculateOrderTotals(order.items || []);
 
+  // Determinar icono según tipo de orden
+  const OrderIcon = order.type === OrderType.Return ? RotateCcw : Truck;
+
   return (
     <div className="border border-gray-200 rounded-lg bg-white overflow-hidden">
       {/* Header - siempre visible */}
@@ -63,7 +66,7 @@ function RelatedOrderCard({ order, onNavigate }: RelatedOrderCardProps) {
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <Truck className="w-4 h-4 text-[#6E41B6]" />
+              <OrderIcon className="w-4 h-4 text-[#6E41B6]" />
               <span className="font-medium text-[#6E41B6]">{order.code}</span>
               <span
                 className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig.className}`}
@@ -76,7 +79,10 @@ function RelatedOrderCard({ order, onNavigate }: RelatedOrderCardProps) {
               {order.deliveryProviderCode && (
                 <>
                   <span>·</span>
-                  <span>Albarà: {order.deliveryProviderCode}</span>
+                  <span>
+                    {order.type === OrderType.Return ? 'Devolució' : 'Albarà'}:{' '}
+                    {order.deliveryProviderCode}
+                  </span>
                 </>
               )}
             </div>
