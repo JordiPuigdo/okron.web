@@ -84,8 +84,16 @@ const getComparableValue = (value: any): any => {
   if (value instanceof Date) {
     return value.getTime(); // Convertir Date a timestamp numérico
   }
-  if (typeof value === 'string' && !isNaN(Date.parse(value))) {
-    return new Date(value).getTime(); // Convertir string de fecha a timestamp
+  if (typeof value === 'string') {
+    // Intentar convertir string numérico a número
+    const numericValue = Number(value);
+    if (!isNaN(numericValue) && value.trim() !== '') {
+      return numericValue;
+    }
+    // Si no es un número, verificar si es una fecha
+    if (!isNaN(Date.parse(value))) {
+      return new Date(value).getTime(); // Convertir string de fecha a timestamp
+    }
   }
   return value;
 };

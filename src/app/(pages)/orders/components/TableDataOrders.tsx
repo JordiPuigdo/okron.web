@@ -393,8 +393,8 @@ const getColumnsOrders = (t: any, id: string): Column[] => {
     },
     {
       label: t('total'),
-      key: 'totalAmountFormatted',
-      format: ColumnFormat.TEXT,
+      key: 'totalAmount',
+      format: ColumnFormat.PRICE,
       align: ColumnnAlign.RIGHT,
     },
   ];

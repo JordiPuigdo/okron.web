@@ -51,7 +51,14 @@ export default function OrderPurchaseDetailItems({
               <th className="p-2 border w-[8%]">{t('order.tax')}</th>
               <th
                 className={`p-2 ${
-                  showActionButtons ? 'w-[10%]' : 'w-[20%]'
+                  showActionButtons ? 'w-[10%]' : 'w-[15%]'
+                } border `}
+              >
+                {t('order.total.without.tax')}
+              </th>
+              <th
+                className={`p-2 ${
+                  showActionButtons ? 'w-[10%]' : 'w-[15%]'
                 } border `}
               >
                 Total
@@ -107,6 +114,17 @@ export default function OrderPurchaseDetailItems({
 
                   <td className="p-2 border text-center w-[8%]">
                     {item.tax ?? 21}%
+                  </td>
+
+                  <td className="p-2 border text-center w-[10%] font-medium">
+                    <span>
+                      {(
+                        item.quantity *
+                        Number(item.unitPrice) *
+                        (1 - item.discount / 100)
+                      ).toFixed(2)}
+                      €
+                    </span>
                   </td>
 
                   <td className="p-2 border text-center w-[10%]">

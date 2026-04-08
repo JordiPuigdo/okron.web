@@ -111,6 +111,10 @@ export default function OrderDetailItems({
     return item.quantity * Number(item.unitPrice) * (1 - item.discount / 100) * taxFactor;
   };
 
+  const calculateItemTotalWithoutTax = (item: OrderItemRequest) => {
+    return item.quantity * Number(item.unitPrice) * (1 - item.discount / 100);
+  };
+
   return (
     <div>
       <div className="border-t pt-4">
@@ -128,6 +132,7 @@ export default function OrderDetailItems({
               <th className="p-2 border w-1/10">{t('order.unit.price')}</th>
               <th className="p-2 border w-1/12">{t('order.discount.percentage')}</th>
               <th className="p-2 border w-1/12">{t('order.tax')}</th>
+              <th className="p-2 border w-1/10">{t('order.total.without.tax')}</th>
               <th className="p-2 border w-1/10">{t('total')}</th>
               <th className="p-2 border w-1/10">{t('actions')}</th>
             </tr>
@@ -193,6 +198,9 @@ export default function OrderDetailItems({
                       onUpdate={newValue => handleUpdateTax(item, newValue)}
                       canEdit={canEdit}
                     />
+                  </td>
+                  <td className="p-2 border text-center font-medium">
+                    {calculateItemTotalWithoutTax(item).toFixed(2)}€
                   </td>
                   <td className="p-2 border text-center">
                     {calculateItemTotal(item).toFixed(2)}€
