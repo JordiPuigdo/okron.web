@@ -94,7 +94,7 @@ export const getEntityStatusConfig = (
       '0': 'bg-okron-waiting',
       '1': 'bg-okron-onGoing',
       '2': 'bg-okron-finished',
-      '3': 'bg-okron-error',
+      '3': 'bg-okron-paused',
     },
   },
   INVOICE: {

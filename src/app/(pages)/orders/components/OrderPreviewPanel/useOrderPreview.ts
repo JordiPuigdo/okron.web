@@ -1,4 +1,4 @@
-import { Order } from 'app/interfaces/Order';
+import { Order, ReturnOrder } from 'app/interfaces/Order';
 import { orderService } from 'app/services/orderService';
 import useSWR from 'swr';
 
@@ -16,6 +16,7 @@ interface UseOrderPreviewOptions {
 interface UseOrderPreviewReturn {
   displayOrder: Order | null;
   relatedOrders: Order[];
+  returnOrders: ReturnOrder[];
   isLoading: boolean;
 }
 
@@ -45,6 +46,7 @@ export function useOrderPreview({
   return {
     displayOrder: fullOrder ?? order,
     relatedOrders: relatedOrders ?? [],
+    returnOrders: fullOrder?.returnOrders ?? [],
     isLoading: isLoadingOrder || (relationOrderIds.length > 0 && !!isLoadingRelated),
   };
 }

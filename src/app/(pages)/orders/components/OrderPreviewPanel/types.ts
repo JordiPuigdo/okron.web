@@ -1,4 +1,4 @@
-import { Order } from 'app/interfaces/Order';
+import { Order, ReturnOrder } from 'app/interfaces/Order';
 
 // ============================================================================
 // COMPONENT PROPS
@@ -32,6 +32,11 @@ export interface RelatedOrdersListProps {
   /** Órdenes relacionadas con detalle completo */
   relatedOrders: Order[];
   /** Callback para navegar al detalle de una orden */
+  onNavigate: (orderId: string) => void;
+}
+
+export interface ReturnOrdersListProps {
+  returnOrders: ReturnOrder[];
   onNavigate: (orderId: string) => void;
 }
 

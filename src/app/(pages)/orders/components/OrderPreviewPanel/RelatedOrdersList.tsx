@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Order, OrderItem, OrderType } from 'app/interfaces/Order';
+import { Order, OrderItem, OrderType, ReturnOrder } from 'app/interfaces/Order';
 import dayjs from 'dayjs';
 import { ChevronDown, ChevronUp, RotateCcw, Truck } from 'lucide-react';
 
 import { ORDER_TYPE_CONFIG, STATUS_CONFIG } from './constants';
-import { RelatedOrdersListProps } from './types';
+import { RelatedOrdersListProps, ReturnOrdersListProps } from './types';
 import { calculateOrderTotals } from './utils';
 
 /**
@@ -175,6 +175,88 @@ function RelatedOrderItemRow({ item }: RelatedOrderItemRowProps) {
       <span className="text-sm font-medium text-gray-900">
         {lineTotal.toFixed(2)} €
       </span>
+    </div>
+  );
+}
+
+// ============================================================================
+// RETURN ORDERS LIST
+// ============================================================================
+
+export function ReturnOrdersList({
+  returnOrders,
+  onNavigate,
+}: ReturnOrdersListProps) {
+  if (!returnOrders || returnOrders.length === 0) {
+    return (
+      <p className="text-gray-500 text-sm italic">No hi ha abonos</p>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {returnOrders.map(returnOrder => (
+        <ReturnOrderCard
+          key={returnOrder.returnOrderId}
+          returnOrder={returnOrder}
+          onNavigate={() => onNavigate(returnOrder.returnOrderId)}
+        />
+      ))}
+    </div>
+  );
+}
+
+interface ReturnOrderCardProps {
+  returnOrder: ReturnOrder;
+  onNavigate: () => void;
+}
+
+function ReturnOrderCard({ returnOrder, onNavigate }: ReturnOrderCardProps) {
+  const statusConfig = STATUS_CONFIG[returnOrder.status];
+
+  return (
+    <div className="border border-gray-200 rounded-lg bg-white overflow-hidden">
+      <div className="p-3">
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <RotateCcw className="w-4 h-4 text-[#6E41B6]" />
+              <span className="font-medium text-[#6E41B6]">
+                {returnOrder.returnOrderCode}
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig.className}`}
+              >
+                {statusConfig.label}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 mt-1 text-sm text-gray-600">
+              <span>{dayjs(returnOrder.date).format('DD/MM/YYYY')}</span>
+              {returnOrder.deliveryOrderCode && (
+                <>
+                  <span>·</span>
+                  <span>Albarà: {returnOrder.deliveryOrderCode}</span>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="text-right">
+            <span className="font-semibold text-gray-900">
+              {returnOrder.totalAmount.toFixed(2)} €
+            </span>
+          </div>
+        </div>
+
+        <div className="flex justify-end mt-3 pt-2 border-t border-gray-100">
+          <button
+            type="button"
+            onClick={onNavigate}
+            className="text-sm text-[#6E41B6] hover:underline font-medium"
+          >
+            Anar al detall →
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

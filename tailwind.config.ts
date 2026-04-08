@@ -184,6 +184,7 @@ const config: Config = {
           requested: '#ff5c6b',
           background: '#f1f5f9',
           invoiced: '#2C7A7B',
+          error: '#E03131',
         },
       },
       boxShadow: {

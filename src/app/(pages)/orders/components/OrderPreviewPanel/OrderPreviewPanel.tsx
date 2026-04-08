@@ -23,7 +23,7 @@ import { useRouter } from 'next/navigation';
 import { ORDER_TYPE_CONFIG, STATUS_CONFIG } from './constants';
 import { OrderItemsList } from './OrderItemsList';
 import { ProviderInfo } from './ProviderInfo';
-import { RelatedOrdersList } from './RelatedOrdersList';
+import { RelatedOrdersList, ReturnOrdersList } from './RelatedOrdersList';
 import { OrderPreviewPanelProps } from './types';
 import { useOrderPreview } from './useOrderPreview';
 import { calculateOrderTotals, calculateReceptionProgress } from './utils';
@@ -49,7 +49,7 @@ export function OrderPreviewPanel({
   const router = useRouter();
   const ROUTES = useRoutes();
   const { t } = useTranslations();
-  const { displayOrder, relatedOrders, isLoading } = useOrderPreview({
+  const { displayOrder, relatedOrders, returnOrders, isLoading } = useOrderPreview({
     order,
     isOpen,
   });
@@ -70,9 +70,6 @@ export function OrderPreviewPanel({
   // Filtrar órdenes relacionadas por tipo
   const deliveryOrders = relatedOrders.filter(
     order => order.type === OrderType.Delivery
-  );
-  const returnOrders = relatedOrders.filter(
-    order => order.type === OrderType.Return
   );
 
   // Flags de estado
@@ -206,7 +203,7 @@ interface OrderPreviewContentProps {
       : never
     : never;
   deliveryOrders: ReturnType<typeof useOrderPreview>['relatedOrders'];
-  returnOrders: ReturnType<typeof useOrderPreview>['relatedOrders'];
+  returnOrders: ReturnType<typeof useOrderPreview>['returnOrders'];
   receptionProgress: number;
   isPurchaseOrder: boolean;
   isDeliveryOrder: boolean;
@@ -296,11 +293,11 @@ function OrderPreviewContent({
         </SlidePanelSection>
       )}
 
-      {/* Devoluciones */}
+      {/* Abonos */}
       {returnOrders.length > 0 && (
-        <SlidePanelSection title="Devolucions">
-          <RelatedOrdersList
-            relatedOrders={returnOrders}
+        <SlidePanelSection title="Abonos">
+          <ReturnOrdersList
+            returnOrders={returnOrders}
             onNavigate={onNavigateToRelatedOrder}
           />
         </SlidePanelSection>
