@@ -9,9 +9,28 @@
       "Bash(npm run lint*)",
       "Bash(npm run type-check*)",
       "Bash(npm run build*)",
+      "Bash(npx eslint*)",
+      "Bash(npx tsc*)",
       "Bash(git status*)",
       "Bash(git diff*)",
       "Bash(git log*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import sys,json,subprocess as s; d=json.load(sys.stdin); p=d.get('tool_input',{}).get('file_path',''); sys.exit(0) if not p.endswith(('.ts','.tsx','.js','.jsx')) else sys.exit(s.run(['npx','eslint',p],cwd='c:/OKRON/DEVELOPMENT/okron.web').returncode)\""
+          },
+          {
+            "type": "command",
+            "command": "python3 -c \"import sys,json,subprocess as s; d=json.load(sys.stdin); p=d.get('tool_input',{}).get('file_path',''); sys.exit(0) if not p.endswith(('.ts','.tsx')) else sys.exit(s.run(['npx','tsc','--noEmit','--skipLibCheck'],cwd='c:/OKRON/DEVELOPMENT/okron.web').returncode)\""
+          }
+        ]
+      }
     ]
   }
 }

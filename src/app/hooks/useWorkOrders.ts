@@ -65,7 +65,7 @@ export const useWorkOrders = (operatorId?: string) => {
   }, [filters]);
 
   useEffect(() => {
-    if (firstLoad && queryParams) {
+    if (firstLoad && queryParams && loginUser) {
       if (!filters) {
         const queryParamsFilters = mapQueryParamsToFilters(
           queryParams,
@@ -105,7 +105,7 @@ export const useWorkOrders = (operatorId?: string) => {
   ]);
 
   async function fetchWorkOrders() {
-    if (!filters) return;
+    if (!filters || !loginUser) return;
     setIsLoading(true);
     try {
       const search: SearchWorkOrderFilters = {
