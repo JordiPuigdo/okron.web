@@ -441,6 +441,16 @@ function QuantityAndPricingFields({
 }) {
   const [salePriceInput, setSalePriceInput] = useState('');
   const [isEditingSalePrice, setIsEditingSalePrice] = useState(false);
+  const [quantityInput, setQuantityInput] = useState<string>(String(quantity));
+
+  const handleQuantityBlur = () => {
+    const parsed = parseFloat(quantityInput);
+    if (!isNaN(parsed) && parsed >= 1) {
+      onQuantityChange(parsed);
+    } else {
+      setQuantityInput(String(quantity));
+    }
+  };
 
   return (
     <div className="space-y-3">
@@ -450,11 +460,10 @@ function QuantityAndPricingFields({
             {t('quantity')} *
           </label>
           <input
-            type="number"
-            min={1}
-            step={1}
-            value={quantity}
-            onChange={e => onQuantityChange(Math.max(1, Number(e.target.value)))}
+            type="text"
+            value={quantityInput}
+            onChange={e => setQuantityInput(e.target.value)}
+            onBlur={handleQuantityBlur}
             className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
           />
         </div>
