@@ -200,6 +200,51 @@ const { t } = useTranslations();
 
 ---
 
+## Numeric inputs (MANDATORY)
+
+Never use `type="number"` with `register(..., { valueAsNumber: true })` from react-hook-form. This pattern prevents the user from clearing the field — the browser keeps a stale value or emits `NaN`, breaking the form state.
+
+**Rule:** any numeric field in a form must use `<Controller>` from react-hook-form combined with the existing `<Input mode="number">` component (`src/components/ui/input.tsx`):
+
+```tsx
+<Controller
+  control={control}
+  name="price"
+  render={({ field }) => (
+    <Input
+      mode="number"
+      value={field.value ?? null}
+      onValueChange={field.onChange}
+      allowDecimals
+    />
+  )}
+/>
+```
+
+When touching a form that already has `<input type="number" {...register(..., { valueAsNumber: true })}>`, migrate that field to the `Controller` + `Input mode="number"` pattern as part of the task — do not leave it as-is.
+
+**Why `Input mode="number"` and not a plain `type="text"` input:**
+- It maintains internal string state so the user can clear the field freely.
+- It emits `number | null` (not `NaN` or empty string) to the form.
+- It blocks forbidden keys (`e`, `E`, `+`) and normalises comma as decimal separator.
+- `allowDecimals` and `allowNegative` props control the accepted format explicitly.
+
+---
+
+## Active/Inactive entity filtering (MANDATORY)
+
+All domain entities have an `active` field (from `BaseModel`). Inactive records must never appear in selects, dropdowns, autocompletes, or any UI picker that the user interacts with.
+
+**Rule:** when calling a service method to populate a select, dropdown, or autocomplete, the API endpoint must only return active records. If the current endpoint returns all records (active + inactive), flag it to the user before using it — do not silently filter on the frontend as a workaround.
+
+On the frontend side: if a list received from the API unexpectedly contains inactive records (identifiable by `active === false`), do not filter them silently in the component. Raise the issue so the backend filter is fixed at the source.
+
+**Exceptions — showing inactive records is correct when:**
+- The screen is an admin/management table that explicitly shows all entities so the user can activate/deactivate them.
+- The user is viewing the detail of a record that references an entity that has since been deactivated (show it read-only, do not hide it).
+
+---
+
 ## Code Rules
 
 - **No code comments** — naming must make intent clear.

@@ -29,9 +29,14 @@ const LanguageSelector = () => {
         );
         const langs = await configService.getLanguages();
         setLanguages(langs);
+
+        if (langs.length === 1) {
+          await handleChangeLang(langs[0]);
+        } else if (langs.length > 1 && !langs.includes(currentLang)) {
+          await handleChangeLang(langs[0]);
+        }
       } catch (error) {
         console.error('Error loading languages:', error);
-        // Fallback a l'idioma actual si falla
         setLanguages([currentLang || 'es']);
       } finally {
         setIsLoading(false);

@@ -39,11 +39,9 @@ export const useTranslationStore = create<TranslationState>()(
         currentLang: state.currentLang,
       }),
       migrate: (persistedState, version) => {
-        // Al cambiar de versión, devolver estado inicial vacío
         return {
           ...(persistedState as TranslationState),
           translations: {},
-          currentLang: process.env.NEXT_PUBLIC_DEFAULT_LANG || 'ca',
         } as TranslationState;
       },
     }

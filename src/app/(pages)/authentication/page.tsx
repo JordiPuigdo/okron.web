@@ -5,6 +5,7 @@ import { useTranslations } from 'app/hooks/useTranslations';
 import { User } from 'app/interfaces/User';
 import AuthenticationService from 'app/services/authentication';
 import { useSessionStore } from 'app/stores/globalStore';
+import { useTranslationStore } from 'app/stores/translationStore';
 import useRoutes from 'app/utils/useRoutes';
 import Loader from 'components/Loader/loader';
 import { useRouter } from 'next/navigation';
@@ -21,7 +22,8 @@ export default function AuthenticationPage() {
   const [errorEmail, setErrorEmail] = useState<string | undefined>('');
   const { setLoginUser } = useSessionStore(state => state);
   const { config } = useConfig();
-  const { fetchTranslations, setLang, t } = useTranslations();
+  const { fetchTranslations, t } = useTranslations();
+  const currentLang = useTranslationStore(s => s.currentLang);
   const authService = new AuthenticationService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
@@ -41,8 +43,7 @@ export default function AuthenticationPage() {
       username: username,
       password: password,
     };
-    setLang('ca');
-    await fetchTranslations('ca');
+    await fetchTranslations(currentLang);
     await authService
       .Login(userLogin.username, userLogin.password)
       .then(async (data: any) => {
