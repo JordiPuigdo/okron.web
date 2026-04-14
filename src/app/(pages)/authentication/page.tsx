@@ -4,6 +4,7 @@ import { useConfig } from 'app/hooks/useConfig';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { User } from 'app/interfaces/User';
 import AuthenticationService from 'app/services/authentication';
+import ConfigService from 'app/services/configService';
 import { useSessionStore } from 'app/stores/globalStore';
 import { useTranslationStore } from 'app/stores/translationStore';
 import useRoutes from 'app/utils/useRoutes';
@@ -22,7 +23,7 @@ export default function AuthenticationPage() {
   const [errorEmail, setErrorEmail] = useState<string | undefined>('');
   const { setLoginUser } = useSessionStore(state => state);
   const { config } = useConfig();
-  const { fetchTranslations, t } = useTranslations();
+  const { fetchTranslations, setLang, t } = useTranslations();
   const currentLang = useTranslationStore(s => s.currentLang);
   const authService = new AuthenticationService(
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
@@ -36,6 +37,36 @@ export default function AuthenticationPage() {
     setPassword(event.target.value);
   };
 
+  const resolveAndLoadTranslations = async () => {
+    const configService = new ConfigService(
+      process.env.NEXT_PUBLIC_API_BASE_URL || ''
+    );
+    let availableLangs: string[] = [];
+    try {
+      availableLangs = await configService.getLanguages();
+    } catch {
+      availableLangs = [currentLang];
+    }
+
+    const preferredLang = availableLangs.includes(currentLang)
+      ? currentLang
+      : (availableLangs[0] ?? currentLang);
+
+    setLang(preferredLang);
+    const loaded = await fetchTranslations(preferredLang);
+
+    if (!loaded) {
+      const fallbacks = availableLangs.filter(l => l !== preferredLang);
+      for (const fallback of fallbacks) {
+        const fallbackLoaded = await fetchTranslations(fallback);
+        if (fallbackLoaded) {
+          setLang(fallback);
+          break;
+        }
+      }
+    }
+  };
+
   const handleLogin = async () => {
     setIsLoading(true);
 
@@ -43,7 +74,7 @@ export default function AuthenticationPage() {
       username: username,
       password: password,
     };
-    await fetchTranslations(currentLang);
+    await resolveAndLoadTranslations();
     await authService
       .Login(userLogin.username, userLogin.password)
       .then(async (data: any) => {

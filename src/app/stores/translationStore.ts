@@ -6,7 +6,7 @@ interface TranslationState {
   loading: boolean;
   error: string | null;
   currentLang: string;
-  fetchTranslations: (lang: string, prefix?: string) => Promise<void>;
+  fetchTranslations: (lang: string, prefix?: string) => Promise<boolean>;
   setLang: (lang: string) => void;
 }
 
@@ -25,8 +25,10 @@ export const useTranslationStore = create<TranslationState>()(
           );
           const data = await response.json();
           set({ translations: data.translations, loading: false });
+          return Object.keys(data.translations).length > 0;
         } catch (err) {
           set({ error: 'Failed to load translations', loading: false });
+          return false;
         }
       },
       setLang: lang => set({ currentLang: lang }),
