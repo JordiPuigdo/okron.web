@@ -37,20 +37,19 @@ const AutocompleteSearchBar: React.FC<AutocompleteSearchBarProps> = ({
   // Recalcular searchResults cuando cambian los elements o el query
   useEffect(() => {
     if (query) {
-      const searchTerms = query
-        .trim()
-        .toLowerCase()
-        .split(/\s+/)
-        .filter(Boolean);
+      const normalize = (text: string) =>
+        text
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+
+      const searchTerms = normalize(query.trim()).split(/\s+/).filter(Boolean);
+
       setSearchResults(
         elements.filter(element => {
-          const searchableText = [
-            element.description,
-            element.code,
-          ]
-            .filter(Boolean)
-            .join(' ')
-            .toLowerCase();
+          const searchableText = normalize(
+            [element.description, element.code].filter(Boolean).join(' ')
+          );
           return searchTerms.every(term => searchableText.includes(term));
         })
       );

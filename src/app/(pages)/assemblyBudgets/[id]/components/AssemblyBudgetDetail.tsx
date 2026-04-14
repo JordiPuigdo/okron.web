@@ -657,7 +657,7 @@ export function AssemblyBudgetDetail({
 
       <AddArticleModal
         isVisible={isArticleModalOpen}
-        articles={articles}
+        articles={(articles ?? []).filter(a => a.active)}
         nodes={formData.assemblyNodes || []}
         selectedParentNodeId={selectedParentNodeId}
         onParentChange={handleArticleParentChange}

@@ -23,6 +23,7 @@ import utc from 'dayjs/plugin/utc';
 import { Modal2, ModalBackground } from 'designSystem/Modals/Modal';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { mutate } from 'swr';
 
 import GenerateCorrective from '../../../corrective/components/GenerateCorrective';
 import { BodyOrderForm } from './BodyOrderForm';
@@ -186,6 +187,9 @@ export default function OrderForm({
     try {
       if (orderRequest == null) {
         const orderResponse = await createOrder(order);
+        if (order.relationOrderId) {
+          mutate(['order', order.relationOrderId]);
+        }
         router.push(`/orders/${orderResponse.id}`);
       } else {
         await updateOrder({
@@ -465,15 +469,22 @@ export default function OrderForm({
             </div>
           </div>
           <div className="flex flex-row gap-2">
-            <button
-              onClick={handleCreateOrder}
-              className={`w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 ${
-                order.items.length == 0 ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              disabled={order.items.length == 0}
-            >
-              {orderRequest == null ? headerName : t('order.update')}
-            </button>
+            {orderRequest?.status === OrderStatus.Cancelled &&
+            order.type === OrderType.Delivery ? (
+              <div className="w-full p-2 rounded-md bg-orange-100 text-orange-700 font-semibold text-center">
+                {t('order.status.is.canceled')}
+              </div>
+            ) : (
+              <button
+                onClick={handleCreateOrder}
+                className={`w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 ${
+                  order.items.length == 0 ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+                disabled={order.items.length == 0}
+              >
+                {orderRequest == null ? headerName : t('order.update')}
+              </button>
+            )}
             {canCancel && (
               <button
                 onClick={handleCancelOrder}
@@ -486,6 +497,7 @@ export default function OrderForm({
             )}
             {order.type == OrderType.Purchase &&
               orderRequest?.status != OrderStatus.Completed &&
+              orderRequest?.status != OrderStatus.Cancelled &&
               orderRequest?.id !== undefined && (
                 <Link
                   href={

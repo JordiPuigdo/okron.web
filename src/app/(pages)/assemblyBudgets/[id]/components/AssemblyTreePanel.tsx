@@ -52,6 +52,7 @@ import {
   ChevronDown,
   ChevronRight,
   Copy,
+  Eye,
   FileText,
   FolderClosed,
   FolderOpen,
@@ -65,6 +66,7 @@ import {
   X,
 } from 'lucide-react';
 
+import { ArticlePreviewModal } from './ArticlePreviewModal';
 import { NodeStats } from './AssemblyBudgetStatusConfig';
 import {
   calculateFolderMargin,
@@ -202,6 +204,8 @@ interface AssemblyTreePanelProps {
   t: (key: string) => string;
 }
 
+
+
 export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
   nodes,
   nodeStats,
@@ -228,6 +232,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
     node: AssemblyNode;
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [previewArticleId, setPreviewArticleId] = useState<string | null>(null);
 
   const displayNodes = optimisticNodes || nodes;
 
@@ -533,6 +538,7 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
                     canMoveNode={canMoveNode}
                     onMoveNodeByOffset={handleMoveNodeByOffset}
                     onDuplicateNode={handleDuplicateRequest}
+                    onPreviewArticle={setPreviewArticleId}
                     t={t}
                   />
                 ))}
@@ -554,6 +560,11 @@ export const AssemblyTreePanel = React.memo(function AssemblyTreePanel({
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
         t={t}
+      />
+
+      <ArticlePreviewModal
+        articleId={previewArticleId}
+        onClose={() => setPreviewArticleId(null)}
       />
     </div>
   );
@@ -683,6 +694,7 @@ interface TreeNodeProps {
     direction: MoveDirection
   ) => Promise<void>;
   onDuplicateNode: (node: AssemblyNode) => Promise<void>;
+  onPreviewArticle: (articleId: string) => void;
   t: (key: string) => string;
 }
 
@@ -705,6 +717,7 @@ function TreeNode({
   canMoveNode,
   onMoveNodeByOffset,
   onDuplicateNode,
+  onPreviewArticle,
   t,
 }: TreeNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -1129,6 +1142,17 @@ function TreeNode({
               type="button"
               onClick={e => {
                 e.stopPropagation();
+                onPreviewArticle(article.articleId);
+              }}
+              className="p-1.5 rounded hover:bg-blue-50 text-gray-400 hover:text-blue-500 transition-colors"
+              title={t('article.preview')}
+            >
+              <Eye className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={e => {
+                e.stopPropagation();
                 onDuplicateNode(node);
               }}
               disabled={!canDuplicate}
@@ -1231,6 +1255,7 @@ function TreeNode({
               canMoveNode={canMoveNode}
               onMoveNodeByOffset={onMoveNodeByOffset}
               onDuplicateNode={onDuplicateNode}
+              onPreviewArticle={onPreviewArticle}
               t={t}
             />
           ))}

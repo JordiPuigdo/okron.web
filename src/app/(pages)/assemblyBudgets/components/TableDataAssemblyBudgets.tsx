@@ -48,8 +48,8 @@ const getColumns = (t: (key: string) => string): Column[] => [
   { label: t('date'), key: 'budgetDate', format: ColumnFormat.DATE },
   { label: t('budget.preview.validUntil'), key: 'validUntil', format: ColumnFormat.DATE },
   {
-    label: t('total'),
-    key: 'total',
+    label: t('subtotal'),
+    key: 'subtotal',
     format: ColumnFormat.PRICE,
     align: ColumnnAlign.RIGHT,
   },

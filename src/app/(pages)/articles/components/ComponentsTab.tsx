@@ -27,6 +27,7 @@ export function ComponentsTab({
 }: ComponentsTabProps) {
   const [selectedArticleId, setSelectedArticleId] = useState<string>('');
   const [quantity, setQuantity] = useState<string>('1');
+  const [quantityInputs, setQuantityInputs] = useState<Record<number, string>>({});
 
   const componentArticles = allArticles.filter(
     a =>
@@ -69,6 +70,24 @@ export function ComponentsTab({
     const updated = [...components];
     updated[index] = { ...updated[index], quantity: newQuantity };
     setComponents(updated);
+  };
+
+  const handleQuantityInputChange = (index: number, value: string) => {
+    setQuantityInputs(prev => ({ ...prev, [index]: value }));
+  };
+
+  const handleQuantityInputBlur = (index: number) => {
+    const raw = quantityInputs[index];
+    if (raw === undefined) return;
+    const parsed = parseFloat(raw);
+    if (!isNaN(parsed) && parsed > 0) {
+      handleQuantityChange(index, parsed);
+    }
+    setQuantityInputs(prev => {
+      const next = { ...prev };
+      delete next[index];
+      return next;
+    });
   };
 
   return (
@@ -173,16 +192,10 @@ export function ComponentsTab({
                       {t('quantity')}:
                     </label>
                     <input
-                      type="number"
-                      min="1"
-                      step="1"
-                      value={component.quantity}
-                      onChange={e =>
-                        handleQuantityChange(
-                          index,
-                          Number(e.target.value) || 1
-                        )
-                      }
+                      type="text"
+                      value={quantityInputs[index] ?? String(component.quantity)}
+                      onChange={e => handleQuantityInputChange(index, e.target.value)}
+                      onBlur={() => handleQuantityInputBlur(index)}
                       className="w-20 border border-gray-300 rounded-lg px-3 py-1.5 text-center focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     />
                   </div>
