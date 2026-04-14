@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArticleType, ArticleWithFullTree } from 'app/interfaces/Article';
 import { useTranslations } from 'app/hooks/useTranslations';
-import { formatCurrencyServerSider } from 'app/utils/utils';
+import { ArticleType, ArticleWithFullTree } from 'app/interfaces/Article';
 import { ArticleService } from 'app/services/articleService';
+import { formatCurrencyServerSider } from 'app/utils/utils';
 import { Package, Wrench, X } from 'lucide-react';
 
 interface ArticlePreviewModalProps {
