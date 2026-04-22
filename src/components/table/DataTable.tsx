@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQueryParams } from 'app/hooks/useFilters';
 import {
   useFilteredData,
@@ -81,7 +81,6 @@ const DataTable: React.FC<DataTableProps> = ({
   const tableFilters = useTableFilters(enableFilterActive);
   const { loginUser } = useSessionStore(state => state);
   const [isLoadingInternal, setIsLoadingInternal] = useState(true);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isLoading =
     isLoadingProp !== undefined ? isLoadingProp : isLoadingInternal;
   const { t } = useTranslations();
@@ -193,7 +192,7 @@ const DataTable: React.FC<DataTableProps> = ({
       <div
         className={`bg-white rounded-lg ${
           !hideShadow && 'shadow-md'
-        } w-full h-full flex flex-col`}
+        } w-full flex flex-col`}
       >
         <div className="flex py-2">
           {filteredData &&
@@ -225,11 +224,7 @@ const DataTable: React.FC<DataTableProps> = ({
             </div>
           )}
         </div>
-        <div
-          ref={scrollContainerRef}
-          className="flex-1 overflow-auto"
-          style={{ maxHeight: 'calc(100vh - 300px)' }}
-        >
+        <div className="flex">
           {isLoading ? (
             <SvgSpinner className="w-full justify-center" />
           ) : (
@@ -264,7 +259,6 @@ const DataTable: React.FC<DataTableProps> = ({
                 totalCounts={totalCounts}
                 totalQuantity={formattedPrice ?? 0}
                 filtersApplied={tableFilters.filtersApplied}
-                scrollContainerRef={scrollContainerRef}
               />
               {entity === EntityTable.SPAREPART &&
                 columns?.find(x => x.key === 'price') && (

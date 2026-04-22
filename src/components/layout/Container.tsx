@@ -10,7 +10,7 @@ export default function Container({
 }) {
   return (
     <div
-      className={`pt-20 pb-6 w-full h-full ${fullWidth ? '' : 'mx-6'} ${className}`}
+      className={`pt-20 pb-6 w-full h-full flex flex-col overflow-auto ${fullWidth ? '' : 'mx-6'} ${className}`}
     >
       {children}
     </div>

@@ -727,7 +727,6 @@ export function WorkOrderPreviewPanel({
 
           {/* Acciones */}
           <SlidePanelActions>
-            {' '}
             {/* Botón crear albarán - solo si es CRM, tiene cliente y no tiene albarán */}
             {isCRM &&
               displayWorkOrder.customerWorkOrder?.customerId &&
@@ -739,7 +738,7 @@ export function WorkOrderPreviewPanel({
                   label={t('create.delivery.note')}
                   variant="warning"
                 />
-              )}{' '}
+              )}
             <ActionButton
               onClick={handleEdit}
               icon={Edit2}

@@ -34,9 +34,6 @@ export const useWorkOrdersList = (operatorId?: string, assetId?: string) => {
   const [filters, setFilters] = useState<WorkOrdersFilters | undefined>(
     undefined
   );
-  const [workOrderTypeCount, setWorkOrderTypeCount] = useState<
-    WorkOrderTypeCount[]
-  >([]);
 
   // Sincronizar filtros con query params
   useEffect(() => {
@@ -152,9 +149,8 @@ export const useWorkOrdersList = (operatorId?: string, assetId?: string) => {
   }, [filteredWorkOrders]);
 
   // Actualizar conteos cuando cambien las WorkOrders filtradas
-  useEffect(() => {
-    setWorkOrderTypeCount(computedTypeCounts);
-  }, [computedTypeCounts]);
+  // Se usa el valor memoizado directamente para evitar re-renders innecesarios
+  const workOrderTypeCountValue = computedTypeCounts;
 
   /**
    * Calcula los estados válidos según el tipo de usuario
@@ -176,7 +172,7 @@ export const useWorkOrdersList = (operatorId?: string, assetId?: string) => {
     setFilters,
     filteredWorkOrders,
     validStates,
-    workOrderTypeCount,
+    workOrderTypeCount: workOrderTypeCountValue,
     isLoading,
     refreshWorkOrders,
   };

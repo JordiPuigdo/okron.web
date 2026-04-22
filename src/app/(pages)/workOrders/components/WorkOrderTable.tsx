@@ -86,7 +86,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
   );
 
   return (
-    <div className="flex flex-col gap-4 h-full">
+    <div className="flex flex-col gap-4 flex-1 min-h-0">
       {enableFilters && filters && (
         <WorkOrdersFiltersTable
           setWorkOrdersFilters={setFilters}
@@ -100,20 +100,18 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
           assets={[]}
         />
       )}
-      {filteredWorkOrders.length > 0 && (
-        <DataTable
-          columns={columns}
-          data={filteredWorkOrders}
-          tableButtons={tableButtons}
-          entity={EntityTable.WORKORDER}
-          enableFilterActive={false}
-          enableCheckbox={
-            operatorLogged?.operatorLoggedType === OperatorType.Quality
-          }
-          isLoading={isLoading}
-          onPreview={handlePreview}
-        />
-      )}
+      <DataTable
+        columns={columns}
+        data={filteredWorkOrders}
+        tableButtons={tableButtons}
+        entity={EntityTable.WORKORDER}
+        enableFilterActive={false}
+        enableCheckbox={
+          operatorLogged?.operatorLoggedType === OperatorType.Quality
+        }
+        isLoading={isLoading}
+        onPreview={handlePreview}
+      />
 
       {/* Panel de vista previa */}
       <WorkOrderPreviewPanel
