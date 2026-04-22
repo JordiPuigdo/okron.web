@@ -36,9 +36,11 @@ export const TicketCorrectiveFilter = ({
     const workOrderType =
       val === 'all'
         ? currentTypes
-        : hasTicket || currentTypes.length === 0
-          ? currentTypes
-          : [...currentTypes, WorkOrderType.Ticket];
+        : currentTypes.length === 0
+          ? [WorkOrderType.Ticket]
+          : hasTicket
+            ? currentTypes
+            : [...currentTypes, WorkOrderType.Ticket];
 
     setWorkOrdersFilters({
       ...workOrdersFilters,
