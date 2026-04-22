@@ -1,4 +1,4 @@
-import Operator, { OperatorType } from 'app/interfaces/Operator';
+import { OperatorType } from 'app/interfaces/Operator';
 import { LoginUser, OperatorLogged, UserType } from 'app/interfaces/User';
 import WorkOrder, {
   OriginWorkOrder,
@@ -83,7 +83,7 @@ function getStatesForTicket(): StateWorkOrder[] {
   return [StateWorkOrder.Open, StateWorkOrder.Closed];
 }
 
-const firstDayTwoMonthsAgo = dayjs()
+const firstDayOneMonthAgo = dayjs()
   .subtract(1, 'month')
   .startOf('month')
   .toDate();
@@ -110,6 +110,9 @@ export function getFilters(filters: WorkOrdersFilters): FilterValue {
   f.isInvoiced = filters.isInvoiced;
   f.hasDeliveryNote = filters.hasDeliveryNote;
   f.useOperatorLogged = filters.useOperatorLogged;
+  if (filters.hasCorrectiveCreated !== null) {
+    f.hasCorrectiveCreated = filters.hasCorrectiveCreated;
+  }
   return f;
 }
 export function mapQueryParamsToFilters(
@@ -158,6 +161,12 @@ export function mapQueryParamsToFilters(
         prev?.useOperatorLogged) ??
       operatorLogged,
     active: prev?.active ?? true,
+    hasCorrectiveCreated:
+      query.hasCorrectiveCreated === 'true'
+        ? true
+        : query.hasCorrectiveCreated === 'false'
+        ? false
+        : prev?.hasCorrectiveCreated ?? null,
   };
 }
 
@@ -173,7 +182,7 @@ export function getUserType(
   if (operatorType === OperatorType.Assembly) return UserType.CRM;
   if (operatorType === OperatorType.Repairs) return UserType.CRM;
 
-  if (loginUser) loginUser?.userType;
+  if (loginUser) return loginUser.userType;
   return UserType.Maintenance;
 }
 
@@ -192,7 +201,7 @@ function getStartDate(
     return dayjs(prev.dateRange.startDate).startOf('day').toDate();
   }
 
-  return dayjs(firstDayTwoMonthsAgo).startOf('day').toDate();
+  return dayjs(firstDayOneMonthAgo).startOf('day').toDate();
 }
 
 function getEndDate(
@@ -250,6 +259,13 @@ export function applyFilters(
     filters.hasDeliveryNote === undefined ||
     order.hasDeliveryNote === filters.hasDeliveryNote;
 
+  const matchesCorrective =
+    filters.hasCorrectiveCreated === null ||
+    filters.hasCorrectiveCreated === undefined ||
+    (filters.hasCorrectiveCreated
+      ? !!order.derivedCorrectiveId
+      : !order.derivedCorrectiveId);
+
   return (
     matchesSearch &&
     (!filters.assetId || order.asset?.id === filters.assetId) &&
@@ -259,7 +275,8 @@ export function applyFilters(
       filters.workOrderType.includes(order.workOrderType)) &&
     matchesInvoiced &&
     matchesDelivery &&
-    matchesActive
+    matchesActive &&
+    matchesCorrective
   );
 }
 
@@ -278,16 +295,13 @@ export default function getWorkOrderFilterOrigin(
 const getDefaultWorkOrderStates = (isCRM: boolean, operatorLogged: boolean) => {
   if (!isCRM) return [];
 
-  if (isCRM && operatorLogged) {
+  if (operatorLogged) {
     return [
       StateWorkOrder.Waiting,
       StateWorkOrder.Finished,
       StateWorkOrder.NotFinished,
     ];
   }
-  if (isCRM) {
-    return [StateWorkOrder.Finished, StateWorkOrder.NotFinished];
-  }
 
-  return [];
+  return [StateWorkOrder.Finished, StateWorkOrder.NotFinished];
 };

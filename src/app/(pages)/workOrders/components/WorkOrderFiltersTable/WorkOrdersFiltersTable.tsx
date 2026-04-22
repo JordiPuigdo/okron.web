@@ -5,6 +5,7 @@ import { ElementList } from 'components/selector/ElementList';
 
 import FinalizeWorkOrdersDaysBefore from '../FinalizeWorkOrdersDaysBefore';
 import { CRMStatusFilter } from './CRMStatusFilter';
+import { TicketCorrectiveFilter } from './TicketCorrectiveFilter';
 import { WorkOrderDateFilter } from './WorkOrderDateFilter';
 import { WorkOrderStateFilter } from './WorkOrderStateFilter';
 import {
@@ -50,6 +51,7 @@ export const WorkOrdersFiltersTable = ({
       hasDeliveryNote: false,
       active: true,
       useOperatorLogged: false,
+      hasCorrectiveCreated: null,
     });
 
     setSelectedAssetId('');
@@ -98,11 +100,13 @@ export const WorkOrdersFiltersTable = ({
             workOrdersFilters={workOrdersFilters}
             setWorkOrdersFilters={setWorkOrdersFilters}
           />
+          {/* TODO: Hidden until fixed
           {enableFinalizeWorkOrdersDayBefore && (
             <FinalizeWorkOrdersDaysBefore
               onFinalizeWorkOrdersDayBefore={() => {}}
             />
           )}
+          */}
           <WorkOrderTypeCountComponent
             workOrderTypeCount={workOrderTypeCount}
           />
@@ -127,28 +131,32 @@ export const WorkOrdersFiltersTable = ({
               workOrdersFilters={workOrdersFilters}
             />
           )}
-          <div>
-            <div className="flex items-center gap-2 cursor-pointer">
-              Actiu
-              <input
-                type="checkbox"
-                checked={workOrdersFilters.active}
-                className="cursor-pointer"
-                onChange={e => {
-                  setWorkOrdersFilters({
-                    ...workOrdersFilters,
-                    active: e.target.checked,
-                  });
-                }}
-              />
-            </div>
-          </div>
           {isCRM && (
             <CRMStatusFilter
               setWorkOrdersFilters={setWorkOrdersFilters}
               workOrdersFilters={workOrdersFilters}
             />
           )}
+          {!isCRM && (
+            <TicketCorrectiveFilter
+              workOrdersFilters={workOrdersFilters}
+              setWorkOrdersFilters={setWorkOrdersFilters}
+            />
+          )}
+          <label className="flex items-center gap-2 cursor-pointer whitespace-nowrap p-2 text-sm border border-gray-300 rounded-md">
+            Actiu
+            <input
+              type="checkbox"
+              checked={workOrdersFilters.active}
+              className="cursor-pointer"
+              onChange={e => {
+                setWorkOrdersFilters({
+                  ...workOrdersFilters,
+                  active: e.target.checked,
+                });
+              }}
+            />
+          </label>
         </div>
       </div>
     </div>

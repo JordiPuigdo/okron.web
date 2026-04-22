@@ -3,7 +3,7 @@ import {
   ColumnFormat,
 } from 'components/table/interface/interfaceTable';
 
-export const getBaseColumns = (t: any): Column[] => [
+const getCommonColumns = (t: any): Column[] => [
   {
     label: t('common.id'),
     key: 'id',
@@ -34,6 +34,10 @@ export const getBaseColumns = (t: any): Column[] => [
     key: 'stateWorkOrder',
     format: ColumnFormat.STATEWORKORDER,
   },
+];
+
+export const getBaseColumns = (t: any): Column[] => [
+  ...getCommonColumns(t),
   {
     label: t('workorder.equipment'),
     key: 'assetDescription',
@@ -45,9 +49,9 @@ export const getBaseColumns = (t: any): Column[] => [
     format: ColumnFormat.TEXT,
   },
   {
-    label: t('workorder.original'),
-    key: 'originalWorkOrderCode',
-    format: ColumnFormat.TEXT,
+    label: t('workorder.relatedWorkOrder'),
+    key: 'relatedWorkOrder',
+    format: ColumnFormat.RELATEDWORKORDER,
   },
   {
     label: t('workorder.operators'),
@@ -58,83 +62,30 @@ export const getBaseColumns = (t: any): Column[] => [
 ];
 
 export const getColumnsTicket = (t: any): Column[] => [
-  {
-    label: t('common.id'),
-    key: 'id',
-    format: ColumnFormat.TEXT,
-  },
-  {
-    label: t('workorder.serial.number'),
-    key: 'code',
-    format: ColumnFormat.WORKORDERCODE,
-  },
-  {
-    label: t('common.description'),
-    key: 'description',
-    format: ColumnFormat.TEXT,
-  },
-  {
-    label: t('workorder.type'),
-    key: 'workOrderType',
-    format: ColumnFormat.WORKORDERTYPE,
-  },
-  {
-    label: t('workorder.creation.date'),
-    key: 'creationTime',
-    format: ColumnFormat.DATETIME,
-  },
+  ...getCommonColumns(t),
   {
     label: t('workorder.start.date'),
     key: 'startTime',
     format: ColumnFormat.DATETIME,
   },
   {
-    label: t('workorder.state'),
-    key: 'stateWorkOrder',
-    format: ColumnFormat.STATEWORKORDER,
+    label: t('workorder.equipment'),
+    key: 'assetDescription',
+    format: ColumnFormat.TEXT,
   },
   {
-    label: t('workorder.equipment'),
-    key: 'asset.description',
-    format: ColumnFormat.TEXT,
+    label: t('workorder.relatedWorkOrder'),
+    key: 'relatedWorkOrder',
+    format: ColumnFormat.RELATEDWORKORDER,
   },
 ];
 
 export const getColumnsCRM = (t: any): Column[] => [
-  {
-    label: t('common.id'),
-    key: 'id',
-    format: ColumnFormat.TEXT,
-  },
-  {
-    label: t('workorder.serial.number'),
-    key: 'code',
-    format: ColumnFormat.WORKORDERCODE,
-  },
-  {
-    label: t('common.description'),
-    key: 'description',
-    format: ColumnFormat.TEXT,
-  },
-  {
-    label: t('workorder.type'),
-    key: 'workOrderType',
-    format: ColumnFormat.WORKORDERTYPE,
-  },
-  {
-    label: t('workorder.creation.date'),
-    key: 'creationTime',
-    format: ColumnFormat.DATETIME,
-  },
+  ...getCommonColumns(t),
   {
     label: t('workorder.start.date'),
     key: 'startTime',
     format: ColumnFormat.DATETIME,
-  },
-  {
-    label: t('workorder.state'),
-    key: 'stateWorkOrder',
-    format: ColumnFormat.STATEWORKORDER,
   },
   {
     label: t('customer.customer'),
@@ -157,7 +108,7 @@ export const getColumnsCRM = (t: any): Column[] => [
     format: ColumnFormat.TEXT,
   },
   {
-    label: 'Operaris',
+    label: t('workorder.operators'),
     key: 'operatorsNames',
     format: ColumnFormat.TEXT,
     width: 'w-1/4',

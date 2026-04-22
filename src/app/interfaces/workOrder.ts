@@ -52,6 +52,7 @@ export interface WorkOrder extends BaseModel {
   customerInstallationCity?: string;
   assetBrand?: string;
   assetDescription?: string;
+  derivedCorrectiveId?: string;
 }
 
 export default WorkOrder;
@@ -205,7 +206,17 @@ export interface WorkOrderListDto {
   refCustomerId: string;
   customerName?: string;
   customerInstallationCode?: string;
+  customerInstallationCity?: string;
+  assetBrand?: string;
+  assetDescription?: string;
+  originalWorkOrderId?: string;
+  originalWorkOrderCode?: string;
+  derivedCorrectiveId?: string;
+  derivedCorrectiveCode?: string;
   operatorsNames?: string;
+  active: boolean;
+  hasDeliveryNote: boolean;
+  isInvoiced: boolean;
 }
 
 export enum WorkOrderType {
@@ -297,6 +308,7 @@ export interface WorkOrdersFilters {
   hasDeliveryNote: boolean;
   active: boolean;
   useOperatorLogged: boolean;
+  hasCorrectiveCreated: boolean | null;
 }
 
 export interface CustomerWorkOrder {

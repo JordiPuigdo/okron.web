@@ -134,6 +134,57 @@ const TableRowComponent: React.FC<TableRowComponentProps> = ({
               : t('inactive')
             : value;
 
+        // Renderizar indicador visual para RELATEDWORKORDER
+        if (column.format === ColumnFormat.RELATEDWORKORDER) {
+          const hasDerived = !!rowData.derivedCorrectiveId;
+          const hasOriginal = !!rowData.originalWorkOrderId;
+          const relatedCode = hasDerived
+            ? rowData.derivedCorrectiveCode
+            : hasOriginal
+              ? rowData.originalWorkOrderCode
+              : null;
+          const relatedId = hasDerived
+            ? rowData.derivedCorrectiveId
+            : hasOriginal
+              ? rowData.originalWorkOrderId
+              : null;
+
+          return (
+            <td key={column.key} className={classNametd}>
+              <div className="flex justify-center">
+                {relatedCode ? (
+                  <button
+                    type="button"
+                    onClick={e => {
+                      e.stopPropagation();
+                      if (onPreview && relatedId) {
+                        onPreview({
+                          id: relatedId,
+                          code: relatedCode,
+                        });
+                      }
+                    }}
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-colors ${
+                      hasDerived
+                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    }`}
+                  >
+                    <span className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-white text-[10px] ${
+                      hasDerived ? 'bg-green-500' : 'bg-blue-500'
+                    }`}>
+                      {hasDerived ? '✓' : '←'}
+                    </span>
+                    {relatedCode}
+                  </button>
+                ) : (
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 text-gray-400 text-xs">—</span>
+                )}
+              </div>
+            </td>
+          );
+        }
+
         // Renderizar columna con icono de ojo para WORKORDERCODE
         if (column.format === ColumnFormat.WORKORDERCODE && onPreview) {
           return (

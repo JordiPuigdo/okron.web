@@ -71,7 +71,7 @@ const Header: React.FC = () => {
             pathname === '/menu' &&
             loginUser?.userType == UserType.Maintenance && (
               <div className="flex flex-row gap-2 bg-white rounded-xl">
-                <FinalizeWorkOrdersDaysBefore />
+                {/* TODO: Hidden until fixed - <FinalizeWorkOrdersDaysBefore /> */}
                 <GeneratePreventive />
               </div>
             )}

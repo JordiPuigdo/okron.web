@@ -5,6 +5,7 @@ import { translateWorkOrderType } from 'app/utils/utils';
 export interface WorkOrderTypeCount {
   workOrderType: WorkOrderType;
   count: number;
+  withCorrectiveCount?: number;
 }
 
 interface WorkOrderTypeCountProps {
@@ -44,6 +45,13 @@ export const WorkOrderTypeCountComponent = ({
             </div>
             <div className="text-sm font-semibold text-white">
               {typeCount.count}
+              {typeCount.workOrderType === WorkOrderType.Ticket &&
+                typeCount.withCorrectiveCount !== undefined && (
+                  <span className="text-xs font-normal text-white ml-1">
+                    ({typeCount.withCorrectiveCount}{' '}
+                    {t('workorder.filters.corrective.withOT') || 'amb OT'})
+                  </span>
+                )}
             </div>
           </div>
         </div>

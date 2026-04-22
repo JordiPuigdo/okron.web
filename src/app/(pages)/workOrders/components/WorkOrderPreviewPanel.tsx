@@ -160,6 +160,24 @@ function SourceTicketLink({
   );
 }
 
+function DerivedCorrectiveLink({
+  onClick,
+  label,
+}: {
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition-colors text-sm font-medium"
+    >
+      <AlertTriangle className="w-3 h-3" />
+      {label}
+    </button>
+  );
+}
+
 function EquipmentCard({
   code,
   description,
@@ -187,14 +205,14 @@ function EquipmentCard({
   );
 }
 
-function CustomerCard({ 
-  name, 
+function CustomerCard({
+  name,
   nif,
   city,
   installationCode,
-  installationCity 
-}: { 
-  name: string; 
+  installationCity,
+}: {
+  name: string;
   nif?: string;
   city?: string;
   installationCode?: string;
@@ -210,7 +228,11 @@ function CustomerCard({
         <div className="flex-1 min-w-0">
           <p className="font-medium text-gray-900">{name}</p>
           <div className="flex items-center gap-2 mt-1">
-            {nif && <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">{nif}</span>}
+            {nif && (
+              <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">
+                {nif}
+              </span>
+            )}
             {city && (
               <span className="text-xs text-gray-500 flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
@@ -220,7 +242,7 @@ function CustomerCard({
           </div>
         </div>
       </div>
-      
+
       {/* Instalación */}
       {installationCode && (
         <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
@@ -403,7 +425,11 @@ function EmptyState({
 function InspectionPointsList({
   points,
 }: {
-  points: { id: string; check?: boolean; inspectionPoint: { description: string } }[];
+  points: {
+    id: string;
+    check?: boolean;
+    inspectionPoint: { description: string };
+  }[];
 }) {
   const completed = points.filter(p => p.check === true).length;
   const total = points.length;
@@ -413,7 +439,7 @@ function InspectionPointsList({
       {/* Barra de progreso */}
       <div className="flex items-center gap-2 mb-3">
         <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div 
+          <div
             className="h-full bg-green-500 rounded-full transition-all"
             style={{ width: `${total > 0 ? (completed / total) * 100 : 0}%` }}
           />
@@ -428,8 +454,8 @@ function InspectionPointsList({
         <div
           key={point.id || index}
           className={`flex items-center gap-3 p-3 rounded-lg ${
-            point.check === true 
-              ? 'bg-green-50 border border-green-200' 
+            point.check === true
+              ? 'bg-green-50 border border-green-200'
               : 'bg-gray-50 border border-gray-200'
           }`}
         >
@@ -439,9 +465,11 @@ function InspectionPointsList({
             <Circle className="w-5 h-5 text-gray-400 flex-shrink-0" />
           )}
           <div className="flex-1 min-w-0">
-            <p className={`text-sm font-medium ${
-              point.check === true ? 'text-green-800' : 'text-gray-700'
-            }`}>
+            <p
+              className={`text-sm font-medium ${
+                point.check === true ? 'text-green-800' : 'text-gray-700'
+              }`}
+            >
               {point.inspectionPoint?.description}
             </p>
           </div>
@@ -491,15 +519,18 @@ export function WorkOrderPreviewPanel({
   if (!workOrder) return null;
 
   const displayWorkOrder = fullWorkOrder || workOrder;
-  const stateLabel = displayWorkOrder.stateWorkOrder !== undefined
-    ? translateStateWorkOrder(displayWorkOrder.stateWorkOrder, t)
-    : '';
-  const stateStyle = displayWorkOrder.stateWorkOrder !== undefined
-    ? STATE_STYLES[displayWorkOrder.stateWorkOrder]
-    : '';
-  const typeLabel = displayWorkOrder.workOrderType !== undefined
-    ? translateWorkOrderType(displayWorkOrder.workOrderType, t)
-    : '';
+  const stateLabel =
+    displayWorkOrder.stateWorkOrder !== undefined
+      ? translateStateWorkOrder(displayWorkOrder.stateWorkOrder, t)
+      : '';
+  const stateStyle =
+    displayWorkOrder.stateWorkOrder !== undefined
+      ? STATE_STYLES[displayWorkOrder.stateWorkOrder]
+      : '';
+  const typeLabel =
+    displayWorkOrder.workOrderType !== undefined
+      ? translateWorkOrderType(displayWorkOrder.workOrderType, t)
+      : '';
 
   const handleEdit = () => {
     router.push(`${ROUTES.workOrders}/${workOrder.id}`);
@@ -522,22 +553,35 @@ export function WorkOrderPreviewPanel({
     }
   };
 
+  const handleGoToDerivedCorrective = () => {
+    if (displayWorkOrder.workOrderCreatedId) {
+      router.push(
+        `${ROUTES.workOrders}/${displayWorkOrder.workOrderCreatedId}`
+      );
+      onClose();
+    }
+  };
+
   const handleCreateDeliveryNote = async () => {
-    if (!displayWorkOrder.customerWorkOrder?.customerId || isCreatingDeliveryNote) return;
-    
+    if (
+      !displayWorkOrder.customerWorkOrder?.customerId ||
+      isCreatingDeliveryNote
+    )
+      return;
+
     setIsCreatingDeliveryNote(true);
     try {
       const deliveryNoteService = new DeliveryNoteService(
         process.env.NEXT_PUBLIC_API_BASE_URL || ''
       );
-      
+
       const response = await deliveryNoteService.create({
         deliveryNoteDate: new Date().toISOString(),
         dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         customerId: displayWorkOrder.customerWorkOrder.customerId,
         workOrderIds: [workOrder.id],
       });
-      
+
       router.push(`/deliveryNotes/${response.id}`);
       onClose();
     } catch (error) {
@@ -567,6 +611,12 @@ export function WorkOrderPreviewPanel({
             <SourceTicketLink
               code={displayWorkOrder.originalWorkOrderCode}
               onClick={handleGoToSourceTicket}
+            />
+          )}
+          {displayWorkOrder.workOrderCreatedId && (
+            <DerivedCorrectiveLink
+              onClick={handleGoToDerivedCorrective}
+              label={t('workorder.hasCorrectiveOrder')}
             />
           )}
           <StatusBadge label={stateLabel} className={stateStyle} />
@@ -600,24 +650,31 @@ export function WorkOrderPreviewPanel({
           )}
 
           {/* Puntos de inspección (solo preventivos) */}
-          {displayWorkOrder.workOrderInspectionPoint && 
-           displayWorkOrder.workOrderInspectionPoint.length > 0 && (
-            <SlidePanelSection 
-              title={`${t('inspectionPoints')} (${displayWorkOrder.workOrderInspectionPoint.length})`}
-            >
-              <InspectionPointsList points={displayWorkOrder.workOrderInspectionPoint} />
-            </SlidePanelSection>
-          )}
+          {displayWorkOrder.workOrderInspectionPoint &&
+            displayWorkOrder.workOrderInspectionPoint.length > 0 && (
+              <SlidePanelSection
+                title={`${t('inspectionPoints')} (${displayWorkOrder.workOrderInspectionPoint.length})`}
+              >
+                <InspectionPointsList
+                  points={displayWorkOrder.workOrderInspectionPoint}
+                />
+              </SlidePanelSection>
+            )}
 
           {/* Cliente */}
-          {(isCRM && displayWorkOrder.customerWorkOrder) && (
+          {isCRM && displayWorkOrder.customerWorkOrder && (
             <SlidePanelSection title={t('customer.customer')}>
               <CustomerCard
                 name={displayWorkOrder.customerWorkOrder.customerName}
                 nif={displayWorkOrder.customerWorkOrder.customerNif}
                 city={displayWorkOrder.customerWorkOrder.customerAddress?.city}
-                installationCode={displayWorkOrder.customerWorkOrder.customerInstallationCode}
-                installationCity={displayWorkOrder.customerWorkOrder.customerInstallationAddress?.city}
+                installationCode={
+                  displayWorkOrder.customerWorkOrder.customerInstallationCode
+                }
+                installationCity={
+                  displayWorkOrder.customerWorkOrder.customerInstallationAddress
+                    ?.city
+                }
               />
             </SlidePanelSection>
           )}
@@ -669,18 +726,21 @@ export function WorkOrderPreviewPanel({
           </SlidePanelSection>
 
           {/* Acciones */}
-          <SlidePanelActions>            {/* Botón crear albarán - solo si es CRM, tiene cliente y no tiene albarán */}
-            {isCRM && 
-             displayWorkOrder.customerWorkOrder?.customerId && 
-             !displayWorkOrder.hasDeliveryNote && 
-             !isCreatingDeliveryNote && (
-              <ActionButton
-                onClick={handleCreateDeliveryNote}
-                icon={Receipt}
-                label={t('create.delivery.note')}
-                variant="warning"
-              />
-            )}            <ActionButton
+          <SlidePanelActions>
+            {' '}
+            {/* Botón crear albarán - solo si es CRM, tiene cliente y no tiene albarán */}
+            {isCRM &&
+              displayWorkOrder.customerWorkOrder?.customerId &&
+              !displayWorkOrder.hasDeliveryNote &&
+              !isCreatingDeliveryNote && (
+                <ActionButton
+                  onClick={handleCreateDeliveryNote}
+                  icon={Receipt}
+                  label={t('create.delivery.note')}
+                  variant="warning"
+                />
+              )}{' '}
+            <ActionButton
               onClick={handleEdit}
               icon={Edit2}
               label={t('edit')}

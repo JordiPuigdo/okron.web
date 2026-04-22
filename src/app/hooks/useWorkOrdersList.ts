@@ -131,16 +131,23 @@ export const useWorkOrdersList = (operatorId?: string, assetId?: string) => {
     if (!filteredWorkOrders || filteredWorkOrders.length === 0) return [];
 
     const countMap = new Map<WorkOrderType, number>();
+    let ticketWithCorrectiveCount = 0;
 
     for (const order of filteredWorkOrders) {
       const type = order.workOrderType as unknown as WorkOrderType | undefined;
       if (type === undefined) continue;
       countMap.set(type, (countMap.get(type) ?? 0) + 1);
+      if (type === WorkOrderType.Ticket && order.derivedCorrectiveId) {
+        ticketWithCorrectiveCount++;
+      }
     }
 
     return Array.from(countMap.entries()).map(([workOrderType, count]) => ({
       workOrderType,
       count,
+      ...(workOrderType === WorkOrderType.Ticket
+        ? { withCorrectiveCount: ticketWithCorrectiveCount }
+        : {}),
     }));
   }, [filteredWorkOrders]);
 
