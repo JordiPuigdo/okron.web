@@ -2,7 +2,7 @@
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { usePermissions } from 'app/hooks/usePermissions';
 import { useWorkOrdersList } from 'app/hooks/useWorkOrdersList';
 import { OperatorType } from 'app/interfaces/Operator';
@@ -52,6 +52,12 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
     isLoading,
   } = useWorkOrdersList(operatorId, assetId);
 
+  // Memoizar columnas para evitar nueva referencia en cada render
+  const columns = useMemo(
+    () => workOrderColumns(),
+    [workOrderColumns]
+  );
+
   // State para el panel de preview
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(
     null
@@ -59,22 +65,25 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // Handler para abrir el preview
-  const handlePreview = (item: WorkOrder) => {
+  const handlePreview = useCallback((item: WorkOrder) => {
     setSelectedWorkOrder(item);
     setIsPreviewOpen(true);
-  };
+  }, []);
 
   // Handler para cerrar el preview
-  const handleClosePreview = () => {
+  const handleClosePreview = useCallback(() => {
     setIsPreviewOpen(false);
     setTimeout(() => setSelectedWorkOrder(null), 300);
-  };
+  }, []);
 
-  const tableButtons: TableButtons = {
-    edit: enableEdit,
-    delete: enableDelete,
-    detail: enableDetail,
-  };
+  const tableButtons: TableButtons = useMemo(
+    () => ({
+      edit: enableEdit,
+      delete: enableDelete,
+      detail: enableDetail,
+    }),
+    [enableEdit, enableDelete, enableDetail]
+  );
 
   return (
     <div className="flex flex-col gap-4 h-full">
@@ -93,7 +102,7 @@ const WorkOrderTable: React.FC<WorkOrderTableProps> = ({
       )}
       {filteredWorkOrders.length > 0 && (
         <DataTable
-          columns={workOrderColumns()}
+          columns={columns}
           data={filteredWorkOrders}
           tableButtons={tableButtons}
           entity={EntityTable.WORKORDER}
