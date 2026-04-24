@@ -28,7 +28,6 @@ import { AddArticleModal } from './AddArticleModal';
 import { AddFolderModal } from './AddFolderModal';
 import { ApplyMarginModal, MarginChange } from './ApplyMarginModal';
 import { AssemblyBudgetCommentsPanel } from './AssemblyBudgetCommentsPanel';
-import { BulkDeleteModal } from './BulkDeleteModal';
 import { AssemblyBudgetFooterActions } from './AssemblyBudgetFooterActions';
 import { AssemblyBudgetHeader } from './AssemblyBudgetHeader';
 import { countNodes } from './AssemblyBudgetStatusConfig';
@@ -36,6 +35,7 @@ import { AssemblyBudgetTotalsCard } from './AssemblyBudgetTotalsCard';
 import { generateNextCode } from './assemblyCodeUtils';
 import { AssemblyTreePanel } from './AssemblyTreePanel';
 import { BudgetVersionsModal } from './BudgetVersionsModal';
+import { BulkDeleteModal } from './BulkDeleteModal';
 import { ImportFromBudgetModal } from './ImportFromBudgetModal';
 
 interface AssemblyBudgetDetailProps {
