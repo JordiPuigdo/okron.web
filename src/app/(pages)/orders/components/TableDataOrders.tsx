@@ -115,30 +115,17 @@ export const TableDataOrders = ({
         const startDateStr = queryParams.startDate?.toString();
         const endDateStr = queryParams.endDate?.toString();
 
-        if (startDateStr && endDateStr && !sparePartId) {
-          const startDate = dayjs(startDateStr).toDate();
-          const endDate = dayjs(endDateStr).toDate();
+        if (!sparePartId) {
+          const startDate = startDateStr
+            ? dayjs(startDateStr).toDate()
+            : defaultDateStart;
+          const endDate = endDateStr
+            ? dayjs(endDateStr).toDate()
+            : DEFAULT_DATE_END;
 
           if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-            setDateFilters(prev => ({
-              ...prev,
-              startDate,
-              endDate,
-            }));
+            setDateFilters(prev => ({ ...prev, startDate, endDate }));
           }
-        } else {
-          setDateFilters(prev => ({
-            ...prev,
-            startDate: defaultDateStart,
-            endDate: DEFAULT_DATE_END,
-          }));
-
-          setFilters(prev => ({
-            ...prev,
-            status: showFilters
-              ? [OrderStatus.Pending, OrderStatus.InProgress]
-              : [],
-          }));
         }
       }
 
@@ -201,14 +188,8 @@ export const TableDataOrders = ({
     if (dateFilters.startDate && dateFilters.endDate && isInitialized) {
       const timeoutId = setTimeout(() => {
         const filtersApplied: Record<string, string> = {
-          startDate:
-            dateFilters.startDate == defaultDateStart
-              ? ''
-              : dayjs(dateFilters.startDate).format('YYYY-MM-DD'),
-          endDate:
-            dateFilters.endDate == DEFAULT_DATE_END
-              ? ''
-              : dayjs(dateFilters.endDate).format('YYYY-MM-DD'),
+          startDate: dayjs(dateFilters.startDate).format('YYYY-MM-DD'),
+          endDate: dayjs(dateFilters.endDate).format('YYYY-MM-DD'),
         };
 
         // Procesar todos los filtros dinámicamente
