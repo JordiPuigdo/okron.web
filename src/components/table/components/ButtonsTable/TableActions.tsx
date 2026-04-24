@@ -190,7 +190,7 @@ const EditButton = memo(({ pathDetail, item, onEdit }: EditButtonProps) => {
         onClick={handleClick}
         className="flex items-center font-medium text-white rounded-xl bg-okron-btEdit hover:bg-okron-btEditHover"
       >
-        <SvgDetail className="p-2 w-12 h-12" />
+        <SvgDetail className="p-2 w-10 h-10" />
       </button>
     );
   }
@@ -199,7 +199,7 @@ const EditButton = memo(({ pathDetail, item, onEdit }: EditButtonProps) => {
   return (
     <Link href={pathDetail}>
       <p className="flex items-center font-medium text-white rounded-xl bg-okron-btEdit hover:bg-okron-btEditHover">
-        <SvgDetail className="p-2 w-12 h-12" />
+        <SvgDetail className="p-2 w-10 h-10" />
       </p>
     </Link>
   );
@@ -217,7 +217,7 @@ const DeleteButton = memo(
         className="flex items-center font-medium text-white rounded-xl bg-okron-btDelete hover:bg-okron-btDeleteHover hover:cursor-pointer"
         onClick={handleDelete}
       >
-        <SvgDelete className="p-2 w-12 h-12" />
+        <SvgDelete className="p-2 w-10 h-10" />
       </div>
     );
   }
@@ -229,7 +229,7 @@ const CopyButton = memo(({ onClick }: { onClick: () => void }) => {
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center justify-center w-12 h-12 font-medium text-white rounded-xl bg-blue-500 hover:bg-blue-600 transition-colors"
+      className="flex items-center justify-center w-10 h-10 font-medium text-white rounded-xl bg-blue-500 hover:bg-blue-600 transition-colors"
     >
       <Copy className="w-5 h-5" />
     </button>
@@ -246,7 +246,7 @@ const PreviewButton = memo(({ onClick }: { onClick: () => void }) => {
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center justify-center w-12 h-12 font-medium text-white rounded-xl bg-[#6E41B6] hover:bg-[#5a3596] transition-colors"
+      className="flex items-center justify-center w-10 h-10 font-medium text-white rounded-xl bg-[#6E41B6] hover:bg-[#5a3596] transition-colors"
       title="Vista prèvia"
     >
       <Eye className="w-6 h-6" />

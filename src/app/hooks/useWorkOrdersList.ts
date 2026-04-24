@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { WorkOrderTypeCount } from 'app/(pages)/workOrders/components/WorkOrderFiltersTable/WorkOrderTypeCount';
 import { UserType } from 'app/interfaces/User';
 import WorkOrder, {
@@ -114,11 +114,26 @@ export const useWorkOrdersList = (operatorId?: string, assetId?: string) => {
   };
 
   /**
-   * Filtra las WorkOrders en memoria según los filtros aplicados
+   * Filtra las WorkOrders en memoria según los filtros aplicados.
+   * Usa requestAnimationFrame para mostrar el spinner antes del filtrado pesado.
    */
-  const filteredWorkOrders = useMemo(() => {
-    if (!filters) return [];
-    return workOrders.filter(order => applyFilters(order, filters));
+  const [filteredWorkOrders, setFilteredWorkOrders] = useState<WorkOrder[]>([]);
+  const [isFiltering, setIsFiltering] = useState(false);
+  const filterFrameRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!filters) {
+      setFilteredWorkOrders([]);
+      return;
+    }
+    setIsFiltering(true);
+    cancelAnimationFrame(filterFrameRef.current);
+    filterFrameRef.current = requestAnimationFrame(() => {
+      const filtered = workOrders.filter(order => applyFilters(order, filters));
+      setFilteredWorkOrders(filtered);
+      setIsFiltering(false);
+    });
+    return () => cancelAnimationFrame(filterFrameRef.current);
   }, [workOrders, filters]);
 
   /**
@@ -173,7 +188,7 @@ export const useWorkOrdersList = (operatorId?: string, assetId?: string) => {
     filteredWorkOrders,
     validStates,
     workOrderTypeCount: workOrderTypeCountValue,
-    isLoading,
+    isLoading: isLoading || isFiltering,
     refreshWorkOrders,
   };
 };

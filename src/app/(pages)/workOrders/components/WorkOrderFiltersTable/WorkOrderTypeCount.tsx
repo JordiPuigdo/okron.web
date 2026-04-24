@@ -37,7 +37,7 @@ export const WorkOrderTypeCountComponent = ({
           key={index}
           className={`flex items-center justify-center ml-2 p-2 rounded-xl ${getBgColor(
             typeCount.workOrderType
-          )} h-[40px]`}
+          )} h-[40px] flex-shrink-0 whitespace-nowrap`}
         >
           <div className="flex flex-row gap-2">
             <div className="text-sm text-white">

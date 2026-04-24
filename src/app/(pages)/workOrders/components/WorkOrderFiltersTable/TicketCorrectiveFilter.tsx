@@ -32,10 +32,10 @@ export const TicketCorrectiveFilter = ({
     const hasTicket = currentTypes.includes(WorkOrderType.Ticket);
 
     // When filtering by corrective, ensure Ticket is in the type list
-    // without removing other selected types. When resetting, keep types as-is.
+    // without removing other selected types. When resetting, remove Ticket filter.
     const workOrderType =
       val === 'all'
-        ? currentTypes
+        ? currentTypes.filter(t => t !== WorkOrderType.Ticket)
         : currentTypes.length === 0
           ? [WorkOrderType.Ticket]
           : hasTicket

@@ -39,7 +39,7 @@ export default function MainLayout({
         {!hideHeader && <Header />}
       </div>
       <main className="flex-1 w-full bg-okron-background">
-        <div className={`mr-12 h-full ${isMenuOpen ? 'ml-60' : 'ml-16'}`}>
+        <div className={`mr-6 h-full ${isMenuOpen ? 'ml-60' : 'ml-16'}`}>
           {children}
         </div>
       </main>
