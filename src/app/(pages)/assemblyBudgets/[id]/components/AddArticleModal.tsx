@@ -10,6 +10,7 @@ import {
 } from 'app/interfaces/Budget';
 import { formatCurrencyServerSider } from 'app/utils/utils';
 import AutocompleteSearchBar from 'components/selector/AutocompleteSearchBar';
+import { Input } from 'components/ui/input';
 import { Button } from 'designSystem/Button/Buttons';
 import { Modal2 } from 'designSystem/Modals/Modal';
 import {
@@ -200,6 +201,7 @@ export function AddArticleModal({
           <ArticleSearch
             articleElements={articleElements}
             onSelect={handleSelectArticle}
+            isVisible={isVisible}
             t={t}
           />
 
@@ -271,10 +273,12 @@ function ModalHeader({ t }: { t: (key: string) => string }) {
 function ArticleSearch({
   articleElements,
   onSelect,
+  isVisible,
   t,
 }: {
   articleElements: { id: string; description: string; code: string }[];
   onSelect: (id: string) => void;
+  isVisible: boolean;
   t: (key: string) => string;
 }) {
   return (
@@ -287,6 +291,7 @@ function ArticleSearch({
         setCurrentId={onSelect}
         placeholder={t('assemblyBudget.article.search.placeholder')}
         className="rounded-lg border-2 border-gray-200 focus-within:border-blue-500 transition-colors"
+        autoFocus={isVisible}
       />
     </div>
   );
@@ -439,9 +444,15 @@ function QuantityAndPricingFields({
   onSalePriceChange: (value: number) => void;
   t: (key: string) => string;
 }) {
-  const [salePriceInput, setSalePriceInput] = useState('');
+  const [salePriceInput, setSalePriceInput] = useState(String(Math.round(salePrice * 100) / 100));
   const [isEditingSalePrice, setIsEditingSalePrice] = useState(false);
   const [quantityInput, setQuantityInput] = useState<string>(String(quantity));
+
+  useEffect(() => {
+    if (!isEditingSalePrice) {
+      setSalePriceInput(String(Math.round(salePrice * 100) / 100));
+    }
+  }, [salePrice, isEditingSalePrice]);
 
   const handleQuantityBlur = () => {
     const parsed = parseFloat(quantityInput);
@@ -472,13 +483,12 @@ function QuantityAndPricingFields({
             {t('unit.price')}
           </label>
           <div className="relative">
-            <input
-              type="number"
-              min={0}
-              step={0.01}
+            <Input
+              mode="number"
               value={costPrice}
-              onChange={e => onCostPriceChange(Math.max(0, Number(e.target.value)))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+              onValueChange={val => onCostPriceChange(Math.max(0, val ?? 0))}
+              allowDecimals
+              className="rounded-lg border-gray-300 py-2.5 pr-8 text-sm text-left focus:border-blue-500 focus-visible:ring-blue-500"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
               €
@@ -493,10 +503,8 @@ function QuantityAndPricingFields({
           </label>
           <div className="relative">
             <input
-              type="number"
-              min={0}
-              step={0.01}
-              value={isEditingSalePrice ? salePriceInput : Math.round(salePrice * 100) / 100}
+              type="text"
+              value={salePriceInput}
               onFocus={e => {
                 setIsEditingSalePrice(true);
                 setSalePriceInput(String(Math.round(salePrice * 100) / 100));
@@ -504,10 +512,14 @@ function QuantityAndPricingFields({
               }}
               onChange={e => {
                 setSalePriceInput(e.target.value);
-                const val = parseFloat(e.target.value);
+                const val = parseFloat(e.target.value.replace(',', '.'));
                 if (!isNaN(val)) onSalePriceChange(val);
               }}
-              onBlur={() => setIsEditingSalePrice(false)}
+              onBlur={() => {
+                setIsEditingSalePrice(false);
+                const val = parseFloat(salePriceInput.replace(',', '.'));
+                if (isNaN(val)) setSalePriceInput(String(Math.round(salePrice * 100) / 100));
+              }}
               className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
@@ -520,14 +532,13 @@ function QuantityAndPricingFields({
             {t('margin.percentage')}
           </label>
           <div className="relative">
-            <input
-              type="number"
-              min={0}
-              max={99.99}
-              step={0.01}
+            <Input
+              mode="number"
               value={marginPercentage}
-              onChange={e => onMarginChange(Number(e.target.value))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+              onValueChange={val => onMarginChange(val ?? 0)}
+              allowDecimals
+              max={99.99}
+              className="rounded-lg border-gray-300 py-2.5 pr-8 text-sm text-left focus:border-blue-500 focus-visible:ring-blue-500"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
               %

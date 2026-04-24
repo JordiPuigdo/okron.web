@@ -12,6 +12,7 @@ type AutocompleteSearchBarProps = {
   className?: string;
   parentClassName?: string;
   onCreate?(text: string): void;
+  autoFocus?: boolean;
 };
 
 const AutocompleteSearchBar: React.FC<AutocompleteSearchBarProps> = ({
@@ -23,6 +24,7 @@ const AutocompleteSearchBar: React.FC<AutocompleteSearchBarProps> = ({
   className = '',
   parentClassName = 'w-full',
   onCreate,
+  autoFocus = false,
 }) => {
   const [query, setQuery] = useState('');
   const [selectedElementIndex, setSelectedElementIndex] = useState<number>(-1);
@@ -126,6 +128,13 @@ const AutocompleteSearchBar: React.FC<AutocompleteSearchBarProps> = ({
     };
   }, [selectedElementIndex]);
 
+  useEffect(() => {
+    if (autoFocus) {
+      const frame = requestAnimationFrame(() => inputRef.current?.focus());
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [autoFocus]);
+
   return (
     <div ref={dropdownRef} className={`${parentClassName}`}>
       <SearchInput
@@ -136,6 +145,7 @@ const AutocompleteSearchBar: React.FC<AutocompleteSearchBarProps> = ({
         placeholder={placeholder}
         disabled={disabled}
         className={className}
+        autoFocus={autoFocus}
       />
 
       {query !== '' && searchResults.length > 0 && (

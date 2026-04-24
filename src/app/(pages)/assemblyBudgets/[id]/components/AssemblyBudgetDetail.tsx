@@ -28,6 +28,7 @@ import { AddArticleModal } from './AddArticleModal';
 import { AddFolderModal } from './AddFolderModal';
 import { ApplyMarginModal, MarginChange } from './ApplyMarginModal';
 import { AssemblyBudgetCommentsPanel } from './AssemblyBudgetCommentsPanel';
+import { BulkDeleteModal } from './BulkDeleteModal';
 import { AssemblyBudgetFooterActions } from './AssemblyBudgetFooterActions';
 import { AssemblyBudgetHeader } from './AssemblyBudgetHeader';
 import { countNodes } from './AssemblyBudgetStatusConfig';
@@ -179,6 +180,7 @@ export function AssemblyBudgetDetail({
   const [isArticleModalOpen, setIsArticleModalOpen] = useState(false);
   const [isCreateArticleOpen, setIsCreateArticleOpen] = useState(false);
   const [isMarginModalOpen, setIsMarginModalOpen] = useState(false);
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
   const [isVersionsModalOpen, setIsVersionsModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedParentNodeId, setSelectedParentNodeId] = useState<
@@ -483,6 +485,33 @@ export function AssemblyBudgetDetail({
     setIsMarginModalOpen(false);
   }, []);
 
+  const handleOpenBulkDeleteModal = useCallback(() => {
+    setIsBulkDeleteModalOpen(true);
+  }, []);
+
+  const handleCloseBulkDeleteModal = useCallback(() => {
+    setIsBulkDeleteModalOpen(false);
+  }, []);
+
+  const handleBulkDelete = useCallback(
+    async (nodeIds: string[]) => {
+      if (nodeIds.length === 0) return;
+      setIsBulkDeleteModalOpen(false);
+      let updatedBudget: Budget | undefined;
+      for (const nodeId of nodeIds) {
+        updatedBudget = await onRemoveNode({
+          budgetId: formData.id,
+          versionId: formData.activeVersionId,
+          nodeId,
+        });
+      }
+      if (updatedBudget) {
+        setFormData(updatedBudget);
+      }
+    },
+    [formData.id, formData.activeVersionId, onRemoveNode]
+  );
+
   const handleOpenVersionsModal = useCallback(() => {
     setIsVersionsModalOpen(true);
   }, []);
@@ -605,6 +634,7 @@ export function AssemblyBudgetDetail({
           onMarginPercentageChange={handleMarginPercentageChange}
           onUpdateMargin={handleUpdateMargin}
           onOpenMarginModal={handleOpenMarginModal}
+          onOpenBulkDeleteModal={handleOpenBulkDeleteModal}
           onOpenVersionsModal={handleOpenVersionsModal}
           onOpenImportModal={handleOpenImportModal}
           t={t}
@@ -682,6 +712,14 @@ export function AssemblyBudgetDetail({
         nodes={formData.assemblyNodes || []}
         onClose={handleCloseMarginModal}
         onApply={handleApplyMargin}
+        t={t}
+      />
+
+      <BulkDeleteModal
+        isVisible={isBulkDeleteModalOpen}
+        nodes={formData.assemblyNodes || []}
+        onClose={handleCloseBulkDeleteModal}
+        onDelete={handleBulkDelete}
         t={t}
       />
 
