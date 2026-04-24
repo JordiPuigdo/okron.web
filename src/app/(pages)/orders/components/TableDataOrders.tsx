@@ -37,7 +37,6 @@ interface TableDataOrdersProps {
   initialYears?: number;
 }
 
-const DEFAULT_STATUS_FILTERS = [OrderStatus.Pending, OrderStatus.InProgress];
 const DEFAULT_DATE_END = new Date();
 
 export const TableDataOrders = ({
