@@ -22,7 +22,6 @@ import { useRouter } from 'next/navigation';
 
 import DocumentationSparePart from './Components/DocumentationSparePart';
 import SparePartProvidersSelected from './Components/SparePartProvidersSelected';
-import SparePartStockMovements from './Components/SparePartStockMovements';
 import SparePartWareHouseSelected from './Components/SparePartWareHouseSelected';
 import { StockManage } from './Components/StockManage';
 
@@ -62,11 +61,12 @@ const SparePartForm: React.FC<SparePartForm> = ({
   const { warehouses } = useWareHouses(true);
   const { providers } = useProviders(true);
 
-  const availableProviders = providers?.filter(
-    provider =>
-      provider.active &&
-      !sparePart?.providers.some(sp => sp.providerId === provider.id)
-  ) ?? [];
+  const availableProviders =
+    providers?.filter(
+      provider =>
+        provider.active &&
+        !sparePart?.providers.some(sp => sp.providerId === provider.id)
+    ) ?? [];
 
   const hasAvailableProviders = availableProviders.length > 0;
   const hasAssignedProviders = (sparePart?.providers.length ?? 0) > 0;
@@ -169,7 +169,8 @@ const SparePartForm: React.FC<SparePartForm> = ({
 
   useEffect(() => {
     if (!sparePartLoaded?.familyId || !families) return;
-    const loadedFamily = families.find(f => f.id === sparePartLoaded.familyId) ?? null;
+    const loadedFamily =
+      families.find(f => f.id === sparePartLoaded.familyId) ?? null;
     setSelectedFamily(loadedFamily);
   }, [families, sparePartLoaded?.familyId]);
 
@@ -203,7 +204,9 @@ const SparePartForm: React.FC<SparePartForm> = ({
   }
 
   function validateForm() {
-    const codeIsValid = sparePart?.familyId ? true : (sparePart?.code?.length ?? 0) > 0;
+    const codeIsValid = sparePart?.familyId
+      ? true
+      : (sparePart?.code?.length ?? 0) > 0;
     return (
       sparePart != null &&
       codeIsValid &&
@@ -214,9 +217,11 @@ const SparePartForm: React.FC<SparePartForm> = ({
 
   const handleStockRefresh = async () => {
     if (!sparePartLoaded?.id) return;
-    
+
     try {
-      const updatedSparePart = await sparePartService.getSparePartById(sparePartLoaded.id);
+      const updatedSparePart = await sparePartService.getSparePartById(
+        sparePartLoaded.id
+      );
       if (updatedSparePart) {
         setSparePart(prev => {
           if (!prev) return prev;
@@ -414,17 +419,21 @@ const SparePartForm: React.FC<SparePartForm> = ({
               <div className="mt-1">
                 <Autocomplete
                   options={families ?? []}
-                  getOptionLabel={(option: Family) => `${option.codePrefix} — ${option.name}`}
+                  getOptionLabel={(option: Family) =>
+                    `${option.codePrefix} — ${option.name}`
+                  }
                   value={selectedFamily}
                   onChange={(_, value) => handleFamilyChange(value)}
-                  renderInput={(params) => (
+                  renderInput={params => (
                     <TextField
                       {...params}
                       placeholder={t('spareParts.selectFamily')}
                       size="small"
                     />
                   )}
-                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                  isOptionEqualToValue={(option, value) =>
+                    option.id === value.id
+                  }
                 />
               </div>
             </div>
@@ -437,11 +446,18 @@ const SparePartForm: React.FC<SparePartForm> = ({
                   <input
                     readOnly
                     value={
-                      sparePartLoaded && selectedFamily.id === sparePartLoaded.familyId
-                        ? sparePart?.code ?? ''
-                        : isPreviewingCode ? '' : (previewCode ?? '')
+                      sparePartLoaded &&
+                      selectedFamily.id === sparePartLoaded.familyId
+                        ? (sparePart?.code ?? '')
+                        : isPreviewingCode
+                          ? ''
+                          : (previewCode ?? '')
                     }
-                    placeholder={isPreviewingCode ? t('spareParts.generatingCode') : t('spareParts.codeWillBeGenerated')}
+                    placeholder={
+                      isPreviewingCode
+                        ? t('spareParts.generatingCode')
+                        : t('spareParts.codeWillBeGenerated')
+                    }
                     className="p-2 flex-1 border rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
                   />
                 </div>
@@ -617,7 +633,10 @@ const SparePartForm: React.FC<SparePartForm> = ({
                   checked={sparePart?.managesStock}
                   className="mt-1 p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
                   onChange={e =>
-                    setSparePart({ ...sparePart!, managesStock: e.target.checked })
+                    setSparePart({
+                      ...sparePart!,
+                      managesStock: e.target.checked,
+                    })
                   }
                 />
               </div>
@@ -704,11 +723,6 @@ const SparePartForm: React.FC<SparePartForm> = ({
             <DocumentationSparePart sparePart={sparePart!} />
           </div>
         </div>
-        {sparePartLoaded && (
-          <div className="mt-4">
-            <SparePartStockMovements sparePartId={sparePartLoaded.id} />
-          </div>
-        )}
         <div className="flex mt-auto bottom-0 items-end">
           <button
             type="submit"

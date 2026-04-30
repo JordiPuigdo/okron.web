@@ -11,6 +11,7 @@ import MainLayout from 'components/layout/MainLayout';
 
 import SparePartTable from '../components/SparePartTable';
 import SparePartForm from '../sparePartForm/sparePartForm';
+import SparePartStockMovements from '../sparePartForm/Components/SparePartStockMovements';
 
 export default function page({ params }: { params: { id: string } }) {
   const { t } = useTranslations();
@@ -75,6 +76,16 @@ export default function page({ params }: { params: { id: string } }) {
               >
                 {t('spareParts.consumptions')}
               </button>
+              <button
+                onClick={() => setActiveTab('moviments')}
+                className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 ${
+                  activeTab === 'moviments'
+                    ? 'bg-[#6E41B6] text-white'
+                    : 'bg-white text-[#6E41B6]'
+                }`}
+              >
+                {t('warehouse.stock.movements')}
+              </button>
             </div>
             <div className="transition-all duration-300 ease-in-out bg-white">
               {activeTab === 'consums' && (
@@ -98,6 +109,12 @@ export default function page({ params }: { params: { id: string } }) {
                     hideShadow
                     initialYears={2}
                   />
+                </div>
+              )}
+
+              {activeTab === 'moviments' && (
+                <div className="animate-fadeIn">
+                  <SparePartStockMovements sparePartId={sparePart!.sparePart.id} />
                 </div>
               )}
             </div>
