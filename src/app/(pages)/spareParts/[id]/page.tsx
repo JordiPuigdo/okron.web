@@ -10,8 +10,8 @@ import Container from 'components/layout/Container';
 import MainLayout from 'components/layout/MainLayout';
 
 import SparePartTable from '../components/SparePartTable';
-import SparePartForm from '../sparePartForm/sparePartForm';
 import SparePartStockMovements from '../sparePartForm/Components/SparePartStockMovements';
+import SparePartForm from '../sparePartForm/sparePartForm';
 
 export default function page({ params }: { params: { id: string } }) {
   const { t } = useTranslations();
@@ -114,7 +114,9 @@ export default function page({ params }: { params: { id: string } }) {
 
               {activeTab === 'moviments' && (
                 <div className="animate-fadeIn">
-                  <SparePartStockMovements sparePartId={sparePart!.sparePart.id} />
+                  <SparePartStockMovements
+                    sparePartId={sparePart!.sparePart.id}
+                  />
                 </div>
               )}
             </div>
