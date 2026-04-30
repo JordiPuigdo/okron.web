@@ -79,6 +79,7 @@ export enum StateWorkOrder {
   Closed,
   NotFinished,
   Invoiced,
+  InProcess,
 }
 
 export enum OriginWorkOrder {

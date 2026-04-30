@@ -10,12 +10,18 @@ import { FilterValue } from 'app/types/filters';
 import dayjs from 'dayjs';
 
 export function getStatesForProduction() {
-  return [StateWorkOrder.Open, StateWorkOrder.Closed];
+  return [
+    StateWorkOrder.Open,
+    StateWorkOrder.InProcess,
+    StateWorkOrder.PendingToValidate,
+    StateWorkOrder.Closed,
+  ];
 }
 
 export function getStatesForQuality() {
   return [
     StateWorkOrder.Open,
+    StateWorkOrder.InProcess,
     StateWorkOrder.Closed,
     StateWorkOrder.PendingToValidate,
     StateWorkOrder.Finished,
@@ -39,6 +45,7 @@ export function getStatesForMaintenance() {
     StateWorkOrder.PendingToValidate,
     StateWorkOrder.Finished,
     StateWorkOrder.Open,
+    StateWorkOrder.InProcess,
   ];
 }
 
@@ -80,7 +87,12 @@ function getStatesForCorrective(): StateWorkOrder[] {
 }
 
 function getStatesForTicket(): StateWorkOrder[] {
-  return [StateWorkOrder.Open, StateWorkOrder.Closed];
+  return [
+    StateWorkOrder.Open,
+    StateWorkOrder.InProcess,
+    StateWorkOrder.PendingToValidate,
+    StateWorkOrder.Closed,
+  ];
 }
 
 const firstDayOneMonthAgo = dayjs()

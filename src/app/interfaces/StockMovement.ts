@@ -1,13 +1,18 @@
 import { BaseModel } from './BaseModel';
 
 export interface StockMovement extends BaseModel {
-  quanity: number;
+  quantity: number;
+  quanity?: number; // Legacy typo - keeping for backwards compatibility
   sparePartId: string;
-  codeOrder: string;
-  stockMovementType: StockMovementType;
   sparePartCode: string;
-  sparePartDescription: string;
+  sparePartDescription?: string;
+  stockMovementType: StockMovementType;
+  relatedDocumentId?: string;
+  relatedDocumentCode?: string;
+  codeOrder?: string;
   providerInfo: string;
+  wareHouseOriginId?: string;
+  wareHouseDestinationId?: string;
 }
 
 export interface StockMovementFilters {

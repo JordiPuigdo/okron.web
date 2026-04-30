@@ -49,6 +49,7 @@ export const getEntityStatusConfig = (
       '7': 'bg-okron-finished',
       '8': 'bg-okron-paused',
       '9': 'bg-okron-invoiced',
+      '10': 'bg-okron-inProcess',
     },
   },
   OPERATOR: {

@@ -70,6 +70,7 @@ const STATE_STYLES: Record<StateWorkOrder, string> = {
   [StateWorkOrder.Closed]: 'bg-gray-200 text-gray-700',
   [StateWorkOrder.NotFinished]: 'bg-red-100 text-red-800',
   [StateWorkOrder.Invoiced]: 'bg-indigo-100 text-indigo-800',
+  [StateWorkOrder.InProcess]: 'bg-cyan-100 text-cyan-800',
 };
 
 const TYPE_CONFIG: Record<

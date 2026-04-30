@@ -84,7 +84,8 @@ const WorkOrderButtons: React.FC<WorkOrderButtonsProps> = ({
 
   return (
     <div className="flex gap-2">
-      {workOrder.stateWorkOrder != StateWorkOrder.Finished && (
+      {workOrder.stateWorkOrder != StateWorkOrder.Finished &&
+        workOrder.stateWorkOrder != StateWorkOrder.Closed && (
         <>
           {loginUser?.permission == UserPermission.Administrator &&
             loginUser?.userType == UserType.Maintenance &&
@@ -152,7 +153,9 @@ const WorkOrderButtons: React.FC<WorkOrderButtonsProps> = ({
               </Button>
             )}
           {loginUser?.userType == UserType.Maintenance &&
-            workOrder.originWorkOrder != OriginWorkOrder.Production && (
+            workOrder.originWorkOrder != OriginWorkOrder.Production &&
+            workOrder.workOrderType === WorkOrderType.Corrective &&
+            !!workOrder.originalWorkOrderId && (
               <Button
                 disabled={
                   workOrder.stateWorkOrder == StateWorkOrder.PendingToValidate
@@ -171,10 +174,30 @@ const WorkOrderButtons: React.FC<WorkOrderButtonsProps> = ({
                 )}
               </Button>
             )}
+          {loginUser?.userType == UserType.Maintenance &&
+            workOrder.originWorkOrder != OriginWorkOrder.Production &&
+            (!workOrder.originalWorkOrderId ||
+              workOrder.workOrderType !== WorkOrderType.Corrective) && (
+              <Button
+                disabled={false}
+                onClick={() =>
+                  handleChangeStateWorkOrder(StateWorkOrder.Finished)
+                }
+                type="none"
+                className="w-full"
+                customStyles="flex justify-center items-center bg-okron-finished h-24 w-24 rounded-xl shadow-md text-white font-semibold hover:bg-okron-hoverPendingToValidate w-full"
+              >
+                {isLoading[StateWorkOrder.Finished] ? (
+                  <SvgSpinner className="text-white" />
+                ) : (
+                  <SvgCheck />
+                )}
+              </Button>
+            )}
           {loginUser?.userType == UserType.Production &&
             workOrder.workOrderType == WorkOrderType.Ticket && (
               <Button
-                disabled={workOrder.stateWorkOrder == StateWorkOrder.Closed}
+                disabled={false}
                 onClick={() =>
                   handleChangeStateWorkOrder(StateWorkOrder.Closed)
                 }

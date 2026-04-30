@@ -22,6 +22,7 @@ import { useRouter } from 'next/navigation';
 
 import DocumentationSparePart from './Components/DocumentationSparePart';
 import SparePartProvidersSelected from './Components/SparePartProvidersSelected';
+import SparePartStockMovements from './Components/SparePartStockMovements';
 import SparePartWareHouseSelected from './Components/SparePartWareHouseSelected';
 import { StockManage } from './Components/StockManage';
 
@@ -703,6 +704,11 @@ const SparePartForm: React.FC<SparePartForm> = ({
             <DocumentationSparePart sparePart={sparePart!} />
           </div>
         </div>
+        {sparePartLoaded && (
+          <div className="mt-4">
+            <SparePartStockMovements sparePartId={sparePartLoaded.id} />
+          </div>
+        )}
         <div className="flex mt-auto bottom-0 items-end">
           <button
             type="submit"

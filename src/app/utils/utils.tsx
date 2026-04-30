@@ -48,6 +48,8 @@ export const translateStateWorkOrder = (
       return t('workorder.state.not.finished');
     case StateWorkOrder.Invoiced:
       return t('workorder.state.invoiced');
+    case StateWorkOrder.InProcess:
+      return t('workorder.state.inprocess');
     default:
       return '';
   }

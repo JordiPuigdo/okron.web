@@ -8,6 +8,7 @@ import SparePart, {
   SparePartPerAssetResponse,
   SparePartsConsumedsReport,
 } from 'app/interfaces/SparePart';
+import { StockMovement } from 'app/interfaces/StockMovement';
 
 class SparePartService {
   private baseUrl: string;
@@ -257,6 +258,34 @@ class SparePartService {
       return response.json();
     } catch (error) {
       console.error('Error previewing spare part code:', error);
+      throw error;
+    }
+  }
+
+  async getStockMovementsBySparePart(
+    sparePartId: string,
+    from?: Date,
+    to?: Date
+  ): Promise<StockMovement[]> {
+    try {
+      const url = `${this.baseUrl}sparepart/stockmovements`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sparePartId,
+          from: from?.toISOString(),
+          to: to?.toISOString(),
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch stock movements');
+      }
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching stock movements for spare part:', error);
       throw error;
     }
   }

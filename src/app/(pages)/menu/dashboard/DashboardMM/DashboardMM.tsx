@@ -101,6 +101,7 @@ export const DashboardMM: React.FC<DashboardMM> = ({ loginUser }) => {
     [StateWorkOrder.Closed]: 'bg-okron-finished',
     [StateWorkOrder.NotFinished]: 'bg-okron-paused',
     [StateWorkOrder.Invoiced]: 'bg-okron-error',
+    [StateWorkOrder.InProcess]: 'bg-okron-inProcess',
   };
 
   const [dateFilters, setDateFilters] = useState<DateFilters>({
