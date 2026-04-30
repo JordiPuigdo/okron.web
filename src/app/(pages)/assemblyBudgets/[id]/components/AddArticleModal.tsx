@@ -200,6 +200,7 @@ export function AddArticleModal({
           <ArticleSearch
             articleElements={articleElements}
             onSelect={handleSelectArticle}
+            isVisible={isVisible}
             t={t}
           />
 
@@ -271,10 +272,12 @@ function ModalHeader({ t }: { t: (key: string) => string }) {
 function ArticleSearch({
   articleElements,
   onSelect,
+  isVisible,
   t,
 }: {
   articleElements: { id: string; description: string; code: string }[];
   onSelect: (id: string) => void;
+  isVisible: boolean;
   t: (key: string) => string;
 }) {
   return (
@@ -287,6 +290,7 @@ function ArticleSearch({
         setCurrentId={onSelect}
         placeholder={t('assemblyBudget.article.search.placeholder')}
         className="rounded-lg border-2 border-gray-200 focus-within:border-blue-500 transition-colors"
+        autoFocus={isVisible}
       />
     </div>
   );
@@ -439,18 +443,30 @@ function QuantityAndPricingFields({
   onSalePriceChange: (value: number) => void;
   t: (key: string) => string;
 }) {
-  const [salePriceInput, setSalePriceInput] = useState('');
+  const [quantityInput, setQuantityInput] = useState(String(quantity));
+  const [costPriceInput, setCostPriceInput] = useState(String(costPrice));
+  const [isEditingCostPrice, setIsEditingCostPrice] = useState(false);
+  const [salePriceInput, setSalePriceInput] = useState(String(Math.round(salePrice * 100) / 100));
   const [isEditingSalePrice, setIsEditingSalePrice] = useState(false);
-  const [quantityInput, setQuantityInput] = useState<string>(String(quantity));
+  const [marginInput, setMarginInput] = useState(String(marginPercentage));
+  const [isEditingMargin, setIsEditingMargin] = useState(false);
 
-  const handleQuantityBlur = () => {
-    const parsed = parseFloat(quantityInput);
-    if (!isNaN(parsed) && parsed >= 1) {
-      onQuantityChange(parsed);
-    } else {
-      setQuantityInput(String(quantity));
-    }
-  };
+  useEffect(() => {
+    if (!isEditingCostPrice) setCostPriceInput(String(costPrice));
+  }, [costPrice, isEditingCostPrice]);
+
+  useEffect(() => {
+    if (!isEditingSalePrice) setSalePriceInput(String(Math.round(salePrice * 100) / 100));
+  }, [salePrice, isEditingSalePrice]);
+
+  useEffect(() => {
+    if (!isEditingMargin) setMarginInput(String(marginPercentage));
+  }, [marginPercentage, isEditingMargin]);
+
+  const parseDecimal = (raw: string) => parseFloat(raw.replace(',', '.'));
+
+  const inputClass = 'w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none';
+  const inputWithSuffixClass = `${inputClass} pr-8`;
 
   return (
     <div className="space-y-3">
@@ -463,8 +479,15 @@ function QuantityAndPricingFields({
             type="text"
             value={quantityInput}
             onChange={e => setQuantityInput(e.target.value)}
-            onBlur={handleQuantityBlur}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            onBlur={() => {
+              const parsed = parseDecimal(quantityInput);
+              if (!isNaN(parsed) && parsed >= 1) {
+                onQuantityChange(parsed);
+              } else {
+                setQuantityInput(String(quantity));
+              }
+            }}
+            className={inputClass}
           />
         </div>
         <div>
@@ -473,16 +496,22 @@ function QuantityAndPricingFields({
           </label>
           <div className="relative">
             <input
-              type="number"
-              min={0}
-              step={0.01}
-              value={costPrice}
-              onChange={e => onCostPriceChange(Math.max(0, Number(e.target.value)))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+              type="text"
+              value={costPriceInput}
+              onFocus={e => { setIsEditingCostPrice(true); e.target.select(); }}
+              onChange={e => {
+                setCostPriceInput(e.target.value);
+                const val = parseDecimal(e.target.value);
+                if (!isNaN(val) && val >= 0) onCostPriceChange(val);
+              }}
+              onBlur={() => {
+                setIsEditingCostPrice(false);
+                const val = parseDecimal(costPriceInput);
+                if (isNaN(val) || val < 0) setCostPriceInput(String(costPrice));
+              }}
+              className={inputWithSuffixClass}
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-              €
-            </span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
           </div>
         </div>
       </div>
@@ -493,26 +522,22 @@ function QuantityAndPricingFields({
           </label>
           <div className="relative">
             <input
-              type="number"
-              min={0}
-              step={0.01}
-              value={isEditingSalePrice ? salePriceInput : Math.round(salePrice * 100) / 100}
-              onFocus={e => {
-                setIsEditingSalePrice(true);
-                setSalePriceInput(String(Math.round(salePrice * 100) / 100));
-                e.target.select();
-              }}
+              type="text"
+              value={salePriceInput}
+              onFocus={e => { setIsEditingSalePrice(true); e.target.select(); }}
               onChange={e => {
                 setSalePriceInput(e.target.value);
-                const val = parseFloat(e.target.value);
-                if (!isNaN(val)) onSalePriceChange(val);
+                const val = parseDecimal(e.target.value);
+                if (!isNaN(val) && val >= 0) onSalePriceChange(val);
               }}
-              onBlur={() => setIsEditingSalePrice(false)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+              onBlur={() => {
+                setIsEditingSalePrice(false);
+                const val = parseDecimal(salePriceInput);
+                if (isNaN(val) || val < 0) setSalePriceInput(String(Math.round(salePrice * 100) / 100));
+              }}
+              className={inputWithSuffixClass}
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-              €
-            </span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
           </div>
         </div>
         <div>
@@ -521,17 +546,22 @@ function QuantityAndPricingFields({
           </label>
           <div className="relative">
             <input
-              type="number"
-              min={0}
-              max={99.99}
-              step={0.01}
-              value={marginPercentage}
-              onChange={e => onMarginChange(Number(e.target.value))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+              type="text"
+              value={marginInput}
+              onFocus={e => { setIsEditingMargin(true); e.target.select(); }}
+              onChange={e => {
+                setMarginInput(e.target.value);
+                const val = parseDecimal(e.target.value);
+                if (!isNaN(val) && val >= 0 && val < 100) onMarginChange(val);
+              }}
+              onBlur={() => {
+                setIsEditingMargin(false);
+                const val = parseDecimal(marginInput);
+                if (isNaN(val) || val < 0 || val >= 100) setMarginInput(String(marginPercentage));
+              }}
+              className={inputWithSuffixClass}
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-              %
-            </span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">%</span>
           </div>
         </div>
       </div>

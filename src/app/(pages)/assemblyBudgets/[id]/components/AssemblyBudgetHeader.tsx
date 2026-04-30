@@ -16,6 +16,7 @@ import {
   GitBranch,
   Percent,
   Printer,
+  Trash2,
   User,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -31,6 +32,7 @@ interface AssemblyBudgetHeaderProps {
   onMarginPercentageChange: (value: number) => void;
   onUpdateMargin: (marginPercentage: number) => Promise<void>;
   onOpenMarginModal: () => void;
+  onOpenBulkDeleteModal: () => void;
   onOpenVersionsModal: () => void;
   onOpenImportModal: () => void;
   t: (key: string) => string;
@@ -45,6 +47,7 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
   onMarginPercentageChange,
   onUpdateMargin,
   onOpenMarginModal,
+  onOpenBulkDeleteModal,
   onOpenVersionsModal,
   onOpenImportModal,
   t,
@@ -143,6 +146,17 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
             >
               <Percent className="h-3.5 w-3.5" />
               {t('assemblyBudget.margin.applyMargins')}
+            </button>
+          )}
+
+          {!isReadOnly && (
+            <button
+              type="button"
+              onClick={onOpenBulkDeleteModal}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition-colors"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              {t('assemblyBudget.bulkDelete.button')}
             </button>
           )}
 

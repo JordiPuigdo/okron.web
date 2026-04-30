@@ -8,6 +8,7 @@ type SearchInputProps = {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  autoFocus?: boolean;
 };
 
 const SearchInput: React.FC<SearchInputProps> = ({
@@ -18,6 +19,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
   placeholder = 'Buscar',
   disabled = false,
   className = '',
+  autoFocus = false,
 }) => {
   return (
     <input
@@ -29,6 +31,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
       ref={inputRef}
       placeholder={placeholder}
       disabled={disabled}
+      autoFocus={autoFocus}
     />
   );
 };
