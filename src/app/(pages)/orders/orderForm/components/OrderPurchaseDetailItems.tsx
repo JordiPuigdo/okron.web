@@ -85,7 +85,7 @@ export default function OrderPurchaseDetailItems({
                 : '';
 
               return (
-                <tr key={index} className="border-t text-sm">
+                <tr key={index} className="border-t text-sm odd:bg-white even:bg-gray-50">
                   <td className="p-2 border text-center  w-[5%]">
                     {index + 1}
                   </td>

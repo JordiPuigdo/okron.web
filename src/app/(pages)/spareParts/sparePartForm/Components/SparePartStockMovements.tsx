@@ -25,9 +25,12 @@ export default function SparePartStockMovements({
     process.env.NEXT_PUBLIC_API_BASE_URL || ''
   );
 
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
   const [dateFilters, setDateFilters] = useState<DateFilters>({
-    startDate: null,
-    endDate: null,
+    startDate: oneYearAgo,
+    endDate: new Date(),
   });
 
   const [firstLoad, setFirstLoad] = useState(true);

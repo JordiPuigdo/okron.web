@@ -23,10 +23,10 @@ export default function TableSparePartsConsumed({
   searchPlaceHolder: string;
 }) {
   const { t } = useTranslations();
-  const currentDate = new Date();
-  currentDate.setDate(currentDate.getDate() - 15);
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-  const [startDate, setStartDate] = useState<Date | null>(currentDate);
+  const [startDate, setStartDate] = useState<Date | null>(oneYearAgo);
   const [endDate, setEndDate] = useState<Date | null>(new Date());
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");

@@ -19,6 +19,7 @@ export interface OrderSimple extends BaseModel {
   account?: string;
   accountId?: string;
   totalAmount?: string;
+  totalAmountWithoutTax?: string;
   totalAmountFormatted?: string;
 }
 

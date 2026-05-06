@@ -140,7 +140,7 @@ export default function OrderDetailItems({
           <tbody>
             {itemsDetail.map((item, index) => {
               return (
-                <tr key={index} className="border-t">
+                <tr key={index} className="border-t odd:bg-white even:bg-gray-50">
                   <td className="p-2">{index + 1}</td>
                   <td className="p-2 border">{item.sparePartName}</td>
                   <td className="p-2 border text-center">
