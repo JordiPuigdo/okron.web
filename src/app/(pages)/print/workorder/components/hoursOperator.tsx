@@ -46,7 +46,7 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
           </div>
 
           {/* Empty State */}
-          {!workOrder.workOrderEvents?.length ? (
+          {!workOrder.workOrderOperatorTimes?.length ? (
             <div className="p-4 text-center text-gray-500">
               No hi ha hores registrades
             </div>
@@ -57,11 +57,11 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
           ) : (
             <>
               {/* Data rows */}
-              {workOrder.workOrderEvents &&
-                workOrder.workOrderEvents.map((operatorTime, index) => {
-                  const startDate = dayjs(operatorTime.date);
-                  const endDate = operatorTime.endDate
-                    ? dayjs(operatorTime.endDate)
+              {workOrder.workOrderOperatorTimes &&
+                workOrder.workOrderOperatorTimes.map((operatorTime, index) => {
+                  const startDate = dayjs(operatorTime.startTime);
+                  const endDate = operatorTime.endTime
+                    ? dayjs(operatorTime.endTime)
                     : null;
 
                   const durationSeconds = endDate
@@ -97,7 +97,7 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
                       </div>
                       <div className="w-[25%] min-w-[100px]">
                         <p className="text-gray-600">
-                          {formatDate(operatorTime.date)}
+                          {formatDate(operatorTime.startTime)}
                         </p>
                       </div>
                       <div className="w-[25%] min-w-[100px]">
