@@ -27,60 +27,10 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
   ].join(':');
 
   const [hasMounted, setHasMounted] = useState(false);
-  const [validationRecord, setValidationRecord] = useState<{
-    operatorLabel: string;
-    timestamp: Date;
-  } | null>(null);
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
-
-  useEffect(() => {
-    if (!workOrder.creationTime || !workOrder.id) return;
-
-    const storageKey = `hoursOperatorValidation-${workOrder.id}`;
-    const storedRecord = localStorage.getItem(storageKey);
-
-    if (storedRecord) {
-      try {
-        const parsed = JSON.parse(storedRecord);
-        setValidationRecord({
-          operatorLabel: parsed.operatorLabel,
-          timestamp: new Date(parsed.timestamp),
-        });
-        return;
-      } catch (error) {
-        console.error('Error parsing stored validation record', error);
-      }
-    }
-
-    const validationNames = ['MIREIA', 'MERTIXELL', 'MARIÓ'];
-    const operatorLabel = `VALIDAT PER ${
-      validationNames[Math.floor(Math.random() * validationNames.length)]
-    }`;
-
-    const baseDate = dayjs(workOrder.creationTime);
-    const daysToAdd = 1 + Math.floor(Math.random() * 2); // 1 o 2 días después
-    const randomHour = 7 + Math.floor(Math.random() * 12); // 07:00-18:59
-    const randomMinute = Math.floor(Math.random() * 60);
-
-    const timestamp = baseDate
-      .add(daysToAdd, 'day')
-      .hour(randomHour)
-      .minute(randomMinute)
-      .toDate();
-
-    const newRecord = { operatorLabel, timestamp };
-    setValidationRecord(newRecord);
-    localStorage.setItem(
-      storageKey,
-      JSON.stringify({
-        operatorLabel,
-        timestamp: timestamp.toISOString(),
-      })
-    );
-  }, [workOrder.creationTime, workOrder.id]);
 
   return (
     <div className="flex flex-col p-4 no-break">
@@ -110,30 +60,26 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
               {workOrder.workOrderEvents &&
                 workOrder.workOrderEvents.map((operatorTime, index) => {
                   const startDate = dayjs(operatorTime.date);
-                  const randomMinutes = Math.random() * 60; // up to 1 hour
-                  let calculatedEnd = operatorTime.endDate
+                  const endDate = operatorTime.endDate
                     ? dayjs(operatorTime.endDate)
-                    : startDate.add(randomMinutes, 'minute');
+                    : null;
 
-                  if (!calculatedEnd.isSame(startDate, 'day')) {
-                    calculatedEnd = startDate.endOf('day');
-                  }
+                  const durationSeconds = endDate
+                    ? Math.max(endDate.diff(startDate, 'second'), 0)
+                    : null;
 
-                  const durationSecondsRaw = Math.max(
-                    calculatedEnd.diff(startDate, 'second'),
-                    0
-                  );
-                  const durationSeconds = Math.min(durationSecondsRaw, 3600);
-
-                  const formattedDuration = [
-                    Math.floor(durationSeconds / 3600)
-                      .toString()
-                      .padStart(2, '0'),
-                    Math.floor((durationSeconds % 3600) / 60)
-                      .toString()
-                      .padStart(2, '0'),
-                    (durationSeconds % 60).toString().padStart(2, '0'),
-                  ].join(':');
+                  const formattedDuration =
+                    durationSeconds !== null
+                      ? [
+                          Math.floor(durationSeconds / 3600)
+                            .toString()
+                            .padStart(2, '0'),
+                          Math.floor((durationSeconds % 3600) / 60)
+                            .toString()
+                            .padStart(2, '0'),
+                          (durationSeconds % 60).toString().padStart(2, '0'),
+                        ].join(':')
+                      : '-';
 
                   return (
                     <div
@@ -156,7 +102,7 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
                       </div>
                       <div className="w-[25%] min-w-[100px]">
                         <p className="text-gray-600">
-                          {formatDate(calculatedEnd.toDate())}
+                          {endDate ? formatDate(endDate.toDate()) : '-'}
                         </p>
                       </div>
                       <div className="w-[20%] min-w-[100px]  flex justify-end pr-2">
@@ -165,32 +111,6 @@ export const HoursOperator = ({ workOrder }: { workOrder: WorkOrder }) => {
                     </div>
                   );
                 })}
-
-              {validationRecord && (
-                <div
-                  className="flex p-3 items-center border-b text-sm"
-                  aria-label={validationRecord.operatorLabel}
-                >
-                  <div className="w-[30%] min-w-[200px]">
-                    <p className="text-gray-800 truncate">
-                      {validationRecord.operatorLabel}
-                    </p>
-                  </div>
-                  <div className="w-[25%] min-w-[100px]">
-                    <p className="text-gray-600">
-                      {formatDate(validationRecord.timestamp)}
-                    </p>
-                  </div>
-                  <div className="w-[25%] min-w-[100px]">
-                    <p className="text-gray-600">
-                      {formatDate(validationRecord.timestamp)}
-                    </p>
-                  </div>
-                  <div className="w-[20%] min-w-[100px] flex justify-end pr-2">
-                    <p className="">00:00:00</p>
-                  </div>
-                </div>
-              )}
 
               {/* Total row */}
               <div className="flex p-3 bg-gray-50 border-t  border-gray-200 ">
