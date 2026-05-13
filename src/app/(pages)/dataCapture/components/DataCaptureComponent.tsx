@@ -1,7 +1,7 @@
-import { useTranslations } from 'app/hooks/useTranslations';
-import { useDeviceTelemetryHook } from 'app/hooks/useDeviceTelemetryHook';
-import { Maximize2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useDeviceTelemetryHook } from 'app/hooks/useDeviceTelemetryHook';
+import { useTranslations } from 'app/hooks/useTranslations';
+import { Maximize2, X } from 'lucide-react';
 
 import DataCaptureEnergyChart from './DataCaptureEnergyChart';
 import DataCaptureFaultChart from './DataCaptureFaultChart';
