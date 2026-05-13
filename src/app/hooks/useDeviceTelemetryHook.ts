@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-
 import DeviceTelemetry, { GetDeviceTelemetryRequest } from 'app/interfaces/DeviceTelemetry';
 import { deviceTelemetryService } from 'app/services/deviceTelemetryService';
 
