@@ -227,6 +227,15 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
   },
   {
     key: generateKey(),
+    titleKey: 'sidebar.dataCapture',
+    path: '/dataCapture',
+    icon: SvgDatabase,
+    permission: [UserPermission.Administrator],
+    userType: [UserType.Maintenance],
+    requiresModule: 'isDataCapture',
+  },
+  {
+    key: generateKey(),
     titleKey: 'sidebar.config',
     path: '',
     permission: [UserPermission.Administrator, UserPermission.AdminCRM],

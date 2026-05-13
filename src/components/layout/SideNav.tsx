@@ -17,7 +17,7 @@ interface SideNavProps {
 }
 
 const SideNav: React.FC<SideNavProps> = ({ isOpenNavBar }) => {
-  const { loginUser, isMenuOpen } = useSessionStore(state => state);
+  const { loginUser, isMenuOpen, config } = useSessionStore(state => state);
   const loginPermission = loginUser?.permission!;
   const loginUserType = loginUser?.userType!;
 
@@ -28,6 +28,9 @@ const SideNav: React.FC<SideNavProps> = ({ isOpenNavBar }) => {
     item => item.titleKey !== 'sidebar.config'
   );
 
+  const isModuleAllowed = (item: (typeof SIDENAV_ITEMS)[number]) =>
+    !item.requiresModule || config?.[item.requiresModule] === true;
+
   return (
     <div className="flex flex-col md:px-4 h-full">
       <div className="pt-16 flex flex-col flex-grow">
@@ -35,7 +38,8 @@ const SideNav: React.FC<SideNavProps> = ({ isOpenNavBar }) => {
           return (
             item.permission.includes(loginPermission) &&
             item.userType !== undefined &&
-            item.userType.includes(loginUserType) && (
+            item.userType.includes(loginUserType) &&
+            isModuleAllowed(item) && (
               <MenuItem
                 key={idx + item.key}
                 item={item}
