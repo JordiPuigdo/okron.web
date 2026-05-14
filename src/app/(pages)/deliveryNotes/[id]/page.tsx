@@ -7,8 +7,10 @@ import {
   DeliveryNote,
   DeliveryNoteUpdateRequest,
 } from 'app/interfaces/DeliveryNote';
+import useRoutes from 'app/utils/useRoutes';
 import Container from 'components/layout/Container';
 import MainLayout from 'components/layout/MainLayout';
+import { useRouter } from 'next/navigation';
 
 import { DeliveryNoteService } from '../../../services/deliveryNoteService';
 import { DeliveryNoteDetailForm } from '../components/DeliveryNoteDetailForm';
@@ -21,6 +23,8 @@ export default function DeliveryNoteDetailPage({
   params,
 }: DeliveryNoteDetailPageProps) {
   const { t } = useTranslations();
+  const router = useRouter();
+  const ROUTES = useRoutes();
   const [deliveryNote, setDeliveryNote] = useState<DeliveryNote | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const deliveryNoteService = new DeliveryNoteService(
@@ -66,8 +70,10 @@ export default function DeliveryNoteDetailPage({
   };
 
   const handleDelete = async (id: string) => {
+    if (!window.confirm(t('confirm.delete.delivery.note'))) return;
     try {
       await deliveryNoteService.delete(id);
+      router.push(ROUTES.deliveryNote.list);
     } catch (error) {
       console.error('Error deleting delivery note:', error);
       throw error;
