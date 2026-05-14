@@ -4,11 +4,17 @@ import { FilterSpareParts, FilterWorkOrders } from 'app/types/filters';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+export interface AssemblyBudgetDateFilters {
+  startDate: string | null;
+  endDate: string | null;
+}
+
 interface SessionStore {
   loginUser: LoginUser | undefined;
   operatorLogged: OperatorLogged | undefined;
   filterWorkOrders: FilterWorkOrders | undefined;
   filterSpareParts: FilterSpareParts | undefined;
+  assemblyBudgetDateFilters: AssemblyBudgetDateFilters | undefined;
   isMenuOpen: boolean;
   config: SystemConfiguration | undefined;
 }
@@ -18,6 +24,7 @@ interface SessionActions {
   setOperatorLogged: (operatorLogged: OperatorLogged | undefined) => void;
   setFilterWorkOrders: (filterWorkOrders: FilterWorkOrders | undefined) => void;
   setFilterSpareParts: (filterSpareParts: FilterSpareParts | undefined) => void;
+  setAssemblyBudgetDateFilters: (filters: AssemblyBudgetDateFilters | undefined) => void;
   setIsMenuOpen: (isMenuOpen: boolean) => void;
   setConfig: (config: SystemConfiguration) => void;
 }
@@ -29,6 +36,7 @@ export const useSessionStore = create(
       operatorLogged: undefined,
       filterWorkOrders: undefined,
       filterSpareParts: undefined,
+      assemblyBudgetDateFilters: undefined,
       isMenuOpen: false,
       config: undefined,
       setLoginUser: value => {
@@ -42,6 +50,9 @@ export const useSessionStore = create(
       },
       setFilterSpareParts: value => {
         set({ filterSpareParts: value });
+      },
+      setAssemblyBudgetDateFilters: value => {
+        set({ assemblyBudgetDateFilters: value });
       },
       setIsMenuOpen: value => {
         set({ isMenuOpen: value });
@@ -63,6 +74,7 @@ export const useSessionStore = create(
           operatorLogged: undefined,
           filterWorkOrders: undefined,
           filterSpareParts: undefined,
+          assemblyBudgetDateFilters: undefined,
           isMenuOpen: false,
           config: undefined,
         } as SessionStore & SessionActions;

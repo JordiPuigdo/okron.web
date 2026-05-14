@@ -144,7 +144,7 @@ function formatNumberForEditing(value: number): string {
 }
 
 function sanitizeDecimalInput(rawValue: string): string {
-  return rawValue.replace(/[^\d.,\s]/g, '');
+  return rawValue.replace(/[^\d.,\s-]/g, '').replace(/(?<!^)-/g, '');
 }
 
 function calculateArticleDisplayTotal(article: AssemblyArticle): number {
@@ -914,7 +914,7 @@ function TreeNode({
       price !== article.unitPrice ||
       margin !== article.marginPercentage;
 
-    if (!hasChanges || qty <= 0 || price < 0 || margin < 0) {
+    if (!hasChanges || qty <= 0 || price < 0 || margin < 0 || margin >= 100) {
       handleCancelArticleEditing();
       return;
     }
@@ -1514,7 +1514,7 @@ function ArticleAmounts({
           <input
             type="number"
             min={0}
-            max={100}
+            max={99.99}
             step={0.1}
             value={editMargin}
             onChange={e =>

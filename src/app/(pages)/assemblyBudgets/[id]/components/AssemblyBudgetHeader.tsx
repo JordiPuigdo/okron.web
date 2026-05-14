@@ -2,10 +2,11 @@
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { Budget, BudgetStatus } from 'app/interfaces/Budget';
 import useRoutes from 'app/utils/useRoutes';
+import { formatCurrencyServerSider } from 'app/utils/utils';
 import dayjs from 'dayjs';
 import {
   ArrowLeft,
@@ -17,11 +18,13 @@ import {
   Percent,
   Printer,
   Trash2,
+  TrendingUp,
   User,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { STATUS_CONFIG } from './AssemblyBudgetStatusConfig';
+import { calculateFolderMargin } from './assemblyTreeDndUtils';
 
 interface AssemblyBudgetHeaderProps {
   budget: Budget;
@@ -193,9 +196,47 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
           customerNif={budget.customerNif}
         />
       </div>
+
+      <BudgetTotalsBar budget={budget} t={t} />
     </div>
   );
 });
+
+function BudgetTotalsBar({
+  budget,
+  t,
+}: {
+  budget: Budget;
+  t: (key: string) => string;
+}) {
+  const { baseSubtotal, totalAmount, effectiveMarginPercentage } = useMemo(
+    () => calculateFolderMargin(budget.assemblyNodes ?? []),
+    [budget.assemblyNodes]
+  );
+
+  return (
+    <div className="flex items-center gap-3 pl-[52px] pt-1 flex-wrap">
+      <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-4 py-2 border border-gray-200">
+        <span className="text-sm font-bold text-gray-800 tabular-nums">
+          {formatCurrencyServerSider(baseSubtotal)}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2 bg-emerald-50 rounded-lg px-4 py-2 border border-emerald-200">
+        <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
+        <span className="text-sm font-bold text-emerald-700 tabular-nums">
+          {effectiveMarginPercentage}%
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2 bg-blue-50 rounded-lg px-4 py-2 border border-blue-200">
+        <span className="text-sm font-bold text-blue-700 tabular-nums">
+          {formatCurrencyServerSider(totalAmount)}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 function StatusSelector({
   status,
@@ -234,6 +275,22 @@ function StatusSelector({
     </select>
   );
 }
+
+const InlineDateChip = React.forwardRef<
+  HTMLButtonElement,
+  { value?: string; onClick?: () => void }
+>(function InlineDateChip({ value, onClick }, ref) {
+  return (
+    <button
+      ref={ref}
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center rounded-md border border-[#C9D3E7] bg-[#E4EAF7]/50 px-2.5 py-0.5 text-sm font-medium text-[#59408F] transition-colors hover:border-[#59408F] hover:bg-[#E4EAF7] focus:outline-none focus:ring-2 focus:ring-[#59408F]/20"
+    >
+      {value}
+    </button>
+  );
+});
 
 function DateFields({
   budgetDate,
@@ -274,7 +331,7 @@ function DateFields({
             onChange={date => date && onValidUntilChange(date)}
             dateFormat="dd/MM/yyyy"
             minDate={new Date(budgetDate)}
-            className="w-28 rounded-md border border-gray-300 px-2 py-1 text-sm font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            customInput={<InlineDateChip />}
           />
         )}
       </div>

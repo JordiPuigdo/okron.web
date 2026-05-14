@@ -5,6 +5,7 @@ import { useTranslations } from 'app/hooks/useTranslations';
 import { Budget, BudgetStatus, BudgetType } from 'app/interfaces/Budget';
 import { BudgetAssemblyService } from 'app/services/budgetAssemblyService';
 import { BudgetService } from 'app/services/budgetService';
+import { AssemblyBudgetDateFilters, useSessionStore } from 'app/stores/globalStore';
 import useRoutes from 'app/utils/useRoutes';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
 import DataTable from 'components/table/DataTable';
@@ -61,11 +62,18 @@ const getFilters = (t: (key: string) => string): Filters[] => [
   { label: t('customer'), key: 'companyName', format: FiltersFormat.TEXT },
 ];
 
-function getDefaultDateRange(): DateFilters {
+function getDefaultDateRange(): AssemblyBudgetDateFilters {
   const endDate = new Date();
   const startDate = new Date();
-  startDate.setMonth(startDate.getMonth() - 1);
-  return { startDate, endDate };
+  startDate.setMonth(startDate.getMonth() - 6);
+  return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
+}
+
+function toDateFilters(stored: AssemblyBudgetDateFilters): DateFilters {
+  return {
+    startDate: stored.startDate ? new Date(stored.startDate) : null,
+    endDate: stored.endDate ? new Date(stored.endDate) : null,
+  };
 }
 
 export const TableDataAssemblyBudgets = ({
@@ -76,9 +84,14 @@ export const TableDataAssemblyBudgets = ({
   const router = useRouter();
   const routes = useRoutes();
 
+  const storedDateFilters = useSessionStore(state => state.assemblyBudgetDateFilters);
+  const setStoredDateFilters = useSessionStore(state => state.setAssemblyBudgetDateFilters);
+
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [dateFilters, setDateFilters] = useState<DateFilters>(getDefaultDateRange);
+  const [dateFilters, setDateFilters] = useState<DateFilters>(() =>
+    toDateFilters(storedDateFilters ?? getDefaultDateRange())
+  );
   const [copySourceBudget, setCopySourceBudget] = useState<Budget | undefined>(undefined);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
   const [isCopyLoading, setIsCopyLoading] = useState(false);
@@ -127,6 +140,14 @@ export const TableDataAssemblyBudgets = ({
     }
   }, [dateFilters, fetchBudgets, isInitialLoad]);
 
+  const handleDateFiltersChange = useCallback((filters: DateFilters) => {
+    setDateFilters(filters);
+    setStoredDateFilters({
+      startDate: filters.startDate?.toISOString() ?? null,
+      endDate: filters.endDate?.toISOString() ?? null,
+    });
+  }, [setStoredDateFilters]);
+
   const handleCopyClick = useCallback(async (budget: Budget) => {
     setIsCopyLoading(true);
     try {
@@ -160,7 +181,7 @@ export const TableDataAssemblyBudgets = ({
       <div className={`flex ${className}`}>
         <div className="flex gap-4 w-full">
           <DateFilter
-            setDateFilters={setDateFilters}
+            setDateFilters={handleDateFiltersChange}
             dateFilters={dateFilters}
           />
         </div>

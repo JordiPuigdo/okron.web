@@ -155,6 +155,22 @@ function StatusSelector({
   );
 }
 
+const InlineDateChip = React.forwardRef<
+  HTMLButtonElement,
+  { value?: string; onClick?: () => void }
+>(function InlineDateChip({ value, onClick }, ref) {
+  return (
+    <button
+      ref={ref}
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center rounded-md border border-[#C9D3E7] bg-[#E4EAF7]/50 px-2.5 py-0.5 text-sm font-medium text-[#59408F] transition-colors hover:border-[#59408F] hover:bg-[#E4EAF7] focus:outline-none focus:ring-2 focus:ring-[#59408F]/20"
+    >
+      {value}
+    </button>
+  );
+});
+
 function DateFields({
   budgetDate,
   validUntil,
@@ -194,7 +210,7 @@ function DateFields({
             onChange={date => date && onValidUntilChange(date)}
             dateFormat="dd/MM/yyyy"
             minDate={new Date(budgetDate)}
-            className="w-28 rounded-md border border-gray-300 px-2 py-1 text-sm font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            customInput={<InlineDateChip />}
           />
         )}
       </div>
