@@ -2,7 +2,7 @@
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { Budget, BudgetStatus } from 'app/interfaces/Budget';
 import useRoutes from 'app/utils/useRoutes';
@@ -15,6 +15,7 @@ import {
   Download,
   FileText,
   GitBranch,
+  MoreHorizontal,
   Percent,
   Printer,
   Trash2,
@@ -64,12 +65,14 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
   }, [router, routes.assemblyBudget.list]);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-6 py-4 space-y-3">
-      <div className="flex items-center gap-4">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-6 py-4 space-y-2.5">
+
+      {/* Row 1 — identity + company + status + primary action + more */}
+      <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={handleGoBack}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700 shrink-0"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
@@ -81,7 +84,7 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold text-gray-900 leading-tight">
-                {budget.code} 
+                {budget.code}
               </h1>
               {budget.activeVersionNumber != null && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
@@ -96,22 +99,22 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
               )}
             </div>
             <p className="text-xs text-gray-500">
-              {t('assemblyBudget')} ·{' '}
-              {dayjs(budget.creationDate).format('DD/MM/YYYY')}
+              {t('assemblyBudget')} · {dayjs(budget.creationDate).format('DD/MM/YYYY')}
             </p>
           </div>
         </div>
 
-        <div className="h-8 w-px bg-gray-200 hidden sm:block" />
+        {budget.companyName && (
+          <>
+            <div className="h-8 w-px bg-gray-200 hidden sm:block" />
+            <CompanyBadge
+              companyName={budget.companyName}
+              customerNif={budget.customerNif}
+            />
+          </>
+        )}
 
-        <TitleField
-          value={budget.title || ''}
-          isReadOnly={isReadOnly}
-          onChange={onTitleChange}
-          t={t}
-        />
-
-        <div className="h-8 w-px bg-gray-200 hidden sm:block" />
+        <div className="flex-1" />
 
         <StatusSelector
           status={budget.status}
@@ -119,9 +122,40 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
           isReadOnly={isReadOnly}
           onStatusChange={onStatusChange}
         />
+
+        {!isReadOnly && (
+          <button
+            type="button"
+            onClick={onOpenMarginModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors shrink-0"
+          >
+            <Percent className="h-3.5 w-3.5" />
+            {t('assemblyBudget.margin.applyMargins')}
+          </button>
+        )}
+
+        <MoreActionsMenu
+          isReadOnly={isReadOnly}
+          onOpenBulkDeleteModal={onOpenBulkDeleteModal}
+          onOpenVersionsModal={onOpenVersionsModal}
+          onOpenImportModal={onOpenImportModal}
+          onPrint={() => window.open(routes.print.assemblyBudget(budget.id), '_blank')}
+          t={t}
+        />
       </div>
 
-      <div className="flex items-center justify-between pl-[52px]">
+      {/* Row 2 — title */}
+      <div className="pl-[52px]">
+        <TitleField
+          value={budget.title || ''}
+          isReadOnly={isReadOnly}
+          onChange={onTitleChange}
+          t={t}
+        />
+      </div>
+
+      {/* Row 3 — dates + margin + totals */}
+      <div className="flex items-center justify-between pl-[52px] flex-wrap gap-2">
         <div className="flex items-center gap-3 flex-wrap">
           <DateFields
             budgetDate={budget.budgetDate}
@@ -130,9 +164,7 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
             onValidUntilChange={onValidUntilChange}
             t={t}
           />
-
           <div className="h-5 w-px bg-gray-200 hidden sm:block" />
-
           <MarginPercentageField
             value={budget.marginPercentage}
             isReadOnly={isReadOnly}
@@ -140,71 +172,100 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
             onSave={onUpdateMargin}
             t={t}
           />
-
-          {!isReadOnly && (
-            <button
-              type="button"
-              onClick={onOpenMarginModal}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors"
-            >
-              <Percent className="h-3.5 w-3.5" />
-              {t('assemblyBudget.margin.applyMargins')}
-            </button>
-          )}
-
-          {!isReadOnly && (
-            <button
-              type="button"
-              onClick={onOpenBulkDeleteModal}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition-colors"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              {t('assemblyBudget.bulkDelete.button')}
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={onOpenVersionsModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors"
-          >
-            <GitBranch className="h-3.5 w-3.5" />
-            {t('assemblyBudget.versions.title')}
-          </button>
-
-          <button
-            type="button"
-            onClick={onOpenImportModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition-colors"
-          >
-            <Download className="h-3.5 w-3.5" />
-            {t('assemblyBudget.import.buttonLabel')}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => window.open(routes.print.assemblyBudget(budget.id), '_blank')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
-          >
-            <Printer className="h-3.5 w-3.5" />
-            {t('print')}
-          </button>
         </div>
 
-        <CompanyBadge
-          companyName={budget.companyName}
-          customerNif={budget.customerNif}
-        />
+        <BudgetTotalsBar budget={budget} t={t} />
       </div>
-
-      <BudgetTotalsBar budget={budget} t={t} />
     </div>
   );
 });
 
+function MoreActionsMenu({
+  isReadOnly,
+  onOpenBulkDeleteModal,
+  onOpenVersionsModal,
+  onOpenImportModal,
+  onPrint,
+  t,
+}: {
+  isReadOnly: boolean;
+  onOpenBulkDeleteModal: () => void;
+  onOpenVersionsModal: () => void;
+  onOpenImportModal: () => void;
+  onPrint: () => void;
+  t: (key: string) => string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(v => !v)}
+        className="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-600 transition-colors shrink-0"
+        aria-label="More actions"
+      >
+        <MoreHorizontal className="h-4 w-4" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-1 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
+          <button
+            type="button"
+            onClick={() => { onOpenVersionsModal(); setIsOpen(false); }}
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <GitBranch className="h-4 w-4 text-blue-500" />
+            {t('assemblyBudget.versions.title')}
+          </button>
+          <button
+            type="button"
+            onClick={() => { onOpenImportModal(); setIsOpen(false); }}
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <Download className="h-4 w-4 text-indigo-500" />
+            {t('assemblyBudget.import.buttonLabel')}
+          </button>
+          <button
+            type="button"
+            onClick={() => { onPrint(); setIsOpen(false); }}
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <Printer className="h-4 w-4 text-gray-500" />
+            {t('print')}
+          </button>
+          {!isReadOnly && (
+            <>
+              <div className="h-px bg-gray-100 my-1" />
+              <button
+                type="button"
+                onClick={() => { onOpenBulkDeleteModal(); setIsOpen(false); }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <Trash2 className="h-4 w-4" />
+                {t('assemblyBudget.bulkDelete.button')}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BudgetTotalsBar({
   budget,
-  t,
 }: {
   budget: Budget;
   t: (key: string) => string;
@@ -215,21 +276,21 @@ function BudgetTotalsBar({
   );
 
   return (
-    <div className="flex items-center gap-3 pl-[52px] pt-1 flex-wrap">
-      <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-4 py-2 border border-gray-200">
+    <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 bg-gray-50 rounded-lg px-3 py-1.5 border border-gray-200">
         <span className="text-sm font-bold text-gray-800 tabular-nums">
           {formatCurrencyServerSider(baseSubtotal)}
         </span>
       </div>
 
-      <div className="flex items-center gap-2 bg-emerald-50 rounded-lg px-4 py-2 border border-emerald-200">
+      <div className="flex items-center gap-1.5 bg-emerald-50 rounded-lg px-3 py-1.5 border border-emerald-200">
         <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
         <span className="text-sm font-bold text-emerald-700 tabular-nums">
           {effectiveMarginPercentage}%
         </span>
       </div>
 
-      <div className="flex items-center gap-2 bg-blue-50 rounded-lg px-4 py-2 border border-blue-200">
+      <div className="flex items-center gap-1.5 bg-blue-50 rounded-lg px-3 py-1.5 border border-blue-200">
         <span className="text-sm font-bold text-blue-700 tabular-nums">
           {formatCurrencyServerSider(totalAmount)}
         </span>
@@ -349,16 +410,12 @@ function CompanyBadge({
   if (!companyName) return null;
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-1.5 border border-gray-100">
-        <User className="h-4 w-4 text-gray-400" />
-        <span className="text-sm font-medium text-gray-700">
-          {companyName}
-        </span>
-        {customerNif && (
-          <span className="text-xs text-gray-400">· {customerNif}</span>
-        )}
-      </div>
+    <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-1.5 border border-gray-100">
+      <User className="h-4 w-4 text-gray-400" />
+      <span className="text-sm font-medium text-gray-700">{companyName}</span>
+      {customerNif && (
+        <span className="text-xs text-gray-400">· {customerNif}</span>
+      )}
     </div>
   );
 }
@@ -386,7 +443,7 @@ function TitleField({
       value={value}
       onChange={e => onChange(e.target.value)}
       placeholder={t('assemblyBudget.field.title.placeholder')}
-      className="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+      className="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
     />
   );
 }
