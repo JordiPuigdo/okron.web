@@ -506,7 +506,7 @@ function QuantityAndPricingFields({
             onChange={e => setQuantityInput(e.target.value)}
             onBlur={() => {
               const parsed = parseDecimal(quantityInput);
-              if (!isNaN(parsed) && parsed > 0) {
+              if (!isNaN(parsed) && parsed !== 0) {
                 onQuantityChange(parsed);
               } else {
                 setQuantityInput(String(quantity));
