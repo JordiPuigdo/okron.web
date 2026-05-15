@@ -2,12 +2,13 @@
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { Budget, BudgetStatus } from 'app/interfaces/Budget';
 import useRoutes from 'app/utils/useRoutes';
 import { formatCurrencyServerSider } from 'app/utils/utils';
 import dayjs from 'dayjs';
+import { cn } from 'lib/utils';
 import {
   ArrowLeft,
   Calendar,
@@ -15,7 +16,6 @@ import {
   Download,
   FileText,
   GitBranch,
-  MoreHorizontal,
   Percent,
   Printer,
   Trash2,
@@ -123,25 +123,15 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
           onStatusChange={onStatusChange}
         />
 
+        <TooltipButton label={t('assemblyBudget.versions.title')} onClick={onOpenVersionsModal} icon={GitBranch} />
+        <TooltipButton label={t('assemblyBudget.import.buttonLabel')} onClick={onOpenImportModal} icon={Download} />
+        <TooltipButton label={t('print')} onClick={() => window.open(routes.print.assemblyBudget(budget.id), '_blank')} icon={Printer} />
         {!isReadOnly && (
-          <button
-            type="button"
-            onClick={onOpenMarginModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors shrink-0"
-          >
-            <Percent className="h-3.5 w-3.5" />
-            {t('assemblyBudget.margin.applyMargins')}
-          </button>
+          <>
+            <TooltipButton label={t('assemblyBudget.margin.applyMargins')} onClick={onOpenMarginModal} icon={Percent} />
+            <TooltipButton label={t('assemblyBudget.bulkDelete.button')} onClick={onOpenBulkDeleteModal} icon={Trash2} danger />
+          </>
         )}
-
-        <MoreActionsMenu
-          isReadOnly={isReadOnly}
-          onOpenBulkDeleteModal={onOpenBulkDeleteModal}
-          onOpenVersionsModal={onOpenVersionsModal}
-          onOpenImportModal={onOpenImportModal}
-          onPrint={() => window.open(routes.print.assemblyBudget(budget.id), '_blank')}
-          t={t}
-        />
       </div>
 
       {/* Row 2 — title */}
@@ -180,86 +170,35 @@ export const AssemblyBudgetHeader = React.memo(function AssemblyBudgetHeader({
   );
 });
 
-function MoreActionsMenu({
-  isReadOnly,
-  onOpenBulkDeleteModal,
-  onOpenVersionsModal,
-  onOpenImportModal,
-  onPrint,
-  t,
+function TooltipButton({
+  label,
+  onClick,
+  icon: Icon,
+  danger,
 }: {
-  isReadOnly: boolean;
-  onOpenBulkDeleteModal: () => void;
-  onOpenVersionsModal: () => void;
-  onOpenImportModal: () => void;
-  onPrint: () => void;
-  t: (key: string) => string;
+  label: string;
+  onClick: () => void;
+  icon: React.ElementType;
+  danger?: boolean;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    if (isOpen) document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
-
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="relative group">
       <button
         type="button"
-        onClick={() => setIsOpen(v => !v)}
-        className="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-600 transition-colors shrink-0"
-        aria-label="More actions"
+        onClick={onClick}
+        className={cn(
+          'flex items-center justify-center w-8 h-8 rounded-lg border transition-colors shrink-0',
+          danger
+            ? 'border-red-200 bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-700'
+            : 'border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+        )}
       >
-        <MoreHorizontal className="h-4 w-4" />
+        <Icon className="h-4 w-4" />
       </button>
-
-      {isOpen && (
-        <div className="absolute right-0 top-full mt-1 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
-          <button
-            type="button"
-            onClick={() => { onOpenVersionsModal(); setIsOpen(false); }}
-            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            <GitBranch className="h-4 w-4 text-blue-500" />
-            {t('assemblyBudget.versions.title')}
-          </button>
-          <button
-            type="button"
-            onClick={() => { onOpenImportModal(); setIsOpen(false); }}
-            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            <Download className="h-4 w-4 text-indigo-500" />
-            {t('assemblyBudget.import.buttonLabel')}
-          </button>
-          <button
-            type="button"
-            onClick={() => { onPrint(); setIsOpen(false); }}
-            className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            <Printer className="h-4 w-4 text-gray-500" />
-            {t('print')}
-          </button>
-          {!isReadOnly && (
-            <>
-              <div className="h-px bg-gray-100 my-1" />
-              <button
-                type="button"
-                onClick={() => { onOpenBulkDeleteModal(); setIsOpen(false); }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-              >
-                <Trash2 className="h-4 w-4" />
-                {t('assemblyBudget.bulkDelete.button')}
-              </button>
-            </>
-          )}
-        </div>
-      )}
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+        {label}
+        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800" />
+      </div>
     </div>
   );
 }
