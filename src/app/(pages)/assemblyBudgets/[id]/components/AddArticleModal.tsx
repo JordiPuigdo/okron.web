@@ -61,7 +61,9 @@ interface AddArticleModalProps {
     article: Article,
     quantity: number,
     marginPercentage: number,
-    unitPrice: number
+    unitPrice: number,
+    salePrice: number | undefined,
+    hasManualSalePrice: boolean
   ) => Promise<void>;
   onCreateNew: () => void;
   onEditArticle: (article: Article) => void;
@@ -107,11 +109,13 @@ export function AddArticleModal({
       setSelectedArticle(initialArticle);
       setMarginPercentage(initialArticle.marginPercentage || 0);
       setCostPrice(initialArticle.unitPrice || 0);
+      setManualSalePrice(0);
       onInitialArticleConsumed?.();
     } else {
       setSelectedArticle(undefined);
       setMarginPercentage(0);
       setCostPrice(0);
+      setManualSalePrice(0);
     }
     setQuantity(1);
     setAutoCalculate(true);
@@ -124,6 +128,7 @@ export function AddArticleModal({
       setSelectedArticle(article);
       setMarginPercentage(article.marginPercentage || 0);
       setCostPrice(article.unitPrice || 0);
+      setManualSalePrice(0);
       setAutoCalculate(true);
     }
   };
@@ -173,13 +178,14 @@ export function AddArticleModal({
   const handleConfirm = async () => {
     if (!selectedArticle || isSubmitting) return;
     setIsSubmitting(true);
-    const effectiveUnitPrice = autoCalculate ? costPrice : salePrice;
     try {
       await onConfirm(
         selectedArticle,
         quantity,
         marginPercentage,
-        effectiveUnitPrice
+        costPrice,
+        autoCalculate ? undefined : salePrice,
+        !autoCalculate
       );
     } finally {
       setIsSubmitting(false);

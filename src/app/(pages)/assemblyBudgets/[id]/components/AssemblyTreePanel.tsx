@@ -148,6 +148,10 @@ function sanitizeDecimalInput(rawValue: string): string {
 }
 
 function calculateArticleDisplayTotal(article: AssemblyArticle): number {
+  if (article.hasManualSalePrice && article.salePrice !== undefined) {
+    return article.quantity * article.salePrice;
+  }
+
   const articleSubtotal = article.quantity * article.unitPrice;
   return calculateAmountWithMargin(articleSubtotal, article.marginPercentage);
 }
@@ -1549,7 +1553,7 @@ function ArticleAmounts({
   const articleSubtotal = article.quantity * article.unitPrice;
   const articleTotalWithMargin = calculateArticleDisplayTotal(article);
   const articleFinalUnitPrice =
-    article.quantity > 0
+    article.quantity !== 0
       ? articleTotalWithMargin / article.quantity
       : article.unitPrice;
 

@@ -146,6 +146,8 @@ export interface AssemblyArticle extends AssemblyNodeBase {
   articleCode: string;
   quantity: number;
   unitPrice: number;
+  salePrice?: number;
+  hasManualSalePrice?: boolean;
   marginPercentage: number;
   subtotal: number;
 }
@@ -201,6 +203,8 @@ export interface AddAssemblyArticleRequest {
   articleId: string;
   quantity: number;
   unitPrice: number;
+  salePrice?: number;
+  hasManualSalePrice?: boolean;
   marginPercentage?: number;
   sortOrder?: number;
   code : string;
@@ -228,6 +232,8 @@ export interface UpdateAssemblyNodeRequest {
   secondaryDescription?: string;
   quantity?: number;
   unitPrice?: number;
+  salePrice?: number;
+  hasManualSalePrice?: boolean;
   marginPercentage?: number;
 }
 
