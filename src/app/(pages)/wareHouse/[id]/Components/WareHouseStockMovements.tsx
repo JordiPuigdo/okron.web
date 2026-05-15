@@ -87,7 +87,7 @@ export default function WareHouseStockMovements({
   }, [stockMovements, search, active]);
 
   return (
-    <div className="flex flex-col bg-white rounded-xl gap-4 p-4 shadow-md flex-1 overflow-y-auto">
+    <div className="flex flex-col bg-white rounded-xl gap-4 p-4 shadow-md shrink-0">
       <span className="text-lg font-semibold">{t('warehouse.stock.movements')}</span>
       <div className="flex flex-row items-center">
         <DateFilter dateFilters={dateFilters} setDateFilters={setDateFilters} />
@@ -116,7 +116,7 @@ export default function WareHouseStockMovements({
           </div>
         )}
       </div>
-      <div className="flex flex-col gap-4 flex-1 overflow-y-auto">
+      <div className="flex flex-col gap-4">
         <DataTable
           data={filteredStockMovements}
           columns={getColumnsStockMovements(t)}

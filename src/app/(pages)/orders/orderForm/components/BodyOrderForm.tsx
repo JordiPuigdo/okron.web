@@ -329,7 +329,7 @@ export function BodyOrderForm({
     });
   }
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       {order.type == OrderType.Purchase &&
         (!isEditing || order.status == OrderStatus.Pending) && (
           <SearchSparePartOrderPurchase
