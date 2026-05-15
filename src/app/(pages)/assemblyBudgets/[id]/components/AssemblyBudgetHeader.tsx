@@ -414,7 +414,8 @@ function MarginPercentageField({
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value;
-      if (raw === '' || /^\d*\.?\d*$/.test(raw)) {
+      const numeric = parseFloat(raw);
+      if (raw === '' || (/^-?\d*\.?\d*$/.test(raw) && (isNaN(numeric) || numeric < 100))) {
         setInputValue(raw);
       }
     },

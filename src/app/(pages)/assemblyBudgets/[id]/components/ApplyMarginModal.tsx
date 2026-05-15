@@ -145,7 +145,7 @@ export function ApplyMarginModal({
   const handleMarginInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value;
-      if (raw === '' || /^\d*\.?\d*$/.test(raw)) {
+      if (raw === '' || /^-?\d*\.?\d*$/.test(raw)) {
         setMarginPercentage(raw);
       }
     },
@@ -156,7 +156,7 @@ export function ApplyMarginModal({
   const allSelected =
     selectedCount === allArticleIds.length && allArticleIds.length > 0;
   const hasSelection = selectedCount > 0;
-  const hasValidMargin = parsedMargin >= 0 && marginPercentage !== '';
+  const hasValidMargin = !isNaN(parsedMargin) && parsedMargin < 100 && marginPercentage !== '';
 
   const previewTotals = useMemo(() => {
     let originalTotal = 0;

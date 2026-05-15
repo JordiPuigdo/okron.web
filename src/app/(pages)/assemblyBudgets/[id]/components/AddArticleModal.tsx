@@ -173,12 +173,14 @@ export function AddArticleModal({
   const handleConfirm = async () => {
     if (!selectedArticle || isSubmitting) return;
     setIsSubmitting(true);
-    let effectiveMargin = marginPercentage;
-    if (!autoCalculate && manualSalePrice !== 0) {
-      effectiveMargin = Math.round((1 - costPrice / manualSalePrice) * 100 * 100) / 100;
-    }
+    const effectiveUnitPrice = autoCalculate ? costPrice : salePrice;
     try {
-      await onConfirm(selectedArticle, quantity, effectiveMargin, costPrice);
+      await onConfirm(
+        selectedArticle,
+        quantity,
+        marginPercentage,
+        effectiveUnitPrice
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -474,7 +476,6 @@ function QuantityAndPricingFields({
   const [salePriceInput, setSalePriceInput] = useState(String(Math.round(salePrice * 100) / 100));
   const [isEditingSalePrice, setIsEditingSalePrice] = useState(false);
   const [marginInput, setMarginInput] = useState(String(marginPercentage));
-  const [isEditingMargin, setIsEditingMargin] = useState(false);
 
   useEffect(() => {
     if (!isEditingCostPrice) setCostPriceInput(String(costPrice));
@@ -485,8 +486,8 @@ function QuantityAndPricingFields({
   }, [salePrice, isEditingSalePrice]);
 
   useEffect(() => {
-    if (!isEditingMargin) setMarginInput(String(marginPercentage));
-  }, [marginPercentage, isEditingMargin]);
+    setMarginInput(String(marginPercentage));
+  }, [marginPercentage]);
 
   const parseDecimal = (raw: string) => parseFloat(raw.replace(',', '.'));
 
@@ -591,16 +592,15 @@ function QuantityAndPricingFields({
             <input
               type="text"
               value={marginInput}
-              onFocus={e => { setIsEditingMargin(true); e.target.select(); }}
-              onChange={e => {
-                setMarginInput(e.target.value);
-                const val = parseDecimal(e.target.value);
-                if (!isNaN(val) && val !== 100) onMarginChange(val);
-              }}
+              onFocus={e => e.target.select()}
+              onChange={e => setMarginInput(e.target.value)}
               onBlur={() => {
-                setIsEditingMargin(false);
                 const val = parseDecimal(marginInput);
-                if (isNaN(val) || val === 100) setMarginInput(String(marginPercentage));
+                if (!isNaN(val) && val < 100) {
+                  onMarginChange(val);
+                } else {
+                  setMarginInput(String(marginPercentage));
+                }
               }}
               className={inputWithSuffixClass}
             />
