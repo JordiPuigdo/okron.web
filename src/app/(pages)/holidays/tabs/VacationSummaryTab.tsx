@@ -9,6 +9,7 @@ import { useTranslations } from 'app/hooks/useTranslations';
 import {
   VacationRequestSummary,
   VacationStatus,
+  VacationType,
 } from 'app/interfaces/Vacation';
 import { VacationService } from 'app/services/vacationService';
 import AutocompleteSearchBar from 'components/selector/AutocompleteSearchBar';
@@ -96,26 +97,43 @@ export const VacationSummaryTab = () => {
     }
   };
 
+  const getDurationLabel = (request: VacationRequestSummary): string => {
+    return request.vacationType === VacationType.Hours
+      ? `${request.totalHours} h`
+      : `${request.workingDays} ${t('days')}`;
+  };
+
   const groupedByOperator = summary
     .filter(item => selectedStatus === '' || item.status === selectedStatus)
-    .reduce((acc, item) => {
-      if (!acc[item.operatorId]) {
-        acc[item.operatorId] = {
-          operatorName: item.operatorName,
-          requests: [],
-          totalDays: 0,
-        };
-      }
-      acc[item.operatorId].requests.push(item);
-      if (item.status === VacationStatus.Approved) {
-        acc[item.operatorId].totalDays += item.workingDays;
-      }
-      return acc;
-    }, {} as Record<string, { operatorName: string; requests: VacationRequestSummary[]; totalDays: number }>);
+    .reduce(
+      (acc, item) => {
+        if (!acc[item.operatorId]) {
+          acc[item.operatorId] = {
+            operatorName: item.operatorName,
+            workingHoursPerDay: item.workingHoursPerDay,
+            requests: [],
+            totalApprovedHours: 0,
+          };
+        }
+        acc[item.operatorId].requests.push(item);
+        if (item.status === VacationStatus.Approved) {
+          acc[item.operatorId].totalApprovedHours += item.totalHours;
+        }
+        return acc;
+      },
+      {} as Record<
+        string,
+        {
+          operatorName: string;
+          workingHoursPerDay: number;
+          requests: VacationRequestSummary[];
+          totalApprovedHours: number;
+        }
+      >
+    );
 
   return (
     <div className="space-y-6">
-      {/* Filters */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <h3 className="text-lg font-semibold mb-4">
           {t('vacation.summaryFilters')}
@@ -197,7 +215,6 @@ export const VacationSummaryTab = () => {
         </div>
       </div>
 
-      {/* Summary */}
       {isLoading ? (
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -209,78 +226,89 @@ export const VacationSummaryTab = () => {
       ) : (
         <div className="space-y-4">
           {Object.entries(groupedByOperator).map(
-            ([operatorId, { operatorName, requests, totalDays }]) => (
-              <div
-                key={operatorId}
-                className="bg-white rounded-lg shadow-md p-6"
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-xl font-semibold text-gray-900">
-                    {operatorName}
-                  </h4>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-600">
-                      {t('vacation.totalApprovedDays')}
-                    </p>
-                    <p className="text-2xl font-bold text-green-600">
-                      {totalDays} {t('days')}
-                    </p>
+            ([operatorId, { operatorName, workingHoursPerDay, requests, totalApprovedHours }]) => {
+              const totalApprovedDays =
+                workingHoursPerDay > 0
+                  ? Math.floor(totalApprovedHours / workingHoursPerDay)
+                  : 0;
+
+              return (
+                <div
+                  key={operatorId}
+                  className="bg-white rounded-lg shadow-md p-6"
+                >
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-xl font-semibold text-gray-900">
+                      {operatorName}
+                    </h4>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-600">
+                        {t('vacation.summary.total.hours')}
+                      </p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {totalApprovedHours} h
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {totalApprovedDays} {t('days')}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            {t('vacation.dates')}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            {t('vacation.summary.hours.days')}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            {t('state')}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            {t('vacation.reason')}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {requests.map((request, idx) => (
+                          <tr key={idx} className="hover:bg-gray-50">
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900">
+                                {dayjs(request.startDate).format('DD/MM/YYYY')}{' '}
+                                -{' '}
+                                {dayjs(request.endDate).format('DD/MM/YYYY')}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">
+                                {getDurationLabel(request)}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <span
+                                className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                                  request.status
+                                )}`}
+                              >
+                                {getStatusText(request.status)}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="text-sm text-gray-900 max-w-md truncate">
+                                {request.reason || '-'}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {t('vacation.dates')}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {t('days')}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {t('state')}
-                        </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          {t('vacation.reason')}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {requests.map((request, idx) => (
-                        <tr key={idx} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
-                              {dayjs(request.startDate).format('DD/MM/YYYY')} -{' '}
-                              {dayjs(request.endDate).format('DD/MM/YYYY')}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
-                              {request.workingDays}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                                request.status
-                              )}`}
-                            >
-                              {getStatusText(request.status)}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="text-sm text-gray-900 max-w-md truncate">
-                              {request.reason || '-'}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )
+              );
+            }
           )}
         </div>
       )}
