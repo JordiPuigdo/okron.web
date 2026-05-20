@@ -1,30 +1,26 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
-import { ScheduledPreventiveItem } from 'app/interfaces/Preventive';
+import { Preventive, ScheduledPreventiveItem } from 'app/interfaces/Preventive';
 import { StateWorkOrder, WorkOrder } from 'app/interfaces/workOrder';
 import useRoutes from 'app/utils/useRoutes';
-import {
-  translateStateWorkOrder,
-  translateWorkOrderType,
-} from 'app/utils/utils';
+import { formatDate, translateStateWorkOrder } from 'app/utils/utils';
 import {
   SlidePanel,
   SlidePanelActions,
   SlidePanelSection,
 } from 'components/SlidePanel';
 import {
-  AlertCircle,
   Calendar,
   CheckCircle,
   CheckCircle2,
   Clock,
   Edit2,
   ExternalLink,
+  Loader2,
   Package,
   Play,
-  Printer,
   User,
   Wrench,
 } from 'lucide-react';
@@ -40,6 +36,7 @@ interface ScheduledPreventivePreviewPanelProps {
   onClose: () => void;
   onLaunch: (item: ScheduledPreventiveItem) => Promise<void>;
   isLaunching?: boolean;
+  getPreventiveDetail?: (preventiveId: string) => Promise<Preventive | null>;
 }
 
 // ============================================================================
@@ -66,10 +63,46 @@ const STATE_STYLES: Record<StateWorkOrder, string> = {
 
 export const ScheduledPreventivePreviewPanel: React.FC<
   ScheduledPreventivePreviewPanelProps
-> = ({ item, isOpen, onClose, onLaunch, isLaunching = false }) => {
+> = ({
+  item,
+  isOpen,
+  onClose,
+  onLaunch,
+  isLaunching = false,
+  getPreventiveDetail,
+}) => {
   const { t } = useTranslations();
   const router = useRouter();
   const ROUTES = useRoutes();
+
+  // Estado para el detalle completo del preventivo
+  const [preventiveDetail, setPreventiveDetail] = useState<Preventive | null>(
+    null
+  );
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+
+  // Cargar detalle cuando se abre el panel
+  useEffect(() => {
+    if (isOpen && item && getPreventiveDetail) {
+      setIsLoadingDetail(true);
+      getPreventiveDetail(item.preventive.id)
+        .then(detail => {
+          setPreventiveDetail(detail);
+        })
+        .catch(err => {
+          console.error('Error loading preventive detail:', err);
+        })
+        .finally(() => {
+          setIsLoadingDetail(false);
+        });
+    } else if (!isOpen) {
+      // Limpiar cuando se cierra
+      setPreventiveDetail(null);
+    }
+  }, [isOpen, item?.preventive.id, getPreventiveDetail]);
+
+  // Usar el detalle cargado o el preventivo del item como fallback
+  const preventive = preventiveDetail || item?.preventive;
 
   const handleLaunch = useCallback(async () => {
     if (!item || item.isLaunched) return;
@@ -78,33 +111,24 @@ export const ScheduledPreventivePreviewPanel: React.FC<
 
   const handleEditPreventive = useCallback(() => {
     if (!item) return;
-    router.push(`${ROUTES.PREVENTIVE}/${item.preventive.id}`);
-  }, [item, router, ROUTES.PREVENTIVE]);
+    router.push(`${ROUTES.preventive.configuration}/${item.preventive.id}`);
+  }, [item, router, ROUTES.preventive.configuration]);
 
   const handleViewWorkOrder = useCallback(() => {
     if (!item?.workOrder) return;
-    router.push(`${ROUTES.WORKORDER}/${item.workOrder.id}`);
-  }, [item, router, ROUTES.WORKORDER]);
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('es-ES', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
-  };
+    router.push(`${ROUTES.workOrders}/${item.workOrder.id}`);
+  }, [item, router, ROUTES.workOrders]);
 
   if (!item) return null;
 
-  const { preventive, workOrder, scheduledDate, isLaunched } = item;
+  const { workOrder, scheduledDate, isLaunched } = item;
 
   return (
     <SlidePanel
       isOpen={isOpen}
       onClose={onClose}
-      title={preventive.code}
-      subtitle={preventive.description}
+      title={preventive?.code || item.preventive.code}
+      subtitle={preventive?.description || item.preventive.description}
       width="full"
       headerActions={
         <div className="flex items-center gap-2">
@@ -135,7 +159,7 @@ export const ScheduledPreventivePreviewPanel: React.FC<
                   {t('preventive.scheduled.scheduledFor') || 'Programado para'}
                 </p>
                 <p className="text-lg font-semibold text-blue-900">
-                  {formatDate(scheduledDate)}
+                  {formatDate(scheduledDate, false)}
                 </p>
               </div>
             </div>
@@ -151,7 +175,7 @@ export const ScheduledPreventivePreviewPanel: React.FC<
           )}
 
           {/* Si NO tiene WorkOrder - mostrar info del preventivo */}
-          {!isLaunched && (
+          {!isLaunched && preventive && (
             <PreventiveInfoSection preventive={preventive} t={t} />
           )}
 
@@ -163,9 +187,9 @@ export const ScheduledPreventivePreviewPanel: React.FC<
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-gray-900">
-                  {preventive.asset?.description || '-'}
+                  {preventive?.asset?.description || '-'}
                 </p>
-                {preventive.asset?.code && (
+                {preventive?.asset?.code && (
                   <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">
                     {preventive.asset.code}
                   </span>
@@ -175,10 +199,17 @@ export const ScheduledPreventivePreviewPanel: React.FC<
           </SlidePanelSection>
 
           {/* Operadores asignados */}
-          {preventive.operators && preventive.operators.length > 0 && (
-            <SlidePanelSection
-              title={t('preventive.operators') || 'Operadores asignados'}
-            >
+          <SlidePanelSection
+            title={t('preventive.operators') || 'Operadores asignados'}
+          >
+            {isLoadingDetail ? (
+              <div className="flex items-center gap-2 text-gray-500 py-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">
+                  {t('common.loading') || 'Cargando...'}
+                </span>
+              </div>
+            ) : preventive?.operators && preventive.operators.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {preventive.operators.map(op => (
                   <div
@@ -190,39 +221,49 @@ export const ScheduledPreventivePreviewPanel: React.FC<
                   </div>
                 ))}
               </div>
-            </SlidePanelSection>
-          )}
+            ) : (
+              <p className="text-sm text-gray-400 italic">
+                {t('preventive.noOperators') || 'Sin operadores asignados'}
+              </p>
+            )}
+          </SlidePanelSection>
 
           {/* Puntos de inspección */}
-          {preventive.inspectionPoints &&
-            preventive.inspectionPoints.length > 0 && (
-              <SlidePanelSection
-                title={t('preventive.inspectionPoints') || 'Puntos de inspección'}
-              >
-                <div className="space-y-2">
-                  {preventive.inspectionPoints.slice(0, 5).map((ip, index) => (
-                    <div
-                      key={ip.id || index}
-                      className="flex items-center gap-2 p-2 bg-gray-50 rounded"
-                    >
-                      <CheckCircle className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-700">
-                        {ip.description}
-                      </span>
-                    </div>
-                  ))}
-                  {preventive.inspectionPoints.length > 5 && (
-                    <p className="text-sm text-gray-500 text-center py-2">
-                      +{preventive.inspectionPoints.length - 5}{' '}
-                      {t('common.more') || 'más'}
-                    </p>
-                  )}
-                </div>
-              </SlidePanelSection>
+          <SlidePanelSection
+            title={t('preventive.inspectionPoints') || 'Puntos de inspección'}
+          >
+            {isLoadingDetail ? (
+              <div className="flex items-center gap-2 text-gray-500 py-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">
+                  {t('common.loading') || 'Cargando...'}
+                </span>
+              </div>
+            ) : preventive?.inspectionPoints &&
+              preventive.inspectionPoints.length > 0 ? (
+              <div className="space-y-2">
+                {preventive.inspectionPoints.map((ip, index) => (
+                  <div
+                    key={ip.id || index}
+                    className="flex items-center gap-2 p-2 bg-gray-50 rounded"
+                  >
+                    <CheckCircle className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-700">
+                      {ip.description}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400 italic">
+                {t('preventive.noInspectionPoints') ||
+                  'Sin puntos de inspección'}
+              </p>
             )}
+          </SlidePanelSection>
 
           {/* Repuestos */}
-          {preventive.spareParts && preventive.spareParts.length > 0 && (
+          {preventive?.spareParts && preventive.spareParts.length > 0 && (
             <SlidePanelSection
               title={t('preventive.spareParts') || 'Repuestos previstos'}
             >
@@ -243,7 +284,7 @@ export const ScheduledPreventivePreviewPanel: React.FC<
           )}
 
           {/* Duración planificada */}
-          {preventive.plannedDuration && (
+          {preventive?.plannedDuration && (
             <SlidePanelSection
               title={t('preventive.plannedDuration') || 'Duración planificada'}
             >
@@ -266,14 +307,16 @@ export const ScheduledPreventivePreviewPanel: React.FC<
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
-                {t('preventive.scheduled.viewWorkOrder') || 'Ver Orden de Trabajo'}
+                {t('preventive.scheduled.viewWorkOrder') ||
+                  'Ver Orden de Trabajo'}
               </button>
               <button
                 onClick={handleEditPreventive}
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <Edit2 className="w-4 h-4" />
-                {t('preventive.scheduled.editPreventive') || 'Editar Preventivo'}
+                {t('preventive.scheduled.editPreventive') ||
+                  'Editar Preventivo'}
               </button>
             </>
           ) : (
@@ -301,7 +344,8 @@ export const ScheduledPreventivePreviewPanel: React.FC<
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <Edit2 className="w-4 h-4" />
-                {t('preventive.scheduled.editPreventive') || 'Editar Preventivo'}
+                {t('preventive.scheduled.editPreventive') ||
+                  'Editar Preventivo'}
               </button>
             </>
           )}
@@ -327,9 +371,9 @@ function WorkOrderPreviewSection({
   t,
 }: WorkOrderPreviewSectionProps) {
   const stateStyle =
-    STATE_STYLES[workOrder.state as StateWorkOrder] ||
+    STATE_STYLES[workOrder.stateWorkOrder as StateWorkOrder] ||
     'bg-gray-100 text-gray-800';
-  const stateLabel = translateStateWorkOrder(workOrder.state);
+  const stateLabel = translateStateWorkOrder(workOrder.stateWorkOrder, t);
 
   return (
     <SlidePanelSection
@@ -350,17 +394,19 @@ function WorkOrderPreviewSection({
               </p>
             )}
           </div>
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${stateStyle}`}>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${stateStyle}`}
+          >
             {stateLabel}
           </span>
         </div>
 
-        {workOrder.createdDate && (
+        {workOrder.creationTime && (
           <div className="flex items-center gap-2 mt-3 text-sm text-green-600">
             <Calendar className="w-4 h-4" />
             <span>
               {t('workOrder.created') || 'Creada'}:{' '}
-              {new Date(workOrder.createdDate).toLocaleDateString('es-ES')}
+              {formatDate(workOrder.creationTime, false)}
             </span>
           </div>
         )}
@@ -403,7 +449,7 @@ function PreventiveInfoSection({ preventive, t }: PreventiveInfoSectionProps) {
               {t('preventive.lastExecution') || 'Última ejecución'}
             </span>
             <span className="font-medium text-gray-900">
-              {new Date(preventive.lastExecution).toLocaleDateString('es-ES')}
+              {formatDate(preventive.lastExecution, false)}
             </span>
           </div>
         )}

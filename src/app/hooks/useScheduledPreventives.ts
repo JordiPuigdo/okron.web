@@ -6,6 +6,7 @@ import Operator from 'app/interfaces/Operator';
 import {
   BatchExecutePreventivesRequest,
   DailyPreventives,
+  Preventive,
   ScheduledPreventiveItem,
 } from 'app/interfaces/Preventive';
 import { WorkOrder } from 'app/interfaces/workOrder';
@@ -221,7 +222,7 @@ export const useScheduledPreventives = () => {
    */
   const launchSelected = useCallback(async (): Promise<WorkOrder[]> => {
     if (selectedIds.size === 0) return [];
-    if (!loginUser?.id || !operatorLogged?.idOperatorLogged) {
+    if (!loginUser?.agentId || !operatorLogged?.idOperatorLogged) {
       setError('Usuario no autenticado');
       return [];
     }
@@ -245,7 +246,7 @@ export const useScheduledPreventives = () => {
           preventiveId: item.preventive.id,
           executionDate: item.scheduledDate,
         })),
-        userId: loginUser.id,
+        userId: loginUser.agentId,
         operatorId: operatorLogged.idOperatorLogged,
       };
 
@@ -279,7 +280,7 @@ export const useScheduledPreventives = () => {
    */
   const launchSingle = useCallback(
     async (item: ScheduledPreventiveItem): Promise<WorkOrder | null> => {
-      if (!loginUser?.id || !operatorLogged?.idOperatorLogged) {
+      if (!loginUser?.agentId || !operatorLogged?.idOperatorLogged) {
         setError('Usuario no autenticado');
         return null;
       }
@@ -300,7 +301,7 @@ export const useScheduledPreventives = () => {
               executionDate: item.scheduledDate,
             },
           ],
-          userId: loginUser.id,
+          userId: loginUser.agentId,
           operatorId: operatorLogged.idOperatorLogged,
         };
 
@@ -410,6 +411,22 @@ export const useScheduledPreventives = () => {
     );
   }, [rawData, transformToScheduledItems]);
 
+  /**
+   * Obtiene el detalle completo de un preventivo por su ID
+   */
+  const getPreventiveDetail = useCallback(
+    async (preventiveId: string): Promise<Preventive | null> => {
+      try {
+        const detail = await preventiveService.getPreventive(preventiveId);
+        return detail;
+      } catch (err) {
+        console.error('Error fetching preventive detail:', err);
+        return null;
+      }
+    },
+    [preventiveService]
+  );
+
   return {
     // Data
     data: filteredData,
@@ -434,6 +451,7 @@ export const useScheduledPreventives = () => {
     // Actions
     launchSelected,
     launchSingle,
+    getPreventiveDetail,
     refresh: fetchScheduledPreventives,
 
     // Loading states

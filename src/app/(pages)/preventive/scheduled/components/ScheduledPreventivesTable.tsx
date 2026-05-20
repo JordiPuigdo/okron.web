@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { ScheduledPreventiveItem } from 'app/interfaces/Preventive';
+import { formatDate } from 'app/utils/utils';
 import dayjs from 'dayjs';
 import { cn } from 'lib/utils';
 import {
@@ -152,14 +153,6 @@ export const ScheduledPreventivesTable: React.FC<
       onSelectAll();
     }
   }, [allPendingSelected, onSelectAll, onClearSelection]);
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('es-ES', {
-      weekday: 'short',
-      day: '2-digit',
-      month: 'short',
-    });
-  };
 
   const getUrgencyBadge = (date: Date, isLaunched: boolean) => {
     if (isLaunched) return null;
@@ -359,7 +352,7 @@ export const ScheduledPreventivesTable: React.FC<
                         )}
                       />
                       <span className="font-medium text-gray-900">
-                        {formatDate(item.scheduledDate)}
+                        {formatDate(item.scheduledDate, false)}
                       </span>
                       {getUrgencyBadge(item.scheduledDate, item.isLaunched)}
                     </div>
@@ -435,12 +428,18 @@ export const ScheduledPreventivesTable: React.FC<
         <div className="flex items-center justify-between gap-4 text-xs">
           {/* Stats - compact */}
           <div className="flex items-center gap-3 text-gray-600">
-            <span>{data.length} total</span>
-            <span className="text-amber-600">{pendingCount} pendientes</span>
-            <span className="text-green-600">{data.length - pendingCount} lanzados</span>
+            <span>
+              {data.length} {t('common.total')}
+            </span>
+            <span className="text-amber-600">
+              {pendingCount} {t('preventive.scheduled.pending')}
+            </span>
+            <span className="text-green-600">
+              {data.length - pendingCount} {t('preventive.scheduled.launched')}
+            </span>
             {selectedIds.size > 0 && (
               <span className="text-blue-600 font-medium">
-                {selectedIds.size} seleccionados
+                {selectedIds.size} {t('preventive.scheduled.selected') || 'seleccionados'}
               </span>
             )}
           </div>

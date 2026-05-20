@@ -29,6 +29,7 @@ export default function ScheduledPreventivesPage() {
     clearSelection,
     launchSelected,
     launchSingle,
+    getPreventiveDetail,
     refresh,
     isLoading,
     isLaunching,
@@ -86,7 +87,7 @@ export default function ScheduledPreventivesPage() {
             {stats.pending} {t('preventive.scheduled.pending') || 'pendientes'}
           </span>
           <span className="px-2.5 py-1 bg-green-50 text-green-700 rounded-full font-medium">
-            {stats.launched} {t('preventive.scheduled.launched') || 'lanzados'}
+            {stats.launched} {t('preventive.scheduled.launched')}
           </span>
         </div>
       </div>
@@ -95,7 +96,10 @@ export default function ScheduledPreventivesPage() {
         {/* Selection indicator */}
         {stats.selectedCount > 0 && (
           <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium">
-            <span>{stats.selectedCount} {t('preventive.scheduled.selected') || 'seleccionados'}</span>
+            <span>
+              {stats.selectedCount}{' '}
+              {t('preventive.scheduled.selected') || 'seleccionados'}
+            </span>
             <button
               onClick={clearSelection}
               className="text-blue-500 hover:text-blue-800 underline text-xs"
@@ -189,6 +193,7 @@ export default function ScheduledPreventivesPage() {
             onClose={handleClosePreview}
             onLaunch={handleLaunchSingle}
             isLaunching={isLaunching}
+            getPreventiveDetail={getPreventiveDetail}
           />
         </div>
       </Container>

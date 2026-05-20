@@ -211,7 +211,8 @@ export default function EditPreventive({ params }: { params: { id: string } }) {
       inspectionPointId: selectedInspectionPoints.map(point => point),
       operatorId: selectedOperator.map(sparePart => sparePart),
       active: preventive.active,
-      plannedDuration: '',
+      plannedDuration: preventive.plannedDuration || '',
+      spareParts: selectedPreventiveSpareParts,
     };
     return updatePreventiveRequest;
   }

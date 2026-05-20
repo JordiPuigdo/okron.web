@@ -4,7 +4,10 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { useCallback, useMemo } from 'react';
 import DatePicker from 'react-datepicker';
-import { LaunchStatus, ScheduledPreventivesFilters } from 'app/hooks/useScheduledPreventives';
+import {
+  LaunchStatus,
+  ScheduledPreventivesFilters,
+} from 'app/hooks/useScheduledPreventives';
 import { useTranslations } from 'app/hooks/useTranslations';
 import Operator from 'app/interfaces/Operator';
 import { ca } from 'date-fns/locale';
@@ -31,10 +34,10 @@ interface ScheduledPreventivesFiltersProps {
 
 export const ScheduledPreventivesFiltersComponent: React.FC<
   ScheduledPreventivesFiltersProps
-> = ({ 
-  filters, 
-  setFilters, 
-  availableAssets = [], 
+> = ({
+  filters,
+  setFilters,
+  availableAssets = [],
   availableOperators = [],
   availableMachines = [],
 }) => {
@@ -157,21 +160,25 @@ export const ScheduledPreventivesFiltersComponent: React.FC<
     []
   );
 
-  const launchStatusOptions: { value: LaunchStatus; label: string; icon: React.ReactNode }[] = [
-    { 
-      value: 'all', 
+  const launchStatusOptions: {
+    value: LaunchStatus;
+    label: string;
+    icon: React.ReactNode;
+  }[] = [
+    {
+      value: 'all',
       label: t('preventive.scheduled.statusAll') || 'Todos',
-      icon: <Filter className="w-4 h-4" />
+      icon: <Filter className="w-4 h-4" />,
     },
-    { 
-      value: 'pending', 
+    {
+      value: 'pending',
       label: t('preventive.scheduled.statusPending') || 'Pendientes',
-      icon: <Clock className="w-4 h-4" />
+      icon: <Clock className="w-4 h-4" />,
     },
-    { 
-      value: 'launched', 
+    {
+      value: 'launched',
       label: t('preventive.scheduled.statusLaunched') || 'Lanzados',
-      icon: <CheckCircle className="w-4 h-4" />
+      icon: <CheckCircle className="w-4 h-4" />,
     },
   ];
 
@@ -219,8 +226,8 @@ export const ScheduledPreventivesFiltersComponent: React.FC<
                   ? option.value === 'pending'
                     ? 'bg-amber-500 text-white shadow-sm'
                     : option.value === 'launched'
-                    ? 'bg-green-500 text-white shadow-sm'
-                    : 'bg-white text-gray-900 shadow-sm'
+                      ? 'bg-green-500 text-white shadow-sm'
+                      : 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
               }`}
             >
