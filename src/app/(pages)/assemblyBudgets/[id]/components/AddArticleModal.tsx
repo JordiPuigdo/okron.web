@@ -61,7 +61,9 @@ interface AddArticleModalProps {
     article: Article,
     quantity: number,
     marginPercentage: number,
-    unitPrice: number
+    unitPrice: number,
+    salePrice: number | undefined,
+    hasManualSalePrice: boolean
   ) => Promise<void>;
   onCreateNew: () => void;
   onEditArticle: (article: Article) => void;
@@ -88,6 +90,8 @@ export function AddArticleModal({
   const [quantity, setQuantity] = useState(1);
   const [marginPercentage, setMarginPercentage] = useState(0);
   const [costPrice, setCostPrice] = useState(0);
+  const [autoCalculate, setAutoCalculate] = useState(true);
+  const [manualSalePrice, setManualSalePrice] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const hasInitializedForCurrentOpenRef = useRef(false);
 
@@ -105,13 +109,16 @@ export function AddArticleModal({
       setSelectedArticle(initialArticle);
       setMarginPercentage(initialArticle.marginPercentage || 0);
       setCostPrice(initialArticle.unitPrice || 0);
+      setManualSalePrice(0);
       onInitialArticleConsumed?.();
     } else {
       setSelectedArticle(undefined);
       setMarginPercentage(0);
       setCostPrice(0);
+      setManualSalePrice(0);
     }
     setQuantity(1);
+    setAutoCalculate(true);
     hasInitializedForCurrentOpenRef.current = true;
   }, [isVisible, initialArticle, onInitialArticleConsumed]);
 
@@ -121,13 +128,24 @@ export function AddArticleModal({
       setSelectedArticle(article);
       setMarginPercentage(article.marginPercentage || 0);
       setCostPrice(article.unitPrice || 0);
+      setManualSalePrice(0);
+      setAutoCalculate(true);
     }
   };
 
-  const salePrice = useMemo(() => {
-    if (marginPercentage <= 0 || marginPercentage >= 100) return costPrice;
+  const computedSalePrice = useMemo(() => {
+    if (marginPercentage === 100) return costPrice;
     return costPrice / (1 - marginPercentage / 100);
   }, [costPrice, marginPercentage]);
+
+  const salePrice = autoCalculate ? computedSalePrice : manualSalePrice;
+
+  const handleToggleAutoCalculate = useCallback(() => {
+    setAutoCalculate(prev => {
+      if (prev) setManualSalePrice(computedSalePrice);
+      return !prev;
+    });
+  }, [computedSalePrice]);
 
   const handleCostPriceChange = useCallback(
     (newCost: number) => {
@@ -138,14 +156,16 @@ export function AddArticleModal({
 
   const handleSalePriceChange = useCallback(
     (newSalePrice: number) => {
-      if (newSalePrice > 0 && costPrice > 0) {
+      if (!autoCalculate) {
+        setManualSalePrice(newSalePrice);
+        return;
+      }
+      if (newSalePrice !== 0) {
         const newMargin = (1 - costPrice / newSalePrice) * 100;
-        setMarginPercentage(
-          Math.round(Math.max(0, Math.min(99.99, newMargin)) * 100) / 100
-        );
+        setMarginPercentage(Math.round(newMargin * 100) / 100);
       }
     },
-    [costPrice]
+    [autoCalculate, costPrice]
   );
 
   const handleMarginChange = useCallback(
@@ -159,7 +179,14 @@ export function AddArticleModal({
     if (!selectedArticle || isSubmitting) return;
     setIsSubmitting(true);
     try {
-      await onConfirm(selectedArticle, quantity, marginPercentage, costPrice);
+      await onConfirm(
+        selectedArticle,
+        quantity,
+        marginPercentage,
+        costPrice,
+        autoCalculate ? undefined : salePrice,
+        !autoCalculate
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -219,10 +246,12 @@ export function AddArticleModal({
               costPrice={costPrice}
               salePrice={salePrice}
               marginPercentage={marginPercentage}
+              autoCalculate={autoCalculate}
               onQuantityChange={setQuantity}
               onCostPriceChange={handleCostPriceChange}
               onMarginChange={handleMarginChange}
               onSalePriceChange={handleSalePriceChange}
+              onToggleAutoCalculate={handleToggleAutoCalculate}
               t={t}
             />
           )}
@@ -427,20 +456,24 @@ function QuantityAndPricingFields({
   costPrice,
   salePrice,
   marginPercentage,
+  autoCalculate,
   onQuantityChange,
   onCostPriceChange,
   onMarginChange,
   onSalePriceChange,
+  onToggleAutoCalculate,
   t,
 }: {
   quantity: number;
   costPrice: number;
   salePrice: number;
   marginPercentage: number;
+  autoCalculate: boolean;
   onQuantityChange: (value: number) => void;
   onCostPriceChange: (value: number) => void;
   onMarginChange: (value: number) => void;
   onSalePriceChange: (value: number) => void;
+  onToggleAutoCalculate: () => void;
   t: (key: string) => string;
 }) {
   const [quantityInput, setQuantityInput] = useState(String(quantity));
@@ -449,7 +482,6 @@ function QuantityAndPricingFields({
   const [salePriceInput, setSalePriceInput] = useState(String(Math.round(salePrice * 100) / 100));
   const [isEditingSalePrice, setIsEditingSalePrice] = useState(false);
   const [marginInput, setMarginInput] = useState(String(marginPercentage));
-  const [isEditingMargin, setIsEditingMargin] = useState(false);
 
   useEffect(() => {
     if (!isEditingCostPrice) setCostPriceInput(String(costPrice));
@@ -460,8 +492,8 @@ function QuantityAndPricingFields({
   }, [salePrice, isEditingSalePrice]);
 
   useEffect(() => {
-    if (!isEditingMargin) setMarginInput(String(marginPercentage));
-  }, [marginPercentage, isEditingMargin]);
+    setMarginInput(String(marginPercentage));
+  }, [marginPercentage]);
 
   const parseDecimal = (raw: string) => parseFloat(raw.replace(',', '.'));
 
@@ -481,7 +513,7 @@ function QuantityAndPricingFields({
             onChange={e => setQuantityInput(e.target.value)}
             onBlur={() => {
               const parsed = parseDecimal(quantityInput);
-              if (!isNaN(parsed) && parsed >= 1) {
+              if (!isNaN(parsed) && parsed !== 0) {
                 onQuantityChange(parsed);
               } else {
                 setQuantityInput(String(quantity));
@@ -502,12 +534,12 @@ function QuantityAndPricingFields({
               onChange={e => {
                 setCostPriceInput(e.target.value);
                 const val = parseDecimal(e.target.value);
-                if (!isNaN(val) && val >= 0) onCostPriceChange(val);
+                if (!isNaN(val)) onCostPriceChange(val);
               }}
               onBlur={() => {
                 setIsEditingCostPrice(false);
                 const val = parseDecimal(costPriceInput);
-                if (isNaN(val) || val < 0) setCostPriceInput(String(costPrice));
+                if (isNaN(val)) setCostPriceInput(String(costPrice));
               }}
               className={inputWithSuffixClass}
             />
@@ -517,9 +549,27 @@ function QuantityAndPricingFields({
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            {t('assemblyBudget.salePrice')}
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-sm font-medium text-gray-700">
+              {t('assemblyBudget.salePrice')}
+            </label>
+            <button
+              type="button"
+              onClick={onToggleAutoCalculate}
+              className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium transition-colors ${
+                autoCalculate
+                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+              }`}
+            >
+              <span
+                className={`inline-block w-2 h-2 rounded-full ${
+                  autoCalculate ? 'bg-blue-500' : 'bg-gray-400'
+                }`}
+              />
+              {t('assemblyBudget.price.autoCalculate')}
+            </button>
+          </div>
           <div className="relative">
             <input
               type="text"
@@ -528,12 +578,12 @@ function QuantityAndPricingFields({
               onChange={e => {
                 setSalePriceInput(e.target.value);
                 const val = parseDecimal(e.target.value);
-                if (!isNaN(val) && val >= 0) onSalePriceChange(val);
+                if (!isNaN(val)) onSalePriceChange(val);
               }}
               onBlur={() => {
                 setIsEditingSalePrice(false);
                 const val = parseDecimal(salePriceInput);
-                if (isNaN(val) || val < 0) setSalePriceInput(String(Math.round(salePrice * 100) / 100));
+                if (isNaN(val)) setSalePriceInput(String(Math.round(salePrice * 100) / 100));
               }}
               className={inputWithSuffixClass}
             />
@@ -548,16 +598,15 @@ function QuantityAndPricingFields({
             <input
               type="text"
               value={marginInput}
-              onFocus={e => { setIsEditingMargin(true); e.target.select(); }}
-              onChange={e => {
-                setMarginInput(e.target.value);
-                const val = parseDecimal(e.target.value);
-                if (!isNaN(val) && val >= 0 && val < 100) onMarginChange(val);
-              }}
+              onFocus={e => e.target.select()}
+              onChange={e => setMarginInput(e.target.value)}
               onBlur={() => {
-                setIsEditingMargin(false);
                 const val = parseDecimal(marginInput);
-                if (isNaN(val) || val < 0 || val >= 100) setMarginInput(String(marginPercentage));
+                if (!isNaN(val) && val < 100) {
+                  onMarginChange(val);
+                } else {
+                  setMarginInput(String(marginPercentage));
+                }
               }}
               className={inputWithSuffixClass}
             />

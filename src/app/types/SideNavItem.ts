@@ -10,6 +10,7 @@ export type SideNavItem = {
   permission: UserPermission[];
   userType: UserType[];
   icon?: React.FunctionComponent<SVGProps<SVGSVGElement>>;
+  requiresModule?: 'isDataCapture';
 };
 
 let keyCounter = 1; // Initialize a counter for generating unique keys

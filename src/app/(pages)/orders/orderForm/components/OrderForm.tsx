@@ -384,7 +384,7 @@ export default function OrderForm({
     orderRequest?.status !== OrderStatus.Cancelled;
 
   return (
-    <div className="flex flex-col h-full pb-4">
+    <div className="flex flex-col pb-4">
       <HeaderForm
         header={headerName}
         isCreate={orderRequest == null}
@@ -395,7 +395,7 @@ export default function OrderForm({
         }
         entity={EntityTable.ORDER}
       />
-      <div className="bg-white p-4 rounded-lg shadow-md flex-grow flex flex-col space-y-4 h-full">
+      <div className="bg-white p-4 rounded-lg shadow-md flex flex-col space-y-4">
         {!isLoading && (
           <HeaderOrderForm
             order={order}

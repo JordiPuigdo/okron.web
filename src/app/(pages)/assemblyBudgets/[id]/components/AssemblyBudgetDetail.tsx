@@ -340,7 +340,14 @@ export function AssemblyBudgetDetail({
   );
 
   const handleAddArticle = useCallback(
-    async (article: Article, quantity: number, marginPercentage: number, unitPrice: number) => {
+    async (
+      article: Article,
+      quantity: number,
+      marginPercentage: number,
+      unitPrice: number,
+      salePrice: number | undefined,
+      hasManualSalePrice: boolean
+    ) => {
       await saveBudget();
       const request: AddAssemblyArticleRequest = {
         budgetId: formData.id,
@@ -349,6 +356,8 @@ export function AssemblyBudgetDetail({
         articleId: article.id,
         quantity,
         unitPrice,
+        salePrice,
+        hasManualSalePrice,
         marginPercentage,
         code: generateNextCode(formData.assemblyNodes || [], selectedParentNodeId),
       };
@@ -416,6 +425,8 @@ export function AssemblyBudgetDetail({
           articleId: sourceArticle.articleId,
           quantity: sourceArticle.quantity,
           unitPrice: sourceArticle.unitPrice,
+          salePrice: sourceArticle.salePrice,
+          hasManualSalePrice: sourceArticle.hasManualSalePrice,
           marginPercentage: sourceArticle.marginPercentage,   
           code: generateNextCode(previousNodes, parentNodeId),
         });
@@ -563,6 +574,8 @@ export function AssemblyBudgetDetail({
             const base = article.quantity * article.unitPrice;
             return {
               ...article,
+              salePrice: undefined,
+              hasManualSalePrice: false,
               marginPercentage: newMargin,
               totalAmount: calculateTotalWithMargin(base, newMargin),
             };

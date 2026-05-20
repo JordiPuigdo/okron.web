@@ -32,8 +32,8 @@ export function calculateFolderMargin(
   }
 
   const effectiveMarginPercentage =
-    baseSubtotal > 0
-      ? Math.round(((totalAmount - baseSubtotal) / baseSubtotal) * 10000) / 100
+    totalAmount > 0
+      ? Math.round(((totalAmount - baseSubtotal) / totalAmount) * 10000) / 100
       : 0;
 
   return { baseSubtotal, totalAmount, effectiveMarginPercentage };

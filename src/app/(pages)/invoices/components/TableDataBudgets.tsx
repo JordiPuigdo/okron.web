@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Budget, BudgetStatus } from 'app/interfaces/Budget';
+import { Budget, BudgetStatus, BudgetType } from 'app/interfaces/Budget';
 import { DateFilter, DateFilters } from 'components/Filters/DateFilter';
 import DataTable from 'components/table/DataTable';
 import {
@@ -90,6 +90,7 @@ export const TableDataBudgets = ({
       const search = {
         startDate: dateFilters.startDate!.toISOString(),
         endDate: dateFilters.endDate!.toISOString(),
+        budgetType: BudgetType.Repair,
       };
       const budgets = await budgetService.getAll(search);
       setBudgets(budgets);

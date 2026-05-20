@@ -8,6 +8,7 @@ export interface SystemConfiguration {
   version: number;
   clientName: string;
   isCRM: boolean;
+  isDataCapture: boolean;
   wOConfiguration: WOConfiguration;
   company: Company;
 }

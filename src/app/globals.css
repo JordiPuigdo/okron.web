@@ -151,3 +151,169 @@ html, body, #root { height: 100%; margin: 0; }
   animation: tabSlide 0.2s ease-out;
 }
 
+/* ================================
+   📅 REACT-DATEPICKER — Okron brand
+   ================================ */
+
+.react-datepicker {
+  font-family: inherit;
+  border: 1px solid #C9D3E7;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+  overflow: hidden;
+}
+
+.react-datepicker__triangle {
+  display: none;
+}
+
+/* Header */
+.react-datepicker__header {
+  background-color: #59408F !important;
+  border-bottom: none;
+  padding: 10px 0 0;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header {
+  color: #ffffff !important;
+  background-color: #59408F;
+  font-weight: 600;
+  padding-bottom: 10px;
+}
+
+/* Day-names row integrated with the purple month header */
+.react-datepicker__day-names {
+  background-color: #59408F;
+  padding: 6px 0 2px;
+  border-top: none;
+}
+
+.react-datepicker__day-name {
+  color: #ffffff !important;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+/* Navigation arrows */
+.react-datepicker__navigation-icon::before {
+  border-color: #ffffff;
+  margin-top: 6px !important;
+}
+
+.react-datepicker__navigation {
+  border-radius: 50%;
+  transition: background-color 0.15s;
+}
+
+.react-datepicker__navigation:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: #E4EAF7;
+}
+
+/* Days grid */
+.react-datepicker__day {
+  color: #020D29;
+  border-radius: 6px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.react-datepicker__day:hover {
+  background-color: #E4EAF7;
+  color: #59408F;
+}
+
+/* Today */
+.react-datepicker__day--today {
+  font-weight: 700;
+  color: #59408F;
+  position: relative;
+}
+
+/* Selected day */
+.react-datepicker__day--selected,
+.react-datepicker__day--range-start,
+.react-datepicker__day--range-end,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--keyboard-selected {
+  background-color: #59408F !important;
+  color: #ffffff !important;
+  border-radius: 6px;
+}
+
+.react-datepicker__day--selected:hover,
+.react-datepicker__day--keyboard-selected:hover {
+  background-color: #8766CE !important;
+}
+
+/* In range */
+.react-datepicker__day--in-range {
+  background-color: #E4EAF7;
+  color: #59408F;
+}
+
+/* Disabled */
+.react-datepicker__day--disabled {
+  color: #C9D3E7;
+  cursor: not-allowed;
+}
+
+.react-datepicker__day--disabled:hover {
+  background-color: transparent;
+  color: #C9D3E7;
+}
+
+/* Time panel */
+.react-datepicker__time-container {
+  border-left: 1px solid #E4EAF7;
+}
+
+.react-datepicker__time-container .react-datepicker__time {
+  background-color: #ffffff;
+}
+
+.react-datepicker__time-list-item {
+  color: #020D29;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.react-datepicker__time-list-item:hover {
+  background-color: #E4EAF7 !important;
+  color: #59408F !important;
+}
+
+.react-datepicker__time-list-item--selected {
+  background-color: #59408F !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.react-datepicker__time-list-item--selected:hover {
+  background-color: #8766CE !important;
+}
+
+/* Input wrapper */
+.react-datepicker-wrapper {
+  display: block;
+}
+
+.react-datepicker__input-container input {
+  width: 100%;
+  border: 1px solid #C9D3E7;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  color: #020D29;
+  background-color: #ffffff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.react-datepicker__input-container input:focus {
+  border-color: #59408F;
+  box-shadow: 0 0 0 3px rgba(89, 64, 143, 0.15);
+}
+

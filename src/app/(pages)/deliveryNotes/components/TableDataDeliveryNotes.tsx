@@ -125,14 +125,10 @@ export const TableDataDeliveryNotes = ({
 
   const getFilteredDeliveryNotes = (): DeliveryNote[] => {
     return deliveryNotes.filter(deliveryNote => {
-      // Filtro por facturado: si showInvoiceds es true, mostrar solo facturados
-      // Si showInvoiceds es false, mostrar solo no facturados
-      // Si queremos mostrar todos, comentar o eliminar este filtro
       if (deliveryNote.isInvoiced !== showInvoiceds) {
         return false;
       }
 
-      // Filtro por estado
       if (
         filters.status.length > 0 &&
         !filters.status.includes(deliveryNote.status)
@@ -189,7 +185,7 @@ export const TableDataDeliveryNotes = ({
               type="checkbox"
               className="cursor-pointer"
               checked={showInvoiceds}
-              onChange={() => {}} // Controlado por onClick del div
+              onChange={() => {}}
             />
             💰
           </div>

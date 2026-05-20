@@ -2,7 +2,7 @@
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { useEffect, useMemo, useState } from 'react';
+import { forwardRef, useEffect, useMemo, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { useBudgetAssembly } from 'app/hooks/useBudgetAssembly';
 import { useCustomers } from 'app/hooks/useCustomers';
@@ -286,6 +286,23 @@ function CustomerField({
   );
 }
 
+const ModalDateInput = forwardRef<
+  HTMLButtonElement,
+  { value?: string; onClick?: () => void }
+>(function ModalDateInput({ value, onClick }, ref) {
+  return (
+    <button
+      ref={ref}
+      type="button"
+      onClick={onClick}
+      className="w-full flex items-center gap-2 rounded-lg border border-[#C9D3E7] bg-white px-3 py-2.5 text-sm text-left text-[#020D29] transition-colors hover:border-[#59408F] focus:outline-none focus:border-[#59408F] focus:ring-2 focus:ring-[#59408F]/15"
+    >
+      <Calendar className="h-4 w-4 shrink-0 text-[#59408F]" />
+      <span className="font-medium">{value}</span>
+    </button>
+  );
+});
+
 function DateFields({
   budgetDate,
   validUntil,
@@ -303,19 +320,18 @@ function DateFields({
     <div className="grid grid-cols-2 gap-4">
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-          <Calendar className="h-4 w-4 inline mr-1" />
           {t('budget.preview.budgetDate')}
         </label>
         <DatePicker
           selected={budgetDate}
           onChange={date => date && onBudgetDateChange(date)}
           dateFormat="dd/MM/yyyy"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+          customInput={<ModalDateInput />}
+          wrapperClassName="w-full"
         />
       </div>
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-          <Calendar className="h-4 w-4 inline mr-1" />
           {t('budget.preview.validUntil')}
         </label>
         <DatePicker
@@ -323,7 +339,8 @@ function DateFields({
           onChange={date => date && onValidUntilChange(date)}
           dateFormat="dd/MM/yyyy"
           minDate={budgetDate}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+          customInput={<ModalDateInput />}
+          wrapperClassName="w-full"
         />
       </div>
     </div>
