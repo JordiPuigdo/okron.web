@@ -1,22 +1,31 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 interface TranslationState {
   translations: Record<string, string>;
   loading: boolean;
   error: string | null;
   currentLang: string;
+  _hasHydrated: boolean;
   fetchTranslations: (lang: string, prefix?: string) => Promise<boolean>;
   setLang: (lang: string) => void;
+  setHasHydrated: (state: boolean) => void;
 }
+
+const STORE_VERSION = parseInt(process.env.NEXT_PUBLIC_BUILD_VERSION || '1', 10);
+
+const getInitialTranslationState = () => ({
+  translations: {},
+  loading: false,
+  error: null,
+  currentLang: process.env.NEXT_PUBLIC_DEFAULT_LANG || 'ca',
+  _hasHydrated: false,
+});
 
 export const useTranslationStore = create<TranslationState>()(
   persist(
     set => ({
-      translations: {},
-      loading: false,
-      error: null,
-      currentLang: process.env.NEXT_PUBLIC_DEFAULT_LANG || 'ca',
+      ...getInitialTranslationState(),
       fetchTranslations: async (lang, prefix = '') => {
         set({ loading: true, error: null });
         try {
@@ -32,18 +41,34 @@ export const useTranslationStore = create<TranslationState>()(
         }
       },
       setLang: lang => set({ currentLang: lang }),
+      setHasHydrated: state => set({ _hasHydrated: state }),
     }),
     {
       name: 'translation-store',
-      version: parseInt(process.env.NEXT_PUBLIC_BUILD_VERSION || '1', 10),
+      version: STORE_VERSION,
+      storage: createJSONStorage(() => localStorage),
       partialize: state => ({
         translations: state.translations,
         currentLang: state.currentLang,
       }),
+      onRehydrateStorage: () => state => {
+        state?.setHasHydrated(true);
+      },
       migrate: (persistedState, version) => {
+        // Si la versión cambia, devolver estado inicial limpio
+        // No extender el estado antiguo para evitar propiedades obsoletas
+        if (version !== STORE_VERSION) {
+          return getInitialTranslationState() as TranslationState;
+        }
+        // Si es la misma versión, validar la estructura básica
+        const state = persistedState as Partial<TranslationState>;
+        if (!state || typeof state.translations !== 'object') {
+          return getInitialTranslationState() as TranslationState;
+        }
         return {
-          ...(persistedState as TranslationState),
-          translations: {},
+          ...getInitialTranslationState(),
+          translations: state.translations || {},
+          currentLang: state.currentLang || process.env.NEXT_PUBLIC_DEFAULT_LANG || 'ca',
         } as TranslationState;
       },
     }

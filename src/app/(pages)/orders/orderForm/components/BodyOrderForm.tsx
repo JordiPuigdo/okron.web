@@ -127,11 +127,11 @@ export function BodyOrderForm({
   function handleReturnItem(item: OrderItemRequest) {
     setOrder({
       ...order,
-      items: order.items.filter(x => x.sparePartId !== item.sparePartId),
+      items: order.items.filter(x => !(x.sparePartId === item.sparePartId && x.wareHouseId === item.wareHouseId)),
     });
     if (orderPurchase?.items) {
       const updatedOrderPurchaseItems = orderPurchase.items.map(x => {
-        if (x.sparePartId === item.sparePartId) {
+        if (x.sparePartId === item.sparePartId && x.wareHouseId === item.wareHouseId) {
           return {
             ...x,
             quantityPendient: (x.quantityPendient ?? 0) + item.quantity,
@@ -160,7 +160,7 @@ export function BodyOrderForm({
     if (receiveAll && orderPurchase?.items) {
       const updatedOrderItems = orderPurchase.items.map(orderItem => {
         const purchaseItem = orderPurchase.items.find(
-          x => x.sparePartId === orderItem.sparePartId
+          x => x.sparePartId === orderItem.sparePartId && x.wareHouseId === orderItem.wareHouseId
         );
         return purchaseItem
           ? {
@@ -191,12 +191,12 @@ export function BodyOrderForm({
 
     // Handle single item case
     const itemExists = order.items.some(
-      x => x.sparePartId === item.sparePartId
+      x => x.sparePartId === item.sparePartId && x.wareHouseId === item.wareHouseId
     );
 
     const updatedOrderItems = itemExists
       ? order.items.map(x =>
-          x.sparePartId === item.sparePartId
+          x.sparePartId === item.sparePartId && x.wareHouseId === item.wareHouseId
             ? {
                 ...x,
                 quantityReceived: (x.quantityReceived ?? 0) + item.quantity,
@@ -212,7 +212,7 @@ export function BodyOrderForm({
 
     if (orderPurchase?.items) {
       const updatedOrderPurchaseItems = orderPurchase.items.map(x =>
-        x.sparePartId === item.sparePartId
+        x.sparePartId === item.sparePartId && x.wareHouseId === item.wareHouseId
           ? {
               ...x,
               quantityPendient: 0,
@@ -226,8 +226,8 @@ export function BodyOrderForm({
       });
     }
   }
-  const onAddUnits = (units: number, sparePartId: string) => {
-    const exists = order.items.find(x => x.sparePartId === sparePartId);
+  const onAddUnits = (units: number, sparePartId: string, wareHouseId: string | undefined) => {
+    const exists = order.items.find(x => x.sparePartId === sparePartId && x.wareHouseId === wareHouseId);
     if (exists) {
       const newItem: OrderItemRequest = {
         sparePartId: exists.sparePartId,
@@ -245,7 +245,7 @@ export function BodyOrderForm({
       };
       exists.quantityPendient = (exists.quantityPendient ?? 0) - units;
       const updatedItems = order.items.map(x =>
-        x.sparePartId === sparePartId ? newItem : x
+        x.sparePartId === sparePartId && x.wareHouseId === wareHouseId ? newItem : x
       );
       setOrder({
         ...order,
@@ -253,7 +253,7 @@ export function BodyOrderForm({
       });
     } else {
       const item = orderPurchase?.items.find(
-        x => x.sparePartId === sparePartId
+        x => x.sparePartId === sparePartId && x.wareHouseId === wareHouseId
       );
       if (item) {
         const newItem: OrderItemRequest = {
@@ -277,7 +277,7 @@ export function BodyOrderForm({
     }
     if (orderPurchase?.items) {
       const updatedOrderPurchaseItems = orderPurchase.items.map(x => {
-        if (x.sparePartId === sparePartId) {
+        if (x.sparePartId === sparePartId && x.wareHouseId === wareHouseId) {
           return {
             ...x,
             quantityPendient: (x.quantityPendient ?? 0) - units,

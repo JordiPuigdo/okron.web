@@ -7,7 +7,7 @@ import { Modal } from 'designSystem/Modals/Modal';
 
 interface ModalUnitsProps {
   item: OrderItemRequest;
-  onAddUnits(units: number, sparePartId: string): void;
+  onAddUnits(units: number, sparePartId: string, wareHouseId: string | undefined): void;
 }
 
 const ModalUnits: React.FC<ModalUnitsProps> = ({ item, onAddUnits }) => {
@@ -50,7 +50,7 @@ const ModalUnits: React.FC<ModalUnitsProps> = ({ item, onAddUnits }) => {
 
     if (e.key === 'Enter') {
       checkUnits(units);
-      if (!error && units > 0) onAddUnits(units, item.sparePart.id);
+      if (!error && units > 0) onAddUnits(units, item.sparePart.id, item.wareHouseId);
     }
   };
 
@@ -102,7 +102,7 @@ const ModalUnits: React.FC<ModalUnitsProps> = ({ item, onAddUnits }) => {
               className={`bg-green-500 text-white p-2 rounded-md  ${
                 error !== '' ? 'opacity-50 ' : 'hover:bg-green-600'
               }`}
-              onClick={() => onAddUnits(units, item.sparePart.id)}
+              onClick={() => onAddUnits(units, item.sparePart.id, item.wareHouseId)}
               disabled={error !== ''}
             >
               {t('add')}

@@ -30,11 +30,11 @@ export default function OrderDetailItems({
   const { updateSparePartPrice, updateSparePartDiscount } = useProviders();
 
   function handleUpdateEstimatedDeliveryDate(
-    item: OrderItemRequest,
+    index: number,
     date: string
   ) {
-    const newItems = itemsDetail.map(x => {
-      if (x.sparePartId === item.sparePartId) {
+    const newItems = itemsDetail.map((x, i) => {
+      if (i === index) {
         return { ...x, estimatedDeliveryDate: date };
       }
       return x;
@@ -43,15 +43,15 @@ export default function OrderDetailItems({
     onChangeEstimatedDeliveryDate(newItems);
   }
 
-  function handleUpdatePrice(item: OrderItemRequest, price: string) {
+  function handleUpdatePrice(index: number, item: OrderItemRequest, price: string) {
     if (item.unitPrice !== price) {
       updateSparePartPrice({
         providerId: item.provider ? item.provider.id : item.providerId!,
         sparePartId: item.sparePartId,
         price: price,
       });
-      const newItems = itemsDetail.map(x => {
-        if (x.sparePartId === item.sparePartId) {
+      const newItems = itemsDetail.map((x, i) => {
+        if (i === index) {
           return { ...x, unitPrice: price };
         }
         return x;
@@ -65,9 +65,9 @@ export default function OrderDetailItems({
     setItemsDetail(items);
   }, [items]);
 
-  function handleUpdateQuantity(item: OrderItemRequest, quantity: string) {
-    const newItems = itemsDetail.map(x => {
-      if (x.sparePartId === item.sparePartId) {
+  function handleUpdateQuantity(index: number, quantity: string) {
+    const newItems = itemsDetail.map((x, i) => {
+      if (i === index) {
         return { ...x, quantity: Number(quantity) };
       }
       return x;
@@ -77,6 +77,7 @@ export default function OrderDetailItems({
   }
 
   async function handleUpdateDiscount(
+    index: number,
     item: OrderItemRequest,
     discount: string
   ) {
@@ -85,8 +86,8 @@ export default function OrderDetailItems({
       sparePartId: item.sparePartId,
       discount: Number(discount),
     });
-    const newItems = itemsDetail.map(x => {
-      if (x.sparePartId === item.sparePartId) {
+    const newItems = itemsDetail.map((x, i) => {
+      if (i === index) {
         return { ...x, discount: Number(discount) };
       }
       return x;
@@ -95,9 +96,9 @@ export default function OrderDetailItems({
     onChangeDiscount(newItems);
   }
 
-  function handleUpdateTax(item: OrderItemRequest, tax: string) {
-    const newItems = itemsDetail.map(x => {
-      if (x.sparePartId === item.sparePartId) {
+  function handleUpdateTax(index: number, tax: string) {
+    const newItems = itemsDetail.map((x, i) => {
+      if (i === index) {
         return { ...x, tax: Number(tax) };
       }
       return x;
@@ -153,7 +154,7 @@ export default function OrderDetailItems({
                     <EditableCell
                       value={item.quantity.toString()}
                       onUpdate={newValue =>
-                        handleUpdateQuantity(item, newValue)
+                        handleUpdateQuantity(index, newValue)
                       }
                       canEdit={canEdit}
                     />
@@ -167,7 +168,7 @@ export default function OrderDetailItems({
                     <EditableCell
                       value={item.estimatedDeliveryDate ?? ''}
                       onUpdate={newValue =>
-                        handleUpdateEstimatedDeliveryDate(item, newValue)
+                        handleUpdateEstimatedDeliveryDate(index, newValue)
                       }
                       canEdit={canEdit}
                       type="date"
@@ -177,7 +178,7 @@ export default function OrderDetailItems({
                     <div className="flex flex-row gap-2 items-center justify-center">
                       <EditableCell
                         value={item.unitPrice}
-                        onUpdate={newValue => handleUpdatePrice(item, newValue)}
+                        onUpdate={newValue => handleUpdatePrice(index, item, newValue)}
                         canEdit={canEdit}
                       />
                       <span>€</span>
@@ -187,7 +188,7 @@ export default function OrderDetailItems({
                     <EditableCell
                       value={item.discount.toString()}
                       onUpdate={newValue =>
-                        handleUpdateDiscount(item, newValue)
+                        handleUpdateDiscount(index, item, newValue)
                       }
                       canEdit={canEdit}
                     />
@@ -195,7 +196,7 @@ export default function OrderDetailItems({
                   <td className="p-2 border text-center">
                     <EditableCell
                       value={(item.tax ?? 21).toString()}
-                      onUpdate={newValue => handleUpdateTax(item, newValue)}
+                      onUpdate={newValue => handleUpdateTax(index, newValue)}
                       canEdit={canEdit}
                     />
                   </td>

@@ -17,6 +17,7 @@ interface SessionStore {
   assemblyBudgetDateFilters: AssemblyBudgetDateFilters | undefined;
   isMenuOpen: boolean;
   config: SystemConfiguration | undefined;
+  _hasHydrated: boolean;
 }
 
 interface SessionActions {
@@ -27,18 +28,26 @@ interface SessionActions {
   setAssemblyBudgetDateFilters: (filters: AssemblyBudgetDateFilters | undefined) => void;
   setIsMenuOpen: (isMenuOpen: boolean) => void;
   setConfig: (config: SystemConfiguration) => void;
+  setHasHydrated: (state: boolean) => void;
 }
+
+const STORE_VERSION = parseInt(process.env.NEXT_PUBLIC_BUILD_VERSION || '1', 10);
+
+const getInitialSessionState = (): SessionStore => ({
+  loginUser: undefined,
+  operatorLogged: undefined,
+  filterWorkOrders: undefined,
+  filterSpareParts: undefined,
+  assemblyBudgetDateFilters: undefined,
+  isMenuOpen: false,
+  config: undefined,
+  _hasHydrated: false,
+});
 
 export const useSessionStore = create(
   persist<SessionStore & SessionActions>(
     set => ({
-      loginUser: undefined,
-      operatorLogged: undefined,
-      filterWorkOrders: undefined,
-      filterSpareParts: undefined,
-      assemblyBudgetDateFilters: undefined,
-      isMenuOpen: false,
-      config: undefined,
+      ...getInitialSessionState(),
       setLoginUser: value => {
         set({ loginUser: value });
       },
@@ -60,23 +69,38 @@ export const useSessionStore = create(
       setConfig: value => {
         set({ config: value });
       },
+      setHasHydrated: value => {
+        set({ _hasHydrated: value });
+      },
     }),
     {
       name: 'session-storage',
-      version: parseInt(process.env.NEXT_PUBLIC_BUILD_VERSION || '1', 10),
+      version: STORE_VERSION,
       storage: createJSONStorage(() => sessionStorage),
+      onRehydrateStorage: () => state => {
+        state?.setHasHydrated(true);
+      },
       migrate: (persistedState, version) => {
-        // Al cambiar de versión, devolver estado inicial vacío
-        // Zustand combinará esto con las funciones del store
+        // Si la versión cambia, devolver estado inicial limpio
+        // No extender el estado antiguo para evitar propiedades obsoletas
+        if (version !== STORE_VERSION) {
+          return getInitialSessionState() as SessionStore & SessionActions;
+        }
+        // Si es la misma versión pero el estado está corrupto, limpiar
+        const state = persistedState as Partial<SessionStore>;
+        if (!state || typeof state !== 'object') {
+          return getInitialSessionState() as SessionStore & SessionActions;
+        }
+        // Mantener solo propiedades conocidas con valores válidos
         return {
-          ...(persistedState as SessionStore),
-          loginUser: undefined,
-          operatorLogged: undefined,
-          filterWorkOrders: undefined,
-          filterSpareParts: undefined,
-          assemblyBudgetDateFilters: undefined,
-          isMenuOpen: false,
-          config: undefined,
+          ...getInitialSessionState(),
+          loginUser: state.loginUser,
+          operatorLogged: state.operatorLogged,
+          filterWorkOrders: state.filterWorkOrders,
+          filterSpareParts: state.filterSpareParts,
+          assemblyBudgetDateFilters: state.assemblyBudgetDateFilters,
+          isMenuOpen: state.isMenuOpen ?? false,
+          config: state.config,
         } as SessionStore & SessionActions;
       },
     }
