@@ -11,10 +11,10 @@ import {
   CreateVacationRequestDto,
   VacationType,
 } from 'app/interfaces/Vacation';
+import { Input } from 'components/ui/input';
 import ca from 'date-fns/locale/ca';
 import { Button } from 'designSystem/Button/Buttons';
 import { cn } from 'lib/utils';
-import { Input } from 'components/ui/input';
 
 interface VacationRequestFormProps {
   operatorId: string;
