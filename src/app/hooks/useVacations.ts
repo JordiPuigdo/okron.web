@@ -81,12 +81,11 @@ export const useVacations = (operatorId?: string) => {
       }
 
       const newRequest = await vacationService.createVacationRequest(dto);
-      setVacationRequests([...vacationRequests, newRequest]);
 
-      // Refresh balance after creating request
-      if (operatorId) {
-        await fetchVacationBalance(operatorId);
-      }
+      await Promise.all([
+        fetchVacationBalance(dto.operatorId),
+        fetchVacationRequests(dto.operatorId),
+      ]);
 
       return newRequest;
     } catch (err) {

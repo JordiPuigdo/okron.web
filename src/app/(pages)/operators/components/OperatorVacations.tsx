@@ -76,7 +76,7 @@ export const OperatorVacations = ({
       </div>
 
       {vacationBalance && (
-        <VacationBalance balance={vacationBalance} operator={operator} />
+        <VacationBalance balance={vacationBalance} />
       )}
 
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -98,6 +98,7 @@ export const OperatorVacations = ({
       >
         <VacationRequestForm
           operatorId={operatorId}
+          workingHoursPerDay={vacationBalance?.workingHoursPerDay}
           onSuccess={handleRequestSuccess}
           onCancel={() => setIsModalOpen(false)}
         />

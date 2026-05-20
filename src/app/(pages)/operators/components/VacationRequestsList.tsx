@@ -3,7 +3,11 @@
 import { useState } from 'react';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { useVacations } from 'app/hooks/useVacations';
-import { VacationRequest, VacationStatus } from 'app/interfaces/Vacation';
+import {
+  VacationRequest,
+  VacationStatus,
+  VacationType,
+} from 'app/interfaces/Vacation';
 import { ErrorMessage } from 'components/Alerts/ErrorMessage';
 import { SuccessfulMessage } from 'components/Alerts/SuccesfullMessage';
 import dayjs from 'dayjs';
@@ -184,7 +188,9 @@ export const VacationRequestsList = ({
               {getStatusText(request.status)}
             </span>
             <span className="text-sm font-medium text-gray-600">
-              {request.totalDays} {t('days')}
+              {request.vacationType === VacationType.Hours
+                ? `${request.totalHours} h`
+                : `${request.totalDays} ${t('days')}`}
             </span>
           </div>
           {request.reason && (

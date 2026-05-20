@@ -6,6 +6,7 @@ import {
   VacationRequest,
   VacationRequestSummary,
   VacationStatus,
+  VacationType,
 } from '../interfaces/Vacation';
 
 export class VacationService {
@@ -15,38 +16,26 @@ export class VacationService {
     this.baseUrl = baseUrl;
   }
 
-  /**
-   * Get vacation balance for an operator
-   */
-  async getVacationBalance(
-    operatorId: string,
-    year?: number
-  ): Promise<VacationBalance> {
+  async getVacationBalance(operatorId: string, year?: number): Promise<VacationBalance> {
     try {
-      const currentYear = year || new Date().getFullYear();
-      const [availableResponse, usedResponse] = await Promise.all([
-        fetch(
-          `${this.baseUrl}vacation-request/operator/${operatorId}/available-days/${currentYear}`
-        ),
-        fetch(
-          `${this.baseUrl}vacation-request/operator/${operatorId}/used-days/${currentYear}`
-        ),
-      ]);
+      const currentYear = year ?? new Date().getFullYear();
+      const response = await fetch(
+        `${this.baseUrl}vacation-request/operator/${operatorId}/balance/${currentYear}`
+      );
 
-      if (!availableResponse.ok || !usedResponse.ok) {
-        throw new Error('Failed to fetch vacation balance');
-      }
+      if (!response.ok) throw new Error('Failed to fetch vacation balance');
 
-      const availableData = await availableResponse.json();
-      const usedData = await usedResponse.json();
-
-      const availableDays = availableData.availableDays || 0;
-      const usedDays = usedData.usedDays || 0;
+      const data = await response.json();
 
       return {
         operatorId,
-        availableDays,
-        usedDays,
+        totalHours: data.totalHours ?? 0,
+        usedHours: data.usedHours ?? 0,
+        availableHours: data.availableHours ?? 0,
+        workingHoursPerDay: data.workingHoursPerDay ?? 8,
+        totalDays: data.totalDays ?? 0,
+        usedDays: data.usedDays ?? 0,
+        availableDays: data.availableDays ?? 0,
       };
     } catch (error) {
       console.error('Error fetching vacation balance:', error);
@@ -54,131 +43,79 @@ export class VacationService {
     }
   }
 
-  /**
-   * Get all vacation requests for an operator
-   */
   async getVacationRequests(operatorId: string): Promise<VacationRequest[]> {
     try {
-      const url = `${this.baseUrl}vacation-request/operator/${operatorId}`;
-      const response = await fetch(url);
+      const response = await fetch(
+        `${this.baseUrl}vacation-request/operator/${operatorId}`
+      );
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch vacation requests');
-      }
-
-      if (response.status === 204) {
-        return [];
-      }
+      if (!response.ok) throw new Error('Failed to fetch vacation requests');
+      if (response.status === 204) return [];
 
       const data = await response.json();
-
-      return (data as Array<Partial<VacationRequest>>).map(
-        item =>
-          ({
-            ...item,
-            startDate: new Date(item.startDate!),
-            endDate: new Date(item.endDate!),
-            creationDate: item.creationDate
-              ? new Date(item.creationDate)
-              : undefined,
-            approvedDate: item.approvedDate
-              ? new Date(item.approvedDate)
-              : undefined,
-            totalDays: item.totalDays || 0,
-          } as VacationRequest)
-      );
+      return (data as Array<Partial<VacationRequest>>).map(item => this.mapVacationRequest(item));
     } catch (error) {
       console.error('Error fetching vacation requests:', error);
       throw error;
     }
   }
 
-  /**
-   * Get pending vacation requests (for admin/manager view)
-   */
   async getPendingRequests(): Promise<VacationRequest[]> {
     try {
       const response = await fetch(`${this.baseUrl}vacation-request/pending`);
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch pending requests');
-      }
-
-      if (response.status === 204) {
-        return [];
-      }
+      if (!response.ok) throw new Error('Failed to fetch pending requests');
+      if (response.status === 204) return [];
 
       const data = await response.json();
-
-      return (data as Array<Partial<VacationRequest>>).map(
-        item =>
-          ({
-            ...item,
-            startDate: new Date(item.startDate!),
-            endDate: new Date(item.endDate!),
-            creationDate: item.creationDate
-              ? new Date(item.creationDate)
-              : undefined,
-            approvedDate: item.approvedDate
-              ? new Date(item.approvedDate)
-              : undefined,
-            totalDays: item.totalDays || 0,
-          } as VacationRequest)
-      );
+      return (data as Array<Partial<VacationRequest>>).map(item => this.mapVacationRequest(item));
     } catch (error) {
       console.error('Error fetching pending requests:', error);
       throw error;
     }
   }
 
-  /**
-   * Create a new vacation request
-   */
-  async createVacationRequest(
-    dto: CreateVacationRequestDto
-  ): Promise<VacationRequest> {
+  async createVacationRequest(dto: CreateVacationRequestDto): Promise<VacationRequest> {
     try {
       const requestBody = {
         operatorId: dto.operatorId,
         startDate: dto.startDate.toISOString(),
         endDate: dto.endDate.toISOString(),
-        reason: dto.reason || '',
+        reason: dto.reason ?? '',
         status: VacationStatus.Pending,
+        vacationType: dto.vacationType,
+        startTime: dto.startTime ?? null,
+        endTime: dto.endTime ?? null,
       };
 
       const response = await fetch(`${this.baseUrl}vacation-request`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to create vacation request');
-      }
+      if (!response.ok) throw new Error('Failed to create vacation request');
 
-      // La API puede devolver texto o JSON
       const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
+      if (contentType?.includes('application/json')) {
         const data = await response.json();
-        return {
-          ...data,
-          startDate: new Date(data.startDate),
-          endDate: new Date(data.endDate),
-          totalDays: data.totalDays || 0,
-        };
+        return this.mapVacationRequest(data);
       }
 
-      // Si devuelve texto, retornamos el request con los datos enviados
       return {
         id: '',
         operatorId: dto.operatorId,
         startDate: dto.startDate,
         endDate: dto.endDate,
-        reason: dto.reason || '',
+        reason: dto.reason ?? '',
         status: VacationStatus.Pending,
-        totalDays: this.calculateVacationDays(dto.startDate, dto.endDate),
+        vacationType: dto.vacationType,
+        totalDays: 0,
+        totalHours: 0,
+        startTime: dto.startTime,
+        endTime: dto.endTime,
+        active: true,
+        creationDate: new Date(),
       } as VacationRequest;
     } catch (error) {
       console.error('Error creating vacation request:', error);
@@ -186,29 +123,15 @@ export class VacationService {
     }
   }
 
-  /**
-   * Approve vacation request
-   */
-  async approveVacationRequest(
-    id: string,
-    dto: ApprovalRequestDto
-  ): Promise<boolean> {
+  async approveVacationRequest(id: string, dto: ApprovalRequestDto): Promise<boolean> {
     try {
-      const response = await fetch(
-        `${this.baseUrl}vacation-request/${id}/approve`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(dto),
-        }
-      );
+      const response = await fetch(`${this.baseUrl}vacation-request/${id}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dto),
+      });
 
-      if (!response.ok) {
-        throw new Error('Failed to approve vacation request');
-      }
-
+      if (!response.ok) throw new Error('Failed to approve vacation request');
       return true;
     } catch (error) {
       console.error('Error approving vacation request:', error);
@@ -216,29 +139,15 @@ export class VacationService {
     }
   }
 
-  /**
-   * Reject vacation request
-   */
-  async rejectVacationRequest(
-    id: string,
-    dto: RejectionRequestDto
-  ): Promise<boolean> {
+  async rejectVacationRequest(id: string, dto: RejectionRequestDto): Promise<boolean> {
     try {
-      const response = await fetch(
-        `${this.baseUrl}vacation-request/${id}/reject`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(dto),
-        }
-      );
+      const response = await fetch(`${this.baseUrl}vacation-request/${id}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dto),
+      });
 
-      if (!response.ok) {
-        throw new Error('Failed to reject vacation request');
-      }
-
+      if (!response.ok) throw new Error('Failed to reject vacation request');
       return true;
     } catch (error) {
       console.error('Error rejecting vacation request:', error);
@@ -246,25 +155,14 @@ export class VacationService {
     }
   }
 
-  /**
-   * Cancel vacation request
-   */
   async cancelVacationRequest(id: string): Promise<boolean> {
     try {
-      const response = await fetch(
-        `${this.baseUrl}vacation-request/${id}/cancel`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${this.baseUrl}vacation-request/${id}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
 
-      if (!response.ok) {
-        throw new Error('Failed to cancel vacation request');
-      }
-
+      if (!response.ok) throw new Error('Failed to cancel vacation request');
       return true;
     } catch (error) {
       console.error('Error cancelling vacation request:', error);
@@ -272,25 +170,14 @@ export class VacationService {
     }
   }
 
-  /**
-   * Reactivate a cancelled vacation request
-   */
   async reactivateVacationRequest(id: string): Promise<boolean> {
     try {
-      const response = await fetch(
-        `${this.baseUrl}vacation-request/${id}/reactivate`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${this.baseUrl}vacation-request/${id}/reactivate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
 
-      if (!response.ok) {
-        throw new Error('Failed to reactivate vacation request');
-      }
-
+      if (!response.ok) throw new Error('Failed to reactivate vacation request');
       return true;
     } catch (error) {
       console.error('Error reactivating vacation request:', error);
@@ -298,22 +185,14 @@ export class VacationService {
     }
   }
 
-  /**
-   * Delete a vacation request
-   */
   async deleteVacationRequest(id: string): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}vacation-request/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete vacation request');
-      }
-
+      if (!response.ok) throw new Error('Failed to delete vacation request');
       return true;
     } catch (error) {
       console.error('Error deleting vacation request:', error);
@@ -321,9 +200,6 @@ export class VacationService {
     }
   }
 
-  /**
-   * Get vacation summary by date range
-   */
   async getVacationSummary(
     startDate: Date,
     endDate: Date,
@@ -335,84 +211,89 @@ export class VacationService {
         endDate: endDate.toISOString().split('T')[0],
       });
 
-      if (operatorId) {
-        params.append('operatorId', operatorId);
-      }
+      if (operatorId) params.append('operatorId', operatorId);
 
       const response = await fetch(
         `${this.baseUrl}vacation-request/summary?${params.toString()}`
       );
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch vacation summary');
-      }
-
-      if (response.status === 204) {
-        return [];
-      }
+      if (!response.ok) throw new Error('Failed to fetch vacation summary');
+      if (response.status === 204) return [];
 
       const data = await response.json();
-
-      return (data as Array<Partial<VacationRequestSummary>>).map(
-        item =>
-          ({
-            operatorId: item.operatorId,
-            operatorName: item.operatorName,
-            startDate: new Date(item.startDate!),
-            endDate: new Date(item.endDate!),
-            workingDays: item.workingDays,
-            status: item.status,
-            reason: item.reason,
-          } as VacationRequestSummary)
-      );
+      return (data as Array<Partial<VacationRequestSummary>>).map(item => ({
+        operatorId: item.operatorId ?? '',
+        operatorName: item.operatorName ?? '',
+        startDate: new Date(item.startDate!),
+        endDate: new Date(item.endDate!),
+        workingDays: item.workingDays ?? 0,
+        totalHours: item.totalHours ?? 0,
+        vacationType: item.vacationType ?? VacationType.FullDay,
+        workingHoursPerDay: item.workingHoursPerDay ?? 8,
+        status: item.status ?? VacationStatus.Pending,
+        reason: item.reason ?? '',
+      } as VacationRequestSummary));
     } catch (error) {
       console.error('Error fetching vacation summary:', error);
       throw error;
     }
   }
 
-  /**
-   * Validate vacation request dates
-   */
-  validateVacationRequest(dto: CreateVacationRequestDto): {
-    isValid: boolean;
-    errors: string[];
-  } {
+  validateVacationRequest(dto: CreateVacationRequestDto): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-
-    if (dto.endDate < dto.startDate) {
-      errors.push('La fecha de fin debe ser posterior a la fecha de inicio');
-    }
 
     if (isNaN(dto.startDate.getTime()) || isNaN(dto.endDate.getTime())) {
-      errors.push('Las fechas no son válidas');
+      errors.push('Les dates no són vàlides');
     }
 
-    return {
-      isValid: errors.length === 0,
-      errors,
-    };
+    if (dto.vacationType === VacationType.FullDay) {
+      if (dto.endDate < dto.startDate) {
+        errors.push('La data de fi ha de ser posterior a la data d\'inici');
+      }
+    }
+
+    if (dto.vacationType === VacationType.Hours) {
+      const day = dto.startDate.getDay();
+      if (day === 0 || day === 6) {
+        errors.push('No pots sol·licitar hores en cap de setmana');
+      }
+      if (dto.startTime && dto.endTime && dto.startTime >= dto.endTime) {
+        errors.push('L\'hora de fi ha de ser posterior a la d\'inici');
+      }
+    }
+
+    return { isValid: errors.length === 0, errors };
   }
 
-  /**
-   * Calculate number of vacation days between two dates
-   * Excludes weekends
-   */
   calculateVacationDays(startDate: Date, endDate: Date): number {
     let count = 0;
     const current = new Date(startDate);
 
     while (current <= endDate) {
-      const dayOfWeek = current.getDay();
-      // Count only weekdays (Monday to Friday)
-      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-        count++;
-      }
+      const day = current.getDay();
+      if (day !== 0 && day !== 6) count++;
       current.setDate(current.getDate() + 1);
     }
 
     return count;
+  }
+
+  calculateVacationHours(startTime: string, endTime: string): number {
+    const [startH, startM] = startTime.split(':').map(Number);
+    const [endH, endM] = endTime.split(':').map(Number);
+    return (endH * 60 + endM - (startH * 60 + startM)) / 60;
+  }
+
+  private mapVacationRequest(item: Partial<VacationRequest>): VacationRequest {
+    return {
+      ...item,
+      startDate: new Date(item.startDate!),
+      endDate: new Date(item.endDate!),
+      creationDate: item.creationDate ? new Date(item.creationDate) : undefined,
+      approvedDate: item.approvedDate ? new Date(item.approvedDate) : undefined,
+      totalDays: item.totalDays ?? 0,
+      totalHours: item.totalHours ?? 0,
+      vacationType: item.vacationType ?? VacationType.FullDay,
+    } as VacationRequest;
   }
 }
