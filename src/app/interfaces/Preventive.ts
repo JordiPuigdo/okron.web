@@ -69,3 +69,22 @@ export interface DailyPreventivesAndOperations {
   preventive: Preventive;
   workOrder: WorkOrder | null;
 }
+
+export interface BatchExecutePreventivesRequest {
+  items: BatchPreventiveItem[];
+  userId: string;
+  operatorId: string;
+}
+
+export interface BatchPreventiveItem {
+  preventiveId: string;
+  executionDate: Date;
+}
+
+export interface ScheduledPreventiveItem {
+  id: string;
+  preventive: Preventive;
+  workOrder: WorkOrder | null;
+  scheduledDate: Date;
+  isLaunched: boolean;
+}

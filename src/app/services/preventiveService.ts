@@ -1,5 +1,6 @@
 import {
   AssignOperatorToPreventivesRequest,
+  BatchExecutePreventivesRequest,
   CreatePreventiveRequest,
   DailyPreventives,
   GetWOByPreventiveIdRequest,
@@ -284,10 +285,34 @@ class PreventiveService {
         throw new Error(`Failed to generate preventive schedule`);
       }
 
-      const data = await response.json(); // Aquí recibes List<DailyPreventives>
+      const data = await response.json();
       return data;
     } catch (error) {
       console.error('Error generating preventive schedule:', error);
+      throw error;
+    }
+  }
+
+  async batchExecutePreventives(
+    request: BatchExecutePreventivesRequest
+  ): Promise<WorkOrder[]> {
+    try {
+      const url = `${this.baseUrl}preventive/BatchExecutePreventives`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to batch execute preventives');
+      }
+
+      return (await response.json()) as WorkOrder[];
+    } catch (error) {
+      console.error('Error batch executing preventives:', error);
       throw error;
     }
   }

@@ -65,6 +65,14 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
       },
       {
         key: generateKey(),
+        titleKey: 'sidebar.preventive.scheduled',
+        path: '/preventive/scheduled',
+        icon: SvgClock,
+        permission: [UserPermission.Administrator],
+        userType: [UserType.Maintenance],
+      },
+      {
+        key: generateKey(),
         titleKey: 'sidebar.inspectionPoints',
         path: '/inspectionPoints',
         icon: SvgInspect,

@@ -7,6 +7,7 @@ const useRoutes = () => {
       configuration: '/preventive',
       preventiveForm: '/preventive/preventiveForm',
       inspectionPoints: '/inspectionPoints',
+      scheduled: '/preventive/scheduled',
     },
     corrective: '/corrective',
     workOrders: '/workOrders',
