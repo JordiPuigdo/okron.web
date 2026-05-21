@@ -13,31 +13,47 @@ export class CustomerService {
     this.baseUrl = baseUrl;
   }
 
+  private async extractErrorMessage(res: Response): Promise<string> {
+    try {
+      const text = await res.text();
+      if (!text) return `Error ${res.status}`;
+
+      try {
+        const data = JSON.parse(text) as {
+          message?: string;
+          error?: string;
+          title?: string;
+        };
+
+        return data.message || data.error || data.title || text;
+      } catch {
+        return text;
+      }
+    } catch {
+      return `Error ${res.status}`;
+    }
+  }
+
   async getAll(): Promise<Customer[]> {
     const res = await fetch(this.baseUrl);
-    if (!res.ok) throw new Error('Error fetching customers');
+    if (!res.ok) throw new Error(await this.extractErrorMessage(res));
     return res.json();
   }
 
   async getById(id: string): Promise<Customer> {
     const res = await fetch(`${this.baseUrl}/${id}`);
-    if (!res.ok) throw new Error('Error fetching customer');
+    if (!res.ok) throw new Error(await this.extractErrorMessage(res));
     return res.json();
   }
 
-  async create(data: any): Promise<Customer> {
-    try {
-      const res = await fetch(this.baseUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) throw new Error('Error creating customer');
-      return data as Customer;
-    } catch (err) {
-      throw new Error('Error creant client');
-    }
+  async create(data: object): Promise<Customer> {
+    const res = await fetch(this.baseUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(await this.extractErrorMessage(res));
+    return res.json();
   }
 
   async update(data: UpdateCustomerRequest): Promise<boolean> {
@@ -46,18 +62,18 @@ export class CustomerService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error('Error updating customer');
+    if (!res.ok) throw new Error(await this.extractErrorMessage(res));
     return res.ok;
   }
 
   async remove(id: string): Promise<void> {
     const res = await fetch(`${this.baseUrl}/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Error deleting customer');
+    if (!res.ok) throw new Error(await this.extractErrorMessage(res));
   }
 
   async getCode(): Promise<string> {
     const res = await fetch(`${this.baseUrl}/code`);
-    if (!res.ok) throw new Error('Error getting customer code');
+    if (!res.ok) throw new Error(await this.extractErrorMessage(res));
     return res.text();
   }
 
@@ -65,7 +81,7 @@ export class CustomerService {
     id: string
   ): Promise<CustomerInstallations[]> {
     const res = await fetch(`${this.baseUrl}/installations/${id}`);
-    if (!res.ok) throw new Error('Error fetching customer installations');
+    if (!res.ok) throw new Error(await this.extractErrorMessage(res));
     return res.json();
   }
 }

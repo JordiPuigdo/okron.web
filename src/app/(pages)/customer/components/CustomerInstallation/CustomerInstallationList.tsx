@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { CustomerInstallations } from 'app/interfaces/Customer';
+import { Rate } from 'app/interfaces/Rate';
 
 import CustomerInstallationItem from './CustomerInstallationItem';
 
@@ -11,34 +13,34 @@ const normalize = (v: unknown) =>
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
 
-function installationToSearchText(inst: any): string {
+function installationToSearchText(inst: Partial<CustomerInstallations>): string {
   if (!inst) return '';
-  const parts: string[] = [];
+  const parts: unknown[] = [];
 
   // básicos
   parts.push(inst.code);
   parts.push(inst.kms);
 
   // address
-  const addr = inst.address ?? {};
+  const addr = inst.address;
   parts.push(
-    addr.address,
-    addr.city,
-    addr.province,
-    addr.postalCode,
-    addr.country
+    addr?.address,
+    addr?.city,
+    addr?.province,
+    addr?.postalCode,
+    addr?.country
   );
 
   // contactes
-  (inst.contact ?? []).forEach((c: any) => {
+  (inst.contact ?? []).forEach(c => {
     parts.push(c.name, c.email, c.phone, c.description);
   });
 
   // tarifes
-  (inst.rates ?? []).forEach((r: any) => {
+  (inst.rates ?? []).forEach((r: Partial<Rate>) => {
     parts.push(r.startTime, r.endTime, r.rateTypeId, r.price);
     // si tuvieras el nombre del tipo:
-    if (r.type?.name) parts.push(r.type.name);
+    if (r.type?.description) parts.push(r.type.description);
   });
 
   return normalize(parts.filter(Boolean).join(' '));
@@ -56,9 +58,11 @@ export default function CustomerInstallationList() {
 
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
-  const installations = useWatch({ control, name: 'installations' }) as
-    | any[]
-    | undefined;
+  const watchedInstallations = useWatch({
+    control,
+    name: 'installations',
+    disabled: !debounced,
+  }) as Partial<CustomerInstallations>[] | undefined;
 
   useEffect(() => {
     const t = setTimeout(() => setDebounced(query), 200);
@@ -67,15 +71,18 @@ export default function CustomerInstallationList() {
 
   // Índices visibles según búsqueda
   const visibleIndexes = useMemo(() => {
-    if (!installations || !Array.isArray(installations)) return [];
     const q = normalize(debounced);
-    if (!q) return installations.map((_, i) => i);
+    if (!q) return fields.map((_, i) => i);
+
+    const installations = (watchedInstallations ??
+      fields) as Partial<CustomerInstallations>[];
+
     return installations.reduce<number[]>((acc, inst, i) => {
       const haystack = installationToSearchText(inst);
       if (haystack.includes(q)) acc.push(i);
       return acc;
     }, []);
-  }, [installations, debounced]);
+  }, [debounced, fields, watchedInstallations]);
 
   const handleAddNew = () => {
     if (!show) setShow(true);
@@ -91,7 +98,7 @@ export default function CustomerInstallationList() {
       },
       contact: [],
       rates: [],
-      kms: '0',
+      kms: 0,
     });
 
     // Espera a que React pinte el nuevo elemento y luego baja

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { get, useFieldArray, useFormContext } from 'react-hook-form';
+import { Controller, get, useFieldArray, useFormContext } from 'react-hook-form';
+import { useTranslations } from 'app/hooks/useTranslations';
+import { Input } from 'components/ui/input';
 
 import { InstallationRatesManager } from './InstallationsRateManager';
 
@@ -32,6 +34,8 @@ export default function CustomerInstallationItem({
     `installations.${index}.rates`
   );
 
+  const { t } = useTranslations();
+
   const [showContacts, setShowContacts] = useState<boolean>(false);
   const [showRates, setShowRates] = useState<boolean>(false);
 
@@ -54,11 +58,17 @@ export default function CustomerInstallationItem({
           )}
         </div>
         <div>
-          <label>Kms</label>
-          <input
-            {...register(`installations.${index}.kms`)}
-            className="w-full border rounded p-2"
-            placeholder="Kms"
+          <label>{t('customer.kilometers')}</label>
+          <Controller
+            control={control}
+            name={`installations.${index}.kms`}
+            render={({ field }) => (
+              <Input
+                mode="number"
+                value={field.value ?? null}
+                onValueChange={field.onChange}
+              />
+            )}
           />
         </div>
 

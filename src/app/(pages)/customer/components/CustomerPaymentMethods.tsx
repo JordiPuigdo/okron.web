@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { get, useFormContext } from 'react-hook-form';
 import { usePaymentMethods } from 'app/hooks/usePaymentMethod';
+import { ErrorMessage } from 'components/Alerts/ErrorMessage';
 
 export const CustomerPaymentMethods = () => {
   const {
@@ -86,7 +87,7 @@ export const CustomerPaymentMethods = () => {
           {showGeneral && (
             <div className="mt-2 border rounded p-4 max-h-48 overflow-auto">
               {loading && <p>Carregant mètodes...</p>}
-              {error && <p className="text-red-500">{error}</p>}
+              {error && <ErrorMessage title="Error" message={error} />}
               {generalMethods.length === 0 && !loading && (
                 <p>No hi ha mètodes generals.</p>
               )}

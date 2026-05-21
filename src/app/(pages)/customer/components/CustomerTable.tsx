@@ -2,6 +2,7 @@
 
 import { useCustomers } from 'app/hooks/useCustomers';
 import { useTranslations } from 'app/hooks/useTranslations';
+import { ErrorMessage } from 'components/Alerts/ErrorMessage';
 import DataTable from 'components/table/DataTable';
 import {
   Column,
@@ -91,7 +92,7 @@ export const CustomerTable = () => {
   const { customers, loading, error } = useCustomers();
 
   if (loading) return <div>{t('loading.customers')}</div>;
-  if (error) return <div className="text-red-500">{t('error')}: {error}</div>;
+  if (error) return <ErrorMessage title={t('common.error')} message={error} />;
 
   return (
     <div className="w-full">

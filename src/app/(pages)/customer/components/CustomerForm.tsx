@@ -11,6 +11,8 @@ import {
   Customer,
   UpdateCustomerRequest,
 } from 'app/interfaces/Customer';
+import { ErrorMessage } from 'components/Alerts/ErrorMessage';
+import { SuccessfulMessage } from 'components/Alerts/SuccesfullMessage';
 import { Textarea } from 'components/textarea';
 import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
@@ -91,27 +93,33 @@ export default function CustomerForm({
 
   const onSubmit = async (data: CreateCustomerRequest) => {
     try {
-      data.kms = data.kms || 0;
+      const customerData = {
+        ...data,
+        kms: data.kms || 0,
+      };
+
       if (isEdit) {
         const response = await updateCustomer({
-          ...(data as UpdateCustomerRequest),
+          ...(customerData as UpdateCustomerRequest),
           id: initialData!.id,
         });
+
+        if (!response) return;
+
         if (response) {
           setSuccessMessage(t('customer.updated.successfully'));
         }
       } else {
-        await createCustomer(data);
+        await createCustomer(customerData);
       }
-    } catch (err) {
+
+      setTimeout(() => {
+        setSuccessMessage(undefined);
+      }, 3000);
+
+      if (onSuccess) onSuccess();
+    } catch {
       return;
-    } finally {
-      if (!error) {
-        setTimeout(() => {
-          setSuccessMessage(undefined);
-        }, 3000);
-        if (onSuccess) onSuccess();
-      }
     }
   };
 
@@ -385,9 +393,14 @@ export default function CustomerForm({
                     {t('common.cancel')} {isSubmitting && <SvgSpinner />}
                   </Button>
                 </div>
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {error && (
+                  <ErrorMessage title={t('common.error')} message={error} />
+                )}
                 {successMessage && (
-                  <p className="text-green-500 text-sm">{successMessage}</p>
+                  <SuccessfulMessage
+                    title={t('common.success')}
+                    message={successMessage}
+                  />
                 )}
               </li>
             </ul>
