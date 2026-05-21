@@ -23,9 +23,18 @@ export class CustomerService {
           message?: string;
           error?: string;
           title?: string;
+          errors?: Record<string, string[]>;
         };
 
-        return data.message || data.error || data.title || text;
+        if (data.errors && Object.keys(data.errors).length > 0) {
+          return Object.entries(data.errors)
+            .flatMap(([field, messages]) =>
+              messages.map(msg => `${field}: ${msg}`)
+            )
+            .join(' | ');
+        }
+
+        return data.message ?? data.error ?? data.title ?? text;
       } catch {
         return text;
       }

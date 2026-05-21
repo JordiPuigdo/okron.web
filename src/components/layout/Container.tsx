@@ -10,9 +10,9 @@ export default function Container({
 }) {
   return (
     <div
-      className={`pt-20 w-full h-full flex flex-col ${fullWidth ? '' : 'mx-6'} ${className}`}
+      className={`pt-20 w-full h-full flex flex-col bg-red-2 ${fullWidth ? '' : 'mx-6'} ${className}`}
     >
-      <div className="flex-1 overflow-auto pb-6 flex flex-col min-h-0">
+      <div className="flex-1 overflow-auto pb-6 flex flex-col min-h-0 pr-6">
         {children}
       </div>
     </div>

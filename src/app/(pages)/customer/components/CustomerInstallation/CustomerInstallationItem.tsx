@@ -67,6 +67,7 @@ export default function CustomerInstallationItem({
                 mode="number"
                 value={field.value ?? null}
                 onValueChange={field.onChange}
+                allowDecimals
               />
             )}
           />

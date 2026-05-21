@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card } from 'react-bootstrap';
-import { FormProvider, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { useCustomers } from 'app/hooks/useCustomers';
 import { useTranslations } from 'app/hooks/useTranslations';
 import { SvgSpinner } from 'app/icons/icons';
@@ -14,6 +14,7 @@ import {
 import { ErrorMessage } from 'components/Alerts/ErrorMessage';
 import { SuccessfulMessage } from 'components/Alerts/SuccesfullMessage';
 import { Textarea } from 'components/textarea';
+import { Input } from 'components/ui/input';
 import { Button } from 'designSystem/Button/Buttons';
 import { useRouter } from 'next/navigation';
 
@@ -53,6 +54,7 @@ export default function CustomerForm({
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors, isSubmitting },
   } = methods;
 
@@ -284,11 +286,17 @@ export default function CustomerForm({
                     <label className="block font-medium">
                       {t('customer.kilometers')}
                     </label>
-                    <input
-                      {...register('kms')}
-                      className="w-full border rounded p-2"
-                      placeholder={t('customer.kilometers')}
-                      defaultValue={0}
+                    <Controller
+                      control={control}
+                      name="kms"
+                      render={({ field }) => (
+                        <Input
+                          mode="number"
+                          value={field.value ?? null}
+                          onValueChange={field.onChange}
+                          allowDecimals
+                        />
+                      )}
                     />
                   </div>
                   {initialData && initialData?.id.length > 0 && (
