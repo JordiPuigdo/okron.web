@@ -235,7 +235,7 @@ export function EditableTable<T extends { id: string }>({
                   }
                   return (
                     <td key={idx} className="p-3">
-                      {value}
+                      {value != null ? String(value) : ''}
                     </td>
                   );
                 })}

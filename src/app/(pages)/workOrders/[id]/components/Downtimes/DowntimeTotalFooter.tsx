@@ -5,7 +5,7 @@ import WorkOrder from 'app/interfaces/workOrder';
 interface DowntimeRowFooterProps {
   totalTime: number;
   currentWorkOrder: WorkOrder;
-  totalTimeString: (time: number) => void;
+  totalTimeString: (time: number) => string;
 }
 
 export function DowntimeTotalFooter({

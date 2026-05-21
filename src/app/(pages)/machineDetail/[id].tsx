@@ -89,7 +89,6 @@ const MachineDetailsPage = () => {
         <div className="flex-grow mr-6">
           <h2 className="text-2xl font-semibold mb-4">{machine.description}</h2>
           <p className="text-gray-600 mb-8">{t('company')}: {machine.company}</p>
-          <p className="text-gray-600 mb-8">{t('section')}: {machine.section}</p>
           <p className="text-gray-600 mb-8">
             {t('serial.number')}: {machine.serialNumber}
           </p>
