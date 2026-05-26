@@ -52,75 +52,62 @@ export const InvoiceFooter = ({
   );
 
   return (
-    <div className="flex justify-between w-full p-2 ">
-      <div className="flex w-full flex-col gap-2">
-        <div>Forma de pagament: {invoice.paymentMethod.description}</div>
-        <div>Número de compte: {company.iban}</div>
-        {invoice.paymentMethod.days > 0 && (
-          <div>Total a pagar en dies: {invoice.paymentMethod.days}</div>
-        )}
-      </div>
-
-      <div className="flex  w-full">
-        <div className="flex flex-col w-full border-t border-b ">
+    <div className="w-full mt-6 break-inside-avoid">
+      {/* Row 1: totals — right-aligned */}
+      <div className="flex justify-end border-t border-b py-2">
+        <div className="flex flex-col w-1/2">
           {hasTaxBreakdowns ? (
             <>
-              {/* Bases imponibles agrupadas por % */}
               {taxBreakdowns.map((breakdown, index) => (
-                <div
-                  key={`base-${index}`}
-                  className="flex flex-row justify-between"
-                >
-                  <div className="font-bold">
-                    Base imposable {breakdown.taxPercentage}%:
-                  </div>
-                  <div className="font-bold">
-                    {formatCurrencyServerSider(breakdown.taxableBase)}
-                  </div>
+                <div key={`base-${index}`} className="flex flex-row justify-between">
+                  <span className="font-semibold">Base imposable {breakdown.taxPercentage}%:</span>
+                  <span className="font-semibold">{formatCurrencyServerSider(breakdown.taxableBase)}</span>
                 </div>
               ))}
-
-              {/* IVAs agrupados por % */}
               {taxBreakdowns.map((breakdown, index) => (
-                <div
-                  key={`iva-${index}`}
-                  className="flex flex-row justify-between"
-                >
-                  <div className="font-bold">
-                    IVA {breakdown.taxPercentage}%:
-                  </div>
-                  <div className="font-bold">
-                    {formatCurrencyServerSider(breakdown.taxAmount)}
-                  </div>
+                <div key={`iva-${index}`} className="flex flex-row justify-between">
+                  <span className="font-semibold">IVA {breakdown.taxPercentage}%:</span>
+                  <span className="font-semibold">{formatCurrencyServerSider(breakdown.taxAmount)}</span>
                 </div>
               ))}
             </>
           ) : (
             <>
-              {/* Fallback al formato antiguo si no hay taxBreakdowns */}
               <div className="flex flex-row justify-between">
-                <div className="font-bold">Subtotal:</div>
-                <div className="font-bold">
-                  {formatCurrencyServerSider(totals?.subtotal || 0)}
-                </div>
+                <span className="font-semibold">Subtotal:</span>
+                <span className="font-semibold">{formatCurrencyServerSider(totals?.subtotal || 0)}</span>
               </div>
               <div className="flex flex-row justify-between">
-                <div className="font-bold">IVA (21%):</div>
-                <div className="font-bold">
-                  {formatCurrencyServerSider(totals?.tax || 0)}
-                </div>
+                <span className="font-semibold">IVA (21%):</span>
+                <span className="font-semibold">{formatCurrencyServerSider(totals?.tax || 0)}</span>
               </div>
             </>
           )}
-
-          {/* Total */}
-          <div className="flex flex-row justify-between text-lg border-t pt-2 mt-2">
-            <div className="font-bold">Total:</div>
-            <div className="font-bold">
-              {formatCurrencyServerSider(totals?.total || 0)}
-            </div>
+          <div className="flex flex-row justify-between text-base border-t pt-2 mt-2">
+            <span className="font-bold">Total:</span>
+            <span className="font-bold">{formatCurrencyServerSider(totals?.total || 0)}</span>
           </div>
         </div>
+      </div>
+
+      {/* Row 2: payment info — full width, below totals */}
+      <div className="flex flex-col gap-1 mt-6 text-sm text-gray-700">
+        <div>
+          <span className="font-semibold">Forma de pagament: </span>
+          {invoice.paymentMethod.description}
+        </div>
+        {company.iban && (
+          <div>
+            <span className="font-semibold">Número de compte: </span>
+            {company.iban}
+          </div>
+        )}
+        {invoice.paymentMethod.days > 0 && (
+          <div>
+            <span className="font-semibold">Total a pagar en dies: </span>
+            {invoice.paymentMethod.days}
+          </div>
+        )}
       </div>
     </div>
   );

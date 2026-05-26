@@ -118,7 +118,13 @@ export const TableDataInvoices = ({
       .map(invoice => ({
         ...invoice,
         invoiceType: invoice.invoiceType === InvoiceType.Proforma ? 'PROFORMA' : '',
-      }));
+      }))
+      .sort((a, b) =>
+        String(b.code ?? '').localeCompare(String(a.code ?? ''), undefined, {
+          numeric: true,
+          sensitivity: 'base',
+        })
+      );
   };
 
   const filteredInvoices = getFilteredInvoices();
