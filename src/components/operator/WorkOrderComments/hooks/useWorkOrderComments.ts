@@ -19,7 +19,8 @@ interface UseWorkOrderCommentsReturn {
   isLoading: boolean;
   addComment: (
     comment: string,
-    type: WorkOrderCommentType
+    type: WorkOrderCommentType,
+    files?: File[]
   ) => Promise<WorkOrderComment | null>;
   updateComment: (editComment: EditCommentState) => Promise<boolean>;
   deleteComment: (commentId: string) => Promise<boolean>;
@@ -38,14 +39,15 @@ export const useWorkOrderComments = (
   const addComment = useCallback(
     async (
       comment: string,
-      type: WorkOrderCommentType
+      type: WorkOrderCommentType,
+      files?: File[]
     ): Promise<WorkOrderComment | null> => {
       try {
         if (operatorLogged?.idOperatorLogged == undefined) {
           alert(t('error.operator.required.action'));
           return null;
         }
-        if (comment.trim().length === 0) {
+        if (comment.trim().length === 0 && (!files || files.length === 0)) {
           alert(t('error.no.comment.to.add'));
           return null;
         }
@@ -56,6 +58,7 @@ export const useWorkOrderComments = (
           operatorId: operatorLogged.idOperatorLogged,
           workOrderId,
           type,
+          files,
         };
 
         const newComment = await workOrderService.addCommentToWorkOrder(

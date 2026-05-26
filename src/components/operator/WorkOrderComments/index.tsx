@@ -70,7 +70,7 @@ const WorkOrderComments: React.FC<WorkOrderCommentsProps> = ({
       />
 
       <CommentForm
-        onSubmit={addComment}
+        onSubmit={(comment, type, files) => addComment(comment, type, files)}
         isFinished={isFinished}
         isLoading={isLoading}
       />
