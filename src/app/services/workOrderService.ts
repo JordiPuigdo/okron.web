@@ -407,15 +407,15 @@ class WorkOrderService {
     formData.append('comment', addCommentToWorkOrder.comment);
     formData.append('operatorId', addCommentToWorkOrder.operatorId);
     formData.append('workOrderId', addCommentToWorkOrder.workOrderId);
-    formData.append('type', addCommentToWorkOrder.type.toString());
-    if (
-      addCommentToWorkOrder.urls &&
-      Array.isArray(addCommentToWorkOrder.urls)
-    ) {
-      addCommentToWorkOrder.urls.forEach((url, idx) => {
-        formData.append('urls', url);
-      });
-    }
+    formData.append('Type', addCommentToWorkOrder.type.toString());
+
+    addCommentToWorkOrder.urls?.forEach(url => {
+      formData.append('Urls', url);
+    });
+
+    addCommentToWorkOrder.files?.forEach(file => {
+      formData.append('Files', file);
+    });
 
     try {
       const url = `${this.baseUrl}AddCommentToWorkOrder`;
