@@ -21,7 +21,8 @@ interface TableBodyProps {
   onPreview?: (item: any) => void;
   onCopy?: (item: any) => void;
   totalCounts: boolean;
-  totalQuantity: number | string;
+  totals: Record<string, number>;
+  totalLabel: string;
   filtersApplied: FilterValue;
 }
 
@@ -41,7 +42,8 @@ export const TableBodyComponent: React.FC<TableBodyProps> = ({
   onPreview,
   onCopy,
   totalCounts,
-  totalQuantity,
+  totals,
+  totalLabel,
   filtersApplied,
 }) => (
   <tbody className="w-full border-b">
@@ -68,8 +70,10 @@ export const TableBodyComponent: React.FC<TableBodyProps> = ({
     ))}
     <TableTotalRowComponent
       totalCounts={totalCounts}
-      totalQuantity={totalQuantity}
-      columnsLength={columns.length}
+      columns={columns}
+      totals={totals}
+      enableCheckbox={enableCheckbox}
+      label={totalLabel}
     />
   </tbody>
 );

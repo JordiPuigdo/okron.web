@@ -24,12 +24,12 @@ const getColumns = (t: (key: string) => string): Column[] => [
   { label: t('code'), key: 'code', format: ColumnFormat.TEXT },
   { label: t('tax.id'), key: 'nif', format: ColumnFormat.TEXT },
   { label: t('customer'), key: 'companyName', format: ColumnFormat.TEXT },
-  { label: t('billingSummary.taxableBase21'), key: 'base21', format: ColumnFormat.PRICE, align: ColumnnAlign.RIGHT },
-  { label: t('billingSummary.taxableBase10'), key: 'base10', format: ColumnFormat.PRICE, align: ColumnnAlign.RIGHT },
-  { label: t('billingSummary.noTax'), key: 'baseNoTax', format: ColumnFormat.PRICE, align: ColumnnAlign.RIGHT },
-  { label: t('billingSummary.iva21'), key: 'iva21', format: ColumnFormat.PRICE, align: ColumnnAlign.RIGHT },
-  { label: t('billingSummary.iva10'), key: 'iva10', format: ColumnFormat.PRICE, align: ColumnnAlign.RIGHT },
-  { label: t('total'), key: 'total', format: ColumnFormat.PRICE, align: ColumnnAlign.RIGHT },
+  { label: t('billingSummary.taxableBase21'), key: 'base21', format: ColumnFormat.PRICE, align: ColumnnAlign.RIGHT, summable: true },
+  { label: t('billingSummary.taxableBase10'), key: 'base10', format: ColumnFormat.PRICE, align: ColumnnAlign.RIGHT, summable: true },
+  { label: t('billingSummary.noTax'), key: 'baseNoTax', format: ColumnFormat.PRICE, align: ColumnnAlign.RIGHT, summable: true },
+  { label: t('billingSummary.iva21'), key: 'iva21', format: ColumnFormat.PRICE, align: ColumnnAlign.RIGHT, summable: true },
+  { label: t('billingSummary.iva10'), key: 'iva10', format: ColumnFormat.PRICE, align: ColumnnAlign.RIGHT, summable: true },
+  { label: t('total'), key: 'total', format: ColumnFormat.PRICE, align: ColumnnAlign.RIGHT, summable: true },
 ];
 
 const getFilters = (t: (key: string) => string): Filters[] => [
@@ -62,6 +62,14 @@ export const TableDataBillingSummary = ({
 
   const columns = useMemo(() => getColumns(t), [t]);
   const filters = useMemo(() => getFilters(t), [t]);
+  const data = useMemo(
+    () =>
+      summaryItems.map((item, index) => ({
+        ...item,
+        id: `${item.code}-${index}`,
+      })),
+    [summaryItems]
+  );
 
   useEffect(() => {
     fetchData();
@@ -102,7 +110,7 @@ export const TableDataBillingSummary = ({
         {message && <span className="text-red-500">{message}</span>}
       </div>
       <DataTable
-        data={summaryItems}
+        data={data}
         columns={columns}
         entity={EntityTable.BILLINGSUMMARY}
         tableButtons={TABLE_BUTTONS}

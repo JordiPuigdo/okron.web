@@ -222,6 +222,7 @@ const columnsBudgets: Column[] = [
     key: 'total',
     format: ColumnFormat.PRICE,
     align: ColumnnAlign.RIGHT,
+    summable: true,
   },
 ];
 

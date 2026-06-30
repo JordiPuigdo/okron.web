@@ -5,6 +5,8 @@ export interface Column {
   width?: string;
   align?: string;
   className?: string;
+  summable?: boolean;
+  valueGetter?: (row: any) => number;
 }
 
 export interface Filters {

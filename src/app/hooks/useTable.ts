@@ -114,6 +114,7 @@ export const useFilteredData = (
 
     return {
       filteredData: filtered.slice(startIndex, endIndex),
+      allFilteredData: filtered,
       totalRecords: filtered.length,
       totalPages: Math.ceil(filtered.length / itemsPerPage),
     };

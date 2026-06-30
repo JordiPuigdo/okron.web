@@ -243,54 +243,25 @@ export const getStatusClassName = (
 
 const validColumns = [ColumnFormat.DATE, ColumnFormat.DATETIME];
 
-export const calculateTotalAmountByEntity = (
-  data: any[],
-  entity: EntityTable
-): string | undefined => {
-  if (!data || data.length === 0) return undefined;
-
-  const total = data.reduce((acc, item) => {
-    if (entity === EntityTable.SPAREPART) {
-      const price = Number(item.price) || 0;
-      const stock = Number(item.stock) || 0;
-      const totalItem = Number(item.total) || 0;
-      return acc + (price > 0 && stock > 0 ? price * stock : totalItem);
-    } else if (entity === EntityTable.ORDER) {
-      const totalItem =
-        typeof item.totalAmount === 'string'
-          ? Number(item.totalAmount.replace('.', '').replace(',', '.'))
-          : Number(item.totalAmount) || 0;
-      return acc + totalItem;
-    } else {
-      return acc + (Number(item.total) || 0);
-    }
-  }, 0);
-
-  if (entity === EntityTable.ORDER) {
-    // Convertimos a string con 2 decimales
-    const [integerPart, decimalPart] = total.toFixed(2).split('.');
-
-    // Insertamos puntos cada 3 cifras
-    const integerPart2 = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-    return `${integerPart2},${decimalPart}€`;
-  }
-
-  if (entity === EntityTable.DELIVERYNOTE || entity === EntityTable.INVOICE) {
+export const formatColumnTotal = (
+  value: number,
+  format: ColumnFormat
+): string => {
+  if (format === ColumnFormat.PRICE) {
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
       currency: 'EUR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
       useGrouping: true,
-    }).format(total);
+    }).format(value);
   }
 
-  // Para SPAREPART u otras entidades, puedes usar Intl.NumberFormat
   return new Intl.NumberFormat('es-ES', {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  }).format(total);
+    useGrouping: true,
+  }).format(value);
 };
 
 export const exportTableToExcel = (

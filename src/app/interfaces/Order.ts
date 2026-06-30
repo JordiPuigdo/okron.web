@@ -21,6 +21,7 @@ export interface OrderSimple extends BaseModel {
   totalAmount?: string;
   totalAmountWithoutTax?: string;
   totalAmountFormatted?: string;
+  totalAmountWithoutTaxFormatted?: string;
 }
 
 export interface RelationOrder {

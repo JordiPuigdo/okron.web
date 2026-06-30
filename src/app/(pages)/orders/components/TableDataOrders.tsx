@@ -334,8 +334,16 @@ const tableButtons: TableButtons = {
   preview: true,
 };
 
+const parseOrderTotalAmount = (totalAmount?: string | number): number => {
+  if (typeof totalAmount === 'number') return totalAmount;
+  if (typeof totalAmount === 'string') {
+    return Number(totalAmount.replace(/\./g, '').replace(',', '.')) || 0;
+  }
+  return 0;
+};
+
 const getColumnsOrders = (t: any, id: string): Column[] => {
-  const columns = [
+  const columns: Column[] = [
     {
       label: t('common.id'),
       key: 'id',
@@ -373,9 +381,11 @@ const getColumnsOrders = (t: any, id: string): Column[] => {
     },
     {
       label: t('total'),
-      key: 'totalAmount',
+      key: 'totalAmountWithoutTax',
       format: ColumnFormat.PRICE,
       align: ColumnnAlign.RIGHT,
+      summable: true,
+      valueGetter: (row: Order) => parseOrderTotalAmount(row.totalAmount),
     },
   ];
 

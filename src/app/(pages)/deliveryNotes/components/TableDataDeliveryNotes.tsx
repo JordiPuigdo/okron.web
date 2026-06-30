@@ -141,15 +141,6 @@ export const TableDataDeliveryNotes = ({
   };
 
   const filteredDeliveryNotes = getFilteredDeliveryNotes();
-  const totalAmount = filteredDeliveryNotes.reduce((acc, deliveryNote) => {
-    return acc + (deliveryNote.total ?? 0);
-  }, 0);
-
-  const formattedPrice = new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-  }).format(totalAmount);
 
   // Handler para abrir el preview
   const handlePreview = (item: DeliveryNote) => {
@@ -200,7 +191,6 @@ export const TableDataDeliveryNotes = ({
         filters={getFiltersDeliveryNotes(t)}
         hideShadow={hideShadow}
         totalCounts
-        totalCalculated={Number(formattedPrice)}
         onPreview={handlePreview}
       />
 
@@ -262,6 +252,7 @@ const getColumnsDeliveryNotes = (t: any): Column[] => [
     key: 'total',
     format: ColumnFormat.PRICE,
     align: ColumnnAlign.RIGHT,
+    summable: true,
   },
 ];
 

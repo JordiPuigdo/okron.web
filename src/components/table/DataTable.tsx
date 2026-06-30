@@ -17,10 +17,7 @@ import { TableHeader } from './components/TableHeader';
 import { Column, Filters, TableButtons } from './interface/interfaceTable';
 import { EntityTable } from './interface/tableEntitys';
 import Pagination from './Pagination';
-import {
-  calculateTotalAmountByEntity,
-  exportTableToExcel,
-} from './utils/TableUtils';
+import { exportTableToExcel } from './utils/TableUtils';
 
 interface DataTableProps {
   data: any[];
@@ -39,7 +36,6 @@ interface DataTableProps {
   isReport?: boolean;
   hideShadow?: boolean;
   hideExport?: boolean;
-  totalCalculated?: number | string;
   filtersToApply?: FilterValue;
   isLoading?: boolean;
   enableCurrencyFormat?: boolean;
@@ -73,7 +69,6 @@ const DataTable: React.FC<DataTableProps> = ({
   isReport = false,
   hideShadow = false,
   hideExport = false,
-  totalCalculated,
   isLoading: isLoadingProp,
   enableCurrencyFormat = false,
 }: DataTableProps) => {
@@ -98,37 +93,42 @@ const DataTable: React.FC<DataTableProps> = ({
     initialSortOrder
   );
 
-  const { filteredData, totalRecords, totalPages } = useFilteredData(
-    data,
-    tableFilters.filtersApplied,
-    tableFilters.filterActive,
-    tableFilters.filterSparePartsUnderStock,
-    tableState.sortColumn,
-    tableState.sortOrder,
-    tableState.currentPage,
-    tableState.itemsPerPage
-  );
+  const { filteredData, allFilteredData, totalRecords, totalPages } =
+    useFilteredData(
+      data,
+      tableFilters.filtersApplied,
+      tableFilters.filterActive,
+      tableFilters.filterSparePartsUnderStock,
+      tableState.sortColumn,
+      tableState.sortOrder,
+      tableState.currentPage,
+      tableState.itemsPerPage
+    );
 
-  const formattedPrice = useMemo(
-    () => calculateTotalAmountByEntity(filteredData, entity),
-    [filteredData, entity]
-  );
-
-  const totalStock = useMemo(
+  const totals = useMemo(
     () =>
-      filteredData.reduce((acc, item) => acc + (Number(item.stock) || 0), 0),
-    [filteredData]
+      columns.reduce((acc, col) => {
+        if (!col.summable) return acc;
+        acc[col.key] = allFilteredData.reduce(
+          (sum, row) =>
+            sum +
+            (col.valueGetter
+              ? col.valueGetter(row)
+              : Number(row[col.key]) || 0),
+          0
+        );
+        return acc;
+      }, {} as Record<string, number>),
+    [columns, allFilteredData]
   );
 
   const footerData = useMemo(
     () =>
       columns.reduce((acc, col) => {
-        if (col.key === 'stock') acc[col.key] = totalStock;
-        else if (col.key === 'price') acc[col.key] = formattedPrice;
-        else acc[col.key] = '';
+        acc[col.key] = col.summable ? totals[col.key] ?? 0 : '';
         return acc;
-      }, {} as Record<string, any>),
-    [columns, totalStock, formattedPrice]
+      }, {} as Record<string, number | string>),
+    [columns, totals]
   );
 
   const isAllSelected =
@@ -257,42 +257,10 @@ const DataTable: React.FC<DataTableProps> = ({
                 onPreview={onPreview}
                 onCopy={onCopy}
                 totalCounts={totalCounts}
-                totalQuantity={formattedPrice ?? 0}
+                totals={totals}
+                totalLabel={t('total')}
                 filtersApplied={tableFilters.filtersApplied}
               />
-              {entity === EntityTable.SPAREPART &&
-                columns?.find(x => x.key === 'price') && (
-                  <tfoot>
-                    <tr className="bg-gray-200 font-semibold text-2xl text-right">
-                      {columns
-                        .filter(x => x.key !== 'id')
-                        .map(col => {
-                          if (col.key === 'stock') {
-                            return (
-                              <td
-                                key={col.key}
-                                className="px-4 py-2 text-right"
-                              >
-                                {totalStock}
-                              </td>
-                            );
-                          }
-                          if (col.key === 'price' || col.key === 'total') {
-                            return (
-                              <td
-                                key={col.key}
-                                className="px-4 py-2 text-right"
-                              >
-                                {formattedPrice}€
-                              </td>
-                            );
-                          }
-                          return <td key={col.key}></td>;
-                        })}
-                      <td className="px-4 py-2 text-right"></td>
-                    </tr>
-                  </tfoot>
-                )}
             </table>
           )}
         </div>

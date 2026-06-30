@@ -53,6 +53,7 @@ const getColumns = (t: (key: string) => string): Column[] => [
     key: 'subtotal',
     format: ColumnFormat.PRICE,
     align: ColumnnAlign.RIGHT,
+    summable: true,
   },
 ];
 

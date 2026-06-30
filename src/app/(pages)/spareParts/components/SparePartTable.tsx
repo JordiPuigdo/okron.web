@@ -88,12 +88,16 @@ const getColumns = (t: any): Column[] => [
     key: 'stock',
     format: ColumnFormat.NUMBER,
     align: ColumnnAlign.RIGHT,
+    summable: true,
   },
   {
     label: t('price'),
     key: 'price',
     format: ColumnFormat.PRICE,
     align: ColumnnAlign.RIGHT,
+    summable: true,
+    valueGetter: (row: SparePart) =>
+      (Number(row.price) || 0) * (Number(row.stock) || 0),
   },
   {
     label: t('pending'),
@@ -457,6 +461,7 @@ const SparePartTable: React.FC<SparePartTableProps> = ({
           filters={enableFilters ? filters : undefined}
           onDelete={handleSparePartActiveChange}
           enableFilterActive={enableFilterActive}
+          totalCounts
         />
       )}
     </>
