@@ -2,6 +2,7 @@
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
 import { formatEuropeanCurrency } from 'app/utils/utils';
 import dayjs from 'dayjs';
+import { cn } from 'lib/utils';
 
 export const InvoiceBody = ({
   deliveryNotes,
@@ -12,6 +13,14 @@ export const InvoiceBody = ({
 }) => {
   const filteredDeliveryNotes = deliveryNotes.filter(dn =>
     dn.workOrders.some(wo => wo.items?.length > 0)
+  );
+
+  const hasDiscount = filteredDeliveryNotes.some(dn =>
+    dn.workOrders.some(wo =>
+      wo.items?.some(
+        item => item.discountPercentage > 0 || item.discountAmount > 0
+      )
+    )
   );
 
   return (
@@ -46,7 +55,12 @@ export const InvoiceBody = ({
               <table className="w-full">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-300">
-                    <th className="p-2 text-left text-xs font-medium text-gray-600 w-6/12">
+                    <th
+                      className={cn(
+                        'p-2 text-left text-xs font-medium text-gray-600',
+                        hasDiscount ? 'w-6/12' : 'w-8/12'
+                      )}
+                    >
                       Descripció
                     </th>
                     <th className="p-2 text-center text-xs font-medium text-gray-600 w-1/12">
@@ -55,12 +69,16 @@ export const InvoiceBody = ({
                     <th className="p-2 text-center text-xs font-medium text-gray-600 w-1/12">
                       Preu Unitari
                     </th>
-                    <th className="p-2 text-center text-xs font-medium text-gray-600 w-1/12">
-                      % Dte.
-                    </th>
-                    <th className="p-2 text-center text-xs font-medium text-gray-600 w-1/12">
-                      Import Dte.
-                    </th>
+                    {hasDiscount && (
+                      <>
+                        <th className="p-2 text-center text-xs font-medium text-gray-600 w-1/12">
+                          % Dte.
+                        </th>
+                        <th className="p-2 text-center text-xs font-medium text-gray-600 w-1/12">
+                          Import Dte.
+                        </th>
+                      </>
+                    )}
                     <th className="p-2 text-center text-xs font-medium text-gray-600 w-2/12">
                       Total
                     </th>
@@ -81,12 +99,18 @@ export const InvoiceBody = ({
                       <td className="p-2 text-center text-sm">
                         {isEmptyLine ? '' : formatEuropeanCurrency(item.unitPrice, t)}
                       </td>
-                      <td className="p-2 text-center text-sm">
-                        {isEmptyLine ? '' : `${item.discountPercentage}%`}
-                      </td>
-                      <td className="p-2 text-center text-sm">
-                        {isEmptyLine ? '' : formatEuropeanCurrency(item.discountAmount, t)}
-                      </td>
+                      {hasDiscount && (
+                        <>
+                          <td className="p-2 text-center text-sm">
+                            {isEmptyLine ? '' : `${item.discountPercentage}%`}
+                          </td>
+                          <td className="p-2 text-center text-sm">
+                            {isEmptyLine
+                              ? ''
+                              : formatEuropeanCurrency(item.discountAmount, t)}
+                          </td>
+                        </>
+                      )}
                       <td className="p-2 text-center text-sm font-medium">
                         {isEmptyLine ? '' : formatEuropeanCurrency(item.lineTotal, t)}
                       </td>

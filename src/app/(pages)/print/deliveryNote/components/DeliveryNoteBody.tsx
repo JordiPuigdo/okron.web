@@ -1,6 +1,7 @@
 import { DeliveryNote } from 'app/interfaces/DeliveryNote';
 import { formatCurrencyServerSider } from 'app/utils/utils';
 import dayjs from 'dayjs';
+import { cn } from 'lib/utils';
 
 export const DeliveryNoteBody = ({
   deliveryNote,
@@ -9,6 +10,12 @@ export const DeliveryNoteBody = ({
 }) => {
   const filteredWorkOrders = deliveryNote.workOrders.filter(
     wo => wo.items?.length > 0
+  );
+
+  const hasDiscount = filteredWorkOrders.some(wo =>
+    wo.items?.some(
+      item => item.discountPercentage > 0 || item.discountAmount > 0
+    )
   );
 
   return (
@@ -36,7 +43,12 @@ export const DeliveryNoteBody = ({
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-300">
-                <th className="p-2 text-left text-xs font-medium text-gray-600 w-6/12">
+                <th
+                  className={cn(
+                    'p-2 text-left text-xs font-medium text-gray-600',
+                    hasDiscount ? 'w-6/12' : 'w-8/12'
+                  )}
+                >
                   Descripció
                 </th>
                 <th className="p-2 text-center text-xs font-medium text-gray-600 w-1/12">
@@ -45,12 +57,16 @@ export const DeliveryNoteBody = ({
                 <th className="p-2 text-center text-xs font-medium text-gray-600 w-1/12">
                   Preu Unitari
                 </th>
-                <th className="p-2 text-center text-xs font-medium text-gray-600 w-1/12">
-                  % Dte.
-                </th>
-                <th className="p-2 text-center text-xs font-medium text-gray-600 w-1/12">
-                  Import Dte.
-                </th>
+                {hasDiscount && (
+                  <>
+                    <th className="p-2 text-center text-xs font-medium text-gray-600 w-1/12">
+                      % Dte.
+                    </th>
+                    <th className="p-2 text-center text-xs font-medium text-gray-600 w-1/12">
+                      Import Dte.
+                    </th>
+                  </>
+                )}
                 <th className="p-2 text-center text-xs font-medium text-gray-600 w-2/12">
                   Total Línia
                 </th>
@@ -67,12 +83,16 @@ export const DeliveryNoteBody = ({
                   <td className="p-2 text-center text-sm">
                     {formatCurrencyServerSider(item.unitPrice)}
                   </td>
-                  <td className="p-2 text-center text-sm">
-                    {item.discountPercentage}%
-                  </td>
-                  <td className="p-2 text-center text-sm">
-                    {formatCurrencyServerSider(item.discountAmount)}
-                  </td>
+                  {hasDiscount && (
+                    <>
+                      <td className="p-2 text-center text-sm">
+                        {item.discountPercentage}%
+                      </td>
+                      <td className="p-2 text-center text-sm">
+                        {formatCurrencyServerSider(item.discountAmount)}
+                      </td>
+                    </>
+                  )}
                   <td className="p-2 text-center text-sm font-medium">
                     {formatCurrencyServerSider(item.lineTotal)}
                   </td>
